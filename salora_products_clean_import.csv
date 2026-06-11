@@ -1,0 +1,95 @@
+sort_order,sku,handle,name,category,description,price_omr,cost_omr,available_for_sale,track_stock,image_url,status
+1,10085,american-cheese-cake,American cheese cake,Desserts,,2.1,0.0,False,False,,active
+2,10004,americano,Americano,Hot coffee,,1.0,0.35,False,False,,active
+3,10051,avocado,Avocado,Fresh juices,,1.6,0.9,False,False,,active
+4,10046,banana,Banana,Fresh juices,,1.2,0.5,False,False,,active
+5,10063,blue-ocean,Blue ocean,Soft cocktails,,1.6,0.9,False,False,,active
+6,10062,blue-sky,Blue sky,Soft cocktails,,1.3,0.7,False,False,,active
+7,10080,blueberry-smoothie,Blueberry smoothie,Smoothie section,,1.6,0.9,False,False,,active
+8,10089,brownies,Brownies,Desserts,,1.7,0.0,False,False,,active
+9,10005,cappuccino,Cappuccino,Hot coffee,,1.1,0.45,False,False,,active
+10,10012,carmel-latte,Carmel latte,Hot coffee,,1.5,0.6,False,False,,active
+11,10008,carmel-macchiato,Carmel macchiato,Hot coffee,,1.2,0.6,False,False,,active
+12,10088,chocolate-fudge,Chocolate Fudge,Desserts,,1.9,0.0,False,False,,active
+13,10031,cold-brew,Cold Brew,Specialty coffee,,1.8,0.6,False,False,,active
+14,10006,cortedo,Cortedo,Hot coffee,,1.1,0.45,False,False,,active
+15,10056,dragon,Dragon,Fresh juice cocktails,,1.9,1.1,False,False,,active
+16,10091,dubai-cake,Dubai cake,Desserts,,2.3,0.0,False,False,,active
+17,10001,espresso,Espresso,Hot coffee,,0.6,0.28,False,False,,active
+18,10002,espresso-cream,Espresso cream,Hot coffee,,1.1,0.55,False,False,,active
+19,10003,espresso-nutella,Espresso Nutella,Hot coffee,,1.2,0.55,False,False,,active
+20,10009,flat-white,Flat white,Hot coffee,,1.2,0.45,False,False,,active
+21,10054,florida,Florida,Fresh juice cocktails,,1.7,1.0,False,False,,active
+22,10058,four-seasons,Four seasons,Fresh juice cocktails,,1.7,1.0,False,False,,active
+23,10032,franch-press,Franch Press,Specialty coffee,,2.5,1.0,False,False,,active
+24,10073,frappe-mix-berry,Frappe mix Berry,Frappés,,2.0,1.0,False,False,,active
+25,10071,frappe-raspberry,Frappe raspberry,Frappés,,1.9,1.0,False,False,,active
+26,10072,frappe-strawberry,Frappe strawberry,Frappés,,1.8,0.9,False,False,,active
+27,10074,frappe-watermelon,Frappe watermelon,Frappés,,1.7,0.7,False,False,,active
+28,10029,frappuccino,Frappuccino,Cold Coffee,,1.8,0.95,False,False,,active
+29,10048,gauva,Gauva,Fresh juices,,1.5,0.6,False,False,,active
+30,10055,havana,Havana,Fresh juice cocktails,,1.7,1.0,False,False,,active
+31,10059,hawaii,Hawaii,Fresh juice cocktails,,1.8,1.2,False,False,,active
+32,10013,hazelnut-latte,Hazelnut latte,Hot coffee,,1.5,0.6,False,False,,active
+33,10035,herbal-tea,Herbal tea,Hot Drinks,,0.6,0.2,False,False,,active
+34,10042,hibiscus-ice-tea,Hibiscus ice tea,Iced tea,,1.4,0.5,False,False,,active
+35,10037,hot-chocolate,Hot chocolate,Hot Drinks,,1.3,0.8,False,False,,active
+36,10036,hot-cider,Hot cider,Hot Drinks,,1.2,0.7,False,False,,active
+37,10028,iced-americano,Iced Americano,Cold Coffee,,1.1,0.35,False,False,,active
+38,10020,iced-caramel-latte,Iced caramel latte,Cold Coffee,,1.5,0.6,False,False,,active
+39,10021,iced-hazelnut-latte,Iced hazelnut latte,Cold Coffee,,1.5,0.6,False,False,,active
+40,10018,iced-latte,Iced latte,Cold Coffee,,1.2,0.45,False,False,,active
+41,10025,iced-mocha,Iced mocha,Cold Coffee,,1.4,0.6,False,False,,active
+42,10026,iced-mocha-frappe,Iced mocha frappe,Cold Coffee,,1.8,0.7,False,False,,active
+43,10022,iced-pistachio-latte,Iced pistachio latte,Cold Coffee,,1.6,0.7,False,False,,active
+44,10024,iced-rose-latte,Iced Rose latte,Cold Coffee,,1.4,0.6,False,False,,active
+45,10019,iced-spanish-latte,Iced Spanish latte,Cold Coffee,,1.5,0.6,False,False,,active
+46,10023,iced-strawberry-latte,Iced strawberry latte,Cold Coffee,,1.5,0.7,False,False,,active
+47,10000,iced-white-mocha,Iced white mocha,Cold Coffee,,1.5,0.6,False,False,,active
+48,10027,iced-white-mocha-frappe,Iced white mocha frappe,Cold Coffee,,1.8,0.7,False,False,,active
+49,10010,latte,Latte,Hot coffee,,1.1,0.45,False,False,,active
+50,10053,lemon-mint,Lemon mint,Fresh juices,,1.1,0.5,False,False,,active
+51,10083,lemon-mint-smoothie,Lemon mint smoothie,Smoothie section,,1.4,0.7,False,False,,active
+52,10007,macchiato,Macchiato,Hot coffee,,0.9,0.45,False,False,,active
+53,10043,mango,Mango,Fresh juices,,1.3,0.5,False,False,,active
+54,10044,mango-passion,Mango passion,Fresh juices,,1.6,0.7,False,False,,active
+55,10079,mango-passion-1,Mango passion smoothie,Smoothie section,,1.5,0.8,False,False,,active
+56,10075,matcha-coconut-latte,Matcha coconut latte,Matcha section,,1.7,0.8,False,False,,active
+57,10076,matcha-mango-frappe,Matcha mango frappe,Matcha section,,2.0,0.8,False,False,,active
+58,10078,matcha-raspberry-frappe,Matcha raspberry frappe,Matcha section,,2.0,1.0,False,False,,active
+59,10077,matcha-strawberry-frappe,Matcha strawberry frappe,Matcha section,,1.9,0.8,False,False,,active
+60,10016,mocha,Mocha,Hot coffee,,1.4,0.5,False,False,,active
+61,10049,orange,Orange,Fresh juices,,1.2,0.5,False,False,,active
+62,10041,passion-ice-tea,Passion ice tea,Iced tea,,1.4,0.5,False,False,,active
+63,10039,peach-ice-tea,Peach ice tea,Iced tea,,1.5,0.5,False,False,,active
+64,10050,pineapple,Pineapple,Fresh juices,,1.5,0.7,False,False,,active
+65,10038,pineapple-ice-tea,pineapple ice tea,Iced tea,,1.6,0.5,False,False,,active
+66,10090,pistachio-american,Pistachio American,Desserts,,2.3,0.0,False,False,,active
+67,10014,pistachio-latte,Pistachio latte,Hot coffee,,1.6,0.7,False,False,,active
+68,10047,pomegranate,Pomegranate,Fresh juices,,1.5,0.6,False,False,,active
+69,10081,raspberry-smoothie,Raspberry smoothie,Smoothie section,,1.6,0.9,False,False,,active
+70,10034,red-tea,Red tea,Hot Drinks,,0.4,0.15,False,False,,active
+71,10057,red-tornado,Red tornado,Fresh juice cocktails,,1.8,1.1,False,False,,active
+72,10087,red-velvet,Red velvet,Desserts,,1.9,0.0,False,False,,active
+73,10015,rose-latte,Rose latte,Hot coffee,,1.4,0.6,False,False,,active
+74,10084,san-sabastian,San sabastian,Desserts,,2.0,0.0,False,False,,active
+75,10067,shake-carmel,Shake Carmel,Milkshake,,1.8,0.8,False,False,,active
+76,10066,shake-chocolate,Shake chocolate,Milkshake,,1.5,0.7,False,False,,active
+77,10069,shake-oreo,Shake Oreo,Milkshake,,1.7,1.0,False,False,,active
+78,10070,shake-pistachio,Shake pistachio,Milkshake,,2.0,1.0,False,False,,active
+79,10068,shake-snickers,Shake Snickers,Milkshake,,2.0,1.0,False,False,,active
+80,10065,vanilla-shake,shake Vanilla,Milkshake,,1.5,0.7,False,False,,active
+81,10011,spanish-latte,Spanish latte,Hot coffee,,1.4,0.6,False,False,,active
+82,10093,sparkling-water,Sparkling water,Water,,1.0,0.3,False,False,,active
+83,10045,strawberry,Strawberry,Fresh juices,,1.4,0.6,False,False,,active
+84,10040,strawberry-ice-tea,Strawberry ice tea,Iced tea,,1.4,0.5,False,False,,active
+85,10082,strawberry-smoothie,Strawberry smoothie,Smoothie section,,1.5,0.7,False,False,,active
+86,10061,sunrise,Sunrise,Soft cocktails,,1.6,0.9,False,False,,active
+87,10060,sunshine,Sunshine,Soft cocktails,,1.4,0.9,False,False,,active
+88,10086,tiramisu,Tiramisu,Desserts,,1.8,0.0,False,False,,active
+89,10033,turkish-coffee,Turkish Coffee,Hot Drinks,,0.8,0.5,False,False,,active
+90,10030,v60,V60,Specialty coffee,,2.3,1.0,False,False,,active
+91,10064,virgin-mojito,Virgin mojito,Soft cocktails,,1.5,0.8,False,False,,active
+92,10092,water,Water,Water,,0.5,0.12,False,False,,active
+93,10052,watermelon,Watermelon,Fresh juices,,1.5,0.6,False,False,,active
+94,10017,white-mocha,White mocha,Hot coffee,,1.5,0.6,False,False,,active

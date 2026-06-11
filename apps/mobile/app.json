@@ -1,0 +1,35 @@
+{
+  "expo": {
+    "name": "SALORA",
+    "slug": "salora-mobile",
+    "scheme": "salora",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
+    "owner": "salora",
+    "plugins": ["expo-router"],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "cafe.salora.app",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "package": "cafe.salora.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#050505"
+      },
+      "permissions": []
+    },
+    "extra": {
+      "eas": {
+        "projectId": "00000000-0000-0000-0000-000000000000"
+      }
+    }
+  }
+}

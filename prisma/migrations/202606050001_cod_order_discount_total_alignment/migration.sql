@@ -1,0 +1,2 @@
+ALTER TABLE "cafe_orders"
+  ADD COLUMN IF NOT EXISTS "discount_total" DECIMAL(10,3) NOT NULL DEFAULT 0;

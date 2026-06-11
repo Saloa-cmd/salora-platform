@@ -1,0 +1,13 @@
+node_modules/
+.next/
+.expo/
+dist/
+build/
+*.tsbuildinfo
+*.log
+*-pid.txt
+*-job.txt
+.DS_Store
+.env
+.env.*
+!.env.example

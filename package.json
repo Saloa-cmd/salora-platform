@@ -1,0 +1,24 @@
+{
+  "name": "salora-platform",
+  "version": "0.1.0",
+  "private": true,
+  "description": "SALORA / Salora.Cafe premium AI cafe platform.",
+  "scripts": {
+    "dev:web": "pnpm --filter @salora/web dev",
+    "start:web": "pnpm --filter @salora/web start",
+    "build:web": "pnpm --filter @salora/web build",
+    "lint:web": "pnpm --filter @salora/web lint",
+    "build": "pnpm build:web",
+    "lint": "pnpm lint:web",
+    "test": "pnpm typecheck && node scripts/verify-data.mjs && node --experimental-strip-types scripts/auth-foundation.test.mjs && node scripts/infrastructure-foundation.test.mjs && node scripts/business-domain.test.mjs && node scripts/ai-gateway.test.mjs && node scripts/ai-runtime.test.mjs && node scripts/omnichannel-platform.test.mjs && node scripts/production-activation.test.mjs && node scripts/go-live-validation.mjs && node scripts/revenue-platform.test.mjs && node scripts/operations-intelligence.test.mjs",
+    "bootstrap:admin": "node --experimental-strip-types scripts/bootstrap-admin.mjs",
+    "test:go-live": "node scripts/go-live-validation.mjs",
+    "release:check": "node scripts/release-health-check.mjs",
+    "dev:mobile": "pnpm --filter @salora/mobile start",
+    "typecheck": "pnpm --filter @salora/web typecheck && pnpm --filter @salora/mobile typecheck"
+  },
+  "packageManager": "pnpm@9.15.0",
+  "engines": {
+    "node": ">=22 <23"
+  }
+}
