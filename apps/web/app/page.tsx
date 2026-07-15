@@ -73,12 +73,12 @@ export default async function HomePage() {
               ))}
             </div>
             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-              <a href={featuredWhatsAppUrl} className="inline-flex items-center justify-center gap-2 rounded-full bg-gold px-6 py-3 font-semibold text-black transition hover:bg-goldSoft">
-                Order via WhatsApp
+              <a href="/menu" className="inline-flex items-center justify-center gap-2 rounded-full bg-gold px-6 py-3 font-semibold text-black transition hover:bg-goldSoft">
+                Explore the digital menu
                 <ArrowRight size={18} />
               </a>
-              <a href="#loyalty" className="inline-flex items-center justify-center rounded-full border border-white/12 px-6 py-3 font-semibold text-cream transition hover:border-gold/35">
-                App coming soon
+              <a href={featuredWhatsAppUrl} className="inline-flex items-center justify-center rounded-full border border-white/12 px-6 py-3 font-semibold text-cream transition hover:border-gold/35">
+                Quick WhatsApp order
               </a>
             </div>
           </HeroMotion>
