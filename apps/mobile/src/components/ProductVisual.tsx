@@ -1,11 +1,28 @@
-import { StyleSheet, View } from "react-native";
+import { Image, StyleSheet, View } from "react-native";
 import { colors, radii } from "@/lib/theme";
 
 interface ProductVisualProps {
   size?: number;
+  imageUrl?: string;
+  alt?: string;
 }
 
-export function ProductVisual({ size = 92 }: ProductVisualProps) {
+function isRenderableImage(value: string | undefined) {
+  return Boolean(value && /^https?:\/\//.test(value));
+}
+
+export function ProductVisual({ size = 92, imageUrl, alt }: ProductVisualProps) {
+  if (isRenderableImage(imageUrl)) {
+    return (
+      <Image
+        source={{ uri: imageUrl }}
+        accessibilityLabel={alt}
+        style={[styles.frame, { width: size, height: size }]}
+        resizeMode="cover"
+      />
+    );
+  }
+
   return (
     <View style={[styles.frame, { width: size, height: size }]}>
       <View style={styles.cup} />
