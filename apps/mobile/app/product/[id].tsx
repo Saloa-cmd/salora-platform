@@ -1,26 +1,102 @@
-import { getProductById, products } from "@salora/data";
+import type { Product } from "@salora/types";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useState } from "react";
-import { Pressable, StyleSheet, View } from "react-native";
+import { useEffect, useState } from "react";
+import { ActivityIndicator, Pressable, StyleSheet, View } from "react-native";
 import { Button } from "@/components/Button";
 import { ProductVisual } from "@/components/ProductVisual";
 import { Screen } from "@/components/Screen";
 import { Text } from "@/components/Text";
 import { colors, radii, spacing } from "@/lib/theme";
+import { saloraFetch } from "@/services/apiClient";
 import { useCartStore } from "@/store/cart";
+
+type ProductsResponse = {
+  data?: Product[];
+  runtime?: ProductRuntime;
+  error?: string;
+};
+
+type ProductRuntime = {
+  source?: string;
+  stale?: boolean;
+  mode?: string;
+  databaseHealth?: string;
+};
 
 export default function ProductDetailsScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const product = getProductById(id ?? "") ?? products.find((item) => item.id === "iced-matcha-vanilla");
+  const [product, setProduct] = useState<Product | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
   const addItem = useCartStore((state) => state.addItem);
+
+  useEffect(() => {
+    let mounted = true;
+
+    async function loadProduct() {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const response = await saloraFetch("/api/products");
+        const payload = (await response.json()) as ProductsResponse;
+        const products = Array.isArray(payload.data) ? payload.data : [];
+        const found = products.find((item) => item.id === id);
+
+        if (!mounted) {
+          return;
+        }
+
+        if (!response.ok) {
+          setProduct(null);
+          setError(payload.error ?? "Product API is unavailable.");
+          return;
+        }
+
+        if (!found) {
+          setProduct(null);
+          setError("هذا المنتج غير متاح حاليًا.");
+          return;
+        }
+
+        setProduct(found);
+      } catch {
+        if (mounted) {
+          setProduct(null);
+          setError("تعذر الاتصال بالمينيو. حاول مرة أخرى بعد قليل.");
+        }
+      } finally {
+        if (mounted) {
+          setLoading(false);
+        }
+      }
+    }
+
+    void loadProduct();
+
+    return () => {
+      mounted = false;
+    };
+  }, [id]);
+
+  if (loading) {
+    return (
+      <Screen>
+        <View style={styles.statePanel}>
+          <ActivityIndicator color={colors.gold} />
+          <Text variant="muted">نحضّر تفاصيل اختيارك…</Text>
+        </View>
+      </Screen>
+    );
+  }
 
   if (!product) {
     return (
       <Screen>
-        <Text variant="title">Product unavailable</Text>
-        <Text variant="muted" style={styles.description}>This item is missing from the local Phase 1 menu data.</Text>
+        <Text variant="title">المنتج غير متاح</Text>
+        <Text variant="muted" style={styles.description}>{error ?? "هذا المنتج غير موجود في المينيو الحالي."}</Text>
       </Screen>
     );
   }
@@ -28,7 +104,7 @@ export default function ProductDetailsScreen() {
   return (
     <Screen>
       <View style={styles.hero}>
-        <ProductVisual size={220} />
+        <ProductVisual size={220} imageUrl={product.visual} alt={product.name} />
       </View>
       <Text variant="eyebrow" style={styles.category}>{product.category}</Text>
       <Text variant="title">{product.name}</Text>
@@ -37,7 +113,7 @@ export default function ProductDetailsScreen() {
         {product.tags.map((tag) => <View key={tag} style={styles.tag}><Text variant="muted">{tag}</Text></View>)}
       </View>
       <View style={styles.quantityRow}>
-        <Text variant="price">OMR {product.price.toFixed(3)}</Text>
+        <Text variant="price">{product.price.toFixed(3)} ر.ع</Text>
         <View style={styles.stepper}>
           <Pressable onPress={() => setQuantity(Math.max(1, quantity - 1))} style={styles.step}><Text>-</Text></Pressable>
           <Text>{quantity}</Text>
@@ -46,7 +122,7 @@ export default function ProductDetailsScreen() {
       </View>
       {product.pairing ? (
         <View style={styles.pairing}>
-          <Text variant="eyebrow">Pairing suggestion</Text>
+          <Text variant="eyebrow">اقتراح سالورا</Text>
           <Text variant="subtitle" style={styles.pairingTitle}>{product.pairing}</Text>
         </View>
       ) : null}
@@ -56,7 +132,7 @@ export default function ProductDetailsScreen() {
           router.push("/cart");
         }}
       >
-        Add to cart
+        أضف إلى الطلب
       </Button>
     </Screen>
   );
@@ -122,5 +198,14 @@ const styles = StyleSheet.create({
   },
   pairingTitle: {
     marginTop: spacing.sm
+  },
+  statePanel: {
+    gap: spacing.sm,
+    alignItems: "flex-start",
+    padding: spacing.md,
+    borderRadius: radii.md,
+    backgroundColor: "rgba(245,239,227,0.045)",
+    borderWidth: 1,
+    borderColor: "rgba(245,239,227,0.09)"
   }
 });

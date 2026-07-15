@@ -1,6 +1,7 @@
 import type { Product } from "@salora/types";
 import { useEffect, useMemo, useState } from "react";
-import { ActivityIndicator, Pressable, StyleSheet, View } from "react-native";
+import { ActivityIndicator, Pressable, StyleSheet, TextInput, View } from "react-native";
+import { BrandHeader } from "@/components/BrandHeader";
 import { ProductCard } from "@/components/ProductCard";
 import { Screen } from "@/components/Screen";
 import { Text } from "@/components/Text";
@@ -22,12 +23,19 @@ type ProductsResponse = {
 
 export default function MenuScreen() {
   const [products, setProducts] = useState<Product[]>([]);
-  const [runtime, setRuntime] = useState<ProductRuntime | null>(null);
+  const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const categories = useMemo(() => ["All", ...Array.from(new Set(products.map((product) => product.category)))], [products]);
   const [active, setActive] = useState<string>("All");
-  const filtered = useMemo(() => products.filter((product) => active === "All" || product.category === active), [active, products]);
+  const filtered = useMemo(() => {
+    const search = query.trim().toLowerCase();
+    return products.filter((product) => {
+      const categoryMatch = active === "All" || product.category === active;
+      const searchMatch = !search || `${product.name} ${product.category} ${product.description}`.toLowerCase().includes(search);
+      return categoryMatch && searchMatch;
+    });
+  }, [active, products, query]);
 
   useEffect(() => {
     let mounted = true;
@@ -45,8 +53,6 @@ export default function MenuScreen() {
           return;
         }
 
-        setRuntime(Array.isArray(payload) ? { source: "api", stale: false, mode: "live" } : payload.runtime ?? null);
-
         if (!response.ok) {
           setProducts([]);
           setError(Array.isArray(payload) ? "Product API is unavailable." : payload.error ?? "Product API is unavailable.");
@@ -57,8 +63,7 @@ export default function MenuScreen() {
       } catch {
         if (mounted) {
           setProducts([]);
-          setRuntime({ source: "api", stale: true, mode: "error", databaseHealth: "unavailable" });
-          setError("Product API could not be reached.");
+          setError("تعذر الاتصال بالمينيو. حاول مرة أخرى بعد قليل.");
         }
       } finally {
         if (mounted) {
@@ -82,34 +87,31 @@ export default function MenuScreen() {
 
   return (
     <Screen>
-      <Text variant="eyebrow">Menu</Text>
-      <Text variant="title" style={styles.title}>Signature list</Text>
+      <BrandHeader eyebrow="مينيو سالورا" title="اختر ما ينسجم مع مزاجك" copy="ابحث وتصفّح اختياراتنا، ثم خصّص طلبك بكل سهولة." />
       <View style={styles.searchReady}>
-        <Text variant="muted">
-          Source: {runtime?.source ?? "loading"} | Mode: {runtime?.mode ?? "pending"} | Stale: {runtime?.stale ? "yes" : "no"}
-        </Text>
+        <TextInput value={query} onChangeText={setQuery} placeholder="ابحث عن مشروب أو حلوى" placeholderTextColor={colors.muted} style={styles.searchInput} textAlign="right" />
       </View>
       <View style={styles.filters}>
         {categories.map((category) => (
           <Pressable key={category} onPress={() => setActive(category)} style={[styles.filter, active === category && styles.activeFilter]}>
-            <Text style={active === category ? styles.activeText : undefined}>{category}</Text>
+            <Text style={active === category ? styles.activeText : undefined}>{category === "All" ? "الكل" : category}</Text>
           </Pressable>
         ))}
       </View>
       {loading ? (
         <View style={styles.statePanel}>
           <ActivityIndicator color={colors.gold} />
-          <Text variant="muted">Loading live menu...</Text>
+          <Text variant="muted">نحمّل مينيو سالورا…</Text>
         </View>
       ) : error ? (
         <View style={styles.statePanel}>
-          <Text variant="subtitle">Menu unavailable</Text>
+          <Text variant="subtitle">المينيو غير متاح مؤقتًا</Text>
           <Text variant="muted">{error}</Text>
         </View>
       ) : filtered.length === 0 ? (
         <View style={styles.statePanel}>
-          <Text variant="subtitle">No products available</Text>
-          <Text variant="muted">The live product API returned an empty catalog.</Text>
+          <Text variant="subtitle">لا توجد نتائج</Text>
+          <Text variant="muted">جرّب كلمة بحث أو تصنيفًا مختلفًا.</Text>
         </View>
       ) : (
         filtered.map((product) => <ProductCard key={product.id} product={product} />)
@@ -119,14 +121,14 @@ export default function MenuScreen() {
 }
 
 const styles = StyleSheet.create({
-  title: { marginTop: spacing.sm },
   searchReady: {
     marginTop: spacing.lg,
     borderRadius: radii.pill,
     backgroundColor: "rgba(245,239,227,0.05)",
     paddingHorizontal: spacing.md,
-    paddingVertical: spacing.md
+    paddingVertical: spacing.sm
   },
+  searchInput: { minHeight: 42, color: colors.cream, fontSize: 15 },
   filters: {
     flexDirection: "row",
     flexWrap: "wrap",

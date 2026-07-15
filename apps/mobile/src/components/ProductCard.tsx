@@ -12,15 +12,15 @@ interface ProductCardProps {
 export function ProductCard({ product }: ProductCardProps) {
   return (
     <Link href={`/product/${product.id}`} asChild>
-      <Pressable accessibilityRole="button" accessibilityLabel={`View ${product.name}`} style={({ pressed }) => [styles.card, pressed && styles.pressed]}>
-        <ProductVisual />
+      <Pressable accessibilityRole="button" accessibilityLabel={`عرض ${product.name}`} style={({ pressed }) => [styles.card, pressed && styles.pressed]}>
+        <ProductVisual size={108} imageUrl={product.visual} alt={product.name} />
         <View style={styles.body}>
           <Text variant="eyebrow">{product.category}</Text>
           <Text variant="subtitle" style={styles.title}>{product.name}</Text>
           <Text variant="muted" style={styles.copy} numberOfLines={2}>{product.story ?? product.description}</Text>
           <View style={styles.row}>
-            <Text variant="price">OMR {product.price.toFixed(3)}</Text>
-            {product.pairing ? <Text variant="muted">Best with {product.pairing}</Text> : null}
+            <Text variant="price">{product.price.toFixed(3)} ر.ع</Text>
+            {product.pairing ? <Text variant="muted">يناسب معه {product.pairing}</Text> : null}
           </View>
         </View>
       </Pressable>
@@ -30,7 +30,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
 const styles = StyleSheet.create({
   card: {
-    flexDirection: "row",
+    flexDirection: "row-reverse",
     gap: spacing.md,
     padding: spacing.md,
     borderRadius: radii.md,
@@ -45,18 +45,21 @@ const styles = StyleSheet.create({
     elevation: 3
   },
   body: {
-    flex: 1
+    flex: 1,
+    alignItems: "flex-end"
   },
   title: {
     marginTop: 5,
     fontSize: 19
   },
   copy: {
-    marginTop: 5
+    marginTop: 5,
+    textAlign: "right"
   },
   row: {
     marginTop: spacing.sm,
-    gap: 4
+    gap: 4,
+    alignItems: "flex-end"
   },
   pressed: {
     opacity: 0.84

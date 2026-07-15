@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Bell, ChevronDown, Coffee, Command, Menu, ShieldCheck } from "lucide-react";
+import { Bell, ChevronDown, Command, ExternalLink, Menu, ShieldCheck } from "lucide-react";
 import { controlTowerSections } from "@/lib/control-tower/registry";
 import { ControlTowerPerf } from "./ControlTowerPerf";
 import { useState, type ReactNode } from "react";
@@ -35,9 +36,7 @@ export function ControlTowerShell({ children }: { children: ReactNode }) {
       <div className="flex min-h-screen">
         <aside className={`hidden shrink-0 border-r border-[rgba(201,164,92,0.08)] bg-black/40 backdrop-blur-xl transition-all duration-200 xl:flex xl:flex-col ${collapsed ? "w-16" : "w-64"}`} aria-label="Control Tower navigation">
           <Link href="/control-tower" className={`flex h-16 items-center border-b border-[rgba(201,164,92,0.08)] ${collapsed ? "justify-center px-0" : "gap-3 px-5"}`}>
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[var(--gold)] text-black">
-              <Coffee className="h-4 w-4" aria-hidden="true" />
-            </span>
+            <Image src="/brand/salora-logo-dark.jpeg" alt="SALORA" width={36} height={36} priority className="h-9 w-9 shrink-0 rounded-full border border-[var(--border-gold)] object-cover" />
             {!collapsed ? (
               <span className="min-w-0">
                 <span className="block text-sm font-semibold leading-none tracking-wide text-[var(--cream)]">SALORA</span>
@@ -140,6 +139,9 @@ export function ControlTowerShell({ children }: { children: ReactNode }) {
                 </span>
                 <Link href="/dashboard" className="rounded-lg border border-[var(--border-gold)] bg-[var(--gold)]/10 px-3 py-2 text-xs font-semibold text-[var(--gold-soft)] transition hover:bg-[var(--gold)]/15">
                   Executive dashboards
+                </Link>
+                <Link href="/menu" target="_blank" className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-[var(--cream)] transition hover:bg-white/10">
+                  Customer menu <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
                 </Link>
               </div>
             </div>

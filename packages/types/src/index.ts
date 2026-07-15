@@ -1,6 +1,6 @@
 export type ProductCategory = string;
 
-export type OrderType = "Pickup" | "Delivery";
+export type OrderType = "Counter" | "Car" | "DineIn" | "Gift";
 
 export interface Product {
   id: string;
