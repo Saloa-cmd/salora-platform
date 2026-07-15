@@ -28,7 +28,9 @@
       "@sentry/cli",
       "esbuild",
       "prisma",
-      "sharp"
+      "sharp",
+      "msgpackr-extract",
+      "reresolve"
     ]
   }
 }
