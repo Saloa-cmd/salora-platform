@@ -12,7 +12,7 @@ export const featuredWhatsAppUrl = generateWhatsAppUrl(
     {
       name: "Guest",
       phone: "00000000",
-      orderType: "Pickup",
+      orderType: "Counter",
       notes: "Please confirm today's SALORA availability."
     },
     [

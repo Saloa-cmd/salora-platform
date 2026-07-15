@@ -1,10 +1,10 @@
 import type { PropsWithChildren } from "react";
-import { StyleSheet, Text as RNText, TextStyle } from "react-native";
+import { StyleSheet, Text as RNText, type StyleProp, type TextStyle } from "react-native";
 import { colors } from "@/lib/theme";
 
 interface TextProps extends PropsWithChildren {
   variant?: "eyebrow" | "title" | "subtitle" | "body" | "muted" | "price";
-  style?: TextStyle;
+  style?: StyleProp<TextStyle>;
   numberOfLines?: number;
 }
 

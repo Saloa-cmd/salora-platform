@@ -177,21 +177,26 @@ export function formatOmr(value: number): string {
 }
 
 export function generateWhatsAppMessage(order: OrderDraft): string {
-  const itemLines = order.items.map((item) => `- ${item.quantity}x ${item.product.name}`).join("\n");
-  return `Hello SALORA,
-I would like to place an order:
+  const orderTypes: Record<OrderDraft["orderType"], string> = {
+    Counter: "استلام من الكاونتر",
+    Car: "استلام بالسيارة أمام البحر",
+    DineIn: "داخل سالورا",
+    Gift: "هدية لشخص آخر"
+  };
+  const itemLines = order.items.map((item) => `• ${item.quantity} × ${item.product.name} — ${formatOmr(item.product.price * item.quantity)}`).join("\n");
+  return `طلب جديد من SALORA
 
-Customer: ${order.name}
-Phone: ${order.phone}
-Order Type: ${order.orderType}
+الاسم: ${order.name}
+الهاتف: ${order.phone}
+طريقة الاستلام: ${orderTypes[order.orderType]}
 
-Items:
+الطلب:
 ${itemLines}
 
-Total: ${formatOmr(order.total)}
+الإجمالي: ${formatOmr(order.total)}
 
-Notes:
-${order.notes?.trim() || "No notes"}`;
+الملاحظات:
+${order.notes?.trim() || "لا توجد ملاحظات"}`;
 }
 
 export function generateWhatsAppUrl(order: OrderDraft, number = saloraRuntime.whatsappNumber): string {

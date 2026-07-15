@@ -2,6 +2,7 @@ import type { Product } from "@salora/types";
 import { Link } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, Pressable, StyleSheet, View } from "react-native";
+import { BrandHeader } from "@/components/BrandHeader";
 import { Button } from "@/components/Button";
 import { ProductCard } from "@/components/ProductCard";
 import { ProductVisual } from "@/components/ProductVisual";
@@ -25,7 +26,6 @@ type ProductsResponse = {
 
 export default function HomeScreen() {
   const [products, setProducts] = useState<Product[]>([]);
-  const [runtime, setRuntime] = useState<ProductRuntime | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -44,11 +44,9 @@ export default function HomeScreen() {
           return;
         }
 
-        setRuntime(payload.runtime ?? null);
-
         if (!response.ok) {
           setProducts([]);
-          setError(payload.error ?? "Product API is unavailable.");
+          setError(payload.error ?? "تعذر تحميل المنتجات الآن.");
           return;
         }
 
@@ -56,8 +54,7 @@ export default function HomeScreen() {
       } catch {
         if (active) {
           setProducts([]);
-          setRuntime({ source: "api", stale: true, mode: "error", databaseHealth: "unavailable" });
-          setError("Product API could not be reached.");
+          setError("تعذر الاتصال بالمينيو. حاول مرة أخرى بعد قليل.");
         }
       } finally {
         if (active) {
@@ -79,22 +76,27 @@ export default function HomeScreen() {
 
   return (
     <Screen>
+      <BrandHeader
+        eyebrow="SALORA • TASTE THE HARMONY"
+        title="لحظتك الأجمل تبدأ برشفة"
+        copy="قهوة مختصة، ماتشا وحلويات مختارة بروح شاطئ الدهاريز."
+      />
       <View style={styles.hero}>
-        <Text variant="eyebrow">SALORA morning</Text>
-        <Text variant="title" style={styles.heroTitle}>Taste guided by intelligence.</Text>
-        <Text variant="muted" style={styles.heroCopy}>Matcha, specialty coffee, desserts, and a local AI concierge ready to make the first choice feel effortless.</Text>
+        <Text variant="eyebrow" style={styles.rtl}>اختيار سالورا اليوم</Text>
+        <Text variant="title" style={[styles.heroTitle, styles.rtl]}>ذوقك يقود التجربة</Text>
+        <Text variant="muted" style={[styles.heroCopy, styles.rtl]}>اختر مزاجك ودع سالورا تقترح عليك الرشفة والحلوى الأنسب.</Text>
         <View style={styles.featured}>
-          <ProductVisual size={122} />
+          <ProductVisual size={122} imageUrl={featured?.visual} alt={featured?.name} />
           <View style={styles.featuredText}>
-            <Text variant="eyebrow">Featured</Text>
+            <Text variant="eyebrow" style={styles.rtl}>مميز اليوم</Text>
             <Text variant="subtitle">{featured?.name ?? "SALORA Signature"}</Text>
-            <Text variant="muted">{featured?.pairing ? `Best with ${featured.pairing}` : "Signature SALORA profile"}</Text>
+            <Text variant="muted" style={styles.rtl}>{featured?.pairing ? `يناسب معه ${featured.pairing}` : "اختيار يحمل بصمة سالورا"}</Text>
           </View>
         </View>
       </View>
 
       <View style={styles.chips}>
-        {["Matcha", "Coffee", "Dessert", "Cold"].map((chip) => (
+        {["ماتشا", "قهوة مختصة", "حلويات", "مشروبات باردة"].map((chip) => (
           <View key={chip} style={styles.chip}><Text variant="muted">{chip}</Text></View>
         ))}
       </View>
@@ -102,43 +104,37 @@ export default function HomeScreen() {
       <View style={styles.grid}>
         <Link href="/concierge" asChild>
           <Pressable accessibilityRole="button" accessibilityLabel="Open SALORA AI Concierge" style={styles.panel}>
-            <Text variant="eyebrow">AI Concierge</Text>
-            <Text variant="subtitle" style={styles.panelTitle}>Tell us your mood.</Text>
+            <Text variant="eyebrow">مساعد سالورا</Text>
+            <Text variant="subtitle" style={[styles.panelTitle, styles.rtl]}>قل لنا مزاجك</Text>
           </Pressable>
         </Link>
         <Link href="/loyalty" asChild>
           <Pressable accessibilityRole="button" accessibilityLabel="Open SALORA loyalty preview" style={styles.panel}>
-            <Text variant="eyebrow">Loyalty</Text>
-            <Text variant="subtitle" style={styles.panelTitle}>VIP preview.</Text>
+            <Text variant="eyebrow">الولاء</Text>
+            <Text variant="subtitle" style={[styles.panelTitle, styles.rtl]}>كل رشفة تقرّبك</Text>
           </Pressable>
         </Link>
       </View>
 
       <Link href="/offers" asChild>
-        <Button variant="secondary" style={styles.offerButton}>View offers</Button>
+        <Button variant="secondary" style={styles.offerButton}>اكتشف عروض سالورا</Button>
       </Link>
 
-      <Text variant="subtitle" style={styles.sectionTitle}>Recommended now</Text>
-      <View style={styles.runtimePanel}>
-        <Text variant="eyebrow">Product API</Text>
-        <Text variant="muted">
-          Source: {runtime?.source ?? "loading"} | Mode: {runtime?.mode ?? "pending"} | Stale: {runtime?.stale ? "yes" : "no"}
-        </Text>
-      </View>
+      <Text variant="subtitle" style={[styles.sectionTitle, styles.rtl]}>نرشّح لك الآن</Text>
       {loading ? (
         <View style={styles.statePanel}>
           <ActivityIndicator color={colors.gold} />
-          <Text variant="muted">Loading live products...</Text>
+          <Text variant="muted">نحضّر لك اختيارات سالورا…</Text>
         </View>
       ) : error ? (
         <View style={styles.statePanel}>
-          <Text variant="subtitle">Products unavailable</Text>
+          <Text variant="subtitle">المينيو غير متاح مؤقتًا</Text>
           <Text variant="muted">{error}</Text>
         </View>
       ) : recommended.length === 0 ? (
         <View style={styles.statePanel}>
-          <Text variant="subtitle">No products available</Text>
-          <Text variant="muted">The live product API returned an empty catalog.</Text>
+          <Text variant="subtitle">لا توجد منتجات متاحة الآن</Text>
+          <Text variant="muted">تابعنا قريبًا لمعرفة الاختيارات الجديدة.</Text>
         </View>
       ) : (
         recommended.map((product) => <ProductCard key={product.id} product={product} />)
@@ -149,6 +145,7 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   hero: {
+    marginTop: spacing.md,
     borderRadius: radii.lg,
     padding: spacing.lg,
     backgroundColor: colors.surface,
@@ -168,7 +165,8 @@ const styles = StyleSheet.create({
     alignItems: "center"
   },
   featuredText: {
-    flex: 1
+    flex: 1,
+    alignItems: "flex-end"
   },
   chips: {
     flexDirection: "row",
@@ -206,15 +204,7 @@ const styles = StyleSheet.create({
     marginTop: spacing.xl,
     marginBottom: spacing.md
   },
-  runtimePanel: {
-    gap: 4,
-    marginBottom: spacing.md,
-    padding: spacing.md,
-    borderRadius: radii.md,
-    backgroundColor: "rgba(245,239,227,0.045)",
-    borderWidth: 1,
-    borderColor: "rgba(245,239,227,0.09)"
-  },
+  rtl: { textAlign: "right", alignSelf: "stretch" },
   statePanel: {
     gap: spacing.sm,
     alignItems: "flex-start",

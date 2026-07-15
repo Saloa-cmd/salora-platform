@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useMemo, useState } from "react";
 import {
   Car,
@@ -266,7 +267,7 @@ export function MenuExperience({ initialProducts, menuSource, menuStale, whatsap
       <header className="sticky top-0 z-40 border-b border-white/10 bg-black/80 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
           <Link href="/" className="flex items-center gap-3" aria-label="SALORA home">
-            <span className="grid h-10 w-10 place-items-center rounded-full border border-[var(--border-gold)] bg-[var(--gold)]/10"><Coffee className="h-5 w-5 text-[var(--gold-soft)]" /></span>
+            <Image src="/brand/salora-logo-dark.jpeg" alt="SALORA" width={44} height={44} priority className="h-11 w-11 rounded-full border border-[var(--border-gold)] object-cover shadow-[0_0_24px_rgba(201,164,92,0.18)]" />
             <span><strong className="block tracking-[0.24em]">SALORA</strong><small className="text-[var(--muted)]">Taste the Harmony</small></span>
           </Link>
           <div className="flex items-center gap-2">

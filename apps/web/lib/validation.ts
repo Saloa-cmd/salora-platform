@@ -7,7 +7,7 @@ export const orderPreviewSchema = z.object({
   customer: z.object({
     name: z.string().trim().min(2).max(80),
     phone: z.string().trim().min(6).max(32),
-    orderType: z.enum(["Pickup", "Delivery"]),
+    orderType: z.enum(["Counter", "Car", "DineIn", "Gift"]),
     notes: z.string().trim().max(500).optional()
   }),
   items: z.array(
