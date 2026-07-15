@@ -54,7 +54,7 @@ function SectionSpecificWorkspace({ sectionId }: { sectionId: ControlTowerSectio
         <DashboardGrid columns="two">
           <DashboardCard title="Command Links" eyebrow="Executive">
             <div className="grid gap-3 sm:grid-cols-2">
-              {["/dashboard", "/dashboard/revenue", "/dashboard/operations", "/dashboard/ai", "/dashboard/customers", "/dashboard/whatsapp"].map((href) => (
+              {["/menu", "/dashboard", "/dashboard/revenue", "/dashboard/operations", "/dashboard/ai", "/dashboard/customers", "/dashboard/whatsapp"].map((href) => (
                 <Link key={href} href={href} className="rounded-lg border border-white/10 bg-black/20 px-3 py-3 text-sm font-semibold text-[var(--cream)] hover:border-[var(--border-gold)]">{href}</Link>
               ))}
             </div>

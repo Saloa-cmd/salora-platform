@@ -17,7 +17,7 @@
     "dev:mobile": "pnpm --filter @salora/mobile start",
     "typecheck": "pnpm --filter @salora/web typecheck && pnpm --filter @salora/mobile typecheck"
   },
-  "packageManager": "pnpm@9.15.0",
+  "packageManager": "pnpm@11.7.0",
   "engines": {
     "node": ">=22 <23"
   }
