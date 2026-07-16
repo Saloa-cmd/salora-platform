@@ -71,6 +71,8 @@ export function SimpleLaunchOperationsCenter() {
 
   const selectedProduct = useMemo(() => products.find((product) => product.slug === selectedSlug), [products, selectedSlug]);
   const missingImages = products.filter((product) => !product.images?.length).length;
+  const aiFlags = flags.filter((flag) => /ai|concierge|recommend|pairing|loyalty/i.test(flag.key));
+  const enabledAiFlags = aiFlags.filter((flag) => flag.enabled).length;
 
   async function updatePrice() {
     setState({ status: "submitting", message: "Updating price..." });
@@ -145,6 +147,25 @@ export function SimpleLaunchOperationsCenter() {
       </DashboardGrid>
 
       <DashboardGrid columns="two">
+        <RuntimeStatusCard title="AI Control Center" statuses={[
+          { label: "AI services", status: aiFlags.length ? "ok" : "warning", detail: `${enabledAiFlags}/${aiFlags.length} governed capabilities enabled` },
+          { label: "Human review", status: "ok", detail: "Generated product content remains draft-only until an operator approves it" },
+          { label: "Audit trail", status: auditLogs.length ? "ok" : "warning", detail: `${auditLogs.length} recent governance events visible` },
+          { label: "Secrets", status: "ok", detail: "Provider credentials stay server-side and are never exposed in Control Tower" }
+        ]} />
+        <DashboardCard title="AI Capability Switchboard" eyebrow="Governed automation">
+          <div className="grid gap-2">
+            {aiFlags.length ? aiFlags.map((flag) => (
+              <button key={flag.id} type="button" onClick={() => toggleFlag(flag)} className="flex items-center justify-between rounded-lg border border-white/10 bg-black/20 px-3 py-3 text-left text-sm text-[var(--cream)]">
+                <span><strong className="block">{flag.key}</strong><small className="text-[var(--muted)]">{flag.environment}</small></span>
+                <span className={flag.enabled ? "text-emerald-200" : "text-red-200"}>{flag.enabled ? "Enabled" : "Paused"}</span>
+              </button>
+            )) : <p className="rounded-lg border border-amber-300/20 bg-amber-300/10 p-3 text-sm text-amber-100">Create AI feature flags in Control Tower to govern concierge, recommendations, pairings, loyalty, and product copy independently.</p>}
+          </div>
+        </DashboardCard>
+      </DashboardGrid>
+
+      <DashboardGrid columns="two">
         <DashboardCard title="Feature Flags" eyebrow="Staging">
           <div className="grid gap-2">
             {flags.map((flag) => (
@@ -155,12 +176,13 @@ export function SimpleLaunchOperationsCenter() {
             ))}
           </div>
         </DashboardCard>
-        <DashboardCard title="AI Product Drafts" eyebrow="Review only">
+        <DashboardCard title="AI Product Studio" eyebrow="Generate → review → publish">
           <div className="grid gap-3">
             <select value={aiOperation} onChange={(event) => setAiOperation(event.target.value)} className="rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-[var(--cream)]">
               {["description", "short_copy", "pairing", "category", "upsell", "image_prompt"].map((operation) => <option key={operation} value={operation}>{operation}</option>)}
             </select>
-            <button type="button" onClick={generateDraft} className="rounded-lg bg-[var(--gold)] px-4 py-2 text-sm font-semibold text-black">Generate draft</button>
+            <p className="text-xs leading-5 text-[var(--muted)]">Uses the selected catalog product as grounded context. Output is never published automatically.</p>
+            <button type="button" disabled={!selectedProduct || state.status === "submitting"} onClick={generateDraft} className="rounded-lg bg-[var(--gold)] px-4 py-2 text-sm font-semibold text-black disabled:opacity-50">Generate governed draft</button>
             {aiDraft ? <p className="rounded-lg border border-white/10 bg-black/20 p-3 text-sm leading-6 text-[var(--muted)]">{aiDraft}</p> : null}
           </div>
         </DashboardCard>

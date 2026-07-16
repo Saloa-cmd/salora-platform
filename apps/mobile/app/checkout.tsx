@@ -101,7 +101,12 @@ export default function CheckoutScreen() {
       <Field name="notes" label="ملاحظات" control={control} placeholder="الثلج، السكر، السيارة أو وقت الاستلام…" multiline />
       <View style={styles.summary}>
         <Text variant="subtitle" style={styles.rtl}>ملخص الطلب</Text>
-        {items.map((item) => <Text key={item.product.id} variant="muted">- {item.quantity}x {item.product.name}</Text>)}
+        {items.map((item) => (
+          <View key={item.key ?? item.product.id}>
+            <Text variant="muted">- {item.quantity}x {item.product.name}</Text>
+            {item.modifiers?.length ? <Text variant="muted" style={styles.modifiers}>{item.modifiers.map((modifier) => modifier.optionName).join(" · ")}</Text> : null}
+          </View>
+        ))}
         <Text variant="price" style={styles.total}>{draft.total.toFixed(3)} ر.ع</Text>
       </View>
       <View style={styles.preview}>
@@ -192,6 +197,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md
   },
   total: { marginTop: spacing.sm },
+  modifiers: { marginTop: 2, textAlign: "right", opacity: 0.8 },
   preview: {
     borderRadius: radii.md,
     padding: spacing.md,

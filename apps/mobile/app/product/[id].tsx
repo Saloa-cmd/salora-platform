@@ -1,4 +1,4 @@
-import type { Product } from "@salora/types";
+import type { Product, ProductChoice, ProductModifierGroup, SelectedModifier } from "@salora/types";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, Pressable, StyleSheet, View } from "react-native";
@@ -30,6 +30,7 @@ export default function ProductDetailsScreen() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
+  const [selections, setSelections] = useState<Record<string, ProductChoice>>({});
   const addItem = useCartStore((state) => state.addItem);
 
   useEffect(() => {
@@ -101,6 +102,18 @@ export default function ProductDetailsScreen() {
     );
   }
 
+  const groups: ProductModifierGroup[] = [
+    ...(product.variants?.length ? [{ id: "variant", name: "الحجم / النوع", required: true, options: product.variants }] : []),
+    ...(product.modifierGroups ?? []),
+    ...(product.addons?.length ? [{ id: "addons", name: "الإضافات", required: false, options: product.addons }] : [])
+  ];
+  const modifiers: SelectedModifier[] = Object.entries(selections).map(([groupId, option]) => {
+    const group = groups.find((item) => item.id === groupId);
+    return { groupId, groupName: group?.name ?? groupId, optionId: option.id, optionName: option.name, priceDelta: option.priceDelta };
+  });
+  const requiredComplete = groups.filter((group) => group.required).every((group) => selections[group.id]);
+  const unitPrice = Number((product.price + modifiers.reduce((sum, modifier) => sum + modifier.priceDelta, 0)).toFixed(3));
+
   return (
     <Screen>
       <View style={styles.hero}>
@@ -112,8 +125,30 @@ export default function ProductDetailsScreen() {
       <View style={styles.tags}>
         {product.tags.map((tag) => <View key={tag} style={styles.tag}><Text variant="muted">{tag}</Text></View>)}
       </View>
+      {groups.map((group) => (
+        <View key={group.id} style={styles.optionGroup}>
+          <Text variant="eyebrow" style={styles.optionTitle}>{group.name}{group.required ? " *" : ""}</Text>
+          <View style={styles.options}>
+            {group.options.map((option) => {
+              const active = selections[group.id]?.id === option.id;
+              return (
+                <Pressable
+                  key={option.id}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: active }}
+                  onPress={() => setSelections((current) => ({ ...current, [group.id]: option }))}
+                  style={[styles.option, active && styles.optionActive]}
+                >
+                  <Text>{option.name}</Text>
+                  {option.priceDelta ? <Text variant="muted">+{option.priceDelta.toFixed(3)}</Text> : null}
+                </Pressable>
+              );
+            })}
+          </View>
+        </View>
+      ))}
       <View style={styles.quantityRow}>
-        <Text variant="price">{product.price.toFixed(3)} ر.ع</Text>
+        <Text variant="price">{unitPrice.toFixed(3)} ر.ع</Text>
         <View style={styles.stepper}>
           <Pressable onPress={() => setQuantity(Math.max(1, quantity - 1))} style={styles.step}><Text>-</Text></Pressable>
           <Text>{quantity}</Text>
@@ -127,12 +162,13 @@ export default function ProductDetailsScreen() {
         </View>
       ) : null}
       <Button
+        disabled={!requiredComplete}
         onPress={() => {
-          addItem(product, quantity);
+          addItem(product, quantity, modifiers, unitPrice);
           router.push("/cart");
         }}
       >
-        أضف إلى الطلب
+        {requiredComplete ? "أضف إلى الطلب" : "اختر الخيارات المطلوبة"}
       </Button>
     </Screen>
   );
@@ -166,6 +202,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm
   },
+  optionGroup: { marginTop: spacing.lg },
+  optionTitle: { marginBottom: spacing.sm, textAlign: "right" },
+  options: { flexDirection: "row", flexWrap: "wrap", gap: spacing.sm },
+  option: {
+    minWidth: 104,
+    gap: 2,
+    borderRadius: radii.md,
+    borderWidth: 1,
+    borderColor: "rgba(245,239,227,0.11)",
+    backgroundColor: "rgba(245,239,227,0.045)",
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm
+  },
+  optionActive: { borderColor: colors.gold, backgroundColor: "rgba(201,164,92,0.14)" },
   quantityRow: {
     marginVertical: spacing.lg,
     flexDirection: "row",

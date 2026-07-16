@@ -19,50 +19,49 @@ import {
   UtensilsCrossed,
   X
 } from "lucide-react";
-import type { Product } from "@salora/types";
+import type { Product, ProductChoice, ProductModifierGroup, SelectedModifier } from "@salora/types";
 
 type Language = "ar" | "en";
 type ServiceMode = "counter" | "car" | "dine-in" | "gift";
-type ProductOptions = { size: "regular" | "large"; milk: "regular" | "oat" | "almond"; sugar: "none" | "less" | "regular"; ice: "none" | "light" | "regular" };
-type CartLine = { key: string; product: Product; quantity: number; options: ProductOptions; unitPrice: number };
+type CartLine = { key: string; product: Product; quantity: number; modifiers: SelectedModifier[]; unitPrice: number };
 
 const copy = {
   ar: {
     direction: "rtl" as const,
-    eyebrow: "مينيو سالورا الرقمي",
-    title: "اختر لحظتك، ونحن نحضّر الانسجام.",
-    intro: "منيو متصل مباشرة بمنصة SALORA، قابل للتخصيص والاستلام من الكاونتر أو أمام البحر.",
-    search: "ابحث عن مشروب أو حلوى",
-    all: "الكل",
-    add: "خصص وأضف",
-    cart: "طلبك",
-    empty: "أضف منتجًا لتبدأ لحظة سالورا.",
-    checkout: "تأكيد الطلب عبر واتساب",
-    subtotal: "الإجمالي",
-    customize: "خصص اختيارك",
-    size: "الحجم",
-    milk: "الحليب",
-    sugar: "السكر",
-    ice: "الثلج",
-    regular: "عادي",
-    large: "كبير",
-    oat: "شوفان",
-    almond: "لوز",
-    none: "بدون",
-    less: "قليل",
-    light: "خفيف",
-    confirm: "أضف إلى الطلب",
-    live: "بيانات مباشرة",
-    fallback: "وضع العرض الاحتياطي",
-    orderSaved: "تم حفظ الطلب. سيتم فتح واتساب للتأكيد.",
-    orderFailed: "تعذر حفظ الطلب الآن. يمكنك إرساله عبر واتساب دون فقد التفاصيل.",
-    customerName: "الاسم",
-    phone: "رقم الهاتف",
-    carDetails: "نوع السيارة ولونها",
-    notes: "ملاحظات الطلب",
-    required: "أدخل الاسم ورقم الهاتف قبل التأكيد.",
-    service: "طريقة الاستلام",
-    standard: "كما هو من سالورا"
+    eyebrow: "Ù…ÙŠÙ†ÙŠÙˆ Ø³Ø§Ù„ÙˆØ±Ø§ Ø§Ù„Ø±Ù‚Ù…ÙŠ",
+    title: "Ø§Ø®ØªØ± Ù„Ø­Ø¸ØªÙƒØŒ ÙˆÙ†Ø­Ù† Ù†Ø­Ø¶Ù‘Ø± Ø§Ù„Ø§Ù†Ø³Ø¬Ø§Ù….",
+    intro: "Ù…Ù†ÙŠÙˆ Ù…ØªØµÙ„ Ù…Ø¨Ø§Ø´Ø±Ø© Ø¨Ù…Ù†ØµØ© SALORAØŒ Ù‚Ø§Ø¨Ù„ Ù„Ù„ØªØ®ØµÙŠØµ ÙˆØ§Ù„Ø§Ø³ØªÙ„Ø§Ù… Ù…Ù† Ø§Ù„ÙƒØ§ÙˆÙ†ØªØ± Ø£Ùˆ Ø£Ù…Ø§Ù… Ø§Ù„Ø¨Ø­Ø±.",
+    search: "Ø§Ø¨Ø­Ø« Ø¹Ù† Ù…Ø´Ø±ÙˆØ¨ Ø£Ùˆ Ø­Ù„ÙˆÙ‰",
+    all: "Ø§Ù„ÙƒÙ„",
+    add: "Ø®ØµØµ ÙˆØ£Ø¶Ù",
+    cart: "Ø·Ù„Ø¨Ùƒ",
+    empty: "Ø£Ø¶Ù Ù…Ù†ØªØ¬Ù‹Ø§ Ù„ØªØ¨Ø¯Ø£ Ù„Ø­Ø¸Ø© Ø³Ø§Ù„ÙˆØ±Ø§.",
+    checkout: "ØªØ£ÙƒÙŠØ¯ Ø§Ù„Ø·Ù„Ø¨ Ø¹Ø¨Ø± ÙˆØ§ØªØ³Ø§Ø¨",
+    subtotal: "Ø§Ù„Ø¥Ø¬Ù…Ø§Ù„ÙŠ",
+    customize: "Ø®ØµØµ Ø§Ø®ØªÙŠØ§Ø±Ùƒ",
+    size: "Ø§Ù„Ø­Ø¬Ù…",
+    milk: "Ø§Ù„Ø­Ù„ÙŠØ¨",
+    sugar: "Ø§Ù„Ø³ÙƒØ±",
+    ice: "Ø§Ù„Ø«Ù„Ø¬",
+    regular: "Ø¹Ø§Ø¯ÙŠ",
+    large: "ÙƒØ¨ÙŠØ±",
+    oat: "Ø´ÙˆÙØ§Ù†",
+    almond: "Ù„ÙˆØ²",
+    none: "Ø¨Ø¯ÙˆÙ†",
+    less: "Ù‚Ù„ÙŠÙ„",
+    light: "Ø®ÙÙŠÙ",
+    confirm: "Ø£Ø¶Ù Ø¥Ù„Ù‰ Ø§Ù„Ø·Ù„Ø¨",
+    live: "Ø¨ÙŠØ§Ù†Ø§Øª Ù…Ø¨Ø§Ø´Ø±Ø©",
+    fallback: "ÙˆØ¶Ø¹ Ø§Ù„Ø¹Ø±Ø¶ Ø§Ù„Ø§Ø­ØªÙŠØ§Ø·ÙŠ",
+    orderSaved: "ØªÙ… Ø­ÙØ¸ Ø§Ù„Ø·Ù„Ø¨. Ø³ÙŠØªÙ… ÙØªØ­ ÙˆØ§ØªØ³Ø§Ø¨ Ù„Ù„ØªØ£ÙƒÙŠØ¯.",
+    orderFailed: "ØªØ¹Ø°Ø± Ø­ÙØ¸ Ø§Ù„Ø·Ù„Ø¨ Ø§Ù„Ø¢Ù†. ÙŠÙ…ÙƒÙ†Ùƒ Ø¥Ø±Ø³Ø§Ù„Ù‡ Ø¹Ø¨Ø± ÙˆØ§ØªØ³Ø§Ø¨ Ø¯ÙˆÙ† ÙÙ‚Ø¯ Ø§Ù„ØªÙØ§ØµÙŠÙ„.",
+    customerName: "Ø§Ù„Ø§Ø³Ù…",
+    phone: "Ø±Ù‚Ù… Ø§Ù„Ù‡Ø§ØªÙ",
+    carDetails: "Ù†ÙˆØ¹ Ø§Ù„Ø³ÙŠØ§Ø±Ø© ÙˆÙ„ÙˆÙ†Ù‡Ø§",
+    notes: "Ù…Ù„Ø§Ø­Ø¸Ø§Øª Ø§Ù„Ø·Ù„Ø¨",
+    required: "Ø£Ø¯Ø®Ù„ Ø§Ù„Ø§Ø³Ù… ÙˆØ±Ù‚Ù… Ø§Ù„Ù‡Ø§ØªÙ Ù‚Ø¨Ù„ Ø§Ù„ØªØ£ÙƒÙŠØ¯.",
+    service: "Ø·Ø±ÙŠÙ‚Ø© Ø§Ù„Ø§Ø³ØªÙ„Ø§Ù…",
+    standard: "ÙƒÙ…Ø§ Ù‡Ùˆ Ù…Ù† Ø³Ø§Ù„ÙˆØ±Ø§"
   },
   en: {
     direction: "ltr" as const,
@@ -104,29 +103,27 @@ const copy = {
 };
 
 const serviceModes = [
-  { id: "counter" as const, ar: "استلام من الكاونتر", en: "Counter pickup", icon: Store },
-  { id: "car" as const, ar: "استلام أمام البحر", en: "Beachfront pickup", icon: Car },
-  { id: "dine-in" as const, ar: "داخل سالورا", en: "Dine in", icon: UtensilsCrossed },
-  { id: "gift" as const, ar: "أرسل لحظة سالورا", en: "Send a SALORA moment", icon: Gift }
+  { id: "counter" as const, ar: "Ø§Ø³ØªÙ„Ø§Ù… Ù…Ù† Ø§Ù„ÙƒØ§ÙˆÙ†ØªØ±", en: "Counter pickup", icon: Store },
+  { id: "car" as const, ar: "Ø§Ø³ØªÙ„Ø§Ù… Ø£Ù…Ø§Ù… Ø§Ù„Ø¨Ø­Ø±", en: "Beachfront pickup", icon: Car },
+  { id: "dine-in" as const, ar: "Ø¯Ø§Ø®Ù„ Ø³Ø§Ù„ÙˆØ±Ø§", en: "Dine in", icon: UtensilsCrossed },
+  { id: "gift" as const, ar: "Ø£Ø±Ø³Ù„ Ù„Ø­Ø¸Ø© Ø³Ø§Ù„ÙˆØ±Ø§", en: "Send a SALORA moment", icon: Gift }
 ];
 
 const arabicNames: Record<string, string> = {
-  "american-cheese-cake": "تشيز كيك أمريكي",
-  americano: "أمريكانو",
-  cappuccino: "كابتشينو",
-  "cold-brew": "كولد برو",
-  espresso: "إسبريسو",
-  "flat-white": "فلات وايت",
-  "iced-americano": "آيس أمريكانو",
-  "iced-latte": "آيس لاتيه",
-  "iced-spanish-latte": "سبانش لاتيه بارد",
-  "lemon-mint": "ليمون ونعناع",
-  "pistachio-latte": "لاتيه بستاشيو",
-  "red-velvet": "ريد فيلفت",
-  "san-sabastian": "سان سباستيان"
+  "american-cheese-cake": "ØªØ´ÙŠØ² ÙƒÙŠÙƒ Ø£Ù…Ø±ÙŠÙƒÙŠ",
+  americano: "Ø£Ù…Ø±ÙŠÙƒØ§Ù†Ùˆ",
+  cappuccino: "ÙƒØ§Ø¨ØªØ´ÙŠÙ†Ùˆ",
+  "cold-brew": "ÙƒÙˆÙ„Ø¯ Ø¨Ø±Ùˆ",
+  espresso: "Ø¥Ø³Ø¨Ø±ÙŠØ³Ùˆ",
+  "flat-white": "ÙÙ„Ø§Øª ÙˆØ§ÙŠØª",
+  "iced-americano": "Ø¢ÙŠØ³ Ø£Ù…Ø±ÙŠÙƒØ§Ù†Ùˆ",
+  "iced-latte": "Ø¢ÙŠØ³ Ù„Ø§ØªÙŠÙ‡",
+  "iced-spanish-latte": "Ø³Ø¨Ø§Ù†Ø´ Ù„Ø§ØªÙŠÙ‡ Ø¨Ø§Ø±Ø¯",
+  "lemon-mint": "Ù„ÙŠÙ…ÙˆÙ† ÙˆÙ†Ø¹Ù†Ø§Ø¹",
+  "pistachio-latte": "Ù„Ø§ØªÙŠÙ‡ Ø¨Ø³ØªØ§Ø´ÙŠÙˆ",
+  "red-velvet": "Ø±ÙŠØ¯ ÙÙŠÙ„ÙØª",
+  "san-sabastian": "Ø³Ø§Ù† Ø³Ø¨Ø§Ø³ØªÙŠØ§Ù†"
 };
-
-const defaultOptions: ProductOptions = { size: "regular", milk: "regular", sugar: "regular", ice: "regular" };
 
 function optionLabel(language: Language, value: string) {
   const labels = copy[language] as Record<string, string>;
@@ -138,7 +135,7 @@ function displayName(product: Product, language: Language) {
 }
 
 function formatOmr(value: number, language: Language) {
-  return language === "ar" ? `${value.toFixed(3)} ر.ع` : `OMR ${value.toFixed(3)}`;
+  return language === "ar" ? `${value.toFixed(3)} Ø±.Ø¹` : `OMR ${value.toFixed(3)}`;
 }
 
 function productAccent(product: Product) {
@@ -154,13 +151,33 @@ function supportsDrinkOptions(product: Product) {
   return !category.includes("dessert") && !category.includes("cake");
 }
 
+function fallbackGroups(product: Product, language: Language): ProductModifierGroup[] {
+  if (!supportsDrinkOptions(product)) return [];
+  const label = (ar: string, en: string) => language === "ar" ? ar : en;
+  return [
+    { id: "size", name: label("Ø§Ù„Ø­Ø¬Ù…", "Size"), required: true, options: [{ id: "regular", name: label("Ø¹Ø§Ø¯ÙŠ", "Regular"), priceDelta: 0 }, { id: "large", name: label("ÙƒØ¨ÙŠØ±", "Large"), priceDelta: 0.3 }] },
+    { id: "milk", name: label("Ø§Ù„Ø­Ù„ÙŠØ¨", "Milk"), required: true, options: [{ id: "regular", name: label("Ø¹Ø§Ø¯ÙŠ", "Regular"), priceDelta: 0 }, { id: "oat", name: label("Ø´ÙˆÙØ§Ù†", "Oat"), priceDelta: 0.25 }, { id: "almond", name: label("Ù„ÙˆØ²", "Almond"), priceDelta: 0.25 }] },
+    { id: "sugar", name: label("Ø§Ù„Ø³ÙƒØ±", "Sugar"), required: true, options: [{ id: "none", name: label("Ø¨Ø¯ÙˆÙ†", "None"), priceDelta: 0 }, { id: "less", name: label("Ù‚Ù„ÙŠÙ„", "Less"), priceDelta: 0 }, { id: "regular", name: label("Ø¹Ø§Ø¯ÙŠ", "Regular"), priceDelta: 0 }] },
+    { id: "ice", name: label("Ø§Ù„Ø«Ù„Ø¬", "Ice"), required: true, options: [{ id: "none", name: label("Ø¨Ø¯ÙˆÙ†", "None"), priceDelta: 0 }, { id: "light", name: label("Ø®ÙÙŠÙ", "Light"), priceDelta: 0 }, { id: "regular", name: label("Ø¹Ø§Ø¯ÙŠ", "Regular"), priceDelta: 0 }] }
+  ];
+}
+
+function productGroups(product: Product, language: Language): ProductModifierGroup[] {
+  const databaseGroups: ProductModifierGroup[] = [
+    ...(product.variants?.length ? [{ id: "variant", name: language === "ar" ? "Ø§Ù„Ø­Ø¬Ù… / Ø§Ù„Ù†ÙˆØ¹" : "Size / variant", required: true, options: product.variants }] : []),
+    ...(product.modifierGroups ?? []),
+    ...(product.addons?.length ? [{ id: "addons", name: language === "ar" ? "Ø§Ù„Ø¥Ø¶Ø§ÙØ§Øª" : "Add-ons", required: false, options: product.addons }] : [])
+  ];
+  return databaseGroups.length ? databaseGroups : fallbackGroups(product, language);
+}
+
 export function MenuExperience({ initialProducts, menuSource, menuStale, whatsappNumber }: { initialProducts: Product[]; menuSource: "database" | "fallback"; menuStale: boolean; whatsappNumber: string }) {
   const [language, setLanguage] = useState<Language>("ar");
   const [serviceMode, setServiceMode] = useState<ServiceMode>("counter");
   const [category, setCategory] = useState("All");
   const [search, setSearch] = useState("");
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [options, setOptions] = useState<ProductOptions>(defaultOptions);
+  const [selections, setSelections] = useState<Record<string, ProductChoice>>({});
   const [cart, setCart] = useState<CartLine[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
   const [name, setName] = useState("");
@@ -182,22 +199,30 @@ export function MenuExperience({ initialProducts, menuSource, menuStale, whatsap
   }, [category, initialProducts, search]);
   const subtotal = cart.reduce((sum, line) => sum + line.unitPrice * line.quantity, 0);
   const itemCount = cart.reduce((sum, line) => sum + line.quantity, 0);
+  const selectedGroups = selectedProduct ? productGroups(selectedProduct, language) : [];
+  const selectedModifiers: SelectedModifier[] = selectedGroups.flatMap((group) => {
+    const option = selections[group.id];
+    return option ? [{ groupId: group.id, groupName: group.name, optionId: option.id, optionName: option.name, priceDelta: option.priceDelta }] : [];
+  });
+  const selectedUnitPrice = selectedProduct ? Number((selectedProduct.price + selectedModifiers.reduce((sum, modifier) => sum + modifier.priceDelta, 0)).toFixed(3)) : 0;
+  const requiredSelectionsComplete = selectedGroups.filter((group) => group.required).every((group) => selections[group.id]);
 
   function openProduct(product: Product) {
     setSelectedProduct(product);
-    setOptions(defaultOptions);
+    const groups = productGroups(product, language);
+    setSelections(groups.reduce<Record<string, ProductChoice>>((initial, group) => { const option = group.options[0]; if (group.required && option) initial[group.id] = option; return initial; }, {}));
   }
 
   function addSelectedProduct() {
     if (!selectedProduct) return;
-    const sizeDelta = options.size === "large" ? 0.3 : 0;
-    const milkDelta = options.milk === "regular" ? 0 : 0.25;
-    const unitPrice = Number((selectedProduct.price + sizeDelta + milkDelta).toFixed(3));
-    const key = `${selectedProduct.id}:${Object.values(options).join(":")}`;
+    if (!requiredSelectionsComplete) return;
+    const unitPrice = selectedUnitPrice;
+    const modifiers = selectedModifiers;
+    const key = `${selectedProduct.id}:${modifiers.map((modifier) => `${modifier.groupId}=${modifier.optionId}`).sort().join("|")}`;
     setCart((current) => {
       const existing = current.find((line) => line.key === key);
       if (existing) return current.map((line) => line.key === key ? { ...line, quantity: line.quantity + 1 } : line);
-      return [...current, { key, product: selectedProduct, quantity: 1, options, unitPrice }];
+      return [...current, { key, product: selectedProduct, quantity: 1, modifiers, unitPrice }];
     });
     setSelectedProduct(null);
     setCartOpen(true);
@@ -210,13 +235,11 @@ export function MenuExperience({ initialProducts, menuSource, menuStale, whatsap
   function whatsappMessage() {
     const service = serviceModes.find((mode) => mode.id === serviceMode);
     const lines = cart.map((line) => {
-      const detail = supportsDrinkOptions(line.product)
-        ? [line.options.size, line.options.milk, line.options.sugar, line.options.ice].map((value) => optionLabel(language, value)).join(" · ")
-        : t.standard;
-      return `${line.quantity}× ${displayName(line.product, language)} — ${detail} — ${formatOmr(line.unitPrice * line.quantity, language)}`;
+      const detail = line.modifiers.length ? line.modifiers.map((modifier) => modifier.optionName).join(" Â· ") : t.standard;
+      return `${line.quantity}Ã— ${displayName(line.product, language)} â€” ${detail} â€” ${formatOmr(line.unitPrice * line.quantity, language)}`;
     });
     return [
-      language === "ar" ? "طلب جديد من SALORA" : "New SALORA order",
+      language === "ar" ? "Ø·Ù„Ø¨ Ø¬Ø¯ÙŠØ¯ Ù…Ù† SALORA" : "New SALORA order",
       `${t.customerName}: ${name}`,
       `${t.phone}: ${phone}`,
       `${t.service}: ${language === "ar" ? service?.ar : service?.en}`,
@@ -253,12 +276,7 @@ export function MenuExperience({ initialProducts, menuSource, menuStale, whatsap
             productName: line.product.name,
             quantity: line.quantity,
             unitPrice: line.unitPrice,
-            modifiers: supportsDrinkOptions(line.product) ? [
-              { groupId: "size", groupName: language === "ar" ? "الحجم" : "Size", optionId: line.options.size, optionName: optionLabel(language, line.options.size), priceDelta: line.options.size === "large" ? 0.3 : 0 },
-              { groupId: "milk", groupName: language === "ar" ? "الحليب" : "Milk", optionId: line.options.milk, optionName: optionLabel(language, line.options.milk), priceDelta: line.options.milk === "regular" ? 0 : 0.25 },
-              { groupId: "sugar", groupName: language === "ar" ? "السكر" : "Sugar", optionId: line.options.sugar, optionName: optionLabel(language, line.options.sugar), priceDelta: 0 },
-              { groupId: "ice", groupName: language === "ar" ? "الثلج" : "Ice", optionId: line.options.ice, optionName: optionLabel(language, line.options.ice), priceDelta: 0 }
-            ] : []
+            modifiers: line.modifiers
           })),
           notes: [serviceMode, carDetails, notes].filter(Boolean).join(" | ")
         })
@@ -282,7 +300,7 @@ export function MenuExperience({ initialProducts, menuSource, menuStale, whatsap
           </Link>
           <div className="flex items-center gap-2">
             <button type="button" onClick={() => setLanguage((value) => value === "ar" ? "en" : "ar")} className="inline-flex items-center gap-2 rounded-full border border-white/10 px-3 py-2 text-xs font-semibold">
-              <Languages className="h-4 w-4" /> {language === "ar" ? "English" : "العربية"}
+              <Languages className="h-4 w-4" /> {language === "ar" ? "English" : "Ø§Ù„Ø¹Ø±Ø¨ÙŠØ©"}
             </button>
             <button type="button" onClick={() => setCartOpen(true)} className="relative inline-flex items-center gap-2 rounded-full bg-[var(--gold)] px-4 py-2 text-sm font-semibold text-black">
               <ShoppingBag className="h-4 w-4" /> {t.cart}
@@ -345,15 +363,14 @@ export function MenuExperience({ initialProducts, menuSource, menuStale, whatsap
         <div className="fixed inset-0 z-50 grid items-end bg-black/75 p-0 backdrop-blur-sm sm:place-items-center sm:p-4" role="dialog" aria-modal="true" aria-label={t.customize}>
           <div className="max-h-[92vh] w-full overflow-y-auto rounded-t-3xl border border-white/10 bg-[#111] p-5 shadow-2xl sm:max-w-xl sm:rounded-3xl sm:p-7">
             <div className="flex items-start justify-between gap-4"><div><p className="text-xs uppercase tracking-[0.25em] text-[var(--gold-soft)]">{t.customize}</p><h2 className="mt-2 text-2xl font-semibold">{displayName(selectedProduct, language)}</h2></div><button type="button" onClick={() => setSelectedProduct(null)} className="rounded-full border border-white/10 p-2"><X className="h-5 w-5" /></button></div>
-            {supportsDrinkOptions(selectedProduct) ? (
+            {selectedGroups.length ? (
               <div className="mt-7 grid gap-6">
-                <OptionGroup label={t.size} values={["regular", "large"]} selected={options.size} language={language} onChange={(value) => setOptions((current) => ({ ...current, size: value as ProductOptions["size"] }))} />
-                <OptionGroup label={t.milk} values={["regular", "oat", "almond"]} selected={options.milk} language={language} onChange={(value) => setOptions((current) => ({ ...current, milk: value as ProductOptions["milk"] }))} />
-                <OptionGroup label={t.sugar} values={["none", "less", "regular"]} selected={options.sugar} language={language} onChange={(value) => setOptions((current) => ({ ...current, sugar: value as ProductOptions["sugar"] }))} />
-                <OptionGroup label={t.ice} values={["none", "light", "regular"]} selected={options.ice} language={language} onChange={(value) => setOptions((current) => ({ ...current, ice: value as ProductOptions["ice"] }))} />
+                {selectedGroups.map((group) => (
+                  <OptionGroup key={group.id} group={group} selected={selections[group.id]?.id} language={language} onChange={(option) => setSelections((current) => ({ ...current, [group.id]: option }))} />
+                ))}
               </div>
             ) : <p className="mt-7 rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-sm text-[var(--muted)]">{t.standard}</p>}
-            <button type="button" onClick={addSelectedProduct} className="mt-7 flex w-full items-center justify-between rounded-2xl bg-[var(--gold)] px-5 py-4 font-semibold text-black"><span>{t.confirm}</span><span>{formatOmr(selectedProduct.price + (supportsDrinkOptions(selectedProduct) && options.size === "large" ? 0.3 : 0) + (supportsDrinkOptions(selectedProduct) && options.milk !== "regular" ? 0.25 : 0), language)}</span></button>
+            <button type="button" disabled={!requiredSelectionsComplete} onClick={addSelectedProduct} className="mt-7 flex w-full items-center justify-between rounded-2xl bg-[var(--gold)] px-5 py-4 font-semibold text-black disabled:cursor-not-allowed disabled:opacity-50"><span>{t.confirm}</span><span>{formatOmr(selectedUnitPrice, language)}</span></button>
           </div>
         </div>
       ) : null}
@@ -362,8 +379,8 @@ export function MenuExperience({ initialProducts, menuSource, menuStale, whatsap
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label={t.cart}>
           <aside className={`absolute inset-y-0 w-full max-w-md overflow-y-auto border-white/10 bg-[#0d0d0d] p-5 shadow-2xl ${language === "ar" ? "left-0 border-r" : "right-0 border-l"}`}>
             <div className="flex items-center justify-between"><h2 className="text-2xl font-semibold">{t.cart}</h2><button type="button" onClick={() => setCartOpen(false)} className="rounded-full border border-white/10 p-2"><X className="h-5 w-5" /></button></div>
-            {cart.length ? <div className="mt-6 grid gap-4">{cart.map((line) => <div key={line.key} className="rounded-2xl border border-white/10 bg-white/[0.04] p-4"><div className="flex items-start justify-between gap-3"><div><h3 className="font-semibold">{displayName(line.product, language)}</h3><p className="mt-1 text-xs text-[var(--muted)]">{supportsDrinkOptions(line.product) ? Object.values(line.options).map((value) => optionLabel(language, value)).join(" · ") : t.standard}</p></div><span className="text-sm text-[var(--gold-soft)]">{formatOmr(line.unitPrice * line.quantity, language)}</span></div><div className="mt-4 flex items-center gap-3"><button type="button" onClick={() => changeQuantity(line.key, -1)} className="rounded-full border border-white/10 p-1"><Minus className="h-4 w-4" /></button><span>{line.quantity}</span><button type="button" onClick={() => changeQuantity(line.key, 1)} className="rounded-full border border-white/10 p-1"><Plus className="h-4 w-4" /></button></div></div>)}</div> : <p className="mt-10 text-center text-sm text-[var(--muted)]">{t.empty}</p>}
-            {cart.length ? <div className="mt-7 grid gap-3 border-t border-white/10 pt-6"><input value={name} onChange={(event) => setName(event.target.value)} placeholder={t.customerName} className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 outline-none" /><input value={phone} onChange={(event) => setPhone(event.target.value)} placeholder={t.phone} inputMode="tel" className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 outline-none" />{serviceMode === "car" ? <input value={carDetails} onChange={(event) => setCarDetails(event.target.value)} placeholder={t.carDetails} className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 outline-none" /> : null}<textarea value={notes} onChange={(event) => setNotes(event.target.value)} placeholder={t.notes} rows={3} className="resize-none rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 outline-none" /><div className="flex items-center justify-between py-2"><span className="text-[var(--muted)]">{t.subtotal}</span><strong className="text-xl text-[var(--gold-soft)]">{formatOmr(subtotal, language)}</strong></div>{notice ? <p className="rounded-xl border border-white/10 bg-white/[0.04] p-3 text-sm leading-6 text-[var(--muted)]">{notice}</p> : null}<button type="button" disabled={submitting} onClick={checkout} className="rounded-2xl bg-[var(--gold)] px-5 py-4 font-semibold text-black disabled:opacity-50">{submitting ? "…" : t.checkout}</button></div> : null}
+            {cart.length ? <div className="mt-6 grid gap-4">{cart.map((line) => <div key={line.key} className="rounded-2xl border border-white/10 bg-white/[0.04] p-4"><div className="flex items-start justify-between gap-3"><div><h3 className="font-semibold">{displayName(line.product, language)}</h3><p className="mt-1 text-xs text-[var(--muted)]">{line.modifiers.length ? line.modifiers.map((modifier) => modifier.optionName).join(" Â· ") : t.standard}</p></div><span className="text-sm text-[var(--gold-soft)]">{formatOmr(line.unitPrice * line.quantity, language)}</span></div><div className="mt-4 flex items-center gap-3"><button type="button" onClick={() => changeQuantity(line.key, -1)} className="rounded-full border border-white/10 p-1"><Minus className="h-4 w-4" /></button><span>{line.quantity}</span><button type="button" onClick={() => changeQuantity(line.key, 1)} className="rounded-full border border-white/10 p-1"><Plus className="h-4 w-4" /></button></div></div>)}</div> : <p className="mt-10 text-center text-sm text-[var(--muted)]">{t.empty}</p>}
+            {cart.length ? <div className="mt-7 grid gap-3 border-t border-white/10 pt-6"><input value={name} onChange={(event) => setName(event.target.value)} placeholder={t.customerName} className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 outline-none" /><input value={phone} onChange={(event) => setPhone(event.target.value)} placeholder={t.phone} inputMode="tel" className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 outline-none" />{serviceMode === "car" ? <input value={carDetails} onChange={(event) => setCarDetails(event.target.value)} placeholder={t.carDetails} className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 outline-none" /> : null}<textarea value={notes} onChange={(event) => setNotes(event.target.value)} placeholder={t.notes} rows={3} className="resize-none rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 outline-none" /><div className="flex items-center justify-between py-2"><span className="text-[var(--muted)]">{t.subtotal}</span><strong className="text-xl text-[var(--gold-soft)]">{formatOmr(subtotal, language)}</strong></div>{notice ? <p className="rounded-xl border border-white/10 bg-white/[0.04] p-3 text-sm leading-6 text-[var(--muted)]">{notice}</p> : null}<button type="button" disabled={submitting} onClick={checkout} className="rounded-2xl bg-[var(--gold)] px-5 py-4 font-semibold text-black disabled:opacity-50">{submitting ? "â€¦" : t.checkout}</button></div> : null}
           </aside>
         </div>
       ) : null}
@@ -371,6 +388,6 @@ export function MenuExperience({ initialProducts, menuSource, menuStale, whatsap
   );
 }
 
-function OptionGroup({ label, values, selected, language, onChange }: { label: string; values: string[]; selected: string; language: Language; onChange: (value: string) => void }) {
-  return <fieldset><legend className="mb-3 text-sm font-semibold text-[var(--muted)]">{label}</legend><div className="grid grid-cols-3 gap-2">{values.map((value) => <button key={value} type="button" aria-pressed={selected === value} onClick={() => onChange(value)} className={`rounded-xl border px-3 py-3 text-sm font-semibold ${selected === value ? "border-[var(--gold)] bg-[var(--gold)]/15 text-[var(--gold-soft)]" : "border-white/10 text-[var(--muted)]"}`}>{optionLabel(language, value)}</button>)}</div></fieldset>;
+function OptionGroup({ group, selected, language, onChange }: { group: ProductModifierGroup; selected?: string; language: Language; onChange: (option: ProductChoice) => void }) {
+  return <fieldset><legend className="mb-3 text-sm font-semibold text-[var(--muted)]">{group.name}{group.required ? " *" : ""}</legend><div className="grid grid-cols-2 gap-2 sm:grid-cols-3">{group.options.map((option) => <button key={option.id} type="button" aria-pressed={selected === option.id} onClick={() => onChange(option)} className={`rounded-xl border px-3 py-3 text-sm font-semibold ${selected === option.id ? "border-[var(--gold)] bg-[var(--gold)]/15 text-[var(--gold-soft)]" : "border-white/10 text-[var(--muted)]"}`}><span className="block">{optionLabel(language, option.name)}</span>{option.priceDelta ? <small className="mt-1 block opacity-75">+{formatOmr(option.priceDelta, language)}</small> : null}</button>)}</div></fieldset>;
 }
