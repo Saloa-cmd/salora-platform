@@ -47,6 +47,20 @@ export function SimpleLaunchOperationsCenter() {
   const [descriptionEn, setDescriptionEn] = useState("");
   const [configuration, setConfiguration] = useState("{}");
 
+  function loadProductIntoEditor(product: ProductRow) {
+    setNameAr(product.nameAr ?? "");
+    setNameEn(product.nameEn ?? product.name);
+    setDescriptionAr(product.descriptionAr ?? "");
+    setDescriptionEn(product.descriptionEn ?? product.description ?? "");
+    setPrice(String(product.basePrice));
+    setStatus(product.status);
+    setConfiguration(JSON.stringify({
+      variants: product.variants?.map((item) => ({ name: item.name, priceDelta: Number(item.priceDelta), sku: item.sku })) ?? [],
+      addons: product.addons?.map((item) => ({ name: item.name, price: Number(item.price) })) ?? [],
+      modifierGroups: product.modifiers?.map((item) => ({ name: item.name, required: item.required, options: item.options })) ?? []
+    }, null, 2));
+  }
+
   async function refresh() {
     const [productResult, categoryResult, couponResult, promotionResult, flagResult, activityResult, auditResult] = await Promise.all([
       controlTowerGet<ProductRow[]>("/api/control-tower/simple-launch/products"),
@@ -59,7 +73,11 @@ export function SimpleLaunchOperationsCenter() {
     ]);
     if (productResult.data) {
       setProducts(productResult.data);
-      setSelectedSlug((current) => current || productResult.data?.[0]?.slug || "");
+      const product = productResult.data.find((item) => item.slug === selectedSlug) ?? productResult.data[0];
+      if (product) {
+        setSelectedSlug(product.slug);
+        loadProductIntoEditor(product);
+      }
     }
     if (categoryResult.data) setCategories(categoryResult.data);
     if (couponResult.data) setCoupons(couponResult.data);
@@ -78,21 +96,6 @@ export function SimpleLaunchOperationsCenter() {
   const missingImages = products.filter((product) => !product.images?.length).length;
   const aiFlags = flags.filter((flag) => /ai|concierge|recommend|pairing|loyalty/i.test(flag.key));
   const enabledAiFlags = aiFlags.filter((flag) => flag.enabled).length;
-
-  useEffect(() => {
-    if (!selectedProduct) return;
-    setNameAr(selectedProduct.nameAr ?? "");
-    setNameEn(selectedProduct.nameEn ?? selectedProduct.name);
-    setDescriptionAr(selectedProduct.descriptionAr ?? "");
-    setDescriptionEn(selectedProduct.descriptionEn ?? selectedProduct.description ?? "");
-    setPrice(String(selectedProduct.basePrice));
-    setStatus(selectedProduct.status);
-    setConfiguration(JSON.stringify({
-      variants: selectedProduct.variants?.map((item) => ({ name: item.name, priceDelta: Number(item.priceDelta), sku: item.sku })) ?? [],
-      addons: selectedProduct.addons?.map((item) => ({ name: item.name, price: Number(item.price) })) ?? [],
-      modifierGroups: selectedProduct.modifiers?.map((item) => ({ name: item.name, required: item.required, options: item.options })) ?? []
-    }, null, 2));
-  }, [selectedProduct]);
 
   async function updatePrice() {
     setState({ status: "submitting", message: "Updating price..." });
@@ -178,7 +181,13 @@ export function SimpleLaunchOperationsCenter() {
         ]} />
         <DashboardCard title="Product Operator" eyebrow="DB-backed">
           <div className="grid gap-3">
-            <select value={selectedSlug} onChange={(event) => setSelectedSlug(event.target.value)} className="rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-[var(--cream)]">
+            <select value={selectedSlug} onChange={(event) => {
+              const product = products.find((item) => item.slug === event.target.value);
+              if (product) {
+                setSelectedSlug(product.slug);
+                loadProductIntoEditor(product);
+              }
+            }} className="rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-[var(--cream)]">
               {products.map((product) => <option key={product.id} value={product.slug}>{product.name}</option>)}
             </select>
             <div className="grid gap-3 sm:grid-cols-3">
