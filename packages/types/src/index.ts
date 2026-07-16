@@ -15,9 +15,19 @@ export interface Product {
   featured?: boolean;
 }
 
+export interface SelectedModifier {
+  groupId: string;
+  groupName: string;
+  optionId: string;
+  optionName: string;
+  priceDelta: number;
+}
+
 export interface CartItem {
   product: Product;
   quantity: number;
+  unitPrice?: number;
+  modifiers?: SelectedModifier[];
 }
 
 export interface CheckoutCustomer {

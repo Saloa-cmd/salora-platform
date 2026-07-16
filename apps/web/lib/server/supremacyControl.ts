@@ -1,4 +1,7 @@
-import { databaseHealth, queueHealth, redisHealth, SYSTEM_AUTH_CONTEXT, withPrismaAuthContext, type PrismaAuthContext } from "@salora/backend";
+import { redisHealth } from "@salora/backend/cache/health";
+import { databaseHealth } from "@salora/backend/database/health";
+import { SYSTEM_AUTH_CONTEXT, withPrismaAuthContext, type PrismaAuthContext } from "@salora/backend/database/rls-context";
+import { queueHealth } from "@salora/backend/jobs/health/health";
 import { z } from "zod";
 import { runAiDraft } from "./simpleLaunchControl";
 
@@ -53,7 +56,14 @@ export const codOrderSchema = z.object({
     productId: z.string().uuid().optional(),
     productName: z.string().min(2).max(160),
     quantity: z.number().int().positive(),
-    unitPrice: z.number().nonnegative()
+    unitPrice: z.number().nonnegative(),
+    modifiers: z.array(z.object({
+      groupId: z.string().min(1).max(120),
+      groupName: z.string().min(1).max(120),
+      optionId: z.string().min(1).max(120),
+      optionName: z.string().min(1).max(120),
+      priceDelta: z.number().min(-100).max(100)
+    })).max(20).optional()
   })).min(1),
   notes: z.string().max(1000).optional()
 });
@@ -94,7 +104,8 @@ export async function createCodOrder(input: z.infer<typeof codOrderSchema>, auth
             productName: item.productName,
             quantity: item.quantity,
             unitPrice: item.unitPrice,
-            totalPrice: item.quantity * item.unitPrice
+            totalPrice: item.quantity * item.unitPrice,
+            modifiers: item.modifiers
           }))
         },
         timeline: {

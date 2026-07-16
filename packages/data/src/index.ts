@@ -169,7 +169,7 @@ export function recommendFromPrompt(prompt: string): ConciergeReply {
 }
 
 export function calculateSubtotal(items: CartItem[]): number {
-  return Number(items.reduce((sum, item) => sum + item.product.price * item.quantity, 0).toFixed(3));
+  return Number(items.reduce((sum, item) => sum + (item.unitPrice ?? item.product.price) * item.quantity, 0).toFixed(3));
 }
 
 export function formatOmr(value: number): string {
@@ -183,7 +183,11 @@ export function generateWhatsAppMessage(order: OrderDraft): string {
     DineIn: "داخل سالورا",
     Gift: "هدية لشخص آخر"
   };
-  const itemLines = order.items.map((item) => `• ${item.quantity} × ${item.product.name} — ${formatOmr(item.product.price * item.quantity)}`).join("\n");
+  const itemLines = order.items.map((item) => {
+    const price = item.unitPrice ?? item.product.price;
+    const modifiers = item.modifiers?.map((modifier) => modifier.optionName).join(" · ");
+    return `• ${item.quantity} × ${item.product.name}${modifiers ? ` (${modifiers})` : ""} — ${formatOmr(price * item.quantity)}`;
+  }).join("\n");
   return `طلب جديد من SALORA
 
 الاسم: ${order.name}

@@ -249,7 +249,17 @@ export function MenuExperience({ initialProducts, menuSource, menuStale, whatsap
         body: JSON.stringify({
           customerName: name.trim(),
           customerPhone: phone.trim(),
-          items: cart.map((line) => ({ productName: line.product.name, quantity: line.quantity, unitPrice: line.unitPrice })),
+          items: cart.map((line) => ({
+            productName: line.product.name,
+            quantity: line.quantity,
+            unitPrice: line.unitPrice,
+            modifiers: supportsDrinkOptions(line.product) ? [
+              { groupId: "size", groupName: language === "ar" ? "الحجم" : "Size", optionId: line.options.size, optionName: optionLabel(language, line.options.size), priceDelta: line.options.size === "large" ? 0.3 : 0 },
+              { groupId: "milk", groupName: language === "ar" ? "الحليب" : "Milk", optionId: line.options.milk, optionName: optionLabel(language, line.options.milk), priceDelta: line.options.milk === "regular" ? 0 : 0.25 },
+              { groupId: "sugar", groupName: language === "ar" ? "السكر" : "Sugar", optionId: line.options.sugar, optionName: optionLabel(language, line.options.sugar), priceDelta: 0 },
+              { groupId: "ice", groupName: language === "ar" ? "الثلج" : "Ice", optionId: line.options.ice, optionName: optionLabel(language, line.options.ice), priceDelta: 0 }
+            ] : []
+          })),
           notes: [serviceMode, carDetails, notes].filter(Boolean).join(" | ")
         })
       });
