@@ -28,40 +28,40 @@ type CartLine = { key: string; product: Product; quantity: number; modifiers: Se
 const copy = {
   ar: {
     direction: "rtl" as const,
-    eyebrow: "مينيو سالورا الرقمي",
-    title: "اختر لحظتك، ونحن نحضّر الانسجام.",
-    intro: "منيو متصل مباشرة بمنصة SALORA، قابل للتخصيص والاستلام من الكاونتر أو أمام البحر.",
-    search: "ابحث عن مشروب أو حلوى",
-    all: "الكل",
-    add: "خصص وأضف",
-    cart: "طلبك",
-    empty: "أضف منتجًا لتبدأ لحظة سالورا.",
-    checkout: "تأكيد الطلب عبر واتساب",
-    subtotal: "الإجمالي",
-    customize: "خصص اختيارك",
-    size: "الحجم",
-    milk: "الحليب",
-    sugar: "السكر",
-    ice: "الثلج",
-    regular: "عادي",
-    large: "كبير",
-    oat: "شوفان",
-    almond: "لوز",
-    none: "بدون",
-    less: "قليل",
-    light: "خفيف",
-    confirm: "أضف إلى الطلب",
-    live: "بيانات مباشرة",
-    fallback: "وضع العرض الاحتياطي",
-    orderSaved: "تم حفظ الطلب. سيتم فتح واتساب للتأكيد.",
-    orderFailed: "تعذر حفظ الطلب الآن. يمكنك إرساله عبر واتساب دون فقد التفاصيل.",
-    customerName: "الاسم",
-    phone: "رقم الهاتف",
-    carDetails: "نوع السيارة ولونها",
-    notes: "ملاحظات الطلب",
-    required: "أدخل الاسم ورقم الهاتف قبل التأكيد.",
-    service: "طريقة الاستلام",
-    standard: "كما هو من سالورا"
+    eyebrow: "Ù…ÙŠÙ†ÙŠÙˆ Ø³Ø§Ù„ÙˆØ±Ø§ Ø§Ù„Ø±Ù‚Ù…ÙŠ",
+    title: "Ø§Ø®ØªØ± Ù„Ø­Ø¸ØªÙƒØŒ ÙˆÙ†Ø­Ù† Ù†Ø­Ø¶Ù‘Ø± Ø§Ù„Ø§Ù†Ø³Ø¬Ø§Ù….",
+    intro: "Ù…Ù†ÙŠÙˆ Ù…ØªØµÙ„ Ù…Ø¨Ø§Ø´Ø±Ø© Ø¨Ù…Ù†ØµØ© SALORAØŒ Ù‚Ø§Ø¨Ù„ Ù„Ù„ØªØ®ØµÙŠØµ ÙˆØ§Ù„Ø§Ø³ØªÙ„Ø§Ù… Ù…Ù† Ø§Ù„ÙƒØ§ÙˆÙ†ØªØ± Ø£Ùˆ Ø£Ù…Ø§Ù… Ø§Ù„Ø¨Ø­Ø±.",
+    search: "Ø§Ø¨Ø­Ø« Ø¹Ù† Ù…Ø´Ø±ÙˆØ¨ Ø£Ùˆ Ø­Ù„ÙˆÙ‰",
+    all: "Ø§Ù„ÙƒÙ„",
+    add: "Ø®ØµØµ ÙˆØ£Ø¶Ù",
+    cart: "Ø·Ù„Ø¨Ùƒ",
+    empty: "Ø£Ø¶Ù Ù…Ù†ØªØ¬Ù‹Ø§ Ù„ØªØ¨Ø¯Ø£ Ù„Ø­Ø¸Ø© Ø³Ø§Ù„ÙˆØ±Ø§.",
+    checkout: "ØªØ£ÙƒÙŠØ¯ Ø§Ù„Ø·Ù„Ø¨ Ø¹Ø¨Ø± ÙˆØ§ØªØ³Ø§Ø¨",
+    subtotal: "Ø§Ù„Ø¥Ø¬Ù…Ø§Ù„ÙŠ",
+    customize: "Ø®ØµØµ Ø§Ø®ØªÙŠØ§Ø±Ùƒ",
+    size: "Ø§Ù„Ø­Ø¬Ù…",
+    milk: "Ø§Ù„Ø­Ù„ÙŠØ¨",
+    sugar: "Ø§Ù„Ø³ÙƒØ±",
+    ice: "Ø§Ù„Ø«Ù„Ø¬",
+    regular: "Ø¹Ø§Ø¯ÙŠ",
+    large: "ÙƒØ¨ÙŠØ±",
+    oat: "Ø´ÙˆÙØ§Ù†",
+    almond: "Ù„ÙˆØ²",
+    none: "Ø¨Ø¯ÙˆÙ†",
+    less: "Ù‚Ù„ÙŠÙ„",
+    light: "Ø®ÙÙŠÙ",
+    confirm: "Ø£Ø¶Ù Ø¥Ù„Ù‰ Ø§Ù„Ø·Ù„Ø¨",
+    live: "Ø¨ÙŠØ§Ù†Ø§Øª Ù…Ø¨Ø§Ø´Ø±Ø©",
+    fallback: "ÙˆØ¶Ø¹ Ø§Ù„Ø¹Ø±Ø¶ Ø§Ù„Ø§Ø­ØªÙŠØ§Ø·ÙŠ",
+    orderSaved: "ØªÙ… Ø­ÙØ¸ Ø§Ù„Ø·Ù„Ø¨. Ø³ÙŠØªÙ… ÙØªØ­ ÙˆØ§ØªØ³Ø§Ø¨ Ù„Ù„ØªØ£ÙƒÙŠØ¯.",
+    orderFailed: "ØªØ¹Ø°Ø± Ø­ÙØ¸ Ø§Ù„Ø·Ù„Ø¨ Ø§Ù„Ø¢Ù†. ÙŠÙ…ÙƒÙ†Ùƒ Ø¥Ø±Ø³Ø§Ù„Ù‡ Ø¹Ø¨Ø± ÙˆØ§ØªØ³Ø§Ø¨ Ø¯ÙˆÙ† ÙÙ‚Ø¯ Ø§Ù„ØªÙØ§ØµÙŠÙ„.",
+    customerName: "Ø§Ù„Ø§Ø³Ù…",
+    phone: "Ø±Ù‚Ù… Ø§Ù„Ù‡Ø§ØªÙ",
+    carDetails: "Ù†ÙˆØ¹ Ø§Ù„Ø³ÙŠØ§Ø±Ø© ÙˆÙ„ÙˆÙ†Ù‡Ø§",
+    notes: "Ù…Ù„Ø§Ø­Ø¸Ø§Øª Ø§Ù„Ø·Ù„Ø¨",
+    required: "Ø£Ø¯Ø®Ù„ Ø§Ù„Ø§Ø³Ù… ÙˆØ±Ù‚Ù… Ø§Ù„Ù‡Ø§ØªÙ Ù‚Ø¨Ù„ Ø§Ù„ØªØ£ÙƒÙŠØ¯.",
+    service: "Ø·Ø±ÙŠÙ‚Ø© Ø§Ù„Ø§Ø³ØªÙ„Ø§Ù…",
+    standard: "ÙƒÙ…Ø§ Ù‡Ùˆ Ù…Ù† Ø³Ø§Ù„ÙˆØ±Ø§"
   },
   en: {
     direction: "ltr" as const,
@@ -103,26 +103,26 @@ const copy = {
 };
 
 const serviceModes = [
-  { id: "counter" as const, ar: "استلام من الكاونتر", en: "Counter pickup", icon: Store },
-  { id: "car" as const, ar: "استلام أمام البحر", en: "Beachfront pickup", icon: Car },
-  { id: "dine-in" as const, ar: "داخل سالورا", en: "Dine in", icon: UtensilsCrossed },
-  { id: "gift" as const, ar: "أرسل لحظة سالورا", en: "Send a SALORA moment", icon: Gift }
+  { id: "counter" as const, ar: "Ø§Ø³ØªÙ„Ø§Ù… Ù…Ù† Ø§Ù„ÙƒØ§ÙˆÙ†ØªØ±", en: "Counter pickup", icon: Store },
+  { id: "car" as const, ar: "Ø§Ø³ØªÙ„Ø§Ù… Ø£Ù…Ø§Ù… Ø§Ù„Ø¨Ø­Ø±", en: "Beachfront pickup", icon: Car },
+  { id: "dine-in" as const, ar: "Ø¯Ø§Ø®Ù„ Ø³Ø§Ù„ÙˆØ±Ø§", en: "Dine in", icon: UtensilsCrossed },
+  { id: "gift" as const, ar: "Ø£Ø±Ø³Ù„ Ù„Ø­Ø¸Ø© Ø³Ø§Ù„ÙˆØ±Ø§", en: "Send a SALORA moment", icon: Gift }
 ];
 
 const arabicNames: Record<string, string> = {
-  "american-cheese-cake": "تشيز كيك أمريكي",
-  americano: "أمريكانو",
-  cappuccino: "كابتشينو",
-  "cold-brew": "كولد برو",
-  espresso: "إسبريسو",
-  "flat-white": "فلات وايت",
-  "iced-americano": "آيس أمريكانو",
-  "iced-latte": "آيس لاتيه",
-  "iced-spanish-latte": "سبانش لاتيه بارد",
-  "lemon-mint": "ليمون ونعناع",
-  "pistachio-latte": "لاتيه بستاشيو",
-  "red-velvet": "ريد فيلفت",
-  "san-sabastian": "سان سباستيان"
+  "american-cheese-cake": "ØªØ´ÙŠØ² ÙƒÙŠÙƒ Ø£Ù…Ø±ÙŠÙƒÙŠ",
+  americano: "Ø£Ù…Ø±ÙŠÙƒØ§Ù†Ùˆ",
+  cappuccino: "ÙƒØ§Ø¨ØªØ´ÙŠÙ†Ùˆ",
+  "cold-brew": "ÙƒÙˆÙ„Ø¯ Ø¨Ø±Ùˆ",
+  espresso: "Ø¥Ø³Ø¨Ø±ÙŠØ³Ùˆ",
+  "flat-white": "ÙÙ„Ø§Øª ÙˆØ§ÙŠØª",
+  "iced-americano": "Ø¢ÙŠØ³ Ø£Ù…Ø±ÙŠÙƒØ§Ù†Ùˆ",
+  "iced-latte": "Ø¢ÙŠØ³ Ù„Ø§ØªÙŠÙ‡",
+  "iced-spanish-latte": "Ø³Ø¨Ø§Ù†Ø´ Ù„Ø§ØªÙŠÙ‡ Ø¨Ø§Ø±Ø¯",
+  "lemon-mint": "Ù„ÙŠÙ…ÙˆÙ† ÙˆÙ†Ø¹Ù†Ø§Ø¹",
+  "pistachio-latte": "Ù„Ø§ØªÙŠÙ‡ Ø¨Ø³ØªØ§Ø´ÙŠÙˆ",
+  "red-velvet": "Ø±ÙŠØ¯ ÙÙŠÙ„ÙØª",
+  "san-sabastian": "Ø³Ø§Ù† Ø³Ø¨Ø§Ø³ØªÙŠØ§Ù†"
 };
 
 function optionLabel(language: Language, value: string) {
@@ -135,7 +135,7 @@ function displayName(product: Product, language: Language) {
 }
 
 function formatOmr(value: number, language: Language) {
-  return language === "ar" ? `${value.toFixed(3)} ر.ع` : `OMR ${value.toFixed(3)}`;
+  return language === "ar" ? `${value.toFixed(3)} Ø±.Ø¹` : `OMR ${value.toFixed(3)}`;
 }
 
 function productAccent(product: Product) {
@@ -155,18 +155,18 @@ function fallbackGroups(product: Product, language: Language): ProductModifierGr
   if (!supportsDrinkOptions(product)) return [];
   const label = (ar: string, en: string) => language === "ar" ? ar : en;
   return [
-    { id: "size", name: label("الحجم", "Size"), required: true, options: [{ id: "regular", name: label("عادي", "Regular"), priceDelta: 0 }, { id: "large", name: label("كبير", "Large"), priceDelta: 0.3 }] },
-    { id: "milk", name: label("الحليب", "Milk"), required: true, options: [{ id: "regular", name: label("عادي", "Regular"), priceDelta: 0 }, { id: "oat", name: label("شوفان", "Oat"), priceDelta: 0.25 }, { id: "almond", name: label("لوز", "Almond"), priceDelta: 0.25 }] },
-    { id: "sugar", name: label("السكر", "Sugar"), required: true, options: [{ id: "none", name: label("بدون", "None"), priceDelta: 0 }, { id: "less", name: label("قليل", "Less"), priceDelta: 0 }, { id: "regular", name: label("عادي", "Regular"), priceDelta: 0 }] },
-    { id: "ice", name: label("الثلج", "Ice"), required: true, options: [{ id: "none", name: label("بدون", "None"), priceDelta: 0 }, { id: "light", name: label("خفيف", "Light"), priceDelta: 0 }, { id: "regular", name: label("عادي", "Regular"), priceDelta: 0 }] }
+    { id: "size", name: label("Ø§Ù„Ø­Ø¬Ù…", "Size"), required: true, options: [{ id: "regular", name: label("Ø¹Ø§Ø¯ÙŠ", "Regular"), priceDelta: 0 }, { id: "large", name: label("ÙƒØ¨ÙŠØ±", "Large"), priceDelta: 0.3 }] },
+    { id: "milk", name: label("Ø§Ù„Ø­Ù„ÙŠØ¨", "Milk"), required: true, options: [{ id: "regular", name: label("Ø¹Ø§Ø¯ÙŠ", "Regular"), priceDelta: 0 }, { id: "oat", name: label("Ø´ÙˆÙØ§Ù†", "Oat"), priceDelta: 0.25 }, { id: "almond", name: label("Ù„ÙˆØ²", "Almond"), priceDelta: 0.25 }] },
+    { id: "sugar", name: label("Ø§Ù„Ø³ÙƒØ±", "Sugar"), required: true, options: [{ id: "none", name: label("Ø¨Ø¯ÙˆÙ†", "None"), priceDelta: 0 }, { id: "less", name: label("Ù‚Ù„ÙŠÙ„", "Less"), priceDelta: 0 }, { id: "regular", name: label("Ø¹Ø§Ø¯ÙŠ", "Regular"), priceDelta: 0 }] },
+    { id: "ice", name: label("Ø§Ù„Ø«Ù„Ø¬", "Ice"), required: true, options: [{ id: "none", name: label("Ø¨Ø¯ÙˆÙ†", "None"), priceDelta: 0 }, { id: "light", name: label("Ø®ÙÙŠÙ", "Light"), priceDelta: 0 }, { id: "regular", name: label("Ø¹Ø§Ø¯ÙŠ", "Regular"), priceDelta: 0 }] }
   ];
 }
 
 function productGroups(product: Product, language: Language): ProductModifierGroup[] {
   const databaseGroups: ProductModifierGroup[] = [
-    ...(product.variants?.length ? [{ id: "variant", name: language === "ar" ? "الحجم / النوع" : "Size / variant", required: true, options: product.variants }] : []),
+    ...(product.variants?.length ? [{ id: "variant", name: language === "ar" ? "Ø§Ù„Ø­Ø¬Ù… / Ø§Ù„Ù†ÙˆØ¹" : "Size / variant", required: true, options: product.variants }] : []),
     ...(product.modifierGroups ?? []),
-    ...(product.addons?.length ? [{ id: "addons", name: language === "ar" ? "الإضافات" : "Add-ons", required: false, options: product.addons }] : [])
+    ...(product.addons?.length ? [{ id: "addons", name: language === "ar" ? "Ø§Ù„Ø¥Ø¶Ø§ÙØ§Øª" : "Add-ons", required: false, options: product.addons }] : [])
   ];
   return databaseGroups.length ? databaseGroups : fallbackGroups(product, language);
 }
@@ -210,7 +210,7 @@ export function MenuExperience({ initialProducts, menuSource, menuStale, whatsap
   function openProduct(product: Product) {
     setSelectedProduct(product);
     const groups = productGroups(product, language);
-    setSelections(Object.fromEntries(groups.filter((group) => group.required && group.options[0]).map((group) => [group.id, group.options[0]])));
+    setSelections(groups.reduce<Record<string, ProductChoice>>((initial, group) => { const option = group.options[0]; if (group.required && option) initial[group.id] = option; return initial; }, {}));
   }
 
   function addSelectedProduct() {
@@ -235,11 +235,11 @@ export function MenuExperience({ initialProducts, menuSource, menuStale, whatsap
   function whatsappMessage() {
     const service = serviceModes.find((mode) => mode.id === serviceMode);
     const lines = cart.map((line) => {
-      const detail = line.modifiers.length ? line.modifiers.map((modifier) => modifier.optionName).join(" · ") : t.standard;
-      return `${line.quantity}× ${displayName(line.product, language)} — ${detail} — ${formatOmr(line.unitPrice * line.quantity, language)}`;
+      const detail = line.modifiers.length ? line.modifiers.map((modifier) => modifier.optionName).join(" Â· ") : t.standard;
+      return `${line.quantity}Ã— ${displayName(line.product, language)} â€” ${detail} â€” ${formatOmr(line.unitPrice * line.quantity, language)}`;
     });
     return [
-      language === "ar" ? "طلب جديد من SALORA" : "New SALORA order",
+      language === "ar" ? "Ø·Ù„Ø¨ Ø¬Ø¯ÙŠØ¯ Ù…Ù† SALORA" : "New SALORA order",
       `${t.customerName}: ${name}`,
       `${t.phone}: ${phone}`,
       `${t.service}: ${language === "ar" ? service?.ar : service?.en}`,
@@ -300,7 +300,7 @@ export function MenuExperience({ initialProducts, menuSource, menuStale, whatsap
           </Link>
           <div className="flex items-center gap-2">
             <button type="button" onClick={() => setLanguage((value) => value === "ar" ? "en" : "ar")} className="inline-flex items-center gap-2 rounded-full border border-white/10 px-3 py-2 text-xs font-semibold">
-              <Languages className="h-4 w-4" /> {language === "ar" ? "English" : "العربية"}
+              <Languages className="h-4 w-4" /> {language === "ar" ? "English" : "Ø§Ù„Ø¹Ø±Ø¨ÙŠØ©"}
             </button>
             <button type="button" onClick={() => setCartOpen(true)} className="relative inline-flex items-center gap-2 rounded-full bg-[var(--gold)] px-4 py-2 text-sm font-semibold text-black">
               <ShoppingBag className="h-4 w-4" /> {t.cart}
@@ -379,8 +379,8 @@ export function MenuExperience({ initialProducts, menuSource, menuStale, whatsap
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label={t.cart}>
           <aside className={`absolute inset-y-0 w-full max-w-md overflow-y-auto border-white/10 bg-[#0d0d0d] p-5 shadow-2xl ${language === "ar" ? "left-0 border-r" : "right-0 border-l"}`}>
             <div className="flex items-center justify-between"><h2 className="text-2xl font-semibold">{t.cart}</h2><button type="button" onClick={() => setCartOpen(false)} className="rounded-full border border-white/10 p-2"><X className="h-5 w-5" /></button></div>
-            {cart.length ? <div className="mt-6 grid gap-4">{cart.map((line) => <div key={line.key} className="rounded-2xl border border-white/10 bg-white/[0.04] p-4"><div className="flex items-start justify-between gap-3"><div><h3 className="font-semibold">{displayName(line.product, language)}</h3><p className="mt-1 text-xs text-[var(--muted)]">{line.modifiers.length ? line.modifiers.map((modifier) => modifier.optionName).join(" · ") : t.standard}</p></div><span className="text-sm text-[var(--gold-soft)]">{formatOmr(line.unitPrice * line.quantity, language)}</span></div><div className="mt-4 flex items-center gap-3"><button type="button" onClick={() => changeQuantity(line.key, -1)} className="rounded-full border border-white/10 p-1"><Minus className="h-4 w-4" /></button><span>{line.quantity}</span><button type="button" onClick={() => changeQuantity(line.key, 1)} className="rounded-full border border-white/10 p-1"><Plus className="h-4 w-4" /></button></div></div>)}</div> : <p className="mt-10 text-center text-sm text-[var(--muted)]">{t.empty}</p>}
-            {cart.length ? <div className="mt-7 grid gap-3 border-t border-white/10 pt-6"><input value={name} onChange={(event) => setName(event.target.value)} placeholder={t.customerName} className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 outline-none" /><input value={phone} onChange={(event) => setPhone(event.target.value)} placeholder={t.phone} inputMode="tel" className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 outline-none" />{serviceMode === "car" ? <input value={carDetails} onChange={(event) => setCarDetails(event.target.value)} placeholder={t.carDetails} className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 outline-none" /> : null}<textarea value={notes} onChange={(event) => setNotes(event.target.value)} placeholder={t.notes} rows={3} className="resize-none rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 outline-none" /><div className="flex items-center justify-between py-2"><span className="text-[var(--muted)]">{t.subtotal}</span><strong className="text-xl text-[var(--gold-soft)]">{formatOmr(subtotal, language)}</strong></div>{notice ? <p className="rounded-xl border border-white/10 bg-white/[0.04] p-3 text-sm leading-6 text-[var(--muted)]">{notice}</p> : null}<button type="button" disabled={submitting} onClick={checkout} className="rounded-2xl bg-[var(--gold)] px-5 py-4 font-semibold text-black disabled:opacity-50">{submitting ? "…" : t.checkout}</button></div> : null}
+            {cart.length ? <div className="mt-6 grid gap-4">{cart.map((line) => <div key={line.key} className="rounded-2xl border border-white/10 bg-white/[0.04] p-4"><div className="flex items-start justify-between gap-3"><div><h3 className="font-semibold">{displayName(line.product, language)}</h3><p className="mt-1 text-xs text-[var(--muted)]">{line.modifiers.length ? line.modifiers.map((modifier) => modifier.optionName).join(" Â· ") : t.standard}</p></div><span className="text-sm text-[var(--gold-soft)]">{formatOmr(line.unitPrice * line.quantity, language)}</span></div><div className="mt-4 flex items-center gap-3"><button type="button" onClick={() => changeQuantity(line.key, -1)} className="rounded-full border border-white/10 p-1"><Minus className="h-4 w-4" /></button><span>{line.quantity}</span><button type="button" onClick={() => changeQuantity(line.key, 1)} className="rounded-full border border-white/10 p-1"><Plus className="h-4 w-4" /></button></div></div>)}</div> : <p className="mt-10 text-center text-sm text-[var(--muted)]">{t.empty}</p>}
+            {cart.length ? <div className="mt-7 grid gap-3 border-t border-white/10 pt-6"><input value={name} onChange={(event) => setName(event.target.value)} placeholder={t.customerName} className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 outline-none" /><input value={phone} onChange={(event) => setPhone(event.target.value)} placeholder={t.phone} inputMode="tel" className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 outline-none" />{serviceMode === "car" ? <input value={carDetails} onChange={(event) => setCarDetails(event.target.value)} placeholder={t.carDetails} className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 outline-none" /> : null}<textarea value={notes} onChange={(event) => setNotes(event.target.value)} placeholder={t.notes} rows={3} className="resize-none rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 outline-none" /><div className="flex items-center justify-between py-2"><span className="text-[var(--muted)]">{t.subtotal}</span><strong className="text-xl text-[var(--gold-soft)]">{formatOmr(subtotal, language)}</strong></div>{notice ? <p className="rounded-xl border border-white/10 bg-white/[0.04] p-3 text-sm leading-6 text-[var(--muted)]">{notice}</p> : null}<button type="button" disabled={submitting} onClick={checkout} className="rounded-2xl bg-[var(--gold)] px-5 py-4 font-semibold text-black disabled:opacity-50">{submitting ? "â€¦" : t.checkout}</button></div> : null}
           </aside>
         </div>
       ) : null}
