@@ -5,8 +5,14 @@ export type OrderType = "Counter" | "Car" | "DineIn" | "Gift";
 export interface Product {
   id: string;
   name: string;
+  nameAr?: string;
+  nameEn?: string;
   category: ProductCategory;
+  categoryAr?: string;
+  categoryEn?: string;
   description: string;
+  descriptionAr?: string;
+  descriptionEn?: string;
   story?: string;
   price: number;
   tags: string[];

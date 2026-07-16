@@ -16,11 +16,15 @@ type PublicCatalogProduct = {
   id: string;
   slug: string;
   name: string;
+  nameAr: string | null;
+  nameEn: string | null;
   description: string;
+  descriptionAr: string | null;
+  descriptionEn: string | null;
   basePrice: { toString(): string } | number | string;
   tags: string[];
   pairingHint: string | null;
-  category: { name: string } | null;
+  category: { name: string; nameAr: string | null; nameEn: string | null } | null;
   images: Array<{ publicUrl: string | null; storagePath: string }>;
   variants: Array<{ id: string; name: string; priceDelta: { toString(): string } | number | string; sku: string | null }>;
   addons: Array<{ id: string; name: string; price: { toString(): string } | number | string }>;
@@ -49,8 +53,14 @@ function mapCatalogProduct(product: PublicCatalogProduct): Product {
   return {
     id: product.slug,
     name: product.name,
+    nameAr: product.nameAr ?? undefined,
+    nameEn: product.nameEn ?? product.name,
     category: product.category?.name ?? "Menu",
+    categoryAr: product.category?.nameAr ?? undefined,
+    categoryEn: product.category?.nameEn ?? product.category?.name ?? undefined,
     description: product.description,
+    descriptionAr: product.descriptionAr ?? undefined,
+    descriptionEn: product.descriptionEn ?? product.description,
     story: product.description,
     price: Number(product.basePrice.toString()),
     tags: product.tags,
@@ -65,7 +75,7 @@ function mapCatalogProduct(product: PublicCatalogProduct): Product {
 export async function getPublicMenuSnapshot(): Promise<PublicMenuSnapshot> {
   try {
     const products = await withPrismaAuthContext(SYSTEM_AUTH_CONTEXT, (db) => db.catalogProduct.findMany({
-      where: { status: "ACTIVE" },
+      where: { brandKey: "SALORA", status: "ACTIVE" },
       include: {
         category: true,
         images: {

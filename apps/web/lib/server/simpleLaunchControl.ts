@@ -106,10 +106,14 @@ export const productMutationSchema = z.discriminatedUnion("action", [
     action: z.literal("create"),
     slug: z.string().min(2).max(140),
     name: z.string().min(2).max(160),
+    nameAr: z.string().min(2).max(160).optional(),
+    nameEn: z.string().min(2).max(160).optional(),
     categorySlug: z.string().min(2).max(120).optional(),
     categoryName: z.string().min(2).max(120),
     description: z.string().max(2000).default(""),
-    basePrice: z.number().positive(),
+    descriptionAr: z.string().max(2000).optional(),
+    descriptionEn: z.string().max(2000).optional(),
+    basePrice: z.number().nonnegative(),
     status: z.enum(["DRAFT", "ACTIVE", "PAUSED", "ARCHIVED"]).default("ACTIVE"),
     tags: z.array(z.string()).default([])
   }),
@@ -117,16 +121,44 @@ export const productMutationSchema = z.discriminatedUnion("action", [
     action: z.literal("update"),
     slug: z.string().min(2).max(140),
     name: z.string().min(2).max(160).optional(),
+    nameAr: z.string().min(2).max(160).optional(),
+    nameEn: z.string().min(2).max(160).optional(),
     description: z.string().max(2000).optional(),
-    basePrice: z.number().positive().optional(),
+    descriptionAr: z.string().max(2000).optional(),
+    descriptionEn: z.string().max(2000).optional(),
+    basePrice: z.number().nonnegative().optional(),
     status: z.enum(["DRAFT", "ACTIVE", "PAUSED", "ARCHIVED"]).optional(),
     tags: z.array(z.string()).optional()
   }),
   z.object({ action: z.literal("archive"), slug: z.string().min(2).max(140) }),
   z.object({ action: z.literal("restore"), slug: z.string().min(2).max(140) }),
   z.object({ action: z.literal("status"), slug: z.string().min(2).max(140), status: z.enum(["DRAFT", "ACTIVE", "PAUSED", "ARCHIVED"]) }),
-  z.object({ action: z.literal("price"), slug: z.string().min(2).max(140), basePrice: z.number().positive() })
-]);
+  z.object({ action: z.literal("price"), slug: z.string().min(2).max(140), basePrice: z.number().nonnegative() })
+]).superRefine((value, ctx) => {
+  if ((value.action === "create" || value.action === "update") && value.status === "ACTIVE" && !value.basePrice) {
+    ctx.addIssue({ code: "custom", message: "Active products require an approved positive price." });
+  }
+  if (value.action === "price" && value.basePrice === 0) {
+    ctx.addIssue({ code: "custom", message: "Use DRAFT status for products awaiting pricing." });
+  }
+});
+
+const configurationChoiceSchema = z.object({
+  name: z.string().min(1).max(120),
+  priceDelta: z.number().min(-100).max(100).default(0),
+  sku: z.string().max(80).optional()
+});
+
+export const productConfigurationSchema = z.object({
+  productSlug: z.string().min(2).max(140),
+  variants: z.array(configurationChoiceSchema).max(30).default([]),
+  addons: z.array(z.object({ name: z.string().min(1).max(120), price: z.number().min(0).max(100) })).max(40).default([]),
+  modifierGroups: z.array(z.object({
+    name: z.string().min(1).max(120),
+    required: z.boolean().default(false),
+    options: z.array(z.object({ id: z.string().min(1).max(120), name: z.string().min(1).max(120), priceDelta: z.number().min(-100).max(100).default(0) })).min(1).max(30)
+  })).max(20).default([])
+});
 
 export const categoryMutationSchema = z.discriminatedUnion("action", [
   z.object({ action: z.literal("create"), name: z.string().min(2).max(120), slug: z.string().min(2).max(120).optional(), sortOrder: z.number().int().nonnegative().default(0) }),

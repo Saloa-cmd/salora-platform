@@ -278,8 +278,11 @@ model CustomerPreference {
 
 model ProductCategory {
   id        String           @id @default(uuid()) @db.Uuid
+  brandKey  String           @default("SALORA") @map("brand_key") @db.VarChar(40)
   slug      String           @unique @db.VarChar(120)
   name      String           @db.VarChar(120)
+  nameAr    String?          @map("name_ar") @db.VarChar(120)
+  nameEn    String?          @map("name_en") @db.VarChar(120)
   sortOrder Int              @default(0) @map("sort_order")
   products  CatalogProduct[]
 
@@ -288,10 +291,15 @@ model ProductCategory {
 
 model CatalogProduct {
   id                String             @id @default(uuid()) @db.Uuid
+  brandKey          String             @default("SALORA") @map("brand_key") @db.VarChar(40)
   categoryId        String             @map("category_id") @db.Uuid
   slug              String             @unique @db.VarChar(140)
   name              String             @db.VarChar(160)
+  nameAr            String?            @map("name_ar") @db.VarChar(160)
+  nameEn            String?            @map("name_en") @db.VarChar(160)
   description       String             @db.Text
+  descriptionAr     String?            @map("description_ar") @db.Text
+  descriptionEn     String?            @map("description_en") @db.Text
   status            ProductStatus      @default(DRAFT)
   basePrice         Decimal            @map("base_price") @db.Decimal(10, 3)
   tags              String[]           @default([])
@@ -315,6 +323,7 @@ model CatalogProduct {
   savedOrders       SavedOrder[]
 
   @@index([categoryId])
+  @@index([brandKey, status])
   @@index([status])
   @@map("catalog_products")
 }

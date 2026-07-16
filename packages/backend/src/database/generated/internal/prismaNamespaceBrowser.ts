@@ -183,8 +183,11 @@ export type CustomerPreferenceScalarFieldEnum = (typeof CustomerPreferenceScalar
 
 export const ProductCategoryScalarFieldEnum = {
   id: 'id',
+  brandKey: 'brandKey',
   slug: 'slug',
   name: 'name',
+  nameAr: 'nameAr',
+  nameEn: 'nameEn',
   sortOrder: 'sortOrder'
 } as const
 
@@ -193,10 +196,15 @@ export type ProductCategoryScalarFieldEnum = (typeof ProductCategoryScalarFieldE
 
 export const CatalogProductScalarFieldEnum = {
   id: 'id',
+  brandKey: 'brandKey',
   categoryId: 'categoryId',
   slug: 'slug',
   name: 'name',
+  nameAr: 'nameAr',
+  nameEn: 'nameEn',
   description: 'description',
+  descriptionAr: 'descriptionAr',
+  descriptionEn: 'descriptionEn',
   status: 'status',
   basePrice: 'basePrice',
   tags: 'tags',
