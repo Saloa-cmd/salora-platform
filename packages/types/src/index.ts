@@ -13,6 +13,23 @@ export interface Product {
   pairing?: string;
   visual: string;
   featured?: boolean;
+  variants?: ProductChoice[];
+  addons?: ProductChoice[];
+  modifierGroups?: ProductModifierGroup[];
+}
+
+export interface ProductChoice {
+  id: string;
+  name: string;
+  priceDelta: number;
+  sku?: string;
+}
+
+export interface ProductModifierGroup {
+  id: string;
+  name: string;
+  required: boolean;
+  options: ProductChoice[];
 }
 
 export interface SelectedModifier {
@@ -24,6 +41,7 @@ export interface SelectedModifier {
 }
 
 export interface CartItem {
+  key?: string;
   product: Product;
   quantity: number;
   unitPrice?: number;
