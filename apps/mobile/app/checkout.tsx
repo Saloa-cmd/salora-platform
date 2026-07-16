@@ -49,7 +49,8 @@ export default function CheckoutScreen() {
           items: items.map((item) => ({
             productName: item.product.name,
             quantity: item.quantity,
-            unitPrice: item.product.price
+            unitPrice: item.unitPrice ?? item.product.price,
+            modifiers: item.modifiers
           }))
         })
       });
