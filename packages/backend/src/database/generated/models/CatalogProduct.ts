@@ -36,10 +36,15 @@ export type CatalogProductSumAggregateOutputType = {
 
 export type CatalogProductMinAggregateOutputType = {
   id: string | null
+  brandKey: string | null
   categoryId: string | null
   slug: string | null
   name: string | null
+  nameAr: string | null
+  nameEn: string | null
   description: string | null
+  descriptionAr: string | null
+  descriptionEn: string | null
   status: $Enums.ProductStatus | null
   basePrice: runtime.Decimal | null
   pairingHint: string | null
@@ -50,10 +55,15 @@ export type CatalogProductMinAggregateOutputType = {
 
 export type CatalogProductMaxAggregateOutputType = {
   id: string | null
+  brandKey: string | null
   categoryId: string | null
   slug: string | null
   name: string | null
+  nameAr: string | null
+  nameEn: string | null
   description: string | null
+  descriptionAr: string | null
+  descriptionEn: string | null
   status: $Enums.ProductStatus | null
   basePrice: runtime.Decimal | null
   pairingHint: string | null
@@ -64,10 +74,15 @@ export type CatalogProductMaxAggregateOutputType = {
 
 export type CatalogProductCountAggregateOutputType = {
   id: number
+  brandKey: number
   categoryId: number
   slug: number
   name: number
+  nameAr: number
+  nameEn: number
   description: number
+  descriptionAr: number
+  descriptionEn: number
   status: number
   basePrice: number
   tags: number
@@ -89,10 +104,15 @@ export type CatalogProductSumAggregateInputType = {
 
 export type CatalogProductMinAggregateInputType = {
   id?: true
+  brandKey?: true
   categoryId?: true
   slug?: true
   name?: true
+  nameAr?: true
+  nameEn?: true
   description?: true
+  descriptionAr?: true
+  descriptionEn?: true
   status?: true
   basePrice?: true
   pairingHint?: true
@@ -103,10 +123,15 @@ export type CatalogProductMinAggregateInputType = {
 
 export type CatalogProductMaxAggregateInputType = {
   id?: true
+  brandKey?: true
   categoryId?: true
   slug?: true
   name?: true
+  nameAr?: true
+  nameEn?: true
   description?: true
+  descriptionAr?: true
+  descriptionEn?: true
   status?: true
   basePrice?: true
   pairingHint?: true
@@ -117,10 +142,15 @@ export type CatalogProductMaxAggregateInputType = {
 
 export type CatalogProductCountAggregateInputType = {
   id?: true
+  brandKey?: true
   categoryId?: true
   slug?: true
   name?: true
+  nameAr?: true
+  nameEn?: true
   description?: true
+  descriptionAr?: true
+  descriptionEn?: true
   status?: true
   basePrice?: true
   tags?: true
@@ -219,10 +249,15 @@ export type CatalogProductGroupByArgs<ExtArgs extends runtime.Types.Extensions.I
 
 export type CatalogProductGroupByOutputType = {
   id: string
+  brandKey: string
   categoryId: string
   slug: string
   name: string
+  nameAr: string | null
+  nameEn: string | null
   description: string
+  descriptionAr: string | null
+  descriptionEn: string | null
   status: $Enums.ProductStatus
   basePrice: runtime.Decimal
   tags: string[]
@@ -257,10 +292,15 @@ export type CatalogProductWhereInput = {
   OR?: Prisma.CatalogProductWhereInput[]
   NOT?: Prisma.CatalogProductWhereInput | Prisma.CatalogProductWhereInput[]
   id?: Prisma.UuidFilter<"CatalogProduct"> | string
+  brandKey?: Prisma.StringFilter<"CatalogProduct"> | string
   categoryId?: Prisma.UuidFilter<"CatalogProduct"> | string
   slug?: Prisma.StringFilter<"CatalogProduct"> | string
   name?: Prisma.StringFilter<"CatalogProduct"> | string
+  nameAr?: Prisma.StringNullableFilter<"CatalogProduct"> | string | null
+  nameEn?: Prisma.StringNullableFilter<"CatalogProduct"> | string | null
   description?: Prisma.StringFilter<"CatalogProduct"> | string
+  descriptionAr?: Prisma.StringNullableFilter<"CatalogProduct"> | string | null
+  descriptionEn?: Prisma.StringNullableFilter<"CatalogProduct"> | string | null
   status?: Prisma.EnumProductStatusFilter<"CatalogProduct"> | $Enums.ProductStatus
   basePrice?: Prisma.DecimalFilter<"CatalogProduct"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.StringNullableListFilter<"CatalogProduct">
@@ -286,10 +326,15 @@ export type CatalogProductWhereInput = {
 
 export type CatalogProductOrderByWithRelationInput = {
   id?: Prisma.SortOrder
+  brandKey?: Prisma.SortOrder
   categoryId?: Prisma.SortOrder
   slug?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  nameAr?: Prisma.SortOrderInput | Prisma.SortOrder
+  nameEn?: Prisma.SortOrderInput | Prisma.SortOrder
   description?: Prisma.SortOrder
+  descriptionAr?: Prisma.SortOrderInput | Prisma.SortOrder
+  descriptionEn?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   basePrice?: Prisma.SortOrder
   tags?: Prisma.SortOrder
@@ -319,9 +364,14 @@ export type CatalogProductWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.CatalogProductWhereInput | Prisma.CatalogProductWhereInput[]
   OR?: Prisma.CatalogProductWhereInput[]
   NOT?: Prisma.CatalogProductWhereInput | Prisma.CatalogProductWhereInput[]
+  brandKey?: Prisma.StringFilter<"CatalogProduct"> | string
   categoryId?: Prisma.UuidFilter<"CatalogProduct"> | string
   name?: Prisma.StringFilter<"CatalogProduct"> | string
+  nameAr?: Prisma.StringNullableFilter<"CatalogProduct"> | string | null
+  nameEn?: Prisma.StringNullableFilter<"CatalogProduct"> | string | null
   description?: Prisma.StringFilter<"CatalogProduct"> | string
+  descriptionAr?: Prisma.StringNullableFilter<"CatalogProduct"> | string | null
+  descriptionEn?: Prisma.StringNullableFilter<"CatalogProduct"> | string | null
   status?: Prisma.EnumProductStatusFilter<"CatalogProduct"> | $Enums.ProductStatus
   basePrice?: Prisma.DecimalFilter<"CatalogProduct"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.StringNullableListFilter<"CatalogProduct">
@@ -347,10 +397,15 @@ export type CatalogProductWhereUniqueInput = Prisma.AtLeast<{
 
 export type CatalogProductOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
+  brandKey?: Prisma.SortOrder
   categoryId?: Prisma.SortOrder
   slug?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  nameAr?: Prisma.SortOrderInput | Prisma.SortOrder
+  nameEn?: Prisma.SortOrderInput | Prisma.SortOrder
   description?: Prisma.SortOrder
+  descriptionAr?: Prisma.SortOrderInput | Prisma.SortOrder
+  descriptionEn?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   basePrice?: Prisma.SortOrder
   tags?: Prisma.SortOrder
@@ -370,10 +425,15 @@ export type CatalogProductScalarWhereWithAggregatesInput = {
   OR?: Prisma.CatalogProductScalarWhereWithAggregatesInput[]
   NOT?: Prisma.CatalogProductScalarWhereWithAggregatesInput | Prisma.CatalogProductScalarWhereWithAggregatesInput[]
   id?: Prisma.UuidWithAggregatesFilter<"CatalogProduct"> | string
+  brandKey?: Prisma.StringWithAggregatesFilter<"CatalogProduct"> | string
   categoryId?: Prisma.UuidWithAggregatesFilter<"CatalogProduct"> | string
   slug?: Prisma.StringWithAggregatesFilter<"CatalogProduct"> | string
   name?: Prisma.StringWithAggregatesFilter<"CatalogProduct"> | string
+  nameAr?: Prisma.StringNullableWithAggregatesFilter<"CatalogProduct"> | string | null
+  nameEn?: Prisma.StringNullableWithAggregatesFilter<"CatalogProduct"> | string | null
   description?: Prisma.StringWithAggregatesFilter<"CatalogProduct"> | string
+  descriptionAr?: Prisma.StringNullableWithAggregatesFilter<"CatalogProduct"> | string | null
+  descriptionEn?: Prisma.StringNullableWithAggregatesFilter<"CatalogProduct"> | string | null
   status?: Prisma.EnumProductStatusWithAggregatesFilter<"CatalogProduct"> | $Enums.ProductStatus
   basePrice?: Prisma.DecimalWithAggregatesFilter<"CatalogProduct"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.StringNullableListFilter<"CatalogProduct">
@@ -385,9 +445,14 @@ export type CatalogProductScalarWhereWithAggregatesInput = {
 
 export type CatalogProductCreateInput = {
   id?: string
+  brandKey?: string
   slug: string
   name: string
+  nameAr?: string | null
+  nameEn?: string | null
   description: string
+  descriptionAr?: string | null
+  descriptionEn?: string | null
   status?: $Enums.ProductStatus
   basePrice: runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.CatalogProductCreatetagsInput | string[]
@@ -413,10 +478,15 @@ export type CatalogProductCreateInput = {
 
 export type CatalogProductUncheckedCreateInput = {
   id?: string
+  brandKey?: string
   categoryId: string
   slug: string
   name: string
+  nameAr?: string | null
+  nameEn?: string | null
   description: string
+  descriptionAr?: string | null
+  descriptionEn?: string | null
   status?: $Enums.ProductStatus
   basePrice: runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.CatalogProductCreatetagsInput | string[]
@@ -441,9 +511,14 @@ export type CatalogProductUncheckedCreateInput = {
 
 export type CatalogProductUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  brandKey?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nameEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptionAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   basePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.CatalogProductUpdatetagsInput | string[]
@@ -469,10 +544,15 @@ export type CatalogProductUpdateInput = {
 
 export type CatalogProductUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  brandKey?: Prisma.StringFieldUpdateOperationsInput | string
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nameEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptionAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   basePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.CatalogProductUpdatetagsInput | string[]
@@ -497,10 +577,15 @@ export type CatalogProductUncheckedUpdateInput = {
 
 export type CatalogProductCreateManyInput = {
   id?: string
+  brandKey?: string
   categoryId: string
   slug: string
   name: string
+  nameAr?: string | null
+  nameEn?: string | null
   description: string
+  descriptionAr?: string | null
+  descriptionEn?: string | null
   status?: $Enums.ProductStatus
   basePrice: runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.CatalogProductCreatetagsInput | string[]
@@ -512,9 +597,14 @@ export type CatalogProductCreateManyInput = {
 
 export type CatalogProductUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  brandKey?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nameEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptionAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   basePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.CatalogProductUpdatetagsInput | string[]
@@ -526,10 +616,15 @@ export type CatalogProductUpdateManyMutationInput = {
 
 export type CatalogProductUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  brandKey?: Prisma.StringFieldUpdateOperationsInput | string
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nameEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptionAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   basePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.CatalogProductUpdatetagsInput | string[]
@@ -559,10 +654,15 @@ export type StringNullableListFilter<$PrismaModel = never> = {
 
 export type CatalogProductCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  brandKey?: Prisma.SortOrder
   categoryId?: Prisma.SortOrder
   slug?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  nameAr?: Prisma.SortOrder
+  nameEn?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  descriptionAr?: Prisma.SortOrder
+  descriptionEn?: Prisma.SortOrder
   status?: Prisma.SortOrder
   basePrice?: Prisma.SortOrder
   tags?: Prisma.SortOrder
@@ -578,10 +678,15 @@ export type CatalogProductAvgOrderByAggregateInput = {
 
 export type CatalogProductMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  brandKey?: Prisma.SortOrder
   categoryId?: Prisma.SortOrder
   slug?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  nameAr?: Prisma.SortOrder
+  nameEn?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  descriptionAr?: Prisma.SortOrder
+  descriptionEn?: Prisma.SortOrder
   status?: Prisma.SortOrder
   basePrice?: Prisma.SortOrder
   pairingHint?: Prisma.SortOrder
@@ -592,10 +697,15 @@ export type CatalogProductMaxOrderByAggregateInput = {
 
 export type CatalogProductMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  brandKey?: Prisma.SortOrder
   categoryId?: Prisma.SortOrder
   slug?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  nameAr?: Prisma.SortOrder
+  nameEn?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  descriptionAr?: Prisma.SortOrder
+  descriptionEn?: Prisma.SortOrder
   status?: Prisma.SortOrder
   basePrice?: Prisma.SortOrder
   pairingHint?: Prisma.SortOrder
@@ -869,9 +979,14 @@ export type CatalogProductUpdateOneWithoutOrderItemsNestedInput = {
 
 export type CatalogProductCreateWithoutCategoryInput = {
   id?: string
+  brandKey?: string
   slug: string
   name: string
+  nameAr?: string | null
+  nameEn?: string | null
   description: string
+  descriptionAr?: string | null
+  descriptionEn?: string | null
   status?: $Enums.ProductStatus
   basePrice: runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.CatalogProductCreatetagsInput | string[]
@@ -896,9 +1011,14 @@ export type CatalogProductCreateWithoutCategoryInput = {
 
 export type CatalogProductUncheckedCreateWithoutCategoryInput = {
   id?: string
+  brandKey?: string
   slug: string
   name: string
+  nameAr?: string | null
+  nameEn?: string | null
   description: string
+  descriptionAr?: string | null
+  descriptionEn?: string | null
   status?: $Enums.ProductStatus
   basePrice: runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.CatalogProductCreatetagsInput | string[]
@@ -952,10 +1072,15 @@ export type CatalogProductScalarWhereInput = {
   OR?: Prisma.CatalogProductScalarWhereInput[]
   NOT?: Prisma.CatalogProductScalarWhereInput | Prisma.CatalogProductScalarWhereInput[]
   id?: Prisma.UuidFilter<"CatalogProduct"> | string
+  brandKey?: Prisma.StringFilter<"CatalogProduct"> | string
   categoryId?: Prisma.UuidFilter<"CatalogProduct"> | string
   slug?: Prisma.StringFilter<"CatalogProduct"> | string
   name?: Prisma.StringFilter<"CatalogProduct"> | string
+  nameAr?: Prisma.StringNullableFilter<"CatalogProduct"> | string | null
+  nameEn?: Prisma.StringNullableFilter<"CatalogProduct"> | string | null
   description?: Prisma.StringFilter<"CatalogProduct"> | string
+  descriptionAr?: Prisma.StringNullableFilter<"CatalogProduct"> | string | null
+  descriptionEn?: Prisma.StringNullableFilter<"CatalogProduct"> | string | null
   status?: Prisma.EnumProductStatusFilter<"CatalogProduct"> | $Enums.ProductStatus
   basePrice?: Prisma.DecimalFilter<"CatalogProduct"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.StringNullableListFilter<"CatalogProduct">
@@ -967,9 +1092,14 @@ export type CatalogProductScalarWhereInput = {
 
 export type CatalogProductCreateWithoutImagesInput = {
   id?: string
+  brandKey?: string
   slug: string
   name: string
+  nameAr?: string | null
+  nameEn?: string | null
   description: string
+  descriptionAr?: string | null
+  descriptionEn?: string | null
   status?: $Enums.ProductStatus
   basePrice: runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.CatalogProductCreatetagsInput | string[]
@@ -994,10 +1124,15 @@ export type CatalogProductCreateWithoutImagesInput = {
 
 export type CatalogProductUncheckedCreateWithoutImagesInput = {
   id?: string
+  brandKey?: string
   categoryId: string
   slug: string
   name: string
+  nameAr?: string | null
+  nameEn?: string | null
   description: string
+  descriptionAr?: string | null
+  descriptionEn?: string | null
   status?: $Enums.ProductStatus
   basePrice: runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.CatalogProductCreatetagsInput | string[]
@@ -1037,9 +1172,14 @@ export type CatalogProductUpdateToOneWithWhereWithoutImagesInput = {
 
 export type CatalogProductUpdateWithoutImagesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  brandKey?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nameEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptionAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   basePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.CatalogProductUpdatetagsInput | string[]
@@ -1064,10 +1204,15 @@ export type CatalogProductUpdateWithoutImagesInput = {
 
 export type CatalogProductUncheckedUpdateWithoutImagesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  brandKey?: Prisma.StringFieldUpdateOperationsInput | string
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nameEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptionAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   basePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.CatalogProductUpdatetagsInput | string[]
@@ -1091,9 +1236,14 @@ export type CatalogProductUncheckedUpdateWithoutImagesInput = {
 
 export type CatalogProductCreateWithoutMediaDraftsInput = {
   id?: string
+  brandKey?: string
   slug: string
   name: string
+  nameAr?: string | null
+  nameEn?: string | null
   description: string
+  descriptionAr?: string | null
+  descriptionEn?: string | null
   status?: $Enums.ProductStatus
   basePrice: runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.CatalogProductCreatetagsInput | string[]
@@ -1118,10 +1268,15 @@ export type CatalogProductCreateWithoutMediaDraftsInput = {
 
 export type CatalogProductUncheckedCreateWithoutMediaDraftsInput = {
   id?: string
+  brandKey?: string
   categoryId: string
   slug: string
   name: string
+  nameAr?: string | null
+  nameEn?: string | null
   description: string
+  descriptionAr?: string | null
+  descriptionEn?: string | null
   status?: $Enums.ProductStatus
   basePrice: runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.CatalogProductCreatetagsInput | string[]
@@ -1161,9 +1316,14 @@ export type CatalogProductUpdateToOneWithWhereWithoutMediaDraftsInput = {
 
 export type CatalogProductUpdateWithoutMediaDraftsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  brandKey?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nameEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptionAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   basePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.CatalogProductUpdatetagsInput | string[]
@@ -1188,10 +1348,15 @@ export type CatalogProductUpdateWithoutMediaDraftsInput = {
 
 export type CatalogProductUncheckedUpdateWithoutMediaDraftsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  brandKey?: Prisma.StringFieldUpdateOperationsInput | string
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nameEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptionAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   basePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.CatalogProductUpdatetagsInput | string[]
@@ -1215,9 +1380,14 @@ export type CatalogProductUncheckedUpdateWithoutMediaDraftsInput = {
 
 export type CatalogProductCreateWithoutVariantsInput = {
   id?: string
+  brandKey?: string
   slug: string
   name: string
+  nameAr?: string | null
+  nameEn?: string | null
   description: string
+  descriptionAr?: string | null
+  descriptionEn?: string | null
   status?: $Enums.ProductStatus
   basePrice: runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.CatalogProductCreatetagsInput | string[]
@@ -1242,10 +1412,15 @@ export type CatalogProductCreateWithoutVariantsInput = {
 
 export type CatalogProductUncheckedCreateWithoutVariantsInput = {
   id?: string
+  brandKey?: string
   categoryId: string
   slug: string
   name: string
+  nameAr?: string | null
+  nameEn?: string | null
   description: string
+  descriptionAr?: string | null
+  descriptionEn?: string | null
   status?: $Enums.ProductStatus
   basePrice: runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.CatalogProductCreatetagsInput | string[]
@@ -1285,9 +1460,14 @@ export type CatalogProductUpdateToOneWithWhereWithoutVariantsInput = {
 
 export type CatalogProductUpdateWithoutVariantsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  brandKey?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nameEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptionAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   basePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.CatalogProductUpdatetagsInput | string[]
@@ -1312,10 +1492,15 @@ export type CatalogProductUpdateWithoutVariantsInput = {
 
 export type CatalogProductUncheckedUpdateWithoutVariantsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  brandKey?: Prisma.StringFieldUpdateOperationsInput | string
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nameEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptionAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   basePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.CatalogProductUpdatetagsInput | string[]
@@ -1339,9 +1524,14 @@ export type CatalogProductUncheckedUpdateWithoutVariantsInput = {
 
 export type CatalogProductCreateWithoutAddonsInput = {
   id?: string
+  brandKey?: string
   slug: string
   name: string
+  nameAr?: string | null
+  nameEn?: string | null
   description: string
+  descriptionAr?: string | null
+  descriptionEn?: string | null
   status?: $Enums.ProductStatus
   basePrice: runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.CatalogProductCreatetagsInput | string[]
@@ -1366,10 +1556,15 @@ export type CatalogProductCreateWithoutAddonsInput = {
 
 export type CatalogProductUncheckedCreateWithoutAddonsInput = {
   id?: string
+  brandKey?: string
   categoryId: string
   slug: string
   name: string
+  nameAr?: string | null
+  nameEn?: string | null
   description: string
+  descriptionAr?: string | null
+  descriptionEn?: string | null
   status?: $Enums.ProductStatus
   basePrice: runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.CatalogProductCreatetagsInput | string[]
@@ -1409,9 +1604,14 @@ export type CatalogProductUpdateToOneWithWhereWithoutAddonsInput = {
 
 export type CatalogProductUpdateWithoutAddonsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  brandKey?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nameEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptionAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   basePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.CatalogProductUpdatetagsInput | string[]
@@ -1436,10 +1636,15 @@ export type CatalogProductUpdateWithoutAddonsInput = {
 
 export type CatalogProductUncheckedUpdateWithoutAddonsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  brandKey?: Prisma.StringFieldUpdateOperationsInput | string
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nameEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptionAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   basePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.CatalogProductUpdatetagsInput | string[]
@@ -1463,9 +1668,14 @@ export type CatalogProductUncheckedUpdateWithoutAddonsInput = {
 
 export type CatalogProductCreateWithoutModifiersInput = {
   id?: string
+  brandKey?: string
   slug: string
   name: string
+  nameAr?: string | null
+  nameEn?: string | null
   description: string
+  descriptionAr?: string | null
+  descriptionEn?: string | null
   status?: $Enums.ProductStatus
   basePrice: runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.CatalogProductCreatetagsInput | string[]
@@ -1490,10 +1700,15 @@ export type CatalogProductCreateWithoutModifiersInput = {
 
 export type CatalogProductUncheckedCreateWithoutModifiersInput = {
   id?: string
+  brandKey?: string
   categoryId: string
   slug: string
   name: string
+  nameAr?: string | null
+  nameEn?: string | null
   description: string
+  descriptionAr?: string | null
+  descriptionEn?: string | null
   status?: $Enums.ProductStatus
   basePrice: runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.CatalogProductCreatetagsInput | string[]
@@ -1533,9 +1748,14 @@ export type CatalogProductUpdateToOneWithWhereWithoutModifiersInput = {
 
 export type CatalogProductUpdateWithoutModifiersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  brandKey?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nameEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptionAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   basePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.CatalogProductUpdatetagsInput | string[]
@@ -1560,10 +1780,15 @@ export type CatalogProductUpdateWithoutModifiersInput = {
 
 export type CatalogProductUncheckedUpdateWithoutModifiersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  brandKey?: Prisma.StringFieldUpdateOperationsInput | string
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nameEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptionAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   basePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.CatalogProductUpdatetagsInput | string[]
@@ -1587,9 +1812,14 @@ export type CatalogProductUncheckedUpdateWithoutModifiersInput = {
 
 export type CatalogProductCreateWithoutPricingRulesInput = {
   id?: string
+  brandKey?: string
   slug: string
   name: string
+  nameAr?: string | null
+  nameEn?: string | null
   description: string
+  descriptionAr?: string | null
+  descriptionEn?: string | null
   status?: $Enums.ProductStatus
   basePrice: runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.CatalogProductCreatetagsInput | string[]
@@ -1614,10 +1844,15 @@ export type CatalogProductCreateWithoutPricingRulesInput = {
 
 export type CatalogProductUncheckedCreateWithoutPricingRulesInput = {
   id?: string
+  brandKey?: string
   categoryId: string
   slug: string
   name: string
+  nameAr?: string | null
+  nameEn?: string | null
   description: string
+  descriptionAr?: string | null
+  descriptionEn?: string | null
   status?: $Enums.ProductStatus
   basePrice: runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.CatalogProductCreatetagsInput | string[]
@@ -1657,9 +1892,14 @@ export type CatalogProductUpdateToOneWithWhereWithoutPricingRulesInput = {
 
 export type CatalogProductUpdateWithoutPricingRulesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  brandKey?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nameEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptionAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   basePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.CatalogProductUpdatetagsInput | string[]
@@ -1684,10 +1924,15 @@ export type CatalogProductUpdateWithoutPricingRulesInput = {
 
 export type CatalogProductUncheckedUpdateWithoutPricingRulesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  brandKey?: Prisma.StringFieldUpdateOperationsInput | string
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nameEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptionAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   basePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.CatalogProductUpdatetagsInput | string[]
@@ -1711,9 +1956,14 @@ export type CatalogProductUncheckedUpdateWithoutPricingRulesInput = {
 
 export type CatalogProductCreateWithoutPromotionProductsInput = {
   id?: string
+  brandKey?: string
   slug: string
   name: string
+  nameAr?: string | null
+  nameEn?: string | null
   description: string
+  descriptionAr?: string | null
+  descriptionEn?: string | null
   status?: $Enums.ProductStatus
   basePrice: runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.CatalogProductCreatetagsInput | string[]
@@ -1738,10 +1988,15 @@ export type CatalogProductCreateWithoutPromotionProductsInput = {
 
 export type CatalogProductUncheckedCreateWithoutPromotionProductsInput = {
   id?: string
+  brandKey?: string
   categoryId: string
   slug: string
   name: string
+  nameAr?: string | null
+  nameEn?: string | null
   description: string
+  descriptionAr?: string | null
+  descriptionEn?: string | null
   status?: $Enums.ProductStatus
   basePrice: runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.CatalogProductCreatetagsInput | string[]
@@ -1781,9 +2036,14 @@ export type CatalogProductUpdateToOneWithWhereWithoutPromotionProductsInput = {
 
 export type CatalogProductUpdateWithoutPromotionProductsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  brandKey?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nameEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptionAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   basePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.CatalogProductUpdatetagsInput | string[]
@@ -1808,10 +2068,15 @@ export type CatalogProductUpdateWithoutPromotionProductsInput = {
 
 export type CatalogProductUncheckedUpdateWithoutPromotionProductsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  brandKey?: Prisma.StringFieldUpdateOperationsInput | string
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nameEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptionAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   basePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.CatalogProductUpdatetagsInput | string[]
@@ -1835,9 +2100,14 @@ export type CatalogProductUncheckedUpdateWithoutPromotionProductsInput = {
 
 export type CatalogProductCreateWithoutAvailabilityRulesInput = {
   id?: string
+  brandKey?: string
   slug: string
   name: string
+  nameAr?: string | null
+  nameEn?: string | null
   description: string
+  descriptionAr?: string | null
+  descriptionEn?: string | null
   status?: $Enums.ProductStatus
   basePrice: runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.CatalogProductCreatetagsInput | string[]
@@ -1862,10 +2132,15 @@ export type CatalogProductCreateWithoutAvailabilityRulesInput = {
 
 export type CatalogProductUncheckedCreateWithoutAvailabilityRulesInput = {
   id?: string
+  brandKey?: string
   categoryId: string
   slug: string
   name: string
+  nameAr?: string | null
+  nameEn?: string | null
   description: string
+  descriptionAr?: string | null
+  descriptionEn?: string | null
   status?: $Enums.ProductStatus
   basePrice: runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.CatalogProductCreatetagsInput | string[]
@@ -1905,9 +2180,14 @@ export type CatalogProductUpdateToOneWithWhereWithoutAvailabilityRulesInput = {
 
 export type CatalogProductUpdateWithoutAvailabilityRulesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  brandKey?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nameEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptionAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   basePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.CatalogProductUpdatetagsInput | string[]
@@ -1932,10 +2212,15 @@ export type CatalogProductUpdateWithoutAvailabilityRulesInput = {
 
 export type CatalogProductUncheckedUpdateWithoutAvailabilityRulesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  brandKey?: Prisma.StringFieldUpdateOperationsInput | string
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nameEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptionAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   basePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.CatalogProductUpdatetagsInput | string[]
@@ -1959,9 +2244,14 @@ export type CatalogProductUncheckedUpdateWithoutAvailabilityRulesInput = {
 
 export type CatalogProductCreateWithoutFavoritesInput = {
   id?: string
+  brandKey?: string
   slug: string
   name: string
+  nameAr?: string | null
+  nameEn?: string | null
   description: string
+  descriptionAr?: string | null
+  descriptionEn?: string | null
   status?: $Enums.ProductStatus
   basePrice: runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.CatalogProductCreatetagsInput | string[]
@@ -1986,10 +2276,15 @@ export type CatalogProductCreateWithoutFavoritesInput = {
 
 export type CatalogProductUncheckedCreateWithoutFavoritesInput = {
   id?: string
+  brandKey?: string
   categoryId: string
   slug: string
   name: string
+  nameAr?: string | null
+  nameEn?: string | null
   description: string
+  descriptionAr?: string | null
+  descriptionEn?: string | null
   status?: $Enums.ProductStatus
   basePrice: runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.CatalogProductCreatetagsInput | string[]
@@ -2029,9 +2324,14 @@ export type CatalogProductUpdateToOneWithWhereWithoutFavoritesInput = {
 
 export type CatalogProductUpdateWithoutFavoritesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  brandKey?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nameEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptionAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   basePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.CatalogProductUpdatetagsInput | string[]
@@ -2056,10 +2356,15 @@ export type CatalogProductUpdateWithoutFavoritesInput = {
 
 export type CatalogProductUncheckedUpdateWithoutFavoritesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  brandKey?: Prisma.StringFieldUpdateOperationsInput | string
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nameEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptionAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   basePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.CatalogProductUpdatetagsInput | string[]
@@ -2083,9 +2388,14 @@ export type CatalogProductUncheckedUpdateWithoutFavoritesInput = {
 
 export type CatalogProductCreateWithoutSavedOrdersInput = {
   id?: string
+  brandKey?: string
   slug: string
   name: string
+  nameAr?: string | null
+  nameEn?: string | null
   description: string
+  descriptionAr?: string | null
+  descriptionEn?: string | null
   status?: $Enums.ProductStatus
   basePrice: runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.CatalogProductCreatetagsInput | string[]
@@ -2110,10 +2420,15 @@ export type CatalogProductCreateWithoutSavedOrdersInput = {
 
 export type CatalogProductUncheckedCreateWithoutSavedOrdersInput = {
   id?: string
+  brandKey?: string
   categoryId: string
   slug: string
   name: string
+  nameAr?: string | null
+  nameEn?: string | null
   description: string
+  descriptionAr?: string | null
+  descriptionEn?: string | null
   status?: $Enums.ProductStatus
   basePrice: runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.CatalogProductCreatetagsInput | string[]
@@ -2153,9 +2468,14 @@ export type CatalogProductUpdateToOneWithWhereWithoutSavedOrdersInput = {
 
 export type CatalogProductUpdateWithoutSavedOrdersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  brandKey?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nameEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptionAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   basePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.CatalogProductUpdatetagsInput | string[]
@@ -2180,10 +2500,15 @@ export type CatalogProductUpdateWithoutSavedOrdersInput = {
 
 export type CatalogProductUncheckedUpdateWithoutSavedOrdersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  brandKey?: Prisma.StringFieldUpdateOperationsInput | string
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nameEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptionAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   basePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.CatalogProductUpdatetagsInput | string[]
@@ -2207,9 +2532,14 @@ export type CatalogProductUncheckedUpdateWithoutSavedOrdersInput = {
 
 export type CatalogProductCreateWithoutReviewsInput = {
   id?: string
+  brandKey?: string
   slug: string
   name: string
+  nameAr?: string | null
+  nameEn?: string | null
   description: string
+  descriptionAr?: string | null
+  descriptionEn?: string | null
   status?: $Enums.ProductStatus
   basePrice: runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.CatalogProductCreatetagsInput | string[]
@@ -2234,10 +2564,15 @@ export type CatalogProductCreateWithoutReviewsInput = {
 
 export type CatalogProductUncheckedCreateWithoutReviewsInput = {
   id?: string
+  brandKey?: string
   categoryId: string
   slug: string
   name: string
+  nameAr?: string | null
+  nameEn?: string | null
   description: string
+  descriptionAr?: string | null
+  descriptionEn?: string | null
   status?: $Enums.ProductStatus
   basePrice: runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.CatalogProductCreatetagsInput | string[]
@@ -2277,9 +2612,14 @@ export type CatalogProductUpdateToOneWithWhereWithoutReviewsInput = {
 
 export type CatalogProductUpdateWithoutReviewsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  brandKey?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nameEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptionAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   basePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.CatalogProductUpdatetagsInput | string[]
@@ -2304,10 +2644,15 @@ export type CatalogProductUpdateWithoutReviewsInput = {
 
 export type CatalogProductUncheckedUpdateWithoutReviewsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  brandKey?: Prisma.StringFieldUpdateOperationsInput | string
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nameEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptionAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   basePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.CatalogProductUpdatetagsInput | string[]
@@ -2331,9 +2676,14 @@ export type CatalogProductUncheckedUpdateWithoutReviewsInput = {
 
 export type CatalogProductCreateWithoutRecommendationsInput = {
   id?: string
+  brandKey?: string
   slug: string
   name: string
+  nameAr?: string | null
+  nameEn?: string | null
   description: string
+  descriptionAr?: string | null
+  descriptionEn?: string | null
   status?: $Enums.ProductStatus
   basePrice: runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.CatalogProductCreatetagsInput | string[]
@@ -2358,10 +2708,15 @@ export type CatalogProductCreateWithoutRecommendationsInput = {
 
 export type CatalogProductUncheckedCreateWithoutRecommendationsInput = {
   id?: string
+  brandKey?: string
   categoryId: string
   slug: string
   name: string
+  nameAr?: string | null
+  nameEn?: string | null
   description: string
+  descriptionAr?: string | null
+  descriptionEn?: string | null
   status?: $Enums.ProductStatus
   basePrice: runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.CatalogProductCreatetagsInput | string[]
@@ -2401,9 +2756,14 @@ export type CatalogProductUpdateToOneWithWhereWithoutRecommendationsInput = {
 
 export type CatalogProductUpdateWithoutRecommendationsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  brandKey?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nameEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptionAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   basePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.CatalogProductUpdatetagsInput | string[]
@@ -2428,10 +2788,15 @@ export type CatalogProductUpdateWithoutRecommendationsInput = {
 
 export type CatalogProductUncheckedUpdateWithoutRecommendationsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  brandKey?: Prisma.StringFieldUpdateOperationsInput | string
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nameEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptionAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   basePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.CatalogProductUpdatetagsInput | string[]
@@ -2455,9 +2820,14 @@ export type CatalogProductUncheckedUpdateWithoutRecommendationsInput = {
 
 export type CatalogProductCreateWithoutOrderItemsInput = {
   id?: string
+  brandKey?: string
   slug: string
   name: string
+  nameAr?: string | null
+  nameEn?: string | null
   description: string
+  descriptionAr?: string | null
+  descriptionEn?: string | null
   status?: $Enums.ProductStatus
   basePrice: runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.CatalogProductCreatetagsInput | string[]
@@ -2482,10 +2852,15 @@ export type CatalogProductCreateWithoutOrderItemsInput = {
 
 export type CatalogProductUncheckedCreateWithoutOrderItemsInput = {
   id?: string
+  brandKey?: string
   categoryId: string
   slug: string
   name: string
+  nameAr?: string | null
+  nameEn?: string | null
   description: string
+  descriptionAr?: string | null
+  descriptionEn?: string | null
   status?: $Enums.ProductStatus
   basePrice: runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.CatalogProductCreatetagsInput | string[]
@@ -2525,9 +2900,14 @@ export type CatalogProductUpdateToOneWithWhereWithoutOrderItemsInput = {
 
 export type CatalogProductUpdateWithoutOrderItemsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  brandKey?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nameEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptionAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   basePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.CatalogProductUpdatetagsInput | string[]
@@ -2552,10 +2932,15 @@ export type CatalogProductUpdateWithoutOrderItemsInput = {
 
 export type CatalogProductUncheckedUpdateWithoutOrderItemsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  brandKey?: Prisma.StringFieldUpdateOperationsInput | string
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nameEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptionAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   basePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.CatalogProductUpdatetagsInput | string[]
@@ -2579,9 +2964,14 @@ export type CatalogProductUncheckedUpdateWithoutOrderItemsInput = {
 
 export type CatalogProductCreateManyCategoryInput = {
   id?: string
+  brandKey?: string
   slug: string
   name: string
+  nameAr?: string | null
+  nameEn?: string | null
   description: string
+  descriptionAr?: string | null
+  descriptionEn?: string | null
   status?: $Enums.ProductStatus
   basePrice: runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.CatalogProductCreatetagsInput | string[]
@@ -2593,9 +2983,14 @@ export type CatalogProductCreateManyCategoryInput = {
 
 export type CatalogProductUpdateWithoutCategoryInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  brandKey?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nameEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptionAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   basePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.CatalogProductUpdatetagsInput | string[]
@@ -2620,9 +3015,14 @@ export type CatalogProductUpdateWithoutCategoryInput = {
 
 export type CatalogProductUncheckedUpdateWithoutCategoryInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  brandKey?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nameEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptionAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   basePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.CatalogProductUpdatetagsInput | string[]
@@ -2647,9 +3047,14 @@ export type CatalogProductUncheckedUpdateWithoutCategoryInput = {
 
 export type CatalogProductUncheckedUpdateManyWithoutCategoryInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  brandKey?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nameEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptionAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   basePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   tags?: Prisma.CatalogProductUpdatetagsInput | string[]
@@ -2800,10 +3205,15 @@ export type CatalogProductCountOutputTypeCountSavedOrdersArgs<ExtArgs extends ru
 
 export type CatalogProductSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  brandKey?: boolean
   categoryId?: boolean
   slug?: boolean
   name?: boolean
+  nameAr?: boolean
+  nameEn?: boolean
   description?: boolean
+  descriptionAr?: boolean
+  descriptionEn?: boolean
   status?: boolean
   basePrice?: boolean
   tags?: boolean
@@ -2830,10 +3240,15 @@ export type CatalogProductSelect<ExtArgs extends runtime.Types.Extensions.Intern
 
 export type CatalogProductSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  brandKey?: boolean
   categoryId?: boolean
   slug?: boolean
   name?: boolean
+  nameAr?: boolean
+  nameEn?: boolean
   description?: boolean
+  descriptionAr?: boolean
+  descriptionEn?: boolean
   status?: boolean
   basePrice?: boolean
   tags?: boolean
@@ -2846,10 +3261,15 @@ export type CatalogProductSelectCreateManyAndReturn<ExtArgs extends runtime.Type
 
 export type CatalogProductSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  brandKey?: boolean
   categoryId?: boolean
   slug?: boolean
   name?: boolean
+  nameAr?: boolean
+  nameEn?: boolean
   description?: boolean
+  descriptionAr?: boolean
+  descriptionEn?: boolean
   status?: boolean
   basePrice?: boolean
   tags?: boolean
@@ -2862,10 +3282,15 @@ export type CatalogProductSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
 
 export type CatalogProductSelectScalar = {
   id?: boolean
+  brandKey?: boolean
   categoryId?: boolean
   slug?: boolean
   name?: boolean
+  nameAr?: boolean
+  nameEn?: boolean
   description?: boolean
+  descriptionAr?: boolean
+  descriptionEn?: boolean
   status?: boolean
   basePrice?: boolean
   tags?: boolean
@@ -2875,7 +3300,7 @@ export type CatalogProductSelectScalar = {
   updatedAt?: boolean
 }
 
-export type CatalogProductOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "categoryId" | "slug" | "name" | "description" | "status" | "basePrice" | "tags" | "pairingHint" | "aiDescriptor" | "createdAt" | "updatedAt", ExtArgs["result"]["catalogProduct"]>
+export type CatalogProductOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "brandKey" | "categoryId" | "slug" | "name" | "nameAr" | "nameEn" | "description" | "descriptionAr" | "descriptionEn" | "status" | "basePrice" | "tags" | "pairingHint" | "aiDescriptor" | "createdAt" | "updatedAt", ExtArgs["result"]["catalogProduct"]>
 export type CatalogProductInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   category?: boolean | Prisma.ProductCategoryDefaultArgs<ExtArgs>
   variants?: boolean | Prisma.CatalogProduct$variantsArgs<ExtArgs>
@@ -2920,10 +3345,15 @@ export type $CatalogProductPayload<ExtArgs extends runtime.Types.Extensions.Inte
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
+    brandKey: string
     categoryId: string
     slug: string
     name: string
+    nameAr: string | null
+    nameEn: string | null
     description: string
+    descriptionAr: string | null
+    descriptionEn: string | null
     status: $Enums.ProductStatus
     basePrice: runtime.Decimal
     tags: string[]
@@ -3369,10 +3799,15 @@ export interface Prisma__CatalogProductClient<T, Null = never, ExtArgs extends r
  */
 export interface CatalogProductFieldRefs {
   readonly id: Prisma.FieldRef<"CatalogProduct", 'String'>
+  readonly brandKey: Prisma.FieldRef<"CatalogProduct", 'String'>
   readonly categoryId: Prisma.FieldRef<"CatalogProduct", 'String'>
   readonly slug: Prisma.FieldRef<"CatalogProduct", 'String'>
   readonly name: Prisma.FieldRef<"CatalogProduct", 'String'>
+  readonly nameAr: Prisma.FieldRef<"CatalogProduct", 'String'>
+  readonly nameEn: Prisma.FieldRef<"CatalogProduct", 'String'>
   readonly description: Prisma.FieldRef<"CatalogProduct", 'String'>
+  readonly descriptionAr: Prisma.FieldRef<"CatalogProduct", 'String'>
+  readonly descriptionEn: Prisma.FieldRef<"CatalogProduct", 'String'>
   readonly status: Prisma.FieldRef<"CatalogProduct", 'ProductStatus'>
   readonly basePrice: Prisma.FieldRef<"CatalogProduct", 'Decimal'>
   readonly tags: Prisma.FieldRef<"CatalogProduct", 'String[]'>

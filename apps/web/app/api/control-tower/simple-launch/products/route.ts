@@ -26,7 +26,8 @@ export async function GET(request: NextRequest) {
       take,
       skip,
       orderBy: [{ category: { sortOrder: "asc" } }, { name: "asc" }],
-      include: { category: true, images: { where: { deletedAt: null }, orderBy: [{ isPrimary: "desc" }, { sortOrder: "asc" }] } }
+      where: { brandKey: "SALORA" },
+      include: { category: true, images: { where: { deletedAt: null }, orderBy: [{ isPrimary: "desc" }, { sortOrder: "asc" }] }, variants: true, addons: true, modifiers: true }
     });
     return responseJson(products, id);
   } catch (error) {
@@ -47,14 +48,19 @@ async function mutate(request: NextRequest) {
       const categorySlug = input.categorySlug ?? slugify(input.categoryName);
       const category = await repo.categories.upsert(
         { slug: categorySlug },
-        { slug: categorySlug, name: input.categoryName, sortOrder: 0 }
+        { brandKey: "SALORA", slug: categorySlug, name: input.categoryName, nameEn: input.categoryName, sortOrder: 0 }
       );
       const product = await repo.products.upsert(
         { slug: input.slug },
         {
           slug: input.slug,
           name: input.name,
+          nameAr: input.nameAr,
+          nameEn: input.nameEn ?? input.name,
           description: input.description,
+          descriptionAr: input.descriptionAr,
+          descriptionEn: input.descriptionEn ?? input.description,
+          brandKey: "SALORA",
           status: input.status,
           basePrice: input.basePrice,
           tags: input.tags,
@@ -68,6 +74,9 @@ async function mutate(request: NextRequest) {
 
     const before = await repo.products.findUnique({ slug: input.slug });
     if (!before) return responseError("Product not found.", id, 404);
+    if ((input.action === "restore" || (input.action === "status" && input.status === "ACTIVE")) && Number(before.basePrice) <= 0) {
+      return responseError("Approve a positive price before activating this product.", id, 409);
+    }
 
     const data =
       input.action === "archive" ? { status: "ARCHIVED" } :
@@ -76,7 +85,11 @@ async function mutate(request: NextRequest) {
       input.action === "price" ? { basePrice: input.basePrice } :
       {
         name: input.name,
+        nameAr: input.nameAr,
+        nameEn: input.nameEn,
         description: input.description,
+        descriptionAr: input.descriptionAr,
+        descriptionEn: input.descriptionEn,
         basePrice: input.basePrice,
         status: input.status,
         tags: input.tags

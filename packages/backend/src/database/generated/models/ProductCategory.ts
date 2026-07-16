@@ -36,22 +36,31 @@ export type ProductCategorySumAggregateOutputType = {
 
 export type ProductCategoryMinAggregateOutputType = {
   id: string | null
+  brandKey: string | null
   slug: string | null
   name: string | null
+  nameAr: string | null
+  nameEn: string | null
   sortOrder: number | null
 }
 
 export type ProductCategoryMaxAggregateOutputType = {
   id: string | null
+  brandKey: string | null
   slug: string | null
   name: string | null
+  nameAr: string | null
+  nameEn: string | null
   sortOrder: number | null
 }
 
 export type ProductCategoryCountAggregateOutputType = {
   id: number
+  brandKey: number
   slug: number
   name: number
+  nameAr: number
+  nameEn: number
   sortOrder: number
   _all: number
 }
@@ -67,22 +76,31 @@ export type ProductCategorySumAggregateInputType = {
 
 export type ProductCategoryMinAggregateInputType = {
   id?: true
+  brandKey?: true
   slug?: true
   name?: true
+  nameAr?: true
+  nameEn?: true
   sortOrder?: true
 }
 
 export type ProductCategoryMaxAggregateInputType = {
   id?: true
+  brandKey?: true
   slug?: true
   name?: true
+  nameAr?: true
+  nameEn?: true
   sortOrder?: true
 }
 
 export type ProductCategoryCountAggregateInputType = {
   id?: true
+  brandKey?: true
   slug?: true
   name?: true
+  nameAr?: true
+  nameEn?: true
   sortOrder?: true
   _all?: true
 }
@@ -175,8 +193,11 @@ export type ProductCategoryGroupByArgs<ExtArgs extends runtime.Types.Extensions.
 
 export type ProductCategoryGroupByOutputType = {
   id: string
+  brandKey: string
   slug: string
   name: string
+  nameAr: string | null
+  nameEn: string | null
   sortOrder: number
   _count: ProductCategoryCountAggregateOutputType | null
   _avg: ProductCategoryAvgAggregateOutputType | null
@@ -205,16 +226,22 @@ export type ProductCategoryWhereInput = {
   OR?: Prisma.ProductCategoryWhereInput[]
   NOT?: Prisma.ProductCategoryWhereInput | Prisma.ProductCategoryWhereInput[]
   id?: Prisma.UuidFilter<"ProductCategory"> | string
+  brandKey?: Prisma.StringFilter<"ProductCategory"> | string
   slug?: Prisma.StringFilter<"ProductCategory"> | string
   name?: Prisma.StringFilter<"ProductCategory"> | string
+  nameAr?: Prisma.StringNullableFilter<"ProductCategory"> | string | null
+  nameEn?: Prisma.StringNullableFilter<"ProductCategory"> | string | null
   sortOrder?: Prisma.IntFilter<"ProductCategory"> | number
   products?: Prisma.CatalogProductListRelationFilter
 }
 
 export type ProductCategoryOrderByWithRelationInput = {
   id?: Prisma.SortOrder
+  brandKey?: Prisma.SortOrder
   slug?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  nameAr?: Prisma.SortOrderInput | Prisma.SortOrder
+  nameEn?: Prisma.SortOrderInput | Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   products?: Prisma.CatalogProductOrderByRelationAggregateInput
 }
@@ -225,15 +252,21 @@ export type ProductCategoryWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.ProductCategoryWhereInput | Prisma.ProductCategoryWhereInput[]
   OR?: Prisma.ProductCategoryWhereInput[]
   NOT?: Prisma.ProductCategoryWhereInput | Prisma.ProductCategoryWhereInput[]
+  brandKey?: Prisma.StringFilter<"ProductCategory"> | string
   name?: Prisma.StringFilter<"ProductCategory"> | string
+  nameAr?: Prisma.StringNullableFilter<"ProductCategory"> | string | null
+  nameEn?: Prisma.StringNullableFilter<"ProductCategory"> | string | null
   sortOrder?: Prisma.IntFilter<"ProductCategory"> | number
   products?: Prisma.CatalogProductListRelationFilter
 }, "id" | "slug">
 
 export type ProductCategoryOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
+  brandKey?: Prisma.SortOrder
   slug?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  nameAr?: Prisma.SortOrderInput | Prisma.SortOrder
+  nameEn?: Prisma.SortOrderInput | Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   _count?: Prisma.ProductCategoryCountOrderByAggregateInput
   _avg?: Prisma.ProductCategoryAvgOrderByAggregateInput
@@ -247,68 +280,95 @@ export type ProductCategoryScalarWhereWithAggregatesInput = {
   OR?: Prisma.ProductCategoryScalarWhereWithAggregatesInput[]
   NOT?: Prisma.ProductCategoryScalarWhereWithAggregatesInput | Prisma.ProductCategoryScalarWhereWithAggregatesInput[]
   id?: Prisma.UuidWithAggregatesFilter<"ProductCategory"> | string
+  brandKey?: Prisma.StringWithAggregatesFilter<"ProductCategory"> | string
   slug?: Prisma.StringWithAggregatesFilter<"ProductCategory"> | string
   name?: Prisma.StringWithAggregatesFilter<"ProductCategory"> | string
+  nameAr?: Prisma.StringNullableWithAggregatesFilter<"ProductCategory"> | string | null
+  nameEn?: Prisma.StringNullableWithAggregatesFilter<"ProductCategory"> | string | null
   sortOrder?: Prisma.IntWithAggregatesFilter<"ProductCategory"> | number
 }
 
 export type ProductCategoryCreateInput = {
   id?: string
+  brandKey?: string
   slug: string
   name: string
+  nameAr?: string | null
+  nameEn?: string | null
   sortOrder?: number
   products?: Prisma.CatalogProductCreateNestedManyWithoutCategoryInput
 }
 
 export type ProductCategoryUncheckedCreateInput = {
   id?: string
+  brandKey?: string
   slug: string
   name: string
+  nameAr?: string | null
+  nameEn?: string | null
   sortOrder?: number
   products?: Prisma.CatalogProductUncheckedCreateNestedManyWithoutCategoryInput
 }
 
 export type ProductCategoryUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  brandKey?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nameEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   products?: Prisma.CatalogProductUpdateManyWithoutCategoryNestedInput
 }
 
 export type ProductCategoryUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  brandKey?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nameEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   products?: Prisma.CatalogProductUncheckedUpdateManyWithoutCategoryNestedInput
 }
 
 export type ProductCategoryCreateManyInput = {
   id?: string
+  brandKey?: string
   slug: string
   name: string
+  nameAr?: string | null
+  nameEn?: string | null
   sortOrder?: number
 }
 
 export type ProductCategoryUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  brandKey?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nameEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type ProductCategoryUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  brandKey?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nameEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type ProductCategoryCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  brandKey?: Prisma.SortOrder
   slug?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  nameAr?: Prisma.SortOrder
+  nameEn?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
 }
 
@@ -318,15 +378,21 @@ export type ProductCategoryAvgOrderByAggregateInput = {
 
 export type ProductCategoryMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  brandKey?: Prisma.SortOrder
   slug?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  nameAr?: Prisma.SortOrder
+  nameEn?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
 }
 
 export type ProductCategoryMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  brandKey?: Prisma.SortOrder
   slug?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  nameAr?: Prisma.SortOrder
+  nameEn?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
 }
 
@@ -363,15 +429,21 @@ export type ProductCategoryUpdateOneRequiredWithoutProductsNestedInput = {
 
 export type ProductCategoryCreateWithoutProductsInput = {
   id?: string
+  brandKey?: string
   slug: string
   name: string
+  nameAr?: string | null
+  nameEn?: string | null
   sortOrder?: number
 }
 
 export type ProductCategoryUncheckedCreateWithoutProductsInput = {
   id?: string
+  brandKey?: string
   slug: string
   name: string
+  nameAr?: string | null
+  nameEn?: string | null
   sortOrder?: number
 }
 
@@ -393,15 +465,21 @@ export type ProductCategoryUpdateToOneWithWhereWithoutProductsInput = {
 
 export type ProductCategoryUpdateWithoutProductsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  brandKey?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nameEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type ProductCategoryUncheckedUpdateWithoutProductsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  brandKey?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nameEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
@@ -438,8 +516,11 @@ export type ProductCategoryCountOutputTypeCountProductsArgs<ExtArgs extends runt
 
 export type ProductCategorySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  brandKey?: boolean
   slug?: boolean
   name?: boolean
+  nameAr?: boolean
+  nameEn?: boolean
   sortOrder?: boolean
   products?: boolean | Prisma.ProductCategory$productsArgs<ExtArgs>
   _count?: boolean | Prisma.ProductCategoryCountOutputTypeDefaultArgs<ExtArgs>
@@ -447,26 +528,35 @@ export type ProductCategorySelect<ExtArgs extends runtime.Types.Extensions.Inter
 
 export type ProductCategorySelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  brandKey?: boolean
   slug?: boolean
   name?: boolean
+  nameAr?: boolean
+  nameEn?: boolean
   sortOrder?: boolean
 }, ExtArgs["result"]["productCategory"]>
 
 export type ProductCategorySelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  brandKey?: boolean
   slug?: boolean
   name?: boolean
+  nameAr?: boolean
+  nameEn?: boolean
   sortOrder?: boolean
 }, ExtArgs["result"]["productCategory"]>
 
 export type ProductCategorySelectScalar = {
   id?: boolean
+  brandKey?: boolean
   slug?: boolean
   name?: boolean
+  nameAr?: boolean
+  nameEn?: boolean
   sortOrder?: boolean
 }
 
-export type ProductCategoryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "slug" | "name" | "sortOrder", ExtArgs["result"]["productCategory"]>
+export type ProductCategoryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "brandKey" | "slug" | "name" | "nameAr" | "nameEn" | "sortOrder", ExtArgs["result"]["productCategory"]>
 export type ProductCategoryInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   products?: boolean | Prisma.ProductCategory$productsArgs<ExtArgs>
   _count?: boolean | Prisma.ProductCategoryCountOutputTypeDefaultArgs<ExtArgs>
@@ -481,8 +571,11 @@ export type $ProductCategoryPayload<ExtArgs extends runtime.Types.Extensions.Int
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
+    brandKey: string
     slug: string
     name: string
+    nameAr: string | null
+    nameEn: string | null
     sortOrder: number
   }, ExtArgs["result"]["productCategory"]>
   composites: {}
@@ -909,8 +1002,11 @@ export interface Prisma__ProductCategoryClient<T, Null = never, ExtArgs extends 
  */
 export interface ProductCategoryFieldRefs {
   readonly id: Prisma.FieldRef<"ProductCategory", 'String'>
+  readonly brandKey: Prisma.FieldRef<"ProductCategory", 'String'>
   readonly slug: Prisma.FieldRef<"ProductCategory", 'String'>
   readonly name: Prisma.FieldRef<"ProductCategory", 'String'>
+  readonly nameAr: Prisma.FieldRef<"ProductCategory", 'String'>
+  readonly nameEn: Prisma.FieldRef<"ProductCategory", 'String'>
   readonly sortOrder: Prisma.FieldRef<"ProductCategory", 'Int'>
 }
     

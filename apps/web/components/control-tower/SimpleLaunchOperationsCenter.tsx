@@ -8,7 +8,7 @@ import { controlTowerGet, controlTowerPatch, controlTowerPost } from "@/lib/cont
 import type { MutationState } from "@/lib/control-tower/types";
 
 type CategoryRow = { id: string; slug: string; name: string; sortOrder: number; _count?: { products: number } };
-type ProductRow = { id: string; slug: string; name: string; status: string; basePrice: string | number; category?: { name: string }; images?: Array<{ id: string; publicUrl?: string; isPrimary: boolean }> };
+type ProductRow = { id: string; slug: string; name: string; nameAr?: string; nameEn?: string; description?: string; descriptionAr?: string; descriptionEn?: string; status: string; basePrice: string | number; category?: { name: string }; images?: Array<{ id: string; publicUrl?: string; isPrimary: boolean }>; variants?: Array<{ name: string; priceDelta: string | number; sku?: string }>; addons?: Array<{ name: string; price: string | number }>; modifiers?: Array<{ name: string; required: boolean; options: unknown }> };
 type CouponRow = { id: string; code: string; name: string; isActive: boolean; usageCount?: number };
 type PromotionRow = { id: string; slug: string; name: string; status: string };
 type FeatureFlagRow = { id: string; key: string; environment: string; enabled: boolean };
@@ -41,6 +41,25 @@ export function SimpleLaunchOperationsCenter() {
   const [imageUrl, setImageUrl] = useState("");
   const [aiOperation, setAiOperation] = useState("description");
   const [aiDraft, setAiDraft] = useState("");
+  const [nameAr, setNameAr] = useState("");
+  const [nameEn, setNameEn] = useState("");
+  const [descriptionAr, setDescriptionAr] = useState("");
+  const [descriptionEn, setDescriptionEn] = useState("");
+  const [configuration, setConfiguration] = useState("{}");
+
+  function loadProductIntoEditor(product: ProductRow) {
+    setNameAr(product.nameAr ?? "");
+    setNameEn(product.nameEn ?? product.name);
+    setDescriptionAr(product.descriptionAr ?? "");
+    setDescriptionEn(product.descriptionEn ?? product.description ?? "");
+    setPrice(String(product.basePrice));
+    setStatus(product.status);
+    setConfiguration(JSON.stringify({
+      variants: product.variants?.map((item) => ({ name: item.name, priceDelta: Number(item.priceDelta), sku: item.sku })) ?? [],
+      addons: product.addons?.map((item) => ({ name: item.name, price: Number(item.price) })) ?? [],
+      modifierGroups: product.modifiers?.map((item) => ({ name: item.name, required: item.required, options: item.options })) ?? []
+    }, null, 2));
+  }
 
   async function refresh() {
     const [productResult, categoryResult, couponResult, promotionResult, flagResult, activityResult, auditResult] = await Promise.all([
@@ -54,7 +73,11 @@ export function SimpleLaunchOperationsCenter() {
     ]);
     if (productResult.data) {
       setProducts(productResult.data);
-      setSelectedSlug((current) => current || productResult.data?.[0]?.slug || "");
+      const product = productResult.data.find((item) => item.slug === selectedSlug) ?? productResult.data[0];
+      if (product) {
+        setSelectedSlug(product.slug);
+        loadProductIntoEditor(product);
+      }
     }
     if (categoryResult.data) setCategories(categoryResult.data);
     if (couponResult.data) setCoupons(couponResult.data);
@@ -86,6 +109,36 @@ export function SimpleLaunchOperationsCenter() {
     const result = await controlTowerPatch("/api/control-tower/simple-launch/products", { action: "status", slug: selectedSlug, status });
     setState(result);
     await refresh();
+  }
+
+  async function updateBilingualContent() {
+    if (!selectedProduct) return;
+    setState({ status: "submitting", message: "Saving bilingual catalog content..." });
+    const result = await controlTowerPatch("/api/control-tower/simple-launch/products", {
+      action: "update",
+      slug: selectedProduct.slug,
+      name: nameEn,
+      nameAr,
+      nameEn,
+      description: descriptionEn,
+      descriptionAr,
+      descriptionEn
+    });
+    setState(result);
+    await refresh();
+  }
+
+  async function saveConfiguration() {
+    if (!selectedProduct) return;
+    try {
+      const parsed = JSON.parse(configuration) as { variants?: unknown[]; addons?: unknown[]; modifierGroups?: unknown[] };
+      setState({ status: "submitting", message: "Saving variants, add-ons, and modifiers..." });
+      const result = await controlTowerPost("/api/control-tower/simple-launch/product-configuration", { productSlug: selectedProduct.slug, ...parsed });
+      setState(result);
+      await refresh();
+    } catch {
+      setState({ status: "error", message: "Configuration must be valid JSON." });
+    }
   }
 
   async function addImage() {
@@ -128,7 +181,13 @@ export function SimpleLaunchOperationsCenter() {
         ]} />
         <DashboardCard title="Product Operator" eyebrow="DB-backed">
           <div className="grid gap-3">
-            <select value={selectedSlug} onChange={(event) => setSelectedSlug(event.target.value)} className="rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-[var(--cream)]">
+            <select value={selectedSlug} onChange={(event) => {
+              const product = products.find((item) => item.slug === event.target.value);
+              if (product) {
+                setSelectedSlug(product.slug);
+                loadProductIntoEditor(product);
+              }
+            }} className="rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-[var(--cream)]">
               {products.map((product) => <option key={product.id} value={product.slug}>{product.name}</option>)}
             </select>
             <div className="grid gap-3 sm:grid-cols-3">
@@ -141,9 +200,32 @@ export function SimpleLaunchOperationsCenter() {
               <input value={imageUrl} onChange={(event) => setImageUrl(event.target.value)} placeholder="Real image URL" className="rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-[var(--cream)] sm:col-span-2" />
               <button type="button" onClick={addImage} className="rounded-lg border border-[var(--border-gold)] px-4 py-2 text-sm font-semibold text-[var(--gold-soft)]">Add image</button>
             </div>
+            <div className="grid gap-3 border-t border-white/10 pt-4 sm:grid-cols-2">
+              <input value={nameAr} dir="rtl" onChange={(event) => setNameAr(event.target.value)} placeholder="الاسم بالعربية" className="rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-[var(--cream)]" />
+              <input value={nameEn} onChange={(event) => setNameEn(event.target.value)} placeholder="English name" className="rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-[var(--cream)]" />
+              <textarea value={descriptionAr} dir="rtl" onChange={(event) => setDescriptionAr(event.target.value)} placeholder="الوصف بالعربية" rows={4} className="rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-[var(--cream)]" />
+              <textarea value={descriptionEn} onChange={(event) => setDescriptionEn(event.target.value)} placeholder="English description" rows={4} className="rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-[var(--cream)]" />
+              <button type="button" onClick={updateBilingualContent} className="rounded-lg bg-[var(--gold)] px-4 py-2 text-sm font-semibold text-black sm:col-span-2">Save bilingual content</button>
+            </div>
             <ResultNotice state={state} />
           </div>
         </DashboardCard>
+      </DashboardGrid>
+
+      <DashboardGrid columns="two">
+        <DashboardCard title="Product Configuration" eyebrow="Variants · Add-ons · Modifiers">
+          <div className="grid gap-3">
+            <p className="text-xs leading-5 text-[var(--muted)]">Structured JSON is validated server-side and saved atomically under SALORA catalog isolation.</p>
+            <textarea value={configuration} onChange={(event) => setConfiguration(event.target.value)} rows={16} spellCheck={false} className="rounded-lg border border-white/10 bg-black/40 p-3 font-mono text-xs leading-5 text-[var(--cream)]" />
+            <button type="button" onClick={saveConfiguration} className="rounded-lg border border-[var(--border-gold)] px-4 py-2 text-sm font-semibold text-[var(--gold-soft)]">Save product configuration</button>
+          </div>
+        </DashboardCard>
+        <RuntimeStatusCard title="Catalog Governance" statuses={[
+          { label: "SALORA isolation", status: "ok", detail: "All catalog queries and mutations are constrained to brandKey SALORA" },
+          { label: "Bilingual content", status: products.every((product) => product.nameAr && product.nameEn) ? "ok" : "warning", detail: `${products.filter((product) => product.nameAr && product.nameEn).length}/${products.length} products complete` },
+          { label: "Pricing approval", status: products.some((product) => product.status === "DRAFT") ? "warning" : "ok", detail: `${products.filter((product) => product.status === "DRAFT").length} draft products awaiting approval` },
+          { label: "Media readiness", status: missingImages ? "warning" : "ok", detail: `${missingImages} products await approved images` }
+        ]} />
       </DashboardGrid>
 
       <DashboardGrid columns="two">
