@@ -1,0 +1,7 @@
+-- Rollback guidance
+--
+-- This migration changes only planner evaluation of auth.uid(); it does not
+-- change policy roles, commands, predicates, or grants. A rollback is normally
+-- unnecessary. If required, restore the 23 policy definitions from
+-- 20260608_security_hardening/migration.sql, replacing `(select auth.uid())`
+-- with `auth.uid()`, then rerun the Supabase Performance Advisor.
