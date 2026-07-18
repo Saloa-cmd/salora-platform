@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { DashboardCard } from "@/components/dashboard/DashboardCard";
 import { DashboardGrid } from "@/components/dashboard/DashboardGrid";
 import { RuntimeStatusCard } from "@/components/dashboard/RuntimeStatusCard";
@@ -61,7 +61,7 @@ export function SimpleLaunchOperationsCenter() {
     }, null, 2));
   }
 
-  async function refresh() {
+  const refresh = useCallback(async () => {
     const [productResult, categoryResult, couponResult, promotionResult, flagResult, activityResult, auditResult] = await Promise.all([
       controlTowerGet<ProductRow[]>("/api/control-tower/simple-launch/products"),
       controlTowerGet<CategoryRow[]>("/api/control-tower/simple-launch/categories"),
@@ -85,12 +85,12 @@ export function SimpleLaunchOperationsCenter() {
     if (flagResult.data) setFlags(flagResult.data);
     if (activityResult.data) setActivityLogs(activityResult.data);
     if (auditResult.data) setAuditLogs(auditResult.data);
-  }
+  }, [selectedSlug]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => void refresh(), 0);
     return () => window.clearTimeout(timer);
-  }, []);
+  }, [refresh]);
 
   const selectedProduct = useMemo(() => products.find((product) => product.slug === selectedSlug), [products, selectedSlug]);
   const missingImages = products.filter((product) => !product.images?.length).length;
