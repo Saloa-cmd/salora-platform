@@ -47,7 +47,7 @@ export default function LoginPage() {
 
       // Success - redirect to control tower
       // The HTTP-only cookie is automatically stored by the browser
-      router.push("/control-tower");
+      router.push("/control-tower/content");
       router.refresh();
     } catch {
       setError("Connection error. Please try again.");

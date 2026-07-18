@@ -10,7 +10,7 @@ export async function requireControlTowerPageAccess() {
   const token = cookieStore.get(accessTokenCookieName)?.value;
 
   if (!token) {
-    redirect("/dashboard?auth=required");
+    redirect("/login?next=/control-tower/content");
   }
 
   try {
@@ -23,6 +23,6 @@ export async function requireControlTowerPageAccess() {
 
     return payload;
   } catch {
-    redirect("/dashboard?auth=required");
+    redirect("/login?next=/control-tower/content");
   }
 }
