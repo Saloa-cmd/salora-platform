@@ -17,7 +17,7 @@ export function getDeadLetterQueue(): Queue {
   }
 
   const env = getInfrastructureEnv();
-  deadLetterQueue = new Queue(`${env.QUEUE_PREFIX}:dead-letter`, {
+  deadLetterQueue = new Queue(`${env.QUEUE_PREFIX}-dead-letter`, {
     connection: getRedisConnectionOptions(),
     defaultJobOptions: {
       attempts: 1,

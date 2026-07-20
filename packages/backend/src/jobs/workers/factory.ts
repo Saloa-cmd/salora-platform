@@ -22,7 +22,7 @@ export function getWorker(name: QueueName, processor: JobProcessor = noopProcess
     connection: getRedisConnectionOptions(),
     concurrency: env.QUEUE_CONCURRENCY
   };
-  const worker = new Worker(`${env.QUEUE_PREFIX}:${name}`, createProcessor(name, processor), options);
+  const worker = new Worker(`${env.QUEUE_PREFIX}-${name}`, createProcessor(name, processor), options);
   worker.on("ready", () => setGauge(`salora_worker_${name.replaceAll("-", "_")}_ready`, 1));
   worker.on("closed", () => setGauge(`salora_worker_${name.replaceAll("-", "_")}_ready`, 0));
   globalWorkers.saloraWorkers.set(name, worker);

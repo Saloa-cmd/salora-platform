@@ -30,7 +30,7 @@ export function getQueue(name: QueueName): Queue {
   }
 
   const env = getInfrastructureEnv();
-  const queue = new Queue(`${env.QUEUE_PREFIX}:${name}`, {
+  const queue = new Queue(`${env.QUEUE_PREFIX}-${name}`, {
     connection: getRedisConnectionOptions(),
     defaultJobOptions: defaultJobOptions()
   });
