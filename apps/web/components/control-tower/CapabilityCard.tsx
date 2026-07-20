@@ -44,4 +44,3 @@ export function CapabilityCard({ capability }: { capability: ControlCapability }
     </DashboardCard>
   );
 }
-"use client";

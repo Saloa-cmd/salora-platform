@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { AlertCard } from "@/components/dashboard/AlertCard";
 import { DashboardCard } from "@/components/dashboard/DashboardCard";
@@ -149,4 +151,3 @@ export function ControlTowerView({ sectionId }: { sectionId?: string }) {
     </div>
   );
 }
-"use client";
