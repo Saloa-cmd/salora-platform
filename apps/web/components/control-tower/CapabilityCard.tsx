@@ -1,6 +1,9 @@
+"use client";
+
 import { CheckCircle2, CircleDashed, LockKeyhole, Wrench } from "lucide-react";
 import { DashboardCard } from "@/components/dashboard/DashboardCard";
 import type { ControlCapability, ControlTowerStatus } from "@/lib/control-tower/types";
+import { useControlTowerLocale } from "./ControlTowerLocale";
 
 const statusLabel: Record<ControlTowerStatus, string> = {
   live: "Live",
@@ -24,19 +27,21 @@ function StatusIcon({ status }: { status: ControlTowerStatus }) {
 }
 
 export function CapabilityCard({ capability }: { capability: ControlCapability }) {
+  const { tr } = useControlTowerLocale();
   return (
     <DashboardCard>
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <h3 className="text-base font-semibold text-[var(--cream)]">{capability.title}</h3>
-          <p className="mt-2 text-sm leading-6 text-[var(--muted)]">{capability.description}</p>
-          <p className="mt-4 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--gold-soft)]">{capability.owner}</p>
+          <h3 className="text-base font-semibold text-[var(--cream)]">{tr(capability.title)}</h3>
+          <p className="mt-2 text-sm leading-6 text-[var(--muted)]">{tr(capability.description)}</p>
+          <p className="mt-4 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--gold-soft)]">{tr(capability.owner)}</p>
         </div>
         <span className={`inline-flex shrink-0 items-center gap-1 rounded-full border px-2 py-1 text-[0.68rem] font-semibold uppercase ${statusClass[capability.status]}`}>
           <StatusIcon status={capability.status} />
-          {statusLabel[capability.status]}
+          {tr(statusLabel[capability.status])}
         </span>
       </div>
     </DashboardCard>
   );
 }
+"use client";
