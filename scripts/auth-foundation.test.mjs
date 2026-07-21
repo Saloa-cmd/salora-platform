@@ -25,6 +25,7 @@ assert.equal(await verifyPassword("CorrectHorseBatteryStaple!", passwordHash), t
 assert.equal(await verifyPassword("wrong-password", passwordHash), false);
 
 assert.equal(authHttp.includes("roles:"), false, "public registration schema must not accept roles");
+assert.ok(authHttp.includes("request.cookies.get(accessTokenCookieName)"), "authenticated APIs should accept the secure browser session cookie");
 
 assert.deepEqual(publicRegistrationRoles(), ["CUSTOMER"], "public registration must create CUSTOMER only");
 

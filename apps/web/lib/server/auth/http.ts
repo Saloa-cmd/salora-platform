@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { z } from "zod";
 import { getAuthService } from "./runtime";
 import { roleNames } from "./types";
+import { accessTokenCookieName } from "./cookies";
 
 export const registerSchema = z.object({
   email: z.string().email().max(255),
@@ -40,7 +41,10 @@ export function jsonError(message: string, status = 400, requestId?: string) {
 }
 
 export async function currentAuthPayload(request: NextRequest) {
-  const token = bearerToken(request);
+  // Browser sessions use an HttpOnly cookie. Keep bearer-token support for
+  // trusted API clients, but never require browser code to copy a JWT into
+  // localStorage where it would be exposed to JavaScript.
+  const token = bearerToken(request) ?? request.cookies.get(accessTokenCookieName)?.value;
 
   if (!token) {
     throw new Error("Missing bearer token.");
