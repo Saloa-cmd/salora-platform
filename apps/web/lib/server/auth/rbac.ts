@@ -2,8 +2,8 @@ import type { RoleName } from "./types";
 
 export const rolePermissions: Record<RoleName, string[]> = {
   CUSTOMER: ["order:read:self", "order:create:self"],
-  STAFF: ["order:read", "order:update", "catalog:read"],
-  MANAGER: ["order:read", "order:update", "catalog:read", "catalog:write", "staff:read"],
+  STAFF: ["order:read", "order:update", "catalog:read", "content:read"],
+  MANAGER: ["order:read", "order:update", "catalog:read", "catalog:write", "content:read", "content:write", "content:request-approval", "staff:read"],
   ADMIN: ["order:*", "catalog:*", "staff:*", "user:*", "system:*"]
 };
 

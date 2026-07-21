@@ -68,6 +68,9 @@ export interface ControlTowerRepositoryInterface {
     update: (where: any, data: any) => Promise<any>;
     updateMany: (where: any, data: any) => Promise<any>;
   };
+  cms: {
+    run: <T>(operation: (db: any) => Promise<T>) => Promise<T>;
+  };
   whatsapp: {
     commandCenter: () => Promise<{ conversations: any[]; messages: any[]; webhookEvents: any[]; webhookLedgerReady: boolean }>;
   };
@@ -354,6 +357,14 @@ export async function createControlTowerRepository(
         withPrismaAuthContext(authContext, (db) => {
           incrementMetric("salora_control_tower_media_drafts_update_many");
           return db.productMediaDraft.updateMany({ where, data });
+        }),
+    },
+
+    cms: {
+      run: <T>(operation: (db: any) => Promise<T>) =>
+        withPrismaAuthContext(authContext, (db) => {
+          incrementMetric("salora_control_tower_cms_operation");
+          return operation(db);
         }),
     },
 

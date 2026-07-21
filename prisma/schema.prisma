@@ -203,61 +203,86 @@ enum AuditAction {
   EXPORT
 }
 
+enum CmsResourceType {
+  PAGE
+  SECTION
+  NAVIGATION
+  BANNER
+  CAMPAIGN
+  LANDING_PAGE
+}
+
+enum CmsContentStatus {
+  DRAFT
+  IN_REVIEW
+  APPROVED
+  SCHEDULED
+  PUBLISHED
+  ARCHIVED
+}
+
+enum CmsApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
 model User {
-  id               String     @id @default(uuid()) @db.Uuid
-  email            String     @unique @db.VarChar(255)
-  name             String     @db.VarChar(120)
-  passwordHash     String     @map("password_hash") @db.Text
-  isActive         Boolean    @default(true) @map("is_active")
-  emailVerifiedAt  DateTime?  @map("email_verified_at") @db.Timestamptz(6)
-  createdAt        DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt        DateTime   @updatedAt @map("updated_at") @db.Timestamptz(6)
-  sessions         Session[]
-  roles            UserRole[]
-  customerProfile  CustomerProfile?
+  id              String           @id @default(uuid()) @db.Uuid
+  email           String           @unique @db.VarChar(255)
+  name            String           @db.VarChar(120)
+  passwordHash    String           @map("password_hash") @db.Text
+  isActive        Boolean          @default(true) @map("is_active")
+  emailVerifiedAt DateTime?        @map("email_verified_at") @db.Timestamptz(6)
+  createdAt       DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime         @updatedAt @map("updated_at") @db.Timestamptz(6)
+  sessions        Session[]
+  roles           UserRole[]
+  customerProfile CustomerProfile?
 
   @@index([email])
   @@map("users")
 }
 
 model CustomerProfile {
-  id           String               @id @default(uuid()) @db.Uuid
-  userId       String               @unique @map("user_id") @db.Uuid
-  displayName  String?              @map("display_name") @db.VarChar(120)
-  phone        String?              @db.VarChar(32)
-  birthMonth   Int?                 @map("birth_month")
-  notes        String?              @db.Text
-  createdAt    DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt    DateTime             @updatedAt @map("updated_at") @db.Timestamptz(6)
-  user         User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
-  addresses    CustomerAddress[]
-  preferences  CustomerPreference[]
-  favorites    CustomerFavorite[]
-  savedOrders  SavedOrder[]
-  orders       CafeOrder[]
+  id                String                   @id @default(uuid()) @db.Uuid
+  userId            String                   @unique @map("user_id") @db.Uuid
+  displayName       String?                  @map("display_name") @db.VarChar(120)
+  phone             String?                  @db.VarChar(32)
+  birthMonth        Int?                     @map("birth_month")
+  notes             String?                  @db.Text
+  createdAt         DateTime                 @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt         DateTime                 @updatedAt @map("updated_at") @db.Timestamptz(6)
+  user              User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  addresses         CustomerAddress[]
+  preferences       CustomerPreference[]
+  favorites         CustomerFavorite[]
+  savedOrders       SavedOrder[]
+  orders            CafeOrder[]
   couponRedemptions CouponRedemption[]
-  reviews      ProductReview[]
-  recommendations AiRecommendationRecord[]
-  loyalty      LoyaltyAccount?
-  notifications Notification[]
-  conversations Conversation[]
+  reviews           ProductReview[]
+  recommendations   AiRecommendationRecord[]
+  loyalty           LoyaltyAccount?
+  notifications     Notification[]
+  conversations     Conversation[]
 
   @@index([phone])
   @@map("customer_profiles")
 }
 
 model CustomerAddress {
-  id          String          @id @default(uuid()) @db.Uuid
-  customerId  String          @map("customer_id") @db.Uuid
-  type        AddressType     @default(HOME)
-  label       String?         @db.VarChar(80)
-  line1       String          @map("line_1") @db.VarChar(180)
-  line2       String?         @map("line_2") @db.VarChar(180)
-  city        String          @db.VarChar(80)
-  country     String          @db.VarChar(80)
-  isDefault   Boolean         @default(false) @map("is_default")
-  createdAt   DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
-  customer    CustomerProfile @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  id         String          @id @default(uuid()) @db.Uuid
+  customerId String          @map("customer_id") @db.Uuid
+  type       AddressType     @default(HOME)
+  label      String?         @db.VarChar(80)
+  line1      String          @map("line_1") @db.VarChar(180)
+  line2      String?         @map("line_2") @db.VarChar(180)
+  city       String          @db.VarChar(80)
+  country    String          @db.VarChar(80)
+  isDefault  Boolean         @default(false) @map("is_default")
+  createdAt  DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+  customer   CustomerProfile @relation(fields: [customerId], references: [id], onDelete: Cascade)
 
   @@index([customerId])
   @@map("customer_addresses")
@@ -290,24 +315,24 @@ model ProductCategory {
 }
 
 model CatalogProduct {
-  id                String             @id @default(uuid()) @db.Uuid
-  brandKey          String             @default("SALORA") @map("brand_key") @db.VarChar(40)
-  categoryId        String             @map("category_id") @db.Uuid
-  slug              String             @unique @db.VarChar(140)
-  name              String             @db.VarChar(160)
-  nameAr            String?            @map("name_ar") @db.VarChar(160)
-  nameEn            String?            @map("name_en") @db.VarChar(160)
-  description       String             @db.Text
-  descriptionAr     String?            @map("description_ar") @db.Text
-  descriptionEn     String?            @map("description_en") @db.Text
-  status            ProductStatus      @default(DRAFT)
-  basePrice         Decimal            @map("base_price") @db.Decimal(10, 3)
-  tags              String[]           @default([])
-  pairingHint       String?            @map("pairing_hint") @db.Text
-  aiDescriptor      String?            @map("ai_descriptor") @db.Text
-  createdAt         DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt         DateTime           @updatedAt @map("updated_at") @db.Timestamptz(6)
-  category          ProductCategory    @relation(fields: [categoryId], references: [id])
+  id                String                   @id @default(uuid()) @db.Uuid
+  brandKey          String                   @default("SALORA") @map("brand_key") @db.VarChar(40)
+  categoryId        String                   @map("category_id") @db.Uuid
+  slug              String                   @unique @db.VarChar(140)
+  name              String                   @db.VarChar(160)
+  nameAr            String?                  @map("name_ar") @db.VarChar(160)
+  nameEn            String?                  @map("name_en") @db.VarChar(160)
+  description       String                   @db.Text
+  descriptionAr     String?                  @map("description_ar") @db.Text
+  descriptionEn     String?                  @map("description_en") @db.Text
+  status            ProductStatus            @default(DRAFT)
+  basePrice         Decimal                  @map("base_price") @db.Decimal(10, 3)
+  tags              String[]                 @default([])
+  pairingHint       String?                  @map("pairing_hint") @db.Text
+  aiDescriptor      String?                  @map("ai_descriptor") @db.Text
+  createdAt         DateTime                 @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt         DateTime                 @updatedAt @map("updated_at") @db.Timestamptz(6)
+  category          ProductCategory          @relation(fields: [categoryId], references: [id])
   variants          ProductVariant[]
   addons            ProductAddon[]
   modifiers         ProductModifier[]
@@ -378,23 +403,23 @@ model ProductMediaDraft {
 }
 
 model ProductVariant {
-  id          String         @id @default(uuid()) @db.Uuid
-  productId   String         @map("product_id") @db.Uuid
-  name        String         @db.VarChar(120)
-  priceDelta  Decimal        @default(0) @map("price_delta") @db.Decimal(10, 3)
-  sku         String?        @unique @db.VarChar(80)
-  product     CatalogProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
+  id         String         @id @default(uuid()) @db.Uuid
+  productId  String         @map("product_id") @db.Uuid
+  name       String         @db.VarChar(120)
+  priceDelta Decimal        @default(0) @map("price_delta") @db.Decimal(10, 3)
+  sku        String?        @unique @db.VarChar(80)
+  product    CatalogProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@index([productId])
   @@map("product_variants")
 }
 
 model ProductAddon {
-  id         String         @id @default(uuid()) @db.Uuid
-  productId  String         @map("product_id") @db.Uuid
-  name       String         @db.VarChar(120)
-  price      Decimal        @db.Decimal(10, 3)
-  product    CatalogProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
+  id        String         @id @default(uuid()) @db.Uuid
+  productId String         @map("product_id") @db.Uuid
+  name      String         @db.VarChar(120)
+  price     Decimal        @db.Decimal(10, 3)
+  product   CatalogProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@index([productId])
   @@map("product_addons")
@@ -413,13 +438,13 @@ model ProductModifier {
 }
 
 model PricingRule {
-  id          String         @id @default(uuid()) @db.Uuid
-  productId   String         @map("product_id") @db.Uuid
-  name        String         @db.VarChar(120)
-  startsAt    DateTime?      @map("starts_at") @db.Timestamptz(6)
-  endsAt      DateTime?      @map("ends_at") @db.Timestamptz(6)
-  price       Decimal        @db.Decimal(10, 3)
-  product     CatalogProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
+  id        String         @id @default(uuid()) @db.Uuid
+  productId String         @map("product_id") @db.Uuid
+  name      String         @db.VarChar(120)
+  startsAt  DateTime?      @map("starts_at") @db.Timestamptz(6)
+  endsAt    DateTime?      @map("ends_at") @db.Timestamptz(6)
+  price     Decimal        @db.Decimal(10, 3)
+  product   CatalogProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@index([productId])
   @@map("pricing_rules")
@@ -503,13 +528,13 @@ model PromotionProduct {
 }
 
 model AvailabilityRule {
-  id         String         @id @default(uuid()) @db.Uuid
-  productId  String         @map("product_id") @db.Uuid
-  dayOfWeek  Int?           @map("day_of_week")
-  startsAt   String?        @map("starts_at") @db.VarChar(8)
-  endsAt     String?        @map("ends_at") @db.VarChar(8)
-  isAvailable Boolean       @default(true) @map("is_available")
-  product    CatalogProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
+  id          String         @id @default(uuid()) @db.Uuid
+  productId   String         @map("product_id") @db.Uuid
+  dayOfWeek   Int?           @map("day_of_week")
+  startsAt    String?        @map("starts_at") @db.VarChar(8)
+  endsAt      String?        @map("ends_at") @db.VarChar(8)
+  isAvailable Boolean        @default(true) @map("is_available")
+  product     CatalogProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@index([productId])
   @@map("availability_rules")
@@ -541,28 +566,28 @@ model SavedOrder {
 }
 
 model CafeOrder {
-  id          String          @id @default(uuid()) @db.Uuid
-  customerId  String?         @map("customer_id") @db.Uuid
-  channel     OrderChannel    @default(WEB)
-  status      OrderStatus     @default(PLACED)
-  paymentState OrderPaymentState @default(UNPAID) @map("payment_state")
-  discountTotal Decimal         @default(0) @map("discount_total") @db.Decimal(10, 3)
-  subtotal    Decimal         @db.Decimal(10, 3)
-  total       Decimal         @db.Decimal(10, 3)
-  currency    String          @default("OMR") @db.VarChar(8)
-  customerName String?        @map("customer_name") @db.VarChar(120)
-  customerPhone String?       @map("customer_phone") @db.VarChar(32)
-  metadata    Json?
-  createdAt   DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt   DateTime        @updatedAt @map("updated_at") @db.Timestamptz(6)
-  customer    CustomerProfile? @relation(fields: [customerId], references: [id])
-  items       OrderItem[]
-  timeline    OrderTimeline[]
-  notes       OrderNote[]
-  conversations Conversation[]
-  payments    Payment[]
+  id               String            @id @default(uuid()) @db.Uuid
+  customerId       String?           @map("customer_id") @db.Uuid
+  channel          OrderChannel      @default(WEB)
+  status           OrderStatus       @default(PLACED)
+  paymentState     OrderPaymentState @default(UNPAID) @map("payment_state")
+  discountTotal    Decimal           @default(0) @map("discount_total") @db.Decimal(10, 3)
+  subtotal         Decimal           @db.Decimal(10, 3)
+  total            Decimal           @db.Decimal(10, 3)
+  currency         String            @default("OMR") @db.VarChar(8)
+  customerName     String?           @map("customer_name") @db.VarChar(120)
+  customerPhone    String?           @map("customer_phone") @db.VarChar(32)
+  metadata         Json?
+  createdAt        DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
+  customer         CustomerProfile?  @relation(fields: [customerId], references: [id])
+  items            OrderItem[]
+  timeline         OrderTimeline[]
+  notes            OrderNote[]
+  conversations    Conversation[]
+  payments         Payment[]
   couponRedemption CouponRedemption?
-  reviews     ProductReview[]
+  reviews          ProductReview[]
 
   @@index([customerId])
   @@index([status])
@@ -571,29 +596,29 @@ model CafeOrder {
 }
 
 model Payment {
-  id                  String        @id @default(uuid()) @db.Uuid
-  orderId             String        @map("order_id") @db.Uuid
-  customerId          String?       @map("customer_id") @db.Uuid
-  provider            String        @db.VarChar(80)
-  providerPaymentId   String?       @map("provider_payment_id") @db.VarChar(160)
-  status              PaymentStatus @default(PENDING)
-  amount              Decimal       @db.Decimal(10, 3)
-  currency            String        @default("OMR") @db.VarChar(8)
-  idempotencyKey      String        @unique @map("idempotency_key") @db.VarChar(160)
-  metadata            Json?
-  authorizedAt        DateTime?     @map("authorized_at") @db.Timestamptz(6)
-  paidAt              DateTime?     @map("paid_at") @db.Timestamptz(6)
-  failedAt            DateTime?     @map("failed_at") @db.Timestamptz(6)
-  canceledAt          DateTime?     @map("canceled_at") @db.Timestamptz(6)
-  createdAt           DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt           DateTime      @updatedAt @map("updated_at") @db.Timestamptz(6)
-  order               CafeOrder     @relation(fields: [orderId], references: [id])
-  intents             PaymentIntent[]
-  refunds             Refund[]
-  events              PaymentEvent[]
-  methodReferences    PaymentMethodReference[]
-  auditLogs           PaymentAuditLog[]
-  reconciliation      PaymentReconciliationRecord[]
+  id                String                        @id @default(uuid()) @db.Uuid
+  orderId           String                        @map("order_id") @db.Uuid
+  customerId        String?                       @map("customer_id") @db.Uuid
+  provider          String                        @db.VarChar(80)
+  providerPaymentId String?                       @map("provider_payment_id") @db.VarChar(160)
+  status            PaymentStatus                 @default(PENDING)
+  amount            Decimal                       @db.Decimal(10, 3)
+  currency          String                        @default("OMR") @db.VarChar(8)
+  idempotencyKey    String                        @unique @map("idempotency_key") @db.VarChar(160)
+  metadata          Json?
+  authorizedAt      DateTime?                     @map("authorized_at") @db.Timestamptz(6)
+  paidAt            DateTime?                     @map("paid_at") @db.Timestamptz(6)
+  failedAt          DateTime?                     @map("failed_at") @db.Timestamptz(6)
+  canceledAt        DateTime?                     @map("canceled_at") @db.Timestamptz(6)
+  createdAt         DateTime                      @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt         DateTime                      @updatedAt @map("updated_at") @db.Timestamptz(6)
+  order             CafeOrder                     @relation(fields: [orderId], references: [id])
+  intents           PaymentIntent[]
+  refunds           Refund[]
+  events            PaymentEvent[]
+  methodReferences  PaymentMethodReference[]
+  auditLogs         PaymentAuditLog[]
+  reconciliation    PaymentReconciliationRecord[]
 
   @@index([orderId])
   @@index([customerId])
@@ -603,18 +628,18 @@ model Payment {
 }
 
 model PaymentIntent {
-  id                       String        @id @default(uuid()) @db.Uuid
-  paymentId                String        @map("payment_id") @db.Uuid
-  provider                 String        @db.VarChar(80)
-  providerPaymentIntentId  String?       @map("provider_payment_intent_id") @db.VarChar(160)
-  clientSecretReference    String?       @map("client_secret_reference") @db.VarChar(160)
-  status                   PaymentStatus @default(PENDING)
-  amount                   Decimal       @db.Decimal(10, 3)
-  currency                 String        @default("OMR") @db.VarChar(8)
-  metadata                 Json?
-  createdAt                DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt                DateTime      @updatedAt @map("updated_at") @db.Timestamptz(6)
-  payment                  Payment       @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  id                      String        @id @default(uuid()) @db.Uuid
+  paymentId               String        @map("payment_id") @db.Uuid
+  provider                String        @db.VarChar(80)
+  providerPaymentIntentId String?       @map("provider_payment_intent_id") @db.VarChar(160)
+  clientSecretReference   String?       @map("client_secret_reference") @db.VarChar(160)
+  status                  PaymentStatus @default(PENDING)
+  amount                  Decimal       @db.Decimal(10, 3)
+  currency                String        @default("OMR") @db.VarChar(8)
+  metadata                Json?
+  createdAt               DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt               DateTime      @updatedAt @map("updated_at") @db.Timestamptz(6)
+  payment                 Payment       @relation(fields: [paymentId], references: [id], onDelete: Cascade)
 
   @@index([paymentId])
   @@index([provider, providerPaymentIntentId])
@@ -642,18 +667,18 @@ model Refund {
 }
 
 model PaymentEvent {
-  id              String                   @id @default(uuid()) @db.Uuid
-  paymentId       String?                  @map("payment_id") @db.Uuid
-  provider        String                   @db.VarChar(80)
-  providerEventId String                   @map("provider_event_id") @db.VarChar(160)
-  eventType       String                   @map("event_type") @db.VarChar(120)
+  id               String                   @id @default(uuid()) @db.Uuid
+  paymentId        String?                  @map("payment_id") @db.Uuid
+  provider         String                   @db.VarChar(80)
+  providerEventId  String                   @map("provider_event_id") @db.VarChar(160)
+  eventType        String                   @map("event_type") @db.VarChar(120)
   processingStatus ProviderProcessingStatus @default(RECEIVED) @map("processing_status")
-  relatedOrderId  String?                  @map("related_order_id") @db.Uuid
-  processedAt     DateTime?                @map("processed_at") @db.Timestamptz(6)
-  errorMessage    String?                  @map("error_message") @db.Text
-  metadata        Json?
-  createdAt       DateTime                 @default(now()) @map("created_at") @db.Timestamptz(6)
-  payment         Payment?                 @relation(fields: [paymentId], references: [id])
+  relatedOrderId   String?                  @map("related_order_id") @db.Uuid
+  processedAt      DateTime?                @map("processed_at") @db.Timestamptz(6)
+  errorMessage     String?                  @map("error_message") @db.Text
+  metadata         Json?
+  createdAt        DateTime                 @default(now()) @map("created_at") @db.Timestamptz(6)
+  payment          Payment?                 @relation(fields: [paymentId], references: [id])
 
   @@unique([provider, providerEventId])
   @@index([paymentId])
@@ -663,15 +688,15 @@ model PaymentEvent {
 }
 
 model PaymentMethodReference {
-  id             String   @id @default(uuid()) @db.Uuid
-  paymentId      String   @map("payment_id") @db.Uuid
-  provider       String   @db.VarChar(80)
-  methodType     String   @map("method_type") @db.VarChar(80)
-  reference      String   @db.VarChar(160)
-  cardBrand      String?  @map("card_brand") @db.VarChar(40)
-  cardLast4      String?  @map("card_last4") @db.VarChar(4)
-  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  payment        Payment  @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  id         String   @id @default(uuid()) @db.Uuid
+  paymentId  String   @map("payment_id") @db.Uuid
+  provider   String   @db.VarChar(80)
+  methodType String   @map("method_type") @db.VarChar(80)
+  reference  String   @db.VarChar(160)
+  cardBrand  String?  @map("card_brand") @db.VarChar(40)
+  cardLast4  String?  @map("card_last4") @db.VarChar(4)
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  payment    Payment  @relation(fields: [paymentId], references: [id], onDelete: Cascade)
 
   @@index([paymentId])
   @@map("payment_method_references")
@@ -692,17 +717,17 @@ model PaymentAuditLog {
 }
 
 model PaymentReconciliationRecord {
-  id             String   @id @default(uuid()) @db.Uuid
-  paymentId      String   @map("payment_id") @db.Uuid
-  provider       String   @db.VarChar(80)
-  grossAmount    Decimal  @map("gross_amount") @db.Decimal(10, 3)
-  netAmount      Decimal  @map("net_amount") @db.Decimal(10, 3)
-  feeAmount      Decimal  @default(0) @map("fee_amount") @db.Decimal(10, 3)
-  currency       String   @default("OMR") @db.VarChar(8)
-  settlementId   String?  @map("settlement_id") @db.VarChar(160)
-  reconciledAt   DateTime? @map("reconciled_at") @db.Timestamptz(6)
-  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  payment        Payment  @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  id           String    @id @default(uuid()) @db.Uuid
+  paymentId    String    @map("payment_id") @db.Uuid
+  provider     String    @db.VarChar(80)
+  grossAmount  Decimal   @map("gross_amount") @db.Decimal(10, 3)
+  netAmount    Decimal   @map("net_amount") @db.Decimal(10, 3)
+  feeAmount    Decimal   @default(0) @map("fee_amount") @db.Decimal(10, 3)
+  currency     String    @default("OMR") @db.VarChar(8)
+  settlementId String?   @map("settlement_id") @db.VarChar(160)
+  reconciledAt DateTime? @map("reconciled_at") @db.Timestamptz(6)
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  payment      Payment   @relation(fields: [paymentId], references: [id], onDelete: Cascade)
 
   @@index([paymentId])
   @@index([provider])
@@ -734,22 +759,22 @@ model ProductReview {
 }
 
 model Conversation {
-  id              String             @id @default(uuid()) @db.Uuid
-  channel         ConversationChannel
-  status          ConversationStatus @default(OPEN)
-  customerId      String?            @map("customer_id") @db.Uuid
-  customerPhone   String?            @map("customer_phone") @db.VarChar(32)
-  orderId         String?            @map("order_id") @db.Uuid
-  loyaltyAccountId String?           @map("loyalty_account_id") @db.Uuid
-  aiCorrelationId String?            @map("ai_correlation_id") @db.VarChar(80)
-  metadata        Json?
-  retentionUntil  DateTime?          @map("retention_until") @db.Timestamptz(6)
-  createdAt       DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt       DateTime           @updatedAt @map("updated_at") @db.Timestamptz(6)
-  customer        CustomerProfile?   @relation(fields: [customerId], references: [id])
-  order           CafeOrder?         @relation(fields: [orderId], references: [id])
-  messages        ConversationMessage[]
-  sessions        ChannelSession[]
+  id               String                @id @default(uuid()) @db.Uuid
+  channel          ConversationChannel
+  status           ConversationStatus    @default(OPEN)
+  customerId       String?               @map("customer_id") @db.Uuid
+  customerPhone    String?               @map("customer_phone") @db.VarChar(32)
+  orderId          String?               @map("order_id") @db.Uuid
+  loyaltyAccountId String?               @map("loyalty_account_id") @db.Uuid
+  aiCorrelationId  String?               @map("ai_correlation_id") @db.VarChar(80)
+  metadata         Json?
+  retentionUntil   DateTime?             @map("retention_until") @db.Timestamptz(6)
+  createdAt        DateTime              @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime              @updatedAt @map("updated_at") @db.Timestamptz(6)
+  customer         CustomerProfile?      @relation(fields: [customerId], references: [id])
+  order            CafeOrder?            @relation(fields: [orderId], references: [id])
+  messages         ConversationMessage[]
+  sessions         ChannelSession[]
 
   @@index([channel, status])
   @@index([customerId])
@@ -819,19 +844,19 @@ model ProviderMessage {
 }
 
 model WhatsappWebhookEvent {
-  id                String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  providerEventId   String?                  @map("provider_event_id") @db.VarChar(160)
-  eventType         String                   @map("event_type") @db.VarChar(80)
-  processingStatus  ProviderProcessingStatus @default(RECEIVED) @map("processing_status")
-  correlationId     String                   @map("correlation_id") @db.VarChar(80)
-  payload           Json
-  errorMessage      String?                  @map("error_message") @db.Text
-  receivedAt        DateTime                 @default(now()) @map("received_at") @db.Timestamptz(6)
-  processedAt       DateTime?                @map("processed_at") @db.Timestamptz(6)
-  failedAt          DateTime?                @map("failed_at") @db.Timestamptz(6)
-  deletedAt         DateTime?                @map("deleted_at") @db.Timestamptz(6)
-  createdAt         DateTime                 @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt         DateTime                 @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  id               String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  providerEventId  String?                  @map("provider_event_id") @db.VarChar(160)
+  eventType        String                   @map("event_type") @db.VarChar(80)
+  processingStatus ProviderProcessingStatus @default(RECEIVED) @map("processing_status")
+  correlationId    String                   @map("correlation_id") @db.VarChar(80)
+  payload          Json
+  errorMessage     String?                  @map("error_message") @db.Text
+  receivedAt       DateTime                 @default(now()) @map("received_at") @db.Timestamptz(6)
+  processedAt      DateTime?                @map("processed_at") @db.Timestamptz(6)
+  failedAt         DateTime?                @map("failed_at") @db.Timestamptz(6)
+  deletedAt        DateTime?                @map("deleted_at") @db.Timestamptz(6)
+  createdAt        DateTime                 @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime                 @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   @@index([providerEventId])
   @@index([eventType, processingStatus])
@@ -842,23 +867,23 @@ model WhatsappWebhookEvent {
 }
 
 model AiEvaluationRecord {
-  id             String   @id @default(uuid()) @db.Uuid
-  correlationId  String   @map("correlation_id") @db.VarChar(80)
-  provider       String   @db.VarChar(80)
-  model          String   @db.VarChar(120)
-  intent         String   @db.VarChar(80)
-  channel        String   @db.VarChar(80)
-  overallScore   Int      @map("overall_score")
-  accuracyScore  Int      @map("accuracy_score")
-  recommendationScore Int  @map("recommendation_score")
-  safetyScore    Int      @map("safety_score")
-  latencyScore   Int      @map("latency_score")
-  costEfficiencyScore Int  @map("cost_efficiency_score")
-  latencyMs      Int      @map("latency_ms")
-  estimatedCost  Decimal  @map("estimated_cost") @db.Decimal(12, 6)
-  safetyBlocked  Boolean  @default(false) @map("safety_blocked")
-  notes          Json?
-  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  id                  String   @id @default(uuid()) @db.Uuid
+  correlationId       String   @map("correlation_id") @db.VarChar(80)
+  provider            String   @db.VarChar(80)
+  model               String   @db.VarChar(120)
+  intent              String   @db.VarChar(80)
+  channel             String   @db.VarChar(80)
+  overallScore        Int      @map("overall_score")
+  accuracyScore       Int      @map("accuracy_score")
+  recommendationScore Int      @map("recommendation_score")
+  safetyScore         Int      @map("safety_score")
+  latencyScore        Int      @map("latency_score")
+  costEfficiencyScore Int      @map("cost_efficiency_score")
+  latencyMs           Int      @map("latency_ms")
+  estimatedCost       Decimal  @map("estimated_cost") @db.Decimal(12, 6)
+  safetyBlocked       Boolean  @default(false) @map("safety_blocked")
+  notes               Json?
+  createdAt           DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
 
   @@index([correlationId])
   @@index([provider, model])
@@ -890,16 +915,16 @@ model AiRecommendationRecord {
 }
 
 model OrderItem {
-  id            String         @id @default(uuid()) @db.Uuid
-  orderId       String         @map("order_id") @db.Uuid
-  productId     String?        @map("product_id") @db.Uuid
-  productName   String         @map("product_name") @db.VarChar(160)
-  quantity      Int
-  unitPrice     Decimal        @map("unit_price") @db.Decimal(10, 3)
-  totalPrice    Decimal        @map("total_price") @db.Decimal(10, 3)
-  modifiers     Json?
-  order         CafeOrder      @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  product       CatalogProduct? @relation(fields: [productId], references: [id])
+  id          String          @id @default(uuid()) @db.Uuid
+  orderId     String          @map("order_id") @db.Uuid
+  productId   String?         @map("product_id") @db.Uuid
+  productName String          @map("product_name") @db.VarChar(160)
+  quantity    Int
+  unitPrice   Decimal         @map("unit_price") @db.Decimal(10, 3)
+  totalPrice  Decimal         @map("total_price") @db.Decimal(10, 3)
+  modifiers   Json?
+  order       CafeOrder       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product     CatalogProduct? @relation(fields: [productId], references: [id])
 
   @@index([orderId])
   @@index([productId])
@@ -941,15 +966,15 @@ model Supplier {
 }
 
 model Ingredient {
-  id              String              @id @default(uuid()) @db.Uuid
-  supplierId      String?             @map("supplier_id") @db.Uuid
-  name            String              @db.VarChar(160)
-  unit            String              @db.VarChar(32)
-  currentStock    Decimal             @default(0) @map("current_stock") @db.Decimal(12, 3)
-  reorderThreshold Decimal            @default(0) @map("reorder_threshold") @db.Decimal(12, 3)
-  supplier        Supplier?           @relation(fields: [supplierId], references: [id])
-  movements       StockMovement[]
-  consumption     ConsumptionRecord[]
+  id               String              @id @default(uuid()) @db.Uuid
+  supplierId       String?             @map("supplier_id") @db.Uuid
+  name             String              @db.VarChar(160)
+  unit             String              @db.VarChar(32)
+  currentStock     Decimal             @default(0) @map("current_stock") @db.Decimal(12, 3)
+  reorderThreshold Decimal             @default(0) @map("reorder_threshold") @db.Decimal(12, 3)
+  supplier         Supplier?           @relation(fields: [supplierId], references: [id])
+  movements        StockMovement[]
+  consumption      ConsumptionRecord[]
 
   @@index([supplierId])
   @@map("ingredients")
@@ -982,12 +1007,12 @@ model ConsumptionRecord {
 }
 
 model LoyaltyAccount {
-  id         String               @id @default(uuid()) @db.Uuid
-  customerId String               @unique @map("customer_id") @db.Uuid
-  points     Int                  @default(0)
-  tier       String               @default("CLASSIC") @db.VarChar(40)
-  customer   CustomerProfile      @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  ledger     LoyaltyLedgerEntry[]
+  id          String               @id @default(uuid()) @db.Uuid
+  customerId  String               @unique @map("customer_id") @db.Uuid
+  points      Int                  @default(0)
+  tier        String               @default("CLASSIC") @db.VarChar(40)
+  customer    CustomerProfile      @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  ledger      LoyaltyLedgerEntry[]
   redemptions RewardRedemption[]
 
   @@map("loyalty_accounts")
@@ -1031,29 +1056,29 @@ model RewardRedemption {
 }
 
 model NotificationTemplate {
-  id        String                 @id @default(uuid()) @db.Uuid
-  key       String                 @unique @db.VarChar(120)
-  channel   NotificationChannel
-  subject   String?                @db.VarChar(180)
-  body      String                 @db.Text
-  createdAt DateTime               @default(now()) @map("created_at") @db.Timestamptz(6)
+  id            String              @id @default(uuid()) @db.Uuid
+  key           String              @unique @db.VarChar(120)
+  channel       NotificationChannel
+  subject       String?             @db.VarChar(180)
+  body          String              @db.Text
+  createdAt     DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
   notifications Notification[]
 
   @@map("notification_templates")
 }
 
 model Notification {
-  id          String                @id @default(uuid()) @db.Uuid
-  customerId  String?               @map("customer_id") @db.Uuid
-  templateId  String?               @map("template_id") @db.Uuid
-  channel     NotificationChannel
-  status      NotificationStatus    @default(QUEUED)
-  recipient   String                @db.VarChar(255)
-  payload     Json?
-  createdAt   DateTime              @default(now()) @map("created_at") @db.Timestamptz(6)
-  customer    CustomerProfile?      @relation(fields: [customerId], references: [id])
-  template    NotificationTemplate? @relation(fields: [templateId], references: [id])
-  deliveries  NotificationDeliveryLog[]
+  id         String                    @id @default(uuid()) @db.Uuid
+  customerId String?                   @map("customer_id") @db.Uuid
+  templateId String?                   @map("template_id") @db.Uuid
+  channel    NotificationChannel
+  status     NotificationStatus        @default(QUEUED)
+  recipient  String                    @db.VarChar(255)
+  payload    Json?
+  createdAt  DateTime                  @default(now()) @map("created_at") @db.Timestamptz(6)
+  customer   CustomerProfile?          @relation(fields: [customerId], references: [id])
+  template   NotificationTemplate?     @relation(fields: [templateId], references: [id])
+  deliveries NotificationDeliveryLog[]
 
   @@index([customerId])
   @@index([status])
@@ -1130,6 +1155,66 @@ model AuditLog {
   @@map("audit_logs")
 }
 
+model CmsDocument {
+  id               String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  brandKey         String           @default("SALORA") @map("brand_key") @db.VarChar(40)
+  resourceType     CmsResourceType  @map("resource_type")
+  key              String           @db.VarChar(140)
+  slug             String?          @db.VarChar(180)
+  titleAr          String           @map("title_ar") @db.VarChar(200)
+  titleEn          String           @map("title_en") @db.VarChar(200)
+  status           CmsContentStatus @default(DRAFT)
+  activeRevisionId String?          @map("active_revision_id") @db.Uuid
+  scheduledAt      DateTime?        @map("scheduled_at") @db.Timestamptz(6)
+  publishedAt      DateTime?        @map("published_at") @db.Timestamptz(6)
+  archivedAt       DateTime?        @map("archived_at") @db.Timestamptz(6)
+  createdBy        String           @map("created_by") @db.Uuid
+  updatedBy        String           @map("updated_by") @db.Uuid
+  createdAt        DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime         @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  revisions        CmsRevision[]
+  approvals        CmsApproval[]
+
+  @@unique([brandKey, resourceType, key])
+  @@index([brandKey, status, resourceType])
+  @@index([brandKey, scheduledAt])
+  @@map("cms_documents")
+}
+
+model CmsRevision {
+  id            String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  documentId    String        @map("document_id") @db.Uuid
+  version       Int
+  payload       Json
+  changeSummary String?       @map("change_summary") @db.VarChar(500)
+  createdBy     String        @map("created_by") @db.Uuid
+  createdAt     DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+  document      CmsDocument   @relation(fields: [documentId], references: [id], onDelete: Restrict)
+  approvals     CmsApproval[]
+
+  @@unique([documentId, version])
+  @@index([documentId, createdAt])
+  @@map("cms_revisions")
+}
+
+model CmsApproval {
+  id           String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  documentId   String            @map("document_id") @db.Uuid
+  revisionId   String            @map("revision_id") @db.Uuid
+  status       CmsApprovalStatus @default(PENDING)
+  requestedBy  String            @map("requested_by") @db.Uuid
+  decidedBy    String?           @map("decided_by") @db.Uuid
+  decisionNote String?           @map("decision_note") @db.VarChar(1000)
+  requestedAt  DateTime          @default(now()) @map("requested_at") @db.Timestamptz(6)
+  decidedAt    DateTime?         @map("decided_at") @db.Timestamptz(6)
+  document     CmsDocument       @relation(fields: [documentId], references: [id], onDelete: Restrict)
+  revision     CmsRevision       @relation(fields: [revisionId], references: [id], onDelete: Restrict)
+
+  @@index([documentId, status, requestedAt])
+  @@index([revisionId])
+  @@map("cms_approvals")
+}
+
 model Role {
   id          String     @id @default(uuid()) @db.Uuid
   name        RoleName   @unique
@@ -1173,16 +1258,16 @@ model Session {
 }
 
 model RuntimeConfiguration {
-  id          String             @id @default(uuid()) @db.Uuid
-  scope       RuntimeConfigScope
-  key         String             @db.VarChar(140)
-  value       Json
-  version     Int                @default(1)
-  isActive    Boolean            @default(true) @map("is_active")
-  createdBy   String?            @map("created_by") @db.Uuid
-  updatedBy   String?            @map("updated_by") @db.Uuid
-  createdAt   DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt   DateTime           @updatedAt @map("updated_at") @db.Timestamptz(6)
+  id        String             @id @default(uuid()) @db.Uuid
+  scope     RuntimeConfigScope
+  key       String             @db.VarChar(140)
+  value     Json
+  version   Int                @default(1)
+  isActive  Boolean            @default(true) @map("is_active")
+  createdBy String?            @map("created_by") @db.Uuid
+  updatedBy String?            @map("updated_by") @db.Uuid
+  createdAt DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime           @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   @@unique([scope, key])
   @@index([scope, isActive])
