@@ -115,8 +115,8 @@ function ControlTowerShellContent({ children }: { children: ReactNode }) {
           </div>
         </aside>
         <div className="min-w-0 flex-1">
-          <header className="sticky top-0 z-30 border-b border-[rgba(201,164,92,0.08)] bg-[rgba(5,5,5,0.82)] px-4 py-3 backdrop-blur-xl sm:px-6">
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <header className="sticky top-0 z-30 border-b border-[rgba(201,164,92,0.08)] bg-[rgba(5,5,5,0.9)] backdrop-blur-xl">
+            <div className="flex min-h-20 flex-col gap-4 px-4 py-3 sm:px-6 lg:flex-row lg:items-center lg:justify-between">
               <div className="flex min-w-0 items-center gap-4">
                 <button type="button" onClick={() => setMobileNavigationOpen(true)} className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-white/10 bg-white/5 text-[var(--cream)] xl:hidden" aria-label={tr("Open navigation")} aria-expanded={mobileNavigationOpen}><Menu className="h-5 w-5" aria-hidden="true" /></button>
                 <button
@@ -134,10 +134,10 @@ function ControlTowerShellContent({ children }: { children: ReactNode }) {
                     <span className="text-white/20">/</span>
                     <span className="truncate text-[var(--cream)]">{tr(activeSection.label)}</span>
                   </p>
-                  <h1 className="mt-1 text-lg font-semibold leading-tight text-[var(--cream)] sm:text-2xl">{tr("No-Code Commerce Operating System")}</h1>
+                  <h1 className="salora-page-title mt-1 max-w-[24ch] font-semibold text-[var(--cream)]">{tr("No-Code Commerce Operating System")}</h1>
                 </div>
               </div>
-              <div className="flex flex-wrap items-center gap-2">
+              <div className="salora-command-bar max-w-full pb-1 lg:justify-end lg:pb-0" aria-label={tr("Control Tower commands")}>
                 <span className="hidden items-center gap-2 rounded-lg border border-white/10 bg-white/[0.055] px-3 py-2 text-xs text-[var(--muted)] 2xl:inline-flex">
                   <Command className="h-3.5 w-3.5" aria-hidden="true" />
                   {tr("Search-ready surface")}
@@ -169,7 +169,7 @@ function ControlTowerShellContent({ children }: { children: ReactNode }) {
                 </div>
               </div>
             </div>
-            <nav className="salora-scroll-strip mt-3 xl:hidden" aria-label={tr("Mobile Control Tower navigation")}>
+            <nav className="salora-scroll-strip border-t border-white/[0.06] px-4 py-2 sm:px-6 xl:hidden" aria-label={tr("Mobile Control Tower navigation")}>
               {controlTowerSections.map((section) => {
                 const href = `/control-tower/${section.id}`;
                 const active = pathname === href || (pathname === "/control-tower" && section.id === "executive");

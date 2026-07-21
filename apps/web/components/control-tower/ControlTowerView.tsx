@@ -126,7 +126,7 @@ export function ControlTowerView({ sectionId }: { sectionId?: string }) {
 
   return (
     <div className="space-y-8">
-      <section className="rounded-xl border border-[var(--border-gold)] bg-[var(--gold)]/10 p-5">
+      <section className="overflow-hidden rounded-2xl border border-[var(--border-gold)] bg-[linear-gradient(135deg,rgba(201,164,92,0.12),rgba(255,255,255,0.025))] p-5 sm:p-6">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex items-start gap-4">
             <span className="rounded-xl border border-[var(--border-gold)] bg-black/20 p-3 text-[var(--gold-soft)]">
@@ -134,7 +134,7 @@ export function ControlTowerView({ sectionId }: { sectionId?: string }) {
             </span>
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--gold-soft)]">{tr("Control Tower Section")}</p>
-              <h2 className="mt-1 text-2xl font-semibold text-[var(--cream)]">{tr(section.label)}</h2>
+              <h2 className="mt-1 text-2xl font-semibold leading-tight text-[var(--cream)] sm:text-3xl">{tr(section.label)}</h2>
               <p className="mt-2 max-w-4xl text-sm leading-6 text-[var(--muted)]">{tr(section.description)}</p>
             </div>
           </div>

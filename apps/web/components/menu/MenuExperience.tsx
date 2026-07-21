@@ -20,6 +20,7 @@ import {
   X
 } from "lucide-react";
 import type { ExperienceConfiguration, Product, ProductChoice, ProductModifierGroup, SelectedModifier } from "@salora/types";
+import { SaloraButton, SaloraEmptyState } from "@/components/ui/SaloraPrimitives";
 
 type Language = "ar" | "en";
 type ServiceMode = "counter" | "car" | "dine-in" | "gift";
@@ -334,31 +335,31 @@ export function MenuExperience({ initialProducts, menuSource, menuStale, whatsap
             <span><strong className="block tracking-[0.24em]">SALORA</strong><small className="text-[var(--muted)]">Taste the Harmony</small></span>
           </Link>
           <div className="flex items-center gap-2">
-            <button type="button" onClick={() => setLanguage((value) => value === "ar" ? "en" : "ar")} className="inline-flex items-center gap-2 rounded-full border border-white/10 px-3 py-2 text-xs font-semibold">
+            <SaloraButton type="button" onClick={() => setLanguage((value) => value === "ar" ? "en" : "ar")} className="min-h-10 rounded-full px-3 text-xs">
               <Languages className="h-4 w-4" /> {language === "ar" ? "English" : "العربية"}
-            </button>
-            <button type="button" onClick={() => setCartOpen(true)} className="relative inline-flex items-center gap-2 rounded-full bg-[var(--gold)] px-4 py-2 text-sm font-semibold text-black">
+            </SaloraButton>
+            <SaloraButton type="button" tone="gold" onClick={() => setCartOpen(true)} className="relative min-h-10 rounded-full bg-[var(--gold)] px-4 text-black hover:bg-[var(--gold-soft)]">
               <ShoppingBag className="h-4 w-4" /> {t.cart}
               {itemCount ? <span className="grid h-5 min-w-5 place-items-center rounded-full bg-black px-1 text-[0.65rem] text-white">{itemCount}</span> : null}
-            </button>
+            </SaloraButton>
           </div>
         </div>
       </header>
 
       {experience.site.showAnnouncement ? <div className="bg-[var(--gold)] px-4 py-2 text-center text-sm font-semibold text-black">{language === "ar" ? experience.site.announcementAr : experience.site.announcementEn}</div> : null}
 
-      <section className="relative overflow-hidden border-b border-white/10 px-4 py-10 sm:px-6 sm:py-14 lg:py-16">
+      <section className="relative overflow-hidden border-b border-white/10 px-4 py-9 sm:px-6 sm:py-12 lg:py-14">
         <div className="hero-depth" />
-        <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
-          <div>
+        <div className={`mx-auto grid max-w-7xl gap-8 lg:items-center ${language === "ar" ? "lg:grid-cols-[minmax(0,1.35fr)_minmax(22rem,0.65fr)]" : "lg:grid-cols-[minmax(30rem,1.15fr)_minmax(25rem,0.85fr)]"}`}>
+          <div className="min-w-0">
             <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.3em] text-[var(--gold-soft)]"><Sparkles className="h-4 w-4" />{t.eyebrow}</p>
-            <h1 className="mt-4 max-w-4xl text-[clamp(2.25rem,7vw,4.75rem)] font-semibold leading-[1.08] text-balance">{language === "ar" ? experience.site.heroTitleAr : experience.site.heroTitleEn}</h1>
+            <h1 className="salora-display mt-4 font-semibold">{language === "ar" ? experience.site.heroTitleAr : experience.site.heroTitleEn}</h1>
             <p className="mt-4 max-w-2xl text-sm leading-7 text-[var(--muted)] sm:text-lg sm:leading-8">{language === "ar" ? experience.site.heroSubtitleAr : experience.site.heroSubtitleEn}</p>
             <span className={`mt-5 inline-flex items-center gap-2 rounded-full border px-3 py-2 text-xs font-semibold ${menuStale ? "border-amber-300/20 bg-amber-300/10 text-amber-100" : "border-emerald-300/20 bg-emerald-300/10 text-emerald-200"}`}>
               <span className="h-2 w-2 rounded-full bg-current" /> {menuSource === "database" ? t.live : t.fallback}
             </span>
           </div>
-          <div className="grid gap-2 sm:grid-cols-2 lg:gap-3">
+          <div className="grid min-w-0 gap-2 sm:grid-cols-2 lg:gap-3">
             {serviceModes.map(({ id, ar, en, icon: Icon }) => (
               <button key={id} type="button" aria-pressed={serviceMode === id} onClick={() => setServiceMode(id)} className={`flex min-h-14 items-center gap-3 rounded-2xl border p-3 text-start transition sm:p-4 ${serviceMode === id ? "border-[var(--gold)] bg-[var(--gold)]/15 text-[var(--gold-soft)]" : "border-white/10 bg-white/[0.04] text-[var(--muted)] hover:border-white/20"}`}>
                 <Icon className="h-5 w-5 shrink-0" /><span className="text-sm font-semibold">{language === "ar" ? ar : en}</span>{serviceMode === id ? <Check className="ms-auto h-4 w-4" /> : null}
@@ -406,7 +407,7 @@ export function MenuExperience({ initialProducts, menuSource, menuStale, whatsap
             </article>
           ))}
         </div>
-        {filteredProducts.length === 0 ? <div className="salora-glass mt-8 rounded-3xl p-10 text-center"><Search className="mx-auto h-8 w-8 text-[var(--gold-soft)]" aria-hidden="true" /><p className="mt-4 text-sm text-[var(--muted)]">{t.noResults}</p></div> : null}
+        {filteredProducts.length === 0 ? <div className="mt-8"><SaloraEmptyState icon={<Search className="h-6 w-6" aria-hidden="true" />} title={language === "ar" ? "لا توجد أصناف مطابقة" : "No matching items"} description={t.noResults} action={<SaloraButton tone="gold" onClick={() => { setSearch(""); setCategory("All"); }}>{language === "ar" ? "عرض جميع الأصناف" : "Show all items"}</SaloraButton>} /></div> : null}
       </section>
 
       {selectedProduct ? (
