@@ -15,6 +15,7 @@ import { findControlTowerSection } from "@/lib/control-tower/registry";
 import type { ControlTowerSectionId } from "@/lib/control-tower/types";
 import { useControlTowerLocale } from "./ControlTowerLocale";
 import { ExperienceDesignStudio } from "./ExperienceDesignStudio";
+import { ContentOperationsStudio } from "./ContentOperationsStudio";
 
 const cmsLifecycle = ["Draft", "Publish", "Schedule", "Archive"];
 const appConfigAreas = ["Theme", "Colors", "Typography", "Feature flags", "Navigation", "Homepage layout", "AI features", "WhatsApp features"];
@@ -79,6 +80,7 @@ function SectionSpecificWorkspace({ sectionId }: { sectionId: ControlTowerSectio
   if (sectionId === "content") {
     return (
       <>
+        <ContentOperationsStudio />
         <ExperienceDesignStudio />
         <DashboardGrid columns="two">
           <ProductActionPanel />
