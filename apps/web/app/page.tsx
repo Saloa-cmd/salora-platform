@@ -1,4 +1,5 @@
 import Image from "next/image";
+import type { CSSProperties } from "react";
 import { ArrowRight, Bot, BriefcaseBusiness, Gem, Gift, Instagram, MessageCircle, Sparkles, Store, Users, type LucideIcon } from "lucide-react";
 import { ConciergePreview } from "@/components/ConciergePreview";
 import { FadeIn, HeroMotion } from "@/components/Motion";
@@ -6,6 +7,7 @@ import { ProductCard } from "@/components/ProductCard";
 import { SectionHeader } from "@/components/SectionHeader";
 import { getPublicMenuSnapshot } from "@/lib/server/publicMenu";
 import { featuredWhatsAppUrl } from "@/lib/whatsapp";
+import { getPublishedExperienceConfiguration } from "@/lib/server/experienceConfig";
 
 const nav = ["Story", "Menu", "Concierge", "Loyalty", "Careers"];
 export const dynamic = "force-dynamic";
@@ -17,14 +19,14 @@ const loyaltyItems: Array<{ icon: LucideIcon; title: string; copy: string }> = [
 ];
 
 export default async function HomePage() {
-  const menuSnapshot = await getPublicMenuSnapshot();
+  const [menuSnapshot, experience] = await Promise.all([getPublicMenuSnapshot(), getPublishedExperienceConfiguration()]);
   const products = menuSnapshot.products;
   const signature = products.filter((product) => ["iced-matcha-vanilla", "spanish-latte", "pistachio-latte", "signature-cold-brew"].includes(product.id));
   const matcha = products.filter((product) => ["ceremonial-matcha", "strawberry-matcha-cream", "iced-matcha-vanilla"].includes(product.id));
   const desserts = products.filter((product) => product.category === "Dessert" && product.id !== "strawberry-matcha-cream");
 
   return (
-    <main id="main-content" className="min-h-screen overflow-hidden">
+    <main id="main-content" className="min-h-screen overflow-hidden" style={{ backgroundColor: experience.theme.backgroundColor, color: experience.theme.textColor, "--gold": experience.theme.primaryColor, "--gold-soft": experience.theme.primaryColor, "--cream": experience.theme.textColor, "--muted": experience.theme.mutedColor } as CSSProperties}>
       <a href="#main-content" className="skip-link">Skip to content</a>
       <header className="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-background/75 backdrop-blur-xl">
         <nav className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 lg:px-8" aria-label="Primary">
@@ -45,6 +47,7 @@ export default async function HomePage() {
           </a>
         </nav>
       </header>
+      {experience.site.showAnnouncement ? <div className="fixed inset-x-0 top-[73px] z-40 bg-gold px-4 py-2 text-center text-sm font-semibold text-black">{experience.site.announcementEn}</div> : null}
       {menuSnapshot.stale ? (
         <div className="fixed inset-x-0 top-[73px] z-40 border-b border-amber-300/30 bg-amber-950/80 px-5 py-2 text-center text-xs font-semibold uppercase tracking-[0.18em] text-amber-100 backdrop-blur">
           Menu data is in fallback mode
@@ -60,10 +63,10 @@ export default async function HomePage() {
               Premium AI Cafe Platform
             </p>
             <h1 className="mt-7 max-w-4xl text-5xl font-semibold leading-[1.02] text-cream md:text-7xl">
-              SALORA - Where Taste Meets Intelligence.
+              {experience.site.heroTitleEn}
             </h1>
             <p className="mt-6 max-w-2xl text-lg leading-8 text-muted">
-              A cinematic AI-powered cafe experience for guests who want matcha, specialty coffee, desserts, and ordering to feel effortless before they even arrive.
+              {experience.site.heroSubtitleEn}
             </p>
             <div className="mt-8 grid max-w-2xl grid-cols-3 gap-3">
               {["Mood-led menu", "WhatsApp-ready", "Loyalty-ready"].map((metric) => (

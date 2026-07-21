@@ -7,19 +7,24 @@ import { Text } from "./Text";
 
 interface ProductCardProps {
   product: Product;
+  compact?: boolean;
+  showDescription?: boolean;
+  primaryColor?: string;
+  surfaceColor?: string;
+  borderRadius?: number;
 }
 
-export function ProductCard({ product }: ProductCardProps) {
+export function ProductCard({ product, compact = false, showDescription = true, primaryColor, surfaceColor, borderRadius }: ProductCardProps) {
   return (
     <Link href={`/product/${product.id}`} asChild>
-      <Pressable accessibilityRole="button" accessibilityLabel={`عرض ${product.name}`} style={({ pressed }) => [styles.card, pressed && styles.pressed]}>
-        <ProductVisual size={108} imageUrl={product.visual} alt={product.name} />
+      <Pressable accessibilityRole="button" accessibilityLabel={`عرض ${product.name}`} style={({ pressed }) => [styles.card, compact && styles.compact, surfaceColor ? { backgroundColor: surfaceColor } : null, borderRadius !== undefined ? { borderRadius } : null, pressed && styles.pressed]}>
+        <ProductVisual size={compact ? 78 : 108} imageUrl={product.visual} alt={product.name} />
         <View style={styles.body}>
           <Text variant="eyebrow">{product.category}</Text>
           <Text variant="subtitle" style={styles.title}>{product.name}</Text>
-          <Text variant="muted" style={styles.copy} numberOfLines={2}>{product.story ?? product.description}</Text>
+          {showDescription ? <Text variant="muted" style={styles.copy} numberOfLines={2}>{product.story ?? product.description}</Text> : null}
           <View style={styles.row}>
-            <Text variant="price">{product.price.toFixed(3)} ر.ع</Text>
+            <Text variant="price" style={primaryColor ? { color: primaryColor } : undefined}>{product.price.toFixed(3)} ر.ع</Text>
             {product.pairing ? <Text variant="muted">يناسب معه {product.pairing}</Text> : null}
           </View>
         </View>
@@ -63,5 +68,9 @@ const styles = StyleSheet.create({
   },
   pressed: {
     opacity: 0.84
+  },
+  compact: {
+    padding: spacing.sm,
+    gap: spacing.sm
   }
 });

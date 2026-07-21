@@ -1,4 +1,4 @@
-import type { Product } from "@salora/types";
+import type { ExperienceConfiguration, Product } from "@salora/types";
 import { Link } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, Pressable, StyleSheet, View } from "react-native";
@@ -28,6 +28,7 @@ export default function HomeScreen() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [experience, setExperience] = useState<ExperienceConfiguration | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -37,8 +38,9 @@ export default function HomeScreen() {
       setError(null);
 
       try {
-        const response = await saloraFetch("/api/products");
+        const [response, experienceResponse] = await Promise.all([saloraFetch("/api/products"), saloraFetch("/api/experience")]);
         const payload = (await response.json()) as ProductsResponse;
+        const experiencePayload = (await experienceResponse.json().catch(() => ({}))) as { data?: ExperienceConfiguration };
 
         if (!active) {
           return;
@@ -51,6 +53,7 @@ export default function HomeScreen() {
         }
 
         setProducts(Array.isArray(payload.data) ? payload.data : []);
+        if (experienceResponse.ok && experiencePayload.data) setExperience(experiencePayload.data);
       } catch {
         if (active) {
           setProducts([]);
@@ -78,10 +81,11 @@ export default function HomeScreen() {
     <Screen>
       <BrandHeader
         eyebrow="SALORA • TASTE THE HARMONY"
-        title="لحظتك الأجمل تبدأ برشفة"
-        copy="قهوة مختصة، ماتشا وحلويات مختارة بروح شاطئ الدهاريز."
+        title={experience?.site.heroTitleAr ?? "لحظتك الأجمل تبدأ برشفة"}
+        copy={experience?.site.heroSubtitleAr ?? "قهوة مختصة، ماتشا وحلويات مختارة بروح شاطئ الدهاريز."}
       />
-      <View style={styles.hero}>
+      {experience?.site.showAnnouncement ? <View style={[styles.announcement, { backgroundColor: experience.theme.primaryColor }]}><Text style={styles.announcementText}>{experience.site.announcementAr}</Text></View> : null}
+      <View style={[styles.hero, experience ? { backgroundColor: experience.theme.surfaceColor, borderRadius: experience.theme.borderRadius } : null]}>
         <Text variant="eyebrow" style={styles.rtl}>اختيار سالورا اليوم</Text>
         <Text variant="title" style={[styles.heroTitle, styles.rtl]}>ذوقك يقود التجربة</Text>
         <Text variant="muted" style={[styles.heroCopy, styles.rtl]}>اختر مزاجك ودع سالورا تقترح عليك الرشفة والحلوى الأنسب.</Text>
@@ -144,6 +148,8 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
+  announcement: { marginTop: spacing.md, padding: spacing.sm, borderRadius: radii.md, alignItems: "center" },
+  announcementText: { color: "#050505", fontWeight: "700", textAlign: "center" },
   hero: {
     marginTop: spacing.md,
     borderRadius: radii.lg,

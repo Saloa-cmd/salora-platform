@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useMemo, useState } from "react";
+import { useMemo, useState, type CSSProperties } from "react";
 import {
   Car,
   Check,
@@ -19,7 +19,7 @@ import {
   UtensilsCrossed,
   X
 } from "lucide-react";
-import type { Product, ProductChoice, ProductModifierGroup, SelectedModifier } from "@salora/types";
+import type { ExperienceConfiguration, Product, ProductChoice, ProductModifierGroup, SelectedModifier } from "@salora/types";
 
 type Language = "ar" | "en";
 type ServiceMode = "counter" | "car" | "dine-in" | "gift";
@@ -189,7 +189,7 @@ function productGroups(product: Product, language: Language): ProductModifierGro
   return databaseGroups.length ? databaseGroups : fallbackGroups(product, language);
 }
 
-export function MenuExperience({ initialProducts, menuSource, menuStale, whatsappNumber }: { initialProducts: Product[]; menuSource: "database" | "fallback"; menuStale: boolean; whatsappNumber: string }) {
+export function MenuExperience({ initialProducts, menuSource, menuStale, whatsappNumber, experience }: { initialProducts: Product[]; menuSource: "database" | "fallback"; menuStale: boolean; whatsappNumber: string; experience: ExperienceConfiguration }) {
   const [language, setLanguage] = useState<Language>("ar");
   const [serviceMode, setServiceMode] = useState<ServiceMode>("counter");
   const [category, setCategory] = useState("All");
@@ -308,12 +308,25 @@ export function MenuExperience({ initialProducts, menuSource, menuStale, whatsap
     setSubmitting(false);
   }
 
+  const experienceStyle = {
+    "--gold": experience.theme.primaryColor,
+    "--gold-soft": experience.theme.primaryColor,
+    "--border-gold": `${experience.theme.primaryColor}66`,
+    "--cream": experience.theme.textColor,
+    "--muted": experience.theme.mutedColor,
+    backgroundColor: experience.theme.backgroundColor,
+    color: experience.theme.textColor
+  } as CSSProperties;
+  const gridClass = experience.menu.layout === "list" ? "grid-cols-1" : experience.menu.columns === 4 ? "sm:grid-cols-2 xl:grid-cols-4" : experience.menu.columns === 2 ? "sm:grid-cols-2" : "sm:grid-cols-2 xl:grid-cols-3";
+  const ratioClass = experience.menu.cardRatio === "square" ? "aspect-square" : experience.menu.cardRatio === "portrait" ? "aspect-[4/5]" : "aspect-[16/10]";
+  const menuBanners = experience.banners.filter((banner) => banner.active && (banner.placement === "menu" || banner.placement === "both")).sort((a, b) => a.sortOrder - b.sortOrder);
+
   return (
-    <main dir={t.direction} className="min-h-screen bg-[#050505] text-[var(--cream)]">
+    <main dir={t.direction} style={experienceStyle} className="min-h-screen text-[var(--cream)]">
       <header className="sticky top-0 z-40 border-b border-white/10 bg-black/80 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
           <Link href="/" className="flex items-center gap-3" aria-label="SALORA home">
-            <Image src="/brand/salora-logo-dark.jpeg" alt="SALORA" width={44} height={44} priority className="h-11 w-11 rounded-full border border-[var(--border-gold)] object-cover shadow-[0_0_24px_rgba(201,164,92,0.18)]" />
+            {experience.site.logoUrl ? <span aria-label="SALORA logo" className="h-11 w-11 rounded-full border border-[var(--border-gold)] bg-cover bg-center" style={{ backgroundImage: `url(${experience.site.logoUrl})` }} /> : <Image src="/brand/salora-logo-dark.jpeg" alt="SALORA" width={44} height={44} priority className="h-11 w-11 rounded-full border border-[var(--border-gold)] object-cover shadow-[0_0_24px_rgba(201,164,92,0.18)]" />}
             <span><strong className="block tracking-[0.24em]">SALORA</strong><small className="text-[var(--muted)]">Taste the Harmony</small></span>
           </Link>
           <div className="flex items-center gap-2">
@@ -328,13 +341,15 @@ export function MenuExperience({ initialProducts, menuSource, menuStale, whatsap
         </div>
       </header>
 
+      {experience.site.showAnnouncement ? <div className="bg-[var(--gold)] px-4 py-2 text-center text-sm font-semibold text-black">{language === "ar" ? experience.site.announcementAr : experience.site.announcementEn}</div> : null}
+
       <section className="relative overflow-hidden border-b border-white/10 px-4 py-14 sm:px-6 lg:py-20">
         <div className="hero-depth" />
         <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-end">
           <div>
             <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.3em] text-[var(--gold-soft)]"><Sparkles className="h-4 w-4" />{t.eyebrow}</p>
-            <h1 className="mt-5 max-w-4xl text-4xl font-semibold leading-tight sm:text-6xl">{t.title}</h1>
-            <p className="mt-5 max-w-2xl text-base leading-8 text-[var(--muted)] sm:text-lg">{t.intro}</p>
+            <h1 className="mt-5 max-w-4xl text-4xl font-semibold leading-tight sm:text-6xl">{language === "ar" ? experience.site.heroTitleAr : experience.site.heroTitleEn}</h1>
+            <p className="mt-5 max-w-2xl text-base leading-8 text-[var(--muted)] sm:text-lg">{language === "ar" ? experience.site.heroSubtitleAr : experience.site.heroSubtitleEn}</p>
             <span className={`mt-6 inline-flex items-center gap-2 rounded-full border px-3 py-2 text-xs font-semibold ${menuStale ? "border-amber-300/20 bg-amber-300/10 text-amber-100" : "border-emerald-300/20 bg-emerald-300/10 text-emerald-200"}`}>
               <span className="h-2 w-2 rounded-full bg-current" /> {menuSource === "database" ? t.live : t.fallback}
             </span>
@@ -349,32 +364,34 @@ export function MenuExperience({ initialProducts, menuSource, menuStale, whatsap
         </div>
       </section>
 
+      {menuBanners.length ? <section className="mx-auto grid max-w-7xl gap-4 px-4 pt-8 sm:grid-cols-2 sm:px-6">{menuBanners.map((banner) => <Link key={banner.id} href={banner.linkUrl || "/menu"} className="relative min-h-40 overflow-hidden border border-white/10 bg-white/[0.04] p-6" style={{ borderRadius: `${experience.theme.borderRadius}px`, backgroundImage: banner.imageUrl ? `linear-gradient(90deg, rgba(0,0,0,.86), rgba(0,0,0,.18)), url(${banner.imageUrl})` : undefined, backgroundPosition: "center", backgroundSize: "cover" }}><h2 className="max-w-sm text-2xl font-semibold">{language === "ar" ? banner.titleAr : banner.titleEn}</h2><p className="mt-2 max-w-sm text-sm text-[var(--muted)]">{language === "ar" ? banner.subtitleAr : banner.subtitleEn}</p></Link>)}</section> : null}
+
       <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <label className="flex min-w-0 flex-1 items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.045] px-4 py-3 lg:max-w-xl">
+          {experience.menu.showSearch ? <label className="flex min-w-0 flex-1 items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.045] px-4 py-3 lg:max-w-xl">
             <Search className="h-5 w-5 text-[var(--muted)]" /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder={t.search} className="w-full bg-transparent text-sm outline-none placeholder:text-white/30" />
-          </label>
-          <div className="flex gap-2 overflow-x-auto pb-1">
+          </label> : null}
+          {experience.menu.showCategories ? <div className="flex gap-2 overflow-x-auto pb-1">
             {categories.map((item) => {
               const categoryProduct = initialProducts.find((product) => product.category === item);
               const label = item === "All" ? t.all : categoryProduct ? displayCategory(categoryProduct, language) : item;
               return <button key={item} type="button" onClick={() => setCategory(item)} className={`shrink-0 rounded-full border px-4 py-2 text-xs font-semibold ${category === item ? "border-[var(--gold)] bg-[var(--gold)] text-black" : "border-white/10 bg-white/[0.04] text-[var(--muted)]"}`}>{label}</button>;
             })}
-          </div>
+          </div> : null}
         </div>
 
-        <div className="mt-8 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+        <div className={`mt-8 grid gap-5 ${gridClass}`}>
           {filteredProducts.map((product) => (
-            <article key={product.id} className="group overflow-hidden rounded-3xl border border-white/10 bg-white/[0.04] transition hover:-translate-y-1 hover:border-[var(--border-gold)]">
-              <div className={`relative aspect-[16/10] bg-gradient-to-br ${productAccent(product)}`}>
+            <article key={product.id} className={`group overflow-hidden border border-white/10 bg-white/[0.04] transition hover:-translate-y-1 hover:border-[var(--border-gold)] ${experience.menu.layout === "list" ? "sm:grid sm:grid-cols-[240px_1fr]" : ""}`} style={{ borderRadius: `${experience.theme.borderRadius}px` }}>
+              {experience.menu.showImages ? <div className={`relative ${experience.menu.layout === "list" ? "min-h-48 sm:aspect-auto" : ratioClass} bg-gradient-to-br ${productAccent(product)}`}>
                 {productImage(product) ? <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `linear-gradient(to top, rgba(0,0,0,.6), rgba(0,0,0,.05)), url("${productImage(product)}")` }} /> : null}
                 <div className="absolute inset-0 grid place-items-center"><Coffee className="h-16 w-16 text-white/15" strokeWidth={1} /></div>
                 {product.featured ? <span className="absolute start-4 top-4 rounded-full border border-[var(--border-gold)] bg-black/60 px-3 py-1 text-xs text-[var(--gold-soft)]">Signature</span> : null}
                 <span className="absolute end-4 top-4 rounded-full bg-black/60 px-3 py-1 text-xs text-white/70">{displayCategory(product, language)}</span>
-              </div>
+              </div> : null}
               <div className="p-5">
                 <div className="flex items-start justify-between gap-4"><div><h2 className="text-xl font-semibold">{displayName(product, language)}</h2>{language === "ar" ? <p className="mt-1 text-xs text-[var(--muted)]">{product.name}</p> : null}</div><strong className="whitespace-nowrap text-[var(--gold-soft)]">{formatOmr(product.price, language)}</strong></div>
-                <p className="mt-4 line-clamp-2 min-h-12 text-sm leading-6 text-[var(--muted)]">{displayDescription(product, language)}</p>
+                {experience.menu.showDescriptions ? <p className="mt-4 line-clamp-2 min-h-12 text-sm leading-6 text-[var(--muted)]">{displayDescription(product, language)}</p> : null}
                 <button type="button" onClick={() => openProduct(product)} className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl border border-[var(--border-gold)] bg-[var(--gold)]/10 px-4 py-3 text-sm font-semibold text-[var(--gold-soft)] transition hover:bg-[var(--gold)] hover:text-black">{t.add}<ChevronDown className="h-4 w-4" /></button>
               </div>
             </article>
