@@ -7,6 +7,23 @@ type ApiEnvelope<T> = {
   requestId?: string;
 };
 
+async function fetchWithSession(path: string, init: RequestInit): Promise<Response> {
+  const request = () => fetch(path, { ...init, credentials: "same-origin" });
+  let response = await request();
+
+  if (response.status !== 401) return response;
+
+  const refreshed = await fetch("/api/auth/refresh", {
+    method: "POST",
+    credentials: "same-origin",
+    headers: { "content-type": "application/json" },
+    body: "{}"
+  });
+
+  if (refreshed.ok) response = await request();
+  return response;
+}
+
 export async function controlTowerPost<T>(path: string, payload: unknown): Promise<MutationState & { data?: T }> {
   return controlTowerSend("POST", path, payload);
 }
@@ -22,7 +39,7 @@ export async function controlTowerGet<T>(path: string): Promise<{ status: "succe
   if (token) headers.authorization = `Bearer ${token}`;
 
   try {
-    const response = await fetch(path, { headers });
+    const response = await fetchWithSession(path, { cache: "no-store", headers });
     const body = await response.json().catch(() => ({} as ApiEnvelope<T>));
     const resolvedRequestId = body.requestId ?? response.headers.get("x-request-id") ?? requestId;
     if (response.status === 401 || response.status === 403) return { status: "forbidden", message: body.error ?? "Authorized operator access required.", requestId: resolvedRequestId };
@@ -44,7 +61,7 @@ async function controlTowerSend<T>(method: "POST" | "PATCH", path: string, paylo
   if (token) headers.authorization = `Bearer ${token}`;
 
   try {
-    const response = await fetch(path, {
+    const response = await fetchWithSession(path, {
       method,
       headers,
       body: JSON.stringify(payload)
