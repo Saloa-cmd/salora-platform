@@ -107,7 +107,8 @@ const arabic: Record<string, string> = {
   "Products, categories, status, price, and image URL management are connected to Supabase.": "إدارة الأصناف والفئات والحالة والسعر وروابط الصور متصلة مباشرة بقاعدة Supabase.",
   "Media drafts, approval, primary image, archive, and publish workflow are Control Tower governed.": "مسودات الصور والموافقة والصورة الأساسية والأرشفة والنشر محكومة بالكامل من منصة التحكم.",
   "Advanced page and banner lifecycle remains postponed for Simple Launch.": "تحتاج دورة حياة الصفحات والبنرات المتقدمة إلى استكمال الربط التشغيلي قبل تفعيلها.",
-  "Products, categories, status, price, and image URL management": "إدارة الأصناف والفئات والحالة والسعر والصور"
+  "Products, categories, status, price, and image URL management": "إدارة الأصناف والفئات والحالة والسعر والصور",
+  "Control Tower commands": "أوامر منصة التحكم"
 };
 
 type LocaleContextValue = {

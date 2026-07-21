@@ -18,6 +18,7 @@
   --border-strong: rgba(245, 239, 227, 0.18);
   --border-gold: rgba(201, 164, 92, 0.30);
   --font-sans: "Inter", "SF Pro Display", ui-sans-serif, system-ui, sans-serif;
+  --font-arabic: "Noto Sans Arabic", "DIN Next Arabic", "Segoe UI", Tahoma, Arial, sans-serif;
   --font-serif: "Georgia", "Times New Roman", serif;
   --focus-ring: #f3d88f;
   --success: #6ee7b7;
@@ -27,6 +28,10 @@
   --radius-md: 1rem;
   --radius-lg: 1.5rem;
   --shadow-raised: 0 24px 64px rgba(0, 0, 0, 0.28);
+  --space-page: clamp(1rem, 2.4vw, 2rem);
+  --type-display: clamp(2.5rem, 5.4vw, 5.75rem);
+  --type-display-ar: clamp(2.35rem, 4.8vw, 5rem);
+  --type-title: clamp(1.35rem, 2.2vw, 2rem);
 }
 
 * {
@@ -46,6 +51,49 @@ body {
     linear-gradient(180deg, #050505 0%, #0b0908 44%, #050505 100%);
   color: var(--cream);
   font-family: var(--font-sans);
+}
+
+:lang(ar) {
+  font-family: var(--font-arabic);
+  font-kerning: normal;
+}
+
+.salora-display {
+  max-inline-size: 13ch;
+  font-size: var(--type-display);
+  line-height: 0.98;
+  letter-spacing: -0.045em;
+  text-wrap: balance;
+}
+
+:lang(ar) .salora-display {
+  max-inline-size: 16ch;
+  font-size: var(--type-display-ar);
+  line-height: 1.16;
+  letter-spacing: -0.025em;
+}
+
+.salora-page-title {
+  font-size: var(--type-title);
+  line-height: 1.18;
+  text-wrap: balance;
+}
+
+.salora-command-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  scrollbar-width: none;
+}
+
+.salora-command-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.salora-command-bar > * {
+  flex: none;
 }
 
 a {
@@ -251,5 +299,12 @@ button:disabled {
   .salora-glass,
   .luxury-frame {
     border: 1px solid CanvasText;
+  }
+}
+
+@media (max-width: 47.99rem) {
+  .salora-display,
+  :lang(ar) .salora-display {
+    max-inline-size: 100%;
   }
 }
