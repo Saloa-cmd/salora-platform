@@ -1,4 +1,4 @@
-import type { Product } from "@salora/types";
+import type { ExperienceConfiguration, Product } from "@salora/types";
 import { useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, Pressable, StyleSheet, TextInput, View } from "react-native";
 import { BrandHeader } from "@/components/BrandHeader";
@@ -26,6 +26,7 @@ export default function MenuScreen() {
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [experience, setExperience] = useState<ExperienceConfiguration | null>(null);
   const categories = useMemo(() => ["All", ...Array.from(new Set(products.map((product) => product.category)))], [products]);
   const [active, setActive] = useState<string>("All");
   const filtered = useMemo(() => {
@@ -45,8 +46,9 @@ export default function MenuScreen() {
       setError(null);
 
       try {
-        const response = await saloraFetch("/api/products");
+        const [response, experienceResponse] = await Promise.all([saloraFetch("/api/products"), saloraFetch("/api/experience")]);
         const payload = (await response.json()) as Product[] | ProductsResponse;
+        const experiencePayload = (await experienceResponse.json().catch(() => ({}))) as { data?: ExperienceConfiguration };
         const data = Array.isArray(payload) ? payload : payload.data ?? [];
 
         if (!mounted) {
@@ -60,6 +62,7 @@ export default function MenuScreen() {
         }
 
         setProducts(data);
+        if (experienceResponse.ok && experiencePayload.data) setExperience(experiencePayload.data);
       } catch {
         if (mounted) {
           setProducts([]);
@@ -88,16 +91,16 @@ export default function MenuScreen() {
   return (
     <Screen>
       <BrandHeader eyebrow="مينيو سالورا" title="اختر ما ينسجم مع مزاجك" copy="ابحث وتصفّح اختياراتنا، ثم خصّص طلبك بكل سهولة." />
-      <View style={styles.searchReady}>
+      {experience?.menu.showSearch !== false ? <View style={[styles.searchReady, experience ? { backgroundColor: experience.theme.surfaceColor, borderRadius: experience.theme.borderRadius } : null]}>
         <TextInput value={query} onChangeText={setQuery} placeholder="ابحث عن مشروب أو حلوى" placeholderTextColor={colors.muted} style={styles.searchInput} textAlign="right" />
-      </View>
-      <View style={styles.filters}>
+      </View> : null}
+      {experience?.menu.showCategories !== false ? <View style={styles.filters}>
         {categories.map((category) => (
           <Pressable key={category} onPress={() => setActive(category)} style={[styles.filter, active === category && styles.activeFilter]}>
             <Text style={active === category ? styles.activeText : undefined}>{category === "All" ? "الكل" : category}</Text>
           </Pressable>
         ))}
-      </View>
+      </View> : null}
       {loading ? (
         <View style={styles.statePanel}>
           <ActivityIndicator color={colors.gold} />
@@ -114,7 +117,7 @@ export default function MenuScreen() {
           <Text variant="muted">جرّب كلمة بحث أو تصنيفًا مختلفًا.</Text>
         </View>
       ) : (
-        filtered.map((product) => <ProductCard key={product.id} product={product} />)
+        filtered.map((product) => <ProductCard key={product.id} product={product} compact={experience?.app.compactCards} showDescription={experience?.menu.showDescriptions} primaryColor={experience?.theme.primaryColor} surfaceColor={experience?.theme.surfaceColor} borderRadius={experience?.theme.borderRadius} />)
       )}
     </Screen>
   );

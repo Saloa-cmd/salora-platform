@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { MenuExperience } from "@/components/menu/MenuExperience";
 import { getPublicMenuSnapshot } from "@/lib/server/publicMenu";
 import { saloraRuntime } from "@salora/config";
+import { getPublishedExperienceConfiguration } from "@/lib/server/experienceConfig";
 
 export const dynamic = "force-dynamic";
 
@@ -11,7 +12,7 @@ export const metadata: Metadata = {
 };
 
 export default async function MenuPage() {
-  const snapshot = await getPublicMenuSnapshot();
+  const [snapshot, experience] = await Promise.all([getPublicMenuSnapshot(), getPublishedExperienceConfiguration()]);
 
   return (
     <MenuExperience
@@ -19,6 +20,7 @@ export default async function MenuPage() {
       menuSource={snapshot.source}
       menuStale={snapshot.stale}
       whatsappNumber={saloraRuntime.whatsappNumber}
+      experience={experience}
     />
   );
 }

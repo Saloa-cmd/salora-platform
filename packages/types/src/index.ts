@@ -73,3 +73,60 @@ export interface ConciergeReply {
   intent: "cold" | "sweet" | "pairing" | "light" | "matcha" | "unsure";
   quickReplies?: string[];
 }
+
+export type ExperienceLayout = "grid" | "list" | "editorial";
+export type ExperienceCardRatio = "landscape" | "square" | "portrait";
+export type ExperienceBannerPlacement = "home" | "menu" | "both";
+
+export interface ExperienceBanner {
+  id: string;
+  titleAr: string;
+  titleEn: string;
+  subtitleAr: string;
+  subtitleEn: string;
+  imageUrl: string;
+  linkUrl: string;
+  placement: ExperienceBannerPlacement;
+  active: boolean;
+  sortOrder: number;
+}
+
+export interface ExperienceConfiguration {
+  schemaVersion: 1;
+  brandKey: "SALORA";
+  theme: {
+    primaryColor: string;
+    backgroundColor: string;
+    surfaceColor: string;
+    textColor: string;
+    mutedColor: string;
+    borderRadius: number;
+    fontFamily: "sans" | "serif" | "modern";
+  };
+  menu: {
+    layout: ExperienceLayout;
+    columns: 2 | 3 | 4;
+    cardRatio: ExperienceCardRatio;
+    showImages: boolean;
+    showDescriptions: boolean;
+    showSearch: boolean;
+    showCategories: boolean;
+  };
+  site: {
+    logoUrl: string;
+    heroTitleAr: string;
+    heroTitleEn: string;
+    heroSubtitleAr: string;
+    heroSubtitleEn: string;
+    announcementAr: string;
+    announcementEn: string;
+    showAnnouncement: boolean;
+  };
+  app: {
+    compactCards: boolean;
+    showOrdering: boolean;
+    showRecommendations: boolean;
+    navigationStyle: "tabs" | "cards";
+  };
+  banners: ExperienceBanner[];
+}
