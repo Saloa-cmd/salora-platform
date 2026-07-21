@@ -1,8 +1,9 @@
 import type { ExperienceConfiguration, Product } from "@salora/types";
 import { useEffect, useMemo, useState } from "react";
-import { ActivityIndicator, Pressable, StyleSheet, TextInput, View } from "react-native";
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, TextInput, View } from "react-native";
 import { BrandHeader } from "@/components/BrandHeader";
 import { ProductCard } from "@/components/ProductCard";
+import { SaloraIcon } from "@/components/SaloraIcon";
 import { Screen } from "@/components/Screen";
 import { Text } from "@/components/Text";
 import { colors, radii, spacing } from "@/lib/theme";
@@ -92,15 +93,16 @@ export default function MenuScreen() {
     <Screen>
       <BrandHeader eyebrow="مينيو سالورا" title="اختر ما ينسجم مع مزاجك" copy="ابحث وتصفّح اختياراتنا، ثم خصّص طلبك بكل سهولة." />
       {experience?.menu.showSearch !== false ? <View style={[styles.searchReady, experience ? { backgroundColor: experience.theme.surfaceColor, borderRadius: experience.theme.borderRadius } : null]}>
+        <SaloraIcon name="search" size={20} color={colors.muted} />
         <TextInput value={query} onChangeText={setQuery} placeholder="ابحث عن مشروب أو حلوى" placeholderTextColor={colors.muted} style={styles.searchInput} textAlign="right" />
       </View> : null}
-      {experience?.menu.showCategories !== false ? <View style={styles.filters}>
+      {experience?.menu.showCategories !== false ? <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filters} style={styles.filterScroll} accessibilityRole="tablist">
         {categories.map((category) => (
-          <Pressable key={category} onPress={() => setActive(category)} style={[styles.filter, active === category && styles.activeFilter]}>
+          <Pressable key={category} onPress={() => setActive(category)} accessibilityRole="tab" accessibilityState={{ selected: active === category }} style={[styles.filter, active === category && styles.activeFilter]}>
             <Text style={active === category ? styles.activeText : undefined}>{category === "All" ? "الكل" : category}</Text>
           </Pressable>
         ))}
-      </View> : null}
+      </ScrollView> : null}
       {loading ? (
         <View style={styles.statePanel}>
           <ActivityIndicator color={colors.gold} />
@@ -125,25 +127,33 @@ export default function MenuScreen() {
 
 const styles = StyleSheet.create({
   searchReady: {
+    flexDirection: "row-reverse",
+    alignItems: "center",
+    gap: spacing.sm,
     marginTop: spacing.lg,
     borderRadius: radii.pill,
     backgroundColor: "rgba(245,239,227,0.05)",
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm
   },
-  searchInput: { minHeight: 42, color: colors.cream, fontSize: 15 },
+  searchInput: { flex: 1, minHeight: 42, color: colors.cream, fontSize: 15 },
+  filterScroll: {
+    marginVertical: spacing.lg,
+    marginHorizontal: -spacing.md
+  },
   filters: {
-    flexDirection: "row",
-    flexWrap: "wrap",
+    flexDirection: "row-reverse",
     gap: spacing.sm,
-    marginVertical: spacing.lg
+    paddingHorizontal: spacing.md
   },
   filter: {
     borderRadius: radii.pill,
     borderWidth: 1,
     borderColor: "rgba(245,239,227,0.1)",
     paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm
+    paddingVertical: spacing.sm,
+    minHeight: 44,
+    justifyContent: "center"
   },
   activeFilter: {
     backgroundColor: colors.gold,

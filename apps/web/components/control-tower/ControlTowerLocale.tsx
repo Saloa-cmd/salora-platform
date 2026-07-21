@@ -38,6 +38,8 @@ const arabic: Record<string, string> = {
   "Role-gated session": "جلسة محمية بالصلاحيات",
   "Expand Control Tower navigation": "توسيع قائمة منصة التحكم",
   "Collapse Control Tower navigation": "طي قائمة منصة التحكم",
+  "Open navigation": "فتح قائمة التنقل",
+  "Close navigation": "إغلاق قائمة التنقل",
   "Control Tower navigation": "تنقل منصة التحكم",
   "Control Tower sections": "أقسام منصة التحكم",
   "Mobile Control Tower navigation": "تنقل منصة التحكم للجوال",
@@ -101,7 +103,11 @@ const arabic: Record<string, string> = {
   "Security": "الأمان",
   "Marketing": "التسويق",
   "Messaging": "المراسلات",
-  "Omnichannel": "القنوات الموحدة"
+  "Omnichannel": "القنوات الموحدة",
+  "Products, categories, status, price, and image URL management are connected to Supabase.": "إدارة الأصناف والفئات والحالة والسعر وروابط الصور متصلة مباشرة بقاعدة Supabase.",
+  "Media drafts, approval, primary image, archive, and publish workflow are Control Tower governed.": "مسودات الصور والموافقة والصورة الأساسية والأرشفة والنشر محكومة بالكامل من منصة التحكم.",
+  "Advanced page and banner lifecycle remains postponed for Simple Launch.": "تحتاج دورة حياة الصفحات والبنرات المتقدمة إلى استكمال الربط التشغيلي قبل تفعيلها.",
+  "Products, categories, status, price, and image URL management": "إدارة الأصناف والفئات والحالة والسعر والصور"
 };
 
 type LocaleContextValue = {

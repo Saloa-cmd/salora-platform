@@ -4,6 +4,7 @@ import { Pressable, StyleSheet, View } from "react-native";
 import { colors, radii, spacing } from "@/lib/theme";
 import { ProductVisual } from "./ProductVisual";
 import { Text } from "./Text";
+import { SaloraIcon } from "./SaloraIcon";
 
 interface ProductCardProps {
   product: Product;
@@ -27,6 +28,7 @@ export function ProductCard({ product, compact = false, showDescription = true, 
             <Text variant="price" style={primaryColor ? { color: primaryColor } : undefined}>{product.price.toFixed(3)} ر.ع</Text>
             {product.pairing ? <Text variant="muted">يناسب معه {product.pairing}</Text> : null}
           </View>
+          <View style={styles.action}><Text style={styles.actionText}>عرض وتخصيص</Text><SaloraIcon name="back" size={16} color={primaryColor ?? colors.gold} /></View>
         </View>
       </Pressable>
     </Link>
@@ -65,6 +67,18 @@ const styles = StyleSheet.create({
     marginTop: spacing.sm,
     gap: 4,
     alignItems: "flex-end"
+  },
+  action: {
+    marginTop: spacing.sm,
+    minHeight: 36,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6
+  },
+  actionText: {
+    color: colors.gold,
+    fontSize: 13,
+    fontWeight: "700"
   },
   pressed: {
     opacity: 0.84
