@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { Bell, ChevronDown, Command, ExternalLink, Languages, LogOut, Menu, ShieldCheck, X } from "lucide-react";
+import { Bell, ChevronDown, ExternalLink, Languages, LogOut, Menu, X } from "lucide-react";
 import { controlTowerSections } from "@/lib/control-tower/registry";
 import { ControlTowerPerf } from "./ControlTowerPerf";
 import { useState, type ReactNode } from "react";
@@ -116,7 +116,7 @@ function ControlTowerShellContent({ children }: { children: ReactNode }) {
         </aside>
         <div className="min-w-0 flex-1">
           <header className="sticky top-0 z-30 border-b border-[rgba(201,164,92,0.08)] bg-[rgba(5,5,5,0.9)] backdrop-blur-xl">
-            <div className="flex min-h-20 flex-col gap-4 px-4 py-3 sm:px-6 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex min-h-16 flex-col gap-3 px-4 py-3 sm:px-6 lg:flex-row lg:items-center lg:justify-between">
               <div className="flex min-w-0 items-center gap-4">
                 <button type="button" onClick={() => setMobileNavigationOpen(true)} className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-white/10 bg-white/5 text-[var(--cream)] xl:hidden" aria-label={tr("Open navigation")} aria-expanded={mobileNavigationOpen}><Menu className="h-5 w-5" aria-hidden="true" /></button>
                 <button
@@ -138,32 +138,21 @@ function ControlTowerShellContent({ children }: { children: ReactNode }) {
                 </div>
               </div>
               <div className="salora-command-bar max-w-full pb-1 lg:justify-end lg:pb-0" aria-label={tr("Control Tower commands")}>
-                <span className="hidden items-center gap-2 rounded-lg border border-white/10 bg-white/[0.055] px-3 py-2 text-xs text-[var(--muted)] 2xl:inline-flex">
-                  <Command className="h-3.5 w-3.5" aria-hidden="true" />
-                  {tr("Search-ready surface")}
-                </span>
-                <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[var(--muted)]">
+                <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] text-[var(--muted)]" title={tr("Notifications")}>
                   <Bell className="h-4 w-4" aria-hidden="true" />
                 </span>
-                <span className="inline-flex items-center gap-2 rounded-lg border border-emerald-300/15 bg-emerald-300/10 px-3 py-2 text-xs font-semibold text-emerald-300">
+                <span className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-emerald-300/15 bg-emerald-300/10 px-3 py-2 text-xs font-semibold text-emerald-300">
                   <span className="h-1.5 w-1.5 rounded-full bg-emerald-300" aria-hidden="true" />
                   {tr("Live")}
                 </span>
-                <span className="hidden items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-[var(--cream)] lg:inline-flex">
-                  <ShieldCheck className="h-4 w-4 text-[var(--gold-soft)]" aria-hidden="true" />
-                  {tr("RBAC write gates")}
-                </span>
-                <Link href="/dashboard" className="hidden rounded-lg border border-[var(--border-gold)] bg-[var(--gold)]/10 px-3 py-2 text-xs font-semibold text-[var(--gold-soft)] transition hover:bg-[var(--gold)]/15 lg:block">
-                  {tr("Executive dashboards")}
-                </Link>
-                <Link href="/menu" target="_blank" className="hidden items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-[var(--cream)] transition hover:bg-white/10 sm:inline-flex">
+                <Link href="/menu" target="_blank" className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-[var(--border-gold)] bg-[var(--gold)]/10 px-3 py-2 text-xs font-semibold text-[var(--gold-soft)] transition hover:bg-[var(--gold)]/15">
                   {tr("Customer menu")} <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
                 </Link>
-                <button type="button" onClick={() => setLocale(isArabic ? "en" : "ar")} className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-[var(--cream)] transition hover:bg-white/10" aria-label={isArabic ? "Switch to English" : "التبديل إلى العربية"}>
+                <button type="button" onClick={() => setLocale(isArabic ? "en" : "ar")} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-[var(--cream)] transition hover:bg-white/10" aria-label={isArabic ? "Switch to English" : "التبديل إلى العربية"}>
                   <Languages className="h-3.5 w-3.5" aria-hidden="true" /> {isArabic ? "English" : "العربية"}
                 </button>
                 <div>
-                  <button type="button" onClick={() => void signOut()} className="inline-flex items-center gap-2 rounded-lg border border-red-300/15 bg-red-300/5 px-3 py-2 text-xs font-semibold text-red-100 transition hover:bg-red-300/10">
+                  <button type="button" onClick={() => void signOut()} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-red-300/15 bg-red-300/5 px-3 py-2 text-xs font-semibold text-red-100 transition hover:bg-red-300/10">
                     <LogOut className="h-3.5 w-3.5" aria-hidden="true" /> {isArabic ? "تسجيل الخروج" : "Sign out"}
                   </button>
                 </div>
