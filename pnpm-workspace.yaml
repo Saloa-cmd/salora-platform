@@ -9,3 +9,6 @@ allowBuilds:
   prisma: true
   sharp: true
   unrs-resolver: true
+
+overrides:
+  tar: 7.5.20
