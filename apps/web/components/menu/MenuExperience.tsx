@@ -61,7 +61,9 @@ const copy = {
     notes: "ملاحظات الطلب",
     required: "أدخل الاسم ورقم الهاتف قبل التأكيد.",
     service: "طريقة الاستلام",
-    standard: "كما هو من سالورا"
+    standard: "كما هو من سالورا",
+    results: "صنف متاح",
+    noResults: "لا توجد نتائج مطابقة. جرّب بحثًا أو تصنيفًا آخر."
   },
   en: {
     direction: "ltr" as const,
@@ -98,7 +100,9 @@ const copy = {
     notes: "Order notes",
     required: "Enter your name and phone number before checkout.",
     service: "Pickup method",
-    standard: "SALORA standard"
+    standard: "SALORA standard",
+    results: "items available",
+    noResults: "No matching items. Try another search or category."
   }
 };
 
@@ -343,20 +347,20 @@ export function MenuExperience({ initialProducts, menuSource, menuStale, whatsap
 
       {experience.site.showAnnouncement ? <div className="bg-[var(--gold)] px-4 py-2 text-center text-sm font-semibold text-black">{language === "ar" ? experience.site.announcementAr : experience.site.announcementEn}</div> : null}
 
-      <section className="relative overflow-hidden border-b border-white/10 px-4 py-14 sm:px-6 lg:py-20">
+      <section className="relative overflow-hidden border-b border-white/10 px-4 py-10 sm:px-6 sm:py-14 lg:py-16">
         <div className="hero-depth" />
-        <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-end">
+        <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
           <div>
             <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.3em] text-[var(--gold-soft)]"><Sparkles className="h-4 w-4" />{t.eyebrow}</p>
-            <h1 className="mt-5 max-w-4xl text-4xl font-semibold leading-tight sm:text-6xl">{language === "ar" ? experience.site.heroTitleAr : experience.site.heroTitleEn}</h1>
-            <p className="mt-5 max-w-2xl text-base leading-8 text-[var(--muted)] sm:text-lg">{language === "ar" ? experience.site.heroSubtitleAr : experience.site.heroSubtitleEn}</p>
-            <span className={`mt-6 inline-flex items-center gap-2 rounded-full border px-3 py-2 text-xs font-semibold ${menuStale ? "border-amber-300/20 bg-amber-300/10 text-amber-100" : "border-emerald-300/20 bg-emerald-300/10 text-emerald-200"}`}>
+            <h1 className="mt-4 max-w-4xl text-[clamp(2.25rem,7vw,4.75rem)] font-semibold leading-[1.08] text-balance">{language === "ar" ? experience.site.heroTitleAr : experience.site.heroTitleEn}</h1>
+            <p className="mt-4 max-w-2xl text-sm leading-7 text-[var(--muted)] sm:text-lg sm:leading-8">{language === "ar" ? experience.site.heroSubtitleAr : experience.site.heroSubtitleEn}</p>
+            <span className={`mt-5 inline-flex items-center gap-2 rounded-full border px-3 py-2 text-xs font-semibold ${menuStale ? "border-amber-300/20 bg-amber-300/10 text-amber-100" : "border-emerald-300/20 bg-emerald-300/10 text-emerald-200"}`}>
               <span className="h-2 w-2 rounded-full bg-current" /> {menuSource === "database" ? t.live : t.fallback}
             </span>
           </div>
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-2 sm:grid-cols-2 lg:gap-3">
             {serviceModes.map(({ id, ar, en, icon: Icon }) => (
-              <button key={id} type="button" aria-pressed={serviceMode === id} onClick={() => setServiceMode(id)} className={`flex items-center gap-3 rounded-2xl border p-4 text-start transition ${serviceMode === id ? "border-[var(--gold)] bg-[var(--gold)]/15 text-[var(--gold-soft)]" : "border-white/10 bg-white/[0.04] text-[var(--muted)] hover:border-white/20"}`}>
+              <button key={id} type="button" aria-pressed={serviceMode === id} onClick={() => setServiceMode(id)} className={`flex min-h-14 items-center gap-3 rounded-2xl border p-3 text-start transition sm:p-4 ${serviceMode === id ? "border-[var(--gold)] bg-[var(--gold)]/15 text-[var(--gold-soft)]" : "border-white/10 bg-white/[0.04] text-[var(--muted)] hover:border-white/20"}`}>
                 <Icon className="h-5 w-5 shrink-0" /><span className="text-sm font-semibold">{language === "ar" ? ar : en}</span>{serviceMode === id ? <Check className="ms-auto h-4 w-4" /> : null}
               </button>
             ))}
@@ -366,18 +370,23 @@ export function MenuExperience({ initialProducts, menuSource, menuStale, whatsap
 
       {menuBanners.length ? <section className="mx-auto grid max-w-7xl gap-4 px-4 pt-8 sm:grid-cols-2 sm:px-6">{menuBanners.map((banner) => <Link key={banner.id} href={banner.linkUrl || "/menu"} className="relative min-h-40 overflow-hidden border border-white/10 bg-white/[0.04] p-6" style={{ borderRadius: `${experience.theme.borderRadius}px`, backgroundImage: banner.imageUrl ? `linear-gradient(90deg, rgba(0,0,0,.86), rgba(0,0,0,.18)), url(${banner.imageUrl})` : undefined, backgroundPosition: "center", backgroundSize: "cover" }}><h2 className="max-w-sm text-2xl font-semibold">{language === "ar" ? banner.titleAr : banner.titleEn}</h2><p className="mt-2 max-w-sm text-sm text-[var(--muted)]">{language === "ar" ? banner.subtitleAr : banner.subtitleEn}</p></Link>)}</section> : null}
 
-      <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
+      <section id="menu-products" className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           {experience.menu.showSearch ? <label className="flex min-w-0 flex-1 items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.045] px-4 py-3 lg:max-w-xl">
-            <Search className="h-5 w-5 text-[var(--muted)]" /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder={t.search} className="w-full bg-transparent text-sm outline-none placeholder:text-white/30" />
+            <span className="sr-only">{t.search}</span><Search className="h-5 w-5 text-[var(--muted)]" aria-hidden="true" /><input type="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder={t.search} className="w-full bg-transparent text-sm outline-none placeholder:text-white/30" />
           </label> : null}
-          {experience.menu.showCategories ? <div className="flex gap-2 overflow-x-auto pb-1">
+          {experience.menu.showCategories ? <div className="salora-scroll-strip" role="tablist" aria-label={language === "ar" ? "تصنيفات المنيو" : "Menu categories"}>
             {categories.map((item) => {
               const categoryProduct = initialProducts.find((product) => product.category === item);
               const label = item === "All" ? t.all : categoryProduct ? displayCategory(categoryProduct, language) : item;
-              return <button key={item} type="button" onClick={() => setCategory(item)} className={`shrink-0 rounded-full border px-4 py-2 text-xs font-semibold ${category === item ? "border-[var(--gold)] bg-[var(--gold)] text-black" : "border-white/10 bg-white/[0.04] text-[var(--muted)]"}`}>{label}</button>;
+              return <button key={item} type="button" role="tab" aria-selected={category === item} onClick={() => setCategory(item)} className={`min-h-10 shrink-0 rounded-full border px-4 py-2 text-xs font-semibold transition ${category === item ? "border-[var(--gold)] bg-[var(--gold)] text-black" : "border-white/10 bg-white/[0.04] text-[var(--muted)] hover:border-white/25 hover:text-[var(--cream)]"}`}>{label}</button>;
             })}
           </div> : null}
+        </div>
+
+        <div className="mt-5 flex items-center justify-between gap-4 border-b border-white/10 pb-4 text-sm text-[var(--muted)]" aria-live="polite">
+          <span><strong className="text-[var(--cream)]">{filteredProducts.length}</strong> {t.results}</span>
+          {search || category !== "All" ? <button type="button" onClick={() => { setSearch(""); setCategory("All"); }} className="text-xs font-semibold text-[var(--gold-soft)] hover:underline">{language === "ar" ? "مسح التصفية" : "Clear filters"}</button> : null}
         </div>
 
         <div className={`mt-8 grid gap-5 ${gridClass}`}>
@@ -397,6 +406,7 @@ export function MenuExperience({ initialProducts, menuSource, menuStale, whatsap
             </article>
           ))}
         </div>
+        {filteredProducts.length === 0 ? <div className="salora-glass mt-8 rounded-3xl p-10 text-center"><Search className="mx-auto h-8 w-8 text-[var(--gold-soft)]" aria-hidden="true" /><p className="mt-4 text-sm text-[var(--muted)]">{t.noResults}</p></div> : null}
       </section>
 
       {selectedProduct ? (
