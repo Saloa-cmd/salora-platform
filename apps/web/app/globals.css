@@ -295,6 +295,21 @@ button:disabled {
   }
 }
 
+/* SALORA interaction contract: WCAG 2.2 visible focus and dependable touch targets. */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--gold-soft, #e4bd69);
+  outline-offset: 3px;
+}
+
+:where(button, [role="button"], [role="tab"], input, select) {
+  min-block-size: 44px;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--gold, #d7ad55) 38%, transparent);
+  color: var(--cream, #f5efe3);
+}
+
 @media (forced-colors: active) {
   .salora-glass,
   .luxury-frame {
