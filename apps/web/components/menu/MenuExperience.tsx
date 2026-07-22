@@ -64,7 +64,9 @@ const copy = {
     service: "طريقة الاستلام",
     standard: "كما هو من سالورا",
     results: "صنف متاح",
-    noResults: "لا توجد نتائج مطابقة. جرّب بحثًا أو تصنيفًا آخر."
+    noResults: "لا توجد نتائج مطابقة. جرّب بحثًا أو تصنيفًا آخر.",
+    browse: "تصفّح المنيو",
+    changeService: "تغيير طريقة الاستلام"
   },
   en: {
     direction: "ltr" as const,
@@ -103,7 +105,9 @@ const copy = {
     service: "Pickup method",
     standard: "SALORA standard",
     results: "items available",
-    noResults: "No matching items. Try another search or category."
+    noResults: "No matching items. Try another search or category.",
+    browse: "Browse menu",
+    changeService: "Change pickup method"
   }
 };
 
@@ -348,42 +352,49 @@ export function MenuExperience({ initialProducts, menuSource, menuStale, whatsap
 
       {experience.site.showAnnouncement ? <div className="bg-[var(--gold)] px-4 py-2 text-center text-sm font-semibold text-black">{language === "ar" ? experience.site.announcementAr : experience.site.announcementEn}</div> : null}
 
-      <section className="relative overflow-hidden border-b border-white/10 px-4 py-9 sm:px-6 sm:py-12 lg:py-14">
+      <section className="relative overflow-hidden border-b border-white/10 px-4 py-7 sm:px-6 sm:py-9">
         <div className="hero-depth" />
-        <div className={`mx-auto grid max-w-7xl gap-8 lg:items-center ${language === "ar" ? "lg:grid-cols-[minmax(0,1.35fr)_minmax(22rem,0.65fr)]" : "lg:grid-cols-[minmax(30rem,1.15fr)_minmax(25rem,0.85fr)]"}`}>
+        <div className={`mx-auto grid max-w-7xl gap-7 lg:items-end ${language === "ar" ? "lg:grid-cols-[minmax(0,1.15fr)_minmax(20rem,0.85fr)]" : "lg:grid-cols-[minmax(0,1.1fr)_minmax(20rem,0.9fr)]"}`}>
           <div className="min-w-0">
             <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.3em] text-[var(--gold-soft)]"><Sparkles className="h-4 w-4" />{t.eyebrow}</p>
-            <h1 className="salora-display mt-4 font-semibold">{language === "ar" ? experience.site.heroTitleAr : experience.site.heroTitleEn}</h1>
-            <p className="mt-4 max-w-2xl text-sm leading-7 text-[var(--muted)] sm:text-lg sm:leading-8">{language === "ar" ? experience.site.heroSubtitleAr : experience.site.heroSubtitleEn}</p>
-            <span className={`mt-5 inline-flex items-center gap-2 rounded-full border px-3 py-2 text-xs font-semibold ${menuStale ? "border-amber-300/20 bg-amber-300/10 text-amber-100" : "border-emerald-300/20 bg-emerald-300/10 text-emerald-200"}`}>
+            <h1 className="salora-display mt-3 font-semibold">{language === "ar" ? experience.site.heroTitleAr : experience.site.heroTitleEn}</h1>
+            <p className="mt-3 max-w-2xl text-sm leading-7 text-[var(--muted)] sm:text-base">{language === "ar" ? experience.site.heroSubtitleAr : experience.site.heroSubtitleEn}</p>
+            <div className="mt-5 flex flex-wrap items-center gap-3">
+            <a href="#menu-products" className="inline-flex min-h-11 items-center justify-center rounded-full bg-[var(--gold)] px-5 text-sm font-semibold text-black transition hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--gold)]">{t.browse}</a>
+            <span className={`inline-flex min-h-11 items-center gap-2 rounded-full border px-3 py-2 text-xs font-semibold ${menuStale ? "border-amber-300/20 bg-amber-300/10 text-amber-100" : "border-emerald-300/20 bg-emerald-300/10 text-emerald-200"}`}>
               <span className="h-2 w-2 rounded-full bg-current" /> {menuSource === "database" ? t.live : t.fallback}
             </span>
+            </div>
           </div>
-          <div className="grid min-w-0 gap-2 sm:grid-cols-2 lg:gap-3">
+          <fieldset className="min-w-0 rounded-3xl border border-white/10 bg-white/[0.035] p-3">
+            <legend className="px-2 text-xs font-semibold text-[var(--muted)]">{t.service}</legend>
+            <div className="grid min-w-0 grid-cols-2 gap-2">
             {serviceModes.map(({ id, ar, en, icon: Icon }) => (
-              <button key={id} type="button" aria-pressed={serviceMode === id} onClick={() => setServiceMode(id)} className={`flex min-h-14 items-center gap-3 rounded-2xl border p-3 text-start transition sm:p-4 ${serviceMode === id ? "border-[var(--gold)] bg-[var(--gold)]/15 text-[var(--gold-soft)]" : "border-white/10 bg-white/[0.04] text-[var(--muted)] hover:border-white/20"}`}>
+              <button key={id} type="button" aria-pressed={serviceMode === id} onClick={() => setServiceMode(id)} className={`flex min-h-12 items-center gap-2 rounded-2xl border p-3 text-start transition ${serviceMode === id ? "border-[var(--gold)] bg-[var(--gold)]/15 text-[var(--gold-soft)]" : "border-white/10 bg-black/20 text-[var(--muted)] hover:border-white/20"}`}>
                 <Icon className="h-5 w-5 shrink-0" /><span className="text-sm font-semibold">{language === "ar" ? ar : en}</span>{serviceMode === id ? <Check className="ms-auto h-4 w-4" /> : null}
               </button>
             ))}
-          </div>
+            </div>
+          </fieldset>
         </div>
       </section>
 
       {menuBanners.length ? <section className="mx-auto grid max-w-7xl gap-4 px-4 pt-8 sm:grid-cols-2 sm:px-6">{menuBanners.map((banner) => <Link key={banner.id} href={banner.linkUrl || "/menu"} className="relative min-h-40 overflow-hidden border border-white/10 bg-white/[0.04] p-6" style={{ borderRadius: `${experience.theme.borderRadius}px`, backgroundImage: banner.imageUrl ? `linear-gradient(90deg, rgba(0,0,0,.86), rgba(0,0,0,.18)), url(${banner.imageUrl})` : undefined, backgroundPosition: "center", backgroundSize: "cover" }}><h2 className="max-w-sm text-2xl font-semibold">{language === "ar" ? banner.titleAr : banner.titleEn}</h2><p className="mt-2 max-w-sm text-sm text-[var(--muted)]">{language === "ar" ? banner.subtitleAr : banner.subtitleEn}</p></Link>)}</section> : null}
 
-      <section id="menu-products" className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+      <section id="menu-products" className="mx-auto max-w-7xl scroll-mt-20 px-4 py-7 sm:px-6 sm:py-9">
+        <div className="sticky top-[73px] z-30 -mx-4 border-y border-white/10 bg-black/90 px-4 py-3 backdrop-blur-xl sm:-mx-6 sm:px-6">
+        <div className="mx-auto flex max-w-7xl flex-col gap-3 lg:flex-row lg:items-center">
           {experience.menu.showSearch ? <label className="flex min-w-0 flex-1 items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.045] px-4 py-3 lg:max-w-xl">
             <span className="sr-only">{t.search}</span><Search className="h-5 w-5 text-[var(--muted)]" aria-hidden="true" /><input type="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder={t.search} className="w-full bg-transparent text-sm outline-none placeholder:text-white/30" />
           </label> : null}
-          {experience.menu.showCategories ? <div className="salora-scroll-strip" role="tablist" aria-label={language === "ar" ? "تصنيفات المنيو" : "Menu categories"}>
+          {experience.menu.showCategories ? <div className="salora-scroll-strip lg:flex-1" role="tablist" aria-label={language === "ar" ? "تصنيفات المنيو" : "Menu categories"}>
             {categories.map((item) => {
               const categoryProduct = initialProducts.find((product) => product.category === item);
               const label = item === "All" ? t.all : categoryProduct ? displayCategory(categoryProduct, language) : item;
-              return <button key={item} type="button" role="tab" aria-selected={category === item} onClick={() => setCategory(item)} className={`min-h-10 shrink-0 rounded-full border px-4 py-2 text-xs font-semibold transition ${category === item ? "border-[var(--gold)] bg-[var(--gold)] text-black" : "border-white/10 bg-white/[0.04] text-[var(--muted)] hover:border-white/25 hover:text-[var(--cream)]"}`}>{label}</button>;
+              return <button key={item} type="button" role="tab" aria-selected={category === item} onClick={() => setCategory(item)} className={`min-h-11 shrink-0 rounded-full border px-4 py-2 text-xs font-semibold transition ${category === item ? "border-[var(--gold)] bg-[var(--gold)] text-black" : "border-white/10 bg-white/[0.04] text-[var(--muted)] hover:border-white/25 hover:text-[var(--cream)]"}`}>{label}</button>;
             })}
           </div> : null}
-        </div>
+        </div></div>
 
         <div className="mt-5 flex items-center justify-between gap-4 border-b border-white/10 pb-4 text-sm text-[var(--muted)]" aria-live="polite">
           <span><strong className="text-[var(--cream)]">{filteredProducts.length}</strong> {t.results}</span>
@@ -392,7 +403,7 @@ export function MenuExperience({ initialProducts, menuSource, menuStale, whatsap
 
         <div className={`mt-8 grid gap-5 ${gridClass}`}>
           {filteredProducts.map((product) => (
-            <article key={product.id} className={`group overflow-hidden border border-white/10 bg-white/[0.04] transition hover:-translate-y-1 hover:border-[var(--border-gold)] ${experience.menu.layout === "list" ? "sm:grid sm:grid-cols-[240px_1fr]" : ""}`} style={{ borderRadius: `${experience.theme.borderRadius}px` }}>
+            <article key={product.id} className={`group overflow-hidden border border-white/10 bg-white/[0.04] shadow-[0_18px_50px_rgba(0,0,0,.16)] transition duration-200 hover:-translate-y-0.5 hover:border-[var(--border-gold)] ${experience.menu.layout === "list" ? "sm:grid sm:grid-cols-[240px_1fr]" : ""}`} style={{ borderRadius: `${experience.theme.borderRadius}px` }}>
               {experience.menu.showImages ? <div className={`relative ${experience.menu.layout === "list" ? "min-h-48 sm:aspect-auto" : ratioClass} bg-gradient-to-br ${productAccent(product)}`}>
                 {productImage(product) ? <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `linear-gradient(to top, rgba(0,0,0,.6), rgba(0,0,0,.05)), url("${productImage(product)}")` }} /> : null}
                 <div className="absolute inset-0 grid place-items-center"><Coffee className="h-16 w-16 text-white/15" strokeWidth={1} /></div>
@@ -402,7 +413,7 @@ export function MenuExperience({ initialProducts, menuSource, menuStale, whatsap
               <div className="p-5">
                 <div className="flex items-start justify-between gap-4"><div><h2 className="text-xl font-semibold">{displayName(product, language)}</h2>{language === "ar" ? <p className="mt-1 text-xs text-[var(--muted)]">{product.name}</p> : null}</div><strong className="whitespace-nowrap text-[var(--gold-soft)]">{formatOmr(product.price, language)}</strong></div>
                 {experience.menu.showDescriptions ? <p className="mt-4 line-clamp-2 min-h-12 text-sm leading-6 text-[var(--muted)]">{displayDescription(product, language)}</p> : null}
-                <button type="button" onClick={() => openProduct(product)} className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl border border-[var(--border-gold)] bg-[var(--gold)]/10 px-4 py-3 text-sm font-semibold text-[var(--gold-soft)] transition hover:bg-[var(--gold)] hover:text-black">{t.add}<ChevronDown className="h-4 w-4" /></button>
+                <button type="button" onClick={() => openProduct(product)} className="mt-5 flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-[var(--border-gold)] bg-[var(--gold)]/10 px-4 py-3 text-sm font-semibold text-[var(--gold-soft)] transition hover:bg-[var(--gold)] hover:text-black">{t.add}<ChevronDown className="h-4 w-4" /></button>
               </div>
             </article>
           ))}
@@ -435,6 +446,7 @@ export function MenuExperience({ initialProducts, menuSource, menuStale, whatsap
           </aside>
         </div>
       ) : null}
+      {itemCount > 0 && !cartOpen ? <button type="button" onClick={() => setCartOpen(true)} className="fixed inset-x-4 bottom-4 z-40 flex min-h-14 items-center justify-between rounded-2xl bg-[var(--gold)] px-5 font-semibold text-black shadow-[0_18px_50px_rgba(0,0,0,.45)] sm:hidden"><span>{t.cart} · {itemCount}</span><span>{formatOmr(subtotal, language)}</span></button> : null}
     </main>
   );
 }
