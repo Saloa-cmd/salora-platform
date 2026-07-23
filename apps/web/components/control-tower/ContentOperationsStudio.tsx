@@ -83,7 +83,7 @@ export function ContentOperationsStudio() {
   }
 
   return (
-    <section className="space-y-5 rounded-2xl border border-[var(--border-gold)] bg-[rgba(12,12,12,.92)] p-4 sm:p-6">
+    <section id="content-operations-studio" className="scroll-mt-24 space-y-5 rounded-2xl border border-[var(--border-gold)] bg-[rgba(12,12,12,.92)] p-4 sm:p-6">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <p className="text-xs font-bold uppercase tracking-[.22em] text-[var(--gold-soft)]">SALORA CMS</p>

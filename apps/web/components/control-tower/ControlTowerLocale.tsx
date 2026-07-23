@@ -108,7 +108,13 @@ const arabic: Record<string, string> = {
   "Media drafts, approval, primary image, archive, and publish workflow are Control Tower governed.": "مسودات الصور والموافقة والصورة الأساسية والأرشفة والنشر محكومة بالكامل من منصة التحكم.",
   "Advanced page and banner lifecycle remains postponed for Simple Launch.": "تحتاج دورة حياة الصفحات والبنرات المتقدمة إلى استكمال الربط التشغيلي قبل تفعيلها.",
   "Products, categories, status, price, and image URL management": "إدارة الأصناف والفئات والحالة والسعر والصور",
-  "Control Tower commands": "أوامر منصة التحكم"
+  "Control Tower commands": "أوامر منصة التحكم",
+  "Open product manager": "فتح إدارة الأصناف",
+  "Manage product media": "إدارة صور الأصناف",
+  "Open content studio": "فتح استوديو المحتوى",
+  "Open workspace": "فتح مساحة العمل",
+  "Not available yet": "غير متاح بعد",
+  "Pages, navigation, banners, campaigns, approvals, scheduling and rollback are managed from the content studio.": "تُدار الصفحات والتنقل والبنرات والحملات والموافقات والجدولة واستعادة الإصدارات من استوديو المحتوى."
 };
 
 type LocaleContextValue = {

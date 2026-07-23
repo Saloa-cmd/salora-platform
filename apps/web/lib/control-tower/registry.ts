@@ -123,9 +123,9 @@ export const controlTowerSections: ControlTowerSection[] = [
     icon: FileStack,
     description: "Headless CMS for pages, sections, banners, promotions, menus, categories, products, and landing pages.",
     capabilities: [
-      { title: "Product operations", description: "Products, categories, status, price, and image URL management are connected to Supabase.", status: "live", owner: "Catalog" },
-      { title: "Product media command", description: "Media drafts, approval, primary image, archive, and publish workflow are Control Tower governed.", status: "live", owner: "Catalog" },
-      { title: "CMS lifecycle", description: "Advanced page and banner lifecycle remains postponed for Simple Launch.", status: "needs-backend", owner: "CMS" }
+      { title: "Product operations", description: "Products, categories, status, price, and image URL management are connected to Supabase.", status: "live", owner: "Catalog", href: "#product-operations-manager", actionLabel: "Open product manager" },
+      { title: "Product media command", description: "Media drafts, approval, primary image, archive, and publish workflow are Control Tower governed.", status: "live", owner: "Catalog", href: "#product-media-manager", actionLabel: "Manage product media" },
+      { title: "CMS lifecycle", description: "Pages, navigation, banners, campaigns, approvals, scheduling and rollback are managed from the content studio.", status: "live", owner: "CMS", href: "#content-operations-studio", actionLabel: "Open content studio" }
     ]
   },
   {
