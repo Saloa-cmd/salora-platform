@@ -58,6 +58,41 @@ function uniqueById<T extends { id: string }>(rows: T[]): T[] {
   return [...new Map(rows.map((row) => [row.id, row])).values()];
 }
 
+function MediaPreview({
+  src,
+  alt,
+  unavailableLabel
+}: {
+  src?: string | null;
+  alt: string;
+  unavailableLabel: string;
+}) {
+  const [failedSrc, setFailedSrc] = useState<string | null>(null);
+
+  if (!src || failedSrc === src) {
+    return (
+      <div className="grid h-full place-items-center bg-[radial-gradient(circle_at_50%_35%,rgba(201,164,92,.1),transparent_55%)] px-6 text-center text-[var(--muted)]">
+        <div>
+          <ImageIcon className="mx-auto h-10 w-10 text-[var(--gold-soft)]" aria-hidden="true" />
+          <p className="mt-3 text-xs leading-5">{unavailableLabel}</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <Image
+      src={src}
+      alt={alt}
+      fill
+      sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 33vw"
+      unoptimized
+      onError={() => setFailedSrc(src)}
+      className="object-cover transition duration-500 hover:scale-[1.02]"
+    />
+  );
+}
+
 export function ProductMediaManager() {
   const { isArabic } = useControlTowerLocale();
   const t = useCallback((ar: string, en: string) => isArabic ? ar : en, [isArabic]);
@@ -230,17 +265,17 @@ export function ProductMediaManager() {
           <div><ImageIcon className="mx-auto mb-3 h-8 w-8" /><p className="text-sm">{t("لا توجد صور تطابق هذا العرض.", "No media matches this view.")}</p></div>
         </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 2xl:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {filter !== "IMAGES" ? visibleDrafts.map((draft) => {
             const name = isArabic ? draft.product.nameAr ?? draft.product.name : draft.product.nameEn ?? draft.product.name;
             return (
               <article key={draft.id} className="overflow-hidden rounded-xl border border-white/10 bg-black/30">
                 <div className="relative aspect-square bg-white/[.025]">
-                  {draft.publicUrl ? (
-                    <Image src={draft.publicUrl} alt={draft.altText ?? name} fill sizes="(max-width: 640px) 100vw, (max-width: 1536px) 50vw, 33vw" unoptimized className="object-cover" />
-                  ) : (
-                    <div className="grid h-full place-items-center text-[var(--muted)]"><ImageIcon className="h-10 w-10" /></div>
-                  )}
+                  <MediaPreview
+                    src={draft.publicUrl}
+                    alt={draft.altText ?? name}
+                    unavailableLabel={t("تعذر تحميل الصورة من التخزين. استخدم «تحديث» بعد التحقق من الأصل.", "The storage image could not be loaded. Refresh after verifying the asset.")}
+                  />
                   <span className="absolute start-3 top-3 rounded-full border border-white/15 bg-black/80 px-2.5 py-1 font-mono text-[10px] text-white">{draft.status}</span>
                 </div>
                 <div className="space-y-3 p-4">
@@ -270,7 +305,11 @@ export function ProductMediaManager() {
             return (
               <article key={image.id} className="overflow-hidden rounded-xl border border-white/10 bg-black/30">
                 <div className="relative aspect-square bg-white/[.025]">
-                  {image.publicUrl ? <Image src={image.publicUrl} alt={image.altText ?? name} fill sizes="(max-width: 640px) 100vw, (max-width: 1536px) 50vw, 33vw" unoptimized className="object-cover" /> : <div className="grid h-full place-items-center text-[var(--muted)]"><ImageIcon className="h-10 w-10" /></div>}
+                  <MediaPreview
+                    src={image.publicUrl}
+                    alt={image.altText ?? name}
+                    unavailableLabel={t("تعذر تحميل الصورة المنشورة من التخزين.", "The published storage image could not be loaded.")}
+                  />
                   {image.isPrimary ? <span className="absolute start-3 top-3 inline-flex items-center gap-1 rounded-full bg-[var(--gold)] px-2.5 py-1 text-[10px] font-bold text-black"><Star className="h-3 w-3 fill-current" />{t("أساسية", "Primary")}</span> : null}
                 </div>
                 <div className="space-y-3 p-4">

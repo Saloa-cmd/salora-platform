@@ -10,7 +10,10 @@ const csp = [
   "form-action 'self'",
   "frame-ancestors 'none'",
   "object-src 'none'",
-  "img-src 'self' data: blob:",
+  // Product photography is delivered from the isolated SALORA Supabase
+  // Storage bucket. Keep the allow-list narrow instead of permitting every
+  // HTTPS image origin.
+  "img-src 'self' data: blob: https://*.supabase.co",
   "font-src 'self' data:",
   "connect-src 'self' https://wa.me https://api.whatsapp.com",
   "script-src 'self' 'unsafe-inline'",
