@@ -23,6 +23,8 @@ export type ControlCapability = {
   description: string;
   status: ControlTowerStatus;
   owner: string;
+  href?: string;
+  actionLabel?: string;
 };
 
 export type ControlTowerSection = {

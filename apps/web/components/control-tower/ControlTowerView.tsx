@@ -16,6 +16,7 @@ import type { ControlTowerSectionId } from "@/lib/control-tower/types";
 import { useControlTowerLocale } from "./ControlTowerLocale";
 import { ExperienceDesignStudio } from "./ExperienceDesignStudio";
 import { ContentOperationsStudio } from "./ContentOperationsStudio";
+import { ProductMediaManager } from "./ProductMediaManager";
 
 const cmsLifecycle = ["Draft", "Publish", "Schedule", "Archive"];
 const appConfigAreas = ["Theme", "Colors", "Typography", "Feature flags", "Navigation", "Homepage layout", "AI features", "WhatsApp features"];
@@ -82,8 +83,11 @@ function SectionSpecificWorkspace({ sectionId }: { sectionId: ControlTowerSectio
       <>
         <ContentOperationsStudio />
         <ExperienceDesignStudio />
+        <ProductMediaManager />
         <DashboardGrid columns="two">
-          <ProductActionPanel />
+          <div id="product-operations-manager" className="scroll-mt-24">
+            <ProductActionPanel />
+          </div>
           <BackendActivationCard title="Headless CMS Lifecycle" items={[...cmsLifecycle, "Pages", "Sections", "Banners", "Promotions", "Menus", "Categories", "Landing pages"]} />
         </DashboardGrid>
         <SimpleLaunchOperationsCenter />
@@ -149,9 +153,11 @@ export function ControlTowerView({ sectionId }: { sectionId?: string }) {
         </DashboardGrid>
       </DashboardSection>
 
-      <DashboardSection title={tr("No-Code Workspace")} description={tr("Operator-first controls for the selected business capability. Live write actions remain protected by existing RBAC permissions.")}>
-        <SectionSpecificWorkspace sectionId={section.id} />
-      </DashboardSection>
+      <div id="no-code-workspace" className="scroll-mt-24">
+        <DashboardSection title={tr("No-Code Workspace")} description={tr("Operator-first controls for the selected business capability. Live write actions remain protected by existing RBAC permissions.")}>
+          <SectionSpecificWorkspace sectionId={section.id} />
+        </DashboardSection>
+      </div>
     </div>
   );
 }
