@@ -7,6 +7,8 @@ import { mediaMutationSchema, runProductAiDraft } from "@/lib/server/supremacyCo
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
+const AUTHORITATIVE_MEDIA_SOURCE = "salora_catalog_photography_v1";
+
 export async function GET(request: NextRequest) {
   const id = requestId(request);
   try {
@@ -15,11 +17,40 @@ export async function GET(request: NextRequest) {
     const productSlug = request.nextUrl.searchParams.get("productSlug") ?? undefined;
     const { take, skip } = pagination(request, { limit: 100, maxLimit: 100 });
     const productWhere = productSlug ? { product: { slug: productSlug } } : {};
-    const [images, drafts] = await Promise.all([
+    const [images, drafts, summary] = await Promise.all([
       repo.productImages.findMany({ take, skip, where: { ...productWhere, deletedAt: null }, include: { product: true }, orderBy: [{ isPrimary: "desc" }, { sortOrder: "asc" }] }),
-      repo.mediaDrafts.findMany({ take, skip, where: { ...productWhere, archivedAt: null }, include: { product: true }, orderBy: [{ createdAt: "desc" }] })
+      repo.mediaDrafts.findMany({ take, skip, where: { ...productWhere, archivedAt: null }, include: { product: true }, orderBy: [{ createdAt: "desc" }] }),
+      repo.cms.run(async (db) => {
+        const [catalogProducts, activeDrafts, liveImages] = await Promise.all([
+          db.catalogProduct.count({ where: { brandKey: "SALORA" } }),
+          db.productMediaDraft.findMany({
+            where: { archivedAt: null, product: { brandKey: "SALORA" } },
+            select: { id: true, productId: true, source: true, status: true }
+          }),
+          db.productImage.findMany({
+            where: { deletedAt: null, product: { brandKey: "SALORA" } },
+            select: { id: true, productId: true }
+          })
+        ]);
+        const authoritative = activeDrafts.filter((draft: { source: string }) => draft.source === AUTHORITATIVE_MEDIA_SOURCE);
+        const statusCounts = authoritative.reduce((counts: Record<string, number>, draft: { status: string }) => {
+          counts[draft.status] = (counts[draft.status] ?? 0) + 1;
+          return counts;
+        }, {});
+        return {
+          catalogProducts,
+          draftRecords: activeDrafts.length,
+          authoritativeRecords: authoritative.length,
+          authoritativeProducts: new Set(authoritative.map((draft: { productId: string }) => draft.productId)).size,
+          otherRecords: activeDrafts.length - authoritative.length,
+          duplicateAuthoritativeRecords: authoritative.length - new Set(authoritative.map((draft: { productId: string }) => draft.productId)).size,
+          liveImageRecords: liveImages.length,
+          liveImageProducts: new Set(liveImages.map((image: { productId: string }) => image.productId)).size,
+          authoritativeStatusCounts: statusCounts
+        };
+      })
     ]);
-    return responseJson({ images, drafts }, id);
+    return responseJson({ images, drafts, summary }, id);
   } catch (error) {
     return handleError(error, id);
   }
