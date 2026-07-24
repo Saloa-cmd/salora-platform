@@ -21,5 +21,7 @@ assert.match(primitives, /export function SaloraButton/, "The shared button prim
 assert.match(primitives, /export function SaloraEmptyState/, "The shared empty-state primitive is required.");
 assert.match(proxy, /img-src[^"]+https:\/\/\*\.supabase\.co/, "CSP must allow the isolated Supabase product-media origin.");
 assert.match(mediaManager, /onError=\{\(\) => setFailedSrc\(src\)\}/, "Media cards must recover visibly when a storage asset cannot load.");
+assert.match(mediaManager, /salora_catalog_photography_v1/, "The authoritative 117-product media source must remain explicitly isolated.");
+assert.match(mediaManager, /authoritativeProducts/, "Media management must report unique product coverage instead of conflating products with draft records.");
 
 console.log("Unified experience contract passed: responsive typography, RTL, primitives, and accessibility guards verified.");

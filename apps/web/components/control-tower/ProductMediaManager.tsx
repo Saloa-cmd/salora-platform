@@ -47,12 +47,27 @@ type ProductImage = {
 type MediaResponse = {
   images: ProductImage[];
   drafts: MediaDraft[];
+  summary: MediaSummary;
 };
 
 type Filter = "ALL" | MediaDraft["status"] | "IMAGES";
+type SourceScope = "AUTHORITATIVE" | "OTHER" | "ALL";
+
+type MediaSummary = {
+  catalogProducts: number;
+  draftRecords: number;
+  authoritativeRecords: number;
+  authoritativeProducts: number;
+  otherRecords: number;
+  duplicateAuthoritativeRecords: number;
+  liveImageRecords: number;
+  liveImageProducts: number;
+  authoritativeStatusCounts: Record<string, number>;
+};
 
 const PAGE_SIZE = 100;
 const MAX_PAGES = 10;
+const AUTHORITATIVE_MEDIA_SOURCE = "salora_catalog_photography_v1";
 
 function uniqueById<T extends { id: string }>(rows: T[]): T[] {
   return [...new Map(rows.map((row) => [row.id, row])).values()];
@@ -98,7 +113,9 @@ export function ProductMediaManager() {
   const t = useCallback((ar: string, en: string) => isArabic ? ar : en, [isArabic]);
   const [drafts, setDrafts] = useState<MediaDraft[]>([]);
   const [images, setImages] = useState<ProductImage[]>([]);
+  const [summary, setSummary] = useState<MediaSummary | null>(null);
   const [filter, setFilter] = useState<Filter>("DRAFT");
+  const [sourceScope, setSourceScope] = useState<SourceScope>("AUTHORITATIVE");
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -121,6 +138,7 @@ export function ProductMediaManager() {
         }
         collectedDrafts.push(...result.data.drafts);
         collectedImages.push(...result.data.images);
+        setSummary(result.data.summary);
         if (result.data.drafts.length < PAGE_SIZE && result.data.images.length < PAGE_SIZE) break;
       }
       setDrafts(uniqueById(collectedDrafts));
@@ -137,21 +155,32 @@ export function ProductMediaManager() {
     return () => window.clearTimeout(timer);
   }, [load]);
 
+  const scopedDrafts = useMemo(() => drafts.filter((draft) => {
+    if (sourceScope === "ALL") return true;
+    const isAuthoritative = draft.source === AUTHORITATIVE_MEDIA_SOURCE;
+    return sourceScope === "AUTHORITATIVE" ? isAuthoritative : !isAuthoritative;
+  }), [drafts, sourceScope]);
+
   const counts = useMemo(() => {
-    const result: Record<string, number> = { ALL: drafts.length, IMAGES: images.length };
-    for (const draft of drafts) result[draft.status] = (result[draft.status] ?? 0) + 1;
+    const result: Record<string, number> = { ALL: scopedDrafts.length, IMAGES: images.length };
+    for (const draft of scopedDrafts) result[draft.status] = (result[draft.status] ?? 0) + 1;
     return result;
-  }, [drafts, images]);
+  }, [scopedDrafts, images]);
+
+  const sourceCounts = useMemo(() => {
+    const authoritative = drafts.filter((draft) => draft.source === AUTHORITATIVE_MEDIA_SOURCE).length;
+    return { AUTHORITATIVE: authoritative, OTHER: drafts.length - authoritative, ALL: drafts.length };
+  }, [drafts]);
 
   const visibleDrafts = useMemo(() => {
     const normalized = query.trim().toLowerCase();
-    return drafts.filter((draft) => {
+    return scopedDrafts.filter((draft) => {
       if (filter !== "ALL" && filter !== "IMAGES" && draft.status !== filter) return false;
       if (!normalized) return true;
       return [draft.product.slug, draft.product.name, draft.product.nameAr, draft.product.nameEn, draft.altText]
         .some((value) => value?.toLowerCase().includes(normalized));
     });
-  }, [drafts, filter, query]);
+  }, [scopedDrafts, filter, query]);
 
   const visibleImages = useMemo(() => {
     const normalized = query.trim().toLowerCase();
@@ -194,6 +223,12 @@ export function ProductMediaManager() {
     { value: "ALL", ar: "كل المسودات", en: "All drafts" }
   ];
 
+  const sourceScopes: Array<{ value: SourceScope; ar: string; en: string }> = [
+    { value: "AUTHORITATIVE", ar: "مجموعة SALORA الاحترافية", en: "Professional SALORA set" },
+    { value: "OTHER", ar: "مسودات أخرى محفوظة", en: "Other preserved drafts" },
+    { value: "ALL", ar: "كل السجلات", en: "All records" }
+  ];
+
   return (
     <section id="product-media-manager" className="scroll-mt-24 space-y-5 rounded-2xl border border-[var(--border-gold)] bg-[rgba(12,12,12,.92)] p-4 sm:p-6">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
@@ -218,6 +253,69 @@ export function ProductMediaManager() {
           <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} aria-hidden="true" />
           {t("تحديث", "Refresh")}
         </button>
+      </div>
+
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4" aria-label={t("ملخص تغطية صور الأصناف", "Product media coverage summary")}>
+        {[
+          {
+            label: t("أصناف SALORA المغطاة", "SALORA products covered"),
+            value: `${summary?.authoritativeProducts ?? 0}/${summary?.catalogProducts ?? 0}`,
+            hint: t("صنف فريد في المجموعة الاحترافية", "unique products in the professional set")
+          },
+          {
+            label: t("سجلات المجموعة الاحترافية", "Professional-set records"),
+            value: summary?.authoritativeRecords ?? 0,
+            hint: t("محفوظة دون حذف أو دمج", "preserved without deletion or merging")
+          },
+          {
+            label: t("مسودات أخرى محفوظة", "Other preserved drafts"),
+            value: summary?.otherRecords ?? 0,
+            hint: t("لا تُحتسب كأصناف إضافية", "not counted as additional products")
+          },
+          {
+            label: t("أصناف بصور منشورة", "Products with live images"),
+            value: `${summary?.liveImageProducts ?? 0}/${summary?.catalogProducts ?? 0}`,
+            hint: t("صور فعلية مرتبطة بالمنيو", "live images linked to the menu")
+          }
+        ].map((item) => (
+          <div key={item.label} className="rounded-xl border border-white/10 bg-white/[.025] p-4">
+            <p className="text-xs font-semibold text-[var(--muted)]">{item.label}</p>
+            <p className="mt-2 font-mono text-2xl font-bold text-[var(--cream)]">{item.value}</p>
+            <p className="mt-1 text-[11px] leading-5 text-[var(--muted)]">{item.hint}</p>
+          </div>
+        ))}
+      </div>
+
+      {summary && summary.authoritativeProducts !== summary.catalogProducts ? (
+        <p role="alert" className="rounded-xl border border-amber-400/30 bg-amber-400/10 px-4 py-3 text-sm text-amber-100">
+          {t(
+            `تنبيه تدقيق: المجموعة الاحترافية تغطي ${summary.authoritativeProducts} من أصل ${summary.catalogProducts} صنفًا. لم يتم حذف أو تعديل أي سجل.`,
+            `Audit notice: the professional set covers ${summary.authoritativeProducts} of ${summary.catalogProducts} products. No record was deleted or modified.`
+          )}
+        </p>
+      ) : null}
+
+      <div className="rounded-xl border border-white/10 bg-black/25 p-3">
+        <p className="mb-2 text-xs font-semibold text-[var(--muted)]">
+          {t("مصدر الصور — العرض الافتراضي يعزل المجموعة المطابقة لـ117 صنفًا", "Media source — the default view isolates the set matched to 117 products")}
+        </p>
+        <div className="flex flex-wrap gap-2" role="group" aria-label={t("تصفية مصدر الصور", "Filter media source")}>
+          {sourceScopes.map((item) => (
+            <button
+              key={item.value}
+              type="button"
+              onClick={() => setSourceScope(item.value)}
+              aria-pressed={sourceScope === item.value}
+              className={`min-h-11 rounded-lg border px-3 py-2 text-xs font-semibold transition ${
+                sourceScope === item.value
+                  ? "border-[var(--gold)] bg-[rgba(201,164,92,.16)] text-[var(--cream)]"
+                  : "border-white/10 bg-white/[.025] text-[var(--muted)] hover:text-[var(--cream)]"
+              }`}
+            >
+              {t(item.ar, item.en)} <span className="font-mono">({sourceCounts[item.value]})</span>
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="grid gap-3 rounded-xl border border-white/10 bg-black/25 p-3 lg:grid-cols-[minmax(240px,1fr)_auto]">
@@ -281,7 +379,12 @@ export function ProductMediaManager() {
                 <div className="space-y-3 p-4">
                   <div>
                     <h4 className="font-semibold text-[var(--cream)]">{name}</h4>
-                    <p className="mt-1 font-mono text-[11px] text-[var(--muted)]">{draft.product.slug} · {draft.source}</p>
+                    <p className="mt-1 font-mono text-[11px] text-[var(--muted)]">{draft.product.slug}</p>
+                    <p className="mt-1 text-[10px] text-[var(--gold-soft)]">
+                      {draft.source === AUTHORITATIVE_MEDIA_SOURCE
+                        ? t("مجموعة SALORA الاحترافية", "Professional SALORA set")
+                        : `${t("مصدر محفوظ", "Preserved source")}: ${draft.source}`}
+                    </p>
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {draft.status === "DRAFT" ? (
