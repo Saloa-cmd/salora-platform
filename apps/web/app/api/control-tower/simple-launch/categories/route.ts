@@ -11,7 +11,11 @@ export async function GET(request: NextRequest) {
   try {
     const actor = await requireControlPermission(request, "catalog:read");
     const repo = await createControlTowerRepository({ userId: actor.sub, roles: actor.roles });
-    const categories = await repo.categories.findMany({ orderBy: [{ sortOrder: "asc" }, { name: "asc" }], include: { _count: { select: { products: true } } } });
+    const categories = await repo.categories.findMany({
+      where: { brandKey: "SALORA" },
+      orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+      include: { _count: { select: { products: true } } }
+    });
     return responseJson(categories, id);
   } catch (error) {
     return handleError(error, id);

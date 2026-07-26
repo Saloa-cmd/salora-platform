@@ -21,9 +21,8 @@ const categories = [
   ["frappes", "الفرابيه", "Frappés"],
   ["matcha", "الماتشا", "Matcha"],
   ["smoothies", "السموذي", "Smoothies"],
-  ["healthy-wellness", "المشروبات الصحية", "Healthy & Wellness"],
-  ["healthy-snacks", "السناك الصحي", "Healthy Snacks"],
-  ["kids-drinks", "مشروبات الأطفال", "Kids’ Drinks"],
+  ["healthy-wellness", "قائمة الصحة", "Healthy Menu"],
+  ["kids-drinks", "قائمة الأطفال", "Kids Menu"],
   ["hot-drinks", "المشروبات الساخنة", "Hot Drinks"],
   ["iced-tea", "الشاي المثلج", "Iced Tea"],
   ["desserts", "الحلويات", "Desserts"]
@@ -119,11 +118,11 @@ const menu: MenuRow[] = [
   ["healthy-wellness", "collagen-drink", "مشروب الكولاجين", "Collagen Drink", null],
   ["healthy-wellness", "healthy-pistachio-milkshake", "ميلك شيك صحي بالفستق", "Healthy Pistachio Milkshake", null],
   ["healthy-wellness", "healthy-chocolate-milkshake", "ميلك شيك صحي بالشوكولاتة", "Healthy Chocolate Milkshake", null],
-  ["healthy-wellness", "keto-milkshake", "ميلك شيك كيتو", "Keto Milkshake", null],
+  ["healthy-wellness", "keto-milkshake", "ميلك شيك كيتو دايت", "Keto Diet Milkshake", null],
   ["healthy-wellness", "green-detox-stevia", "ديتوكس أخضر محلى بالستيفيا", "Green Detox with Stevia", null],
-  ["healthy-wellness", "lemon-mint-detox", "ديتوكس الليمون والنعناع", "Lemon Mint Detox", null],
-  ["healthy-wellness", "berry-detox", "ديتوكس التوت", "Berry Detox", null],
-  ["healthy-snacks", "protein-bar", "بروتين بار", "Protein Bar", null],
+  ["healthy-wellness", "lemon-mint-detox", "ديتوكس الليمون والنعناع بالستيفيا", "Lemon Mint Detox with Stevia", null],
+  ["healthy-wellness", "berry-detox", "ديتوكس التوت بالستيفيا", "Berry Detox with Stevia", null],
+  ["healthy-wellness", "protein-bar", "بروتين بار", "Protein Bar", null],
   ["kids-drinks", "babyccino", "بيبي تشينو — بدون قهوة", "Babyccino — Coffee-Free", null],
   ["kids-drinks", "strawberry-vanilla-milk", "حليب الفراولة والفانيليا", "Strawberry Vanilla Milk", null],
   ["kids-drinks", "nesquik-chocolate-milk", "حليب شوكولاتة نسكويك", "Nesquik Chocolate Milk", null],
@@ -179,6 +178,22 @@ async function main() {
     const existingPrompt = await prisma.productMediaDraft.findFirst({ where: { productId: product.id, source: "seed_catalog", archivedAt: null } });
     if (!existingPrompt) {
       await prisma.productMediaDraft.create({ data: { productId: product.id, source: "seed_catalog", prompt: imagePrompt(nameEn, categories.find(([key]) => key === categorySlug)?.[2] ?? categorySlug), altText: `${nameAr} — ${nameEn}`, isPrimaryCandidate: true, metadata: { brand: BRAND, reviewRequired: true, generatedAssetPending: true } } });
+    }
+  }
+
+  const previousHealthySnacks = await prisma.productCategory.findUnique({ where: { slug: "healthy-snacks" } });
+  if (previousHealthySnacks) {
+    const remainingProducts = await prisma.catalogProduct.count({ where: { categoryId: previousHealthySnacks.id } });
+    if (remainingProducts === 0) {
+      await prisma.productCategory.update({
+        where: { id: previousHealthySnacks.id },
+        data: {
+          brandKey: "LEGACY",
+          name: "Healthy Snacks (Merged)",
+          nameAr: "السناك الصحي (مدمج)",
+          nameEn: "Healthy Snacks (Merged)"
+        }
+      });
     }
   }
 
