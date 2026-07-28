@@ -8,10 +8,17 @@ const css = read("apps/web/app/globals.css");
 const primitives = read("apps/web/components/ui/SaloraPrimitives.tsx");
 const mediaManager = read("apps/web/components/control-tower/ProductMediaManager.tsx");
 const proxy = read("apps/web/proxy.ts");
+const menuLoading = read("apps/web/app/menu/loading.tsx");
+const menuError = read("apps/web/app/menu/error.tsx");
 
 assert.match(menu, /salora-display/, "Menu hero must use the locale-aware display scale.");
 assert.match(menu, /SaloraEmptyState/, "Menu empty results must use the shared accessible primitive.");
 assert.match(menu, /language === "ar" \? "lg:grid-cols-/, "Menu hero must preserve language-aware column proportions.");
+assert.match(menu, /onError=\{\(\) => setImageFailed\(true\)\}/, "Menu product images must recover with a stable fallback.");
+assert.match(menu, /min-h-11 min-w-11/, "Menu controls must preserve the internal 44px mobile target.");
+assert.match(menu, /event\.key !== "Escape"/, "Menu dialogs must support keyboard dismissal.");
+assert.match(menuLoading, /aria-busy="true"/, "Menu loading state must be announced to assistive technology.");
+assert.match(menuError, /role="alert"/, "Menu failure state must provide a recoverable alert.");
 assert.match(shell, /salora-command-bar/, "Control Tower commands must remain responsive and horizontally safe.");
 assert.match(shell, /salora-page-title/, "Control Tower title must use the responsive title primitive.");
 assert.match(css, /:lang\(ar\) \.salora-display/, "Arabic display typography must have a dedicated scale.");

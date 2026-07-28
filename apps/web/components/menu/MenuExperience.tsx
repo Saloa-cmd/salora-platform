@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useMemo, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import {
   Car,
   Check,
@@ -76,7 +76,13 @@ const copy = {
     results: "صنف متاح",
     noResults: "لا توجد نتائج مطابقة. جرّب بحثًا أو تصنيفًا آخر.",
     browse: "تصفّح المنيو",
-    changeService: "تغيير طريقة الاستلام"
+    changeService: "تغيير طريقة الاستلام",
+    signature: "اختيار سالورا",
+    clearFilters: "مسح التصفية",
+    close: "إغلاق",
+    decrease: "تقليل الكمية",
+    increase: "زيادة الكمية",
+    from: "يبدأ من"
   },
   en: {
     direction: "ltr" as const,
@@ -117,7 +123,13 @@ const copy = {
     results: "items available",
     noResults: "No matching items. Try another search or category.",
     browse: "Browse menu",
-    changeService: "Change pickup method"
+    changeService: "Change pickup method",
+    signature: "SALORA pick",
+    clearFilters: "Clear filters",
+    close: "Close",
+    decrease: "Decrease quantity",
+    increase: "Increase quantity",
+    from: "From"
   }
 };
 
@@ -244,6 +256,22 @@ export function MenuExperience({ initialProducts, menuSource, menuStale, whatsap
   const selectedUnitPrice = selectedProduct ? Number((selectedProduct.price + selectedModifiers.reduce((sum, modifier) => sum + modifier.priceDelta, 0)).toFixed(3)) : 0;
   const requiredSelectionsComplete = selectedGroups.filter((group) => group.required).every((group) => selections[group.id]);
 
+  useEffect(() => {
+    if (!selectedProduct && !cartOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      setSelectedProduct(null);
+      setCartOpen(false);
+    };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [cartOpen, selectedProduct]);
+
   function openProduct(product: Product) {
     setSelectedProduct(product);
     const groups = productGroups(product, language);
@@ -357,19 +385,20 @@ export function MenuExperience({ initialProducts, menuSource, menuStale, whatsap
   const menuBanners = experience.banners.filter((banner) => banner.active && (banner.placement === "menu" || banner.placement === "both")).sort((a, b) => a.sortOrder - b.sortOrder);
 
   return (
-    <main dir={t.direction} style={experienceStyle} className="min-h-screen text-[var(--cream)]">
-      <header className="sticky top-0 z-40 border-b border-white/10 bg-black/80 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
+    <main lang={language} dir={t.direction} style={experienceStyle} className="min-h-screen text-[var(--cream)]">
+      <a href="#menu-products" className="skip-link">{t.browse}</a>
+      <header className="sticky top-0 z-40 border-b border-white/10 bg-black/85 backdrop-blur-xl">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:h-[4.5rem] sm:px-6">
           <Link href="/" className="flex items-center gap-3" aria-label="SALORA home">
-            {experience.site.logoUrl ? <span aria-label="SALORA logo" className="h-11 w-11 rounded-full border border-[var(--border-gold)] bg-cover bg-center" style={{ backgroundImage: `url(${experience.site.logoUrl})` }} /> : <Image src="/brand/salora-logo-dark.jpeg" alt="SALORA" width={44} height={44} priority className="h-11 w-11 rounded-full border border-[var(--border-gold)] object-cover shadow-[0_0_24px_rgba(201,164,92,0.18)]" />}
-            <span><strong className="block tracking-[0.24em]">SALORA</strong><small className="text-[var(--muted)]">Taste the Harmony</small></span>
+            {experience.site.logoUrl ? <span aria-label="SALORA logo" className="h-10 w-10 rounded-full border border-[var(--border-gold)] bg-cover bg-center sm:h-11 sm:w-11" style={{ backgroundImage: `url(${experience.site.logoUrl})` }} /> : <Image src="/brand/salora-logo-dark.jpeg" alt="SALORA" width={44} height={44} priority className="h-10 w-10 rounded-full border border-[var(--border-gold)] object-cover shadow-[0_0_24px_rgba(201,164,92,0.18)] sm:h-11 sm:w-11" />}
+            <span><strong className="block text-sm tracking-[0.24em] sm:text-base">SALORA</strong><small className="hidden text-[var(--muted)] sm:block">Taste the Harmony</small></span>
           </Link>
           <div className="flex items-center gap-2">
-            <SaloraButton type="button" onClick={() => setLanguage((value) => value === "ar" ? "en" : "ar")} className="min-h-10 rounded-full px-3 text-xs">
-              <Languages className="h-4 w-4" /> {language === "ar" ? "English" : "العربية"}
+            <SaloraButton type="button" aria-label={language === "ar" ? "Switch to English" : "التبديل إلى العربية"} onClick={() => setLanguage((value) => value === "ar" ? "en" : "ar")} className="min-h-11 rounded-full px-3 text-xs">
+              <Languages className="h-4 w-4" /><span className="hidden sm:inline">{language === "ar" ? "English" : "العربية"}</span>
             </SaloraButton>
-            <SaloraButton type="button" tone="gold" onClick={() => setCartOpen(true)} className="relative min-h-10 rounded-full bg-[var(--gold)] px-4 text-black hover:bg-[var(--gold-soft)]">
-              <ShoppingBag className="h-4 w-4" /> {t.cart}
+            <SaloraButton type="button" tone="gold" onClick={() => setCartOpen(true)} className="relative min-h-11 rounded-full bg-[var(--gold)] px-3 text-black hover:bg-[var(--gold-soft)] sm:px-4">
+              <ShoppingBag className="h-4 w-4" /><span className="hidden sm:inline">{t.cart}</span>
               {itemCount ? <span className="grid h-5 min-w-5 place-items-center rounded-full bg-black px-1 text-[0.65rem] text-white">{itemCount}</span> : null}
             </SaloraButton>
           </div>
@@ -378,25 +407,25 @@ export function MenuExperience({ initialProducts, menuSource, menuStale, whatsap
 
       {experience.site.showAnnouncement ? <div className="bg-[var(--gold)] px-4 py-2 text-center text-sm font-semibold text-black">{language === "ar" ? experience.site.announcementAr : experience.site.announcementEn}</div> : null}
 
-      <section className="relative overflow-hidden border-b border-white/10 px-4 py-7 sm:px-6 sm:py-9">
+      <section className="relative overflow-hidden border-b border-white/10 px-4 py-5 sm:px-6 sm:py-8">
         <div className="hero-depth" />
-        <div className={`mx-auto grid max-w-7xl gap-7 lg:items-end ${language === "ar" ? "lg:grid-cols-[minmax(0,1.15fr)_minmax(20rem,0.85fr)]" : "lg:grid-cols-[minmax(0,1.1fr)_minmax(20rem,0.9fr)]"}`}>
+        <div className={`mx-auto grid max-w-7xl gap-5 lg:items-end ${language === "ar" ? "lg:grid-cols-[minmax(0,1.15fr)_minmax(20rem,0.85fr)]" : "lg:grid-cols-[minmax(0,1.1fr)_minmax(20rem,0.9fr)]"}`}>
           <div className="min-w-0">
             <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.3em] text-[var(--gold-soft)]"><Sparkles className="h-4 w-4" />{t.eyebrow}</p>
-            <h1 className="salora-display mt-3 font-semibold">{language === "ar" ? experience.site.heroTitleAr : experience.site.heroTitleEn}</h1>
-            <p className="mt-3 max-w-2xl text-sm leading-7 text-[var(--muted)] sm:text-base">{language === "ar" ? experience.site.heroSubtitleAr : experience.site.heroSubtitleEn}</p>
-            <div className="mt-5 flex flex-wrap items-center gap-3">
+            <h1 className="salora-display salora-menu-display mt-2 font-semibold">{language === "ar" ? experience.site.heroTitleAr : experience.site.heroTitleEn}</h1>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--muted)] sm:mt-3 sm:text-base sm:leading-7">{language === "ar" ? experience.site.heroSubtitleAr : experience.site.heroSubtitleEn}</p>
+            <div className="mt-4 flex flex-wrap items-center gap-3">
             <a href="#menu-products" className="inline-flex min-h-11 items-center justify-center rounded-full bg-[var(--gold)] px-5 text-sm font-semibold text-black transition hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--gold)]">{t.browse}</a>
             <span className={`inline-flex min-h-11 items-center gap-2 rounded-full border px-3 py-2 text-xs font-semibold ${menuStale ? "border-amber-300/20 bg-amber-300/10 text-amber-100" : "border-emerald-300/20 bg-emerald-300/10 text-emerald-200"}`}>
               <span className="h-2 w-2 rounded-full bg-current" /> {menuSource === "database" ? t.live : t.fallback}
             </span>
             </div>
           </div>
-          <fieldset className="min-w-0 rounded-3xl border border-white/10 bg-white/[0.035] p-3">
+          <fieldset className="min-w-0 rounded-2xl border border-white/10 bg-white/[0.035] p-2 sm:rounded-3xl sm:p-3">
             <legend className="px-2 text-xs font-semibold text-[var(--muted)]">{t.service}</legend>
-            <div className="grid min-w-0 grid-cols-2 gap-2">
+            <div className="salora-scroll-strip min-w-0 sm:grid sm:grid-cols-2 sm:gap-2">
             {serviceModes.map(({ id, ar, en, icon: Icon }) => (
-              <button key={id} type="button" aria-pressed={serviceMode === id} onClick={() => setServiceMode(id)} className={`flex min-h-12 items-center gap-2 rounded-2xl border p-3 text-start transition ${serviceMode === id ? "border-[var(--gold)] bg-[var(--gold)]/15 text-[var(--gold-soft)]" : "border-white/10 bg-black/20 text-[var(--muted)] hover:border-white/20"}`}>
+              <button key={id} type="button" aria-pressed={serviceMode === id} onClick={() => setServiceMode(id)} className={`flex min-h-11 min-w-[10.5rem] shrink-0 items-center gap-2 rounded-xl border px-3 py-2 text-start transition sm:min-h-12 sm:min-w-0 sm:rounded-2xl sm:p-3 ${serviceMode === id ? "border-[var(--gold)] bg-[var(--gold)]/15 text-[var(--gold-soft)]" : "border-white/10 bg-black/20 text-[var(--muted)] hover:border-white/20"}`}>
                 <Icon className="h-5 w-5 shrink-0" /><span className="text-sm font-semibold">{language === "ar" ? ar : en}</span>{serviceMode === id ? <Check className="ms-auto h-4 w-4" /> : null}
               </button>
             ))}
@@ -407,41 +436,30 @@ export function MenuExperience({ initialProducts, menuSource, menuStale, whatsap
 
       {menuBanners.length ? <section className="mx-auto grid max-w-7xl gap-4 px-4 pt-8 sm:grid-cols-2 sm:px-6">{menuBanners.map((banner) => <Link key={banner.id} href={banner.linkUrl || "/menu"} className="relative min-h-40 overflow-hidden border border-white/10 bg-white/[0.04] p-6" style={{ borderRadius: `${experience.theme.borderRadius}px`, backgroundImage: banner.imageUrl ? `linear-gradient(90deg, rgba(0,0,0,.86), rgba(0,0,0,.18)), url(${banner.imageUrl})` : undefined, backgroundPosition: "center", backgroundSize: "cover" }}><h2 className="max-w-sm text-2xl font-semibold">{language === "ar" ? banner.titleAr : banner.titleEn}</h2><p className="mt-2 max-w-sm text-sm text-[var(--muted)]">{language === "ar" ? banner.subtitleAr : banner.subtitleEn}</p></Link>)}</section> : null}
 
-      <section id="menu-products" className="mx-auto max-w-7xl scroll-mt-20 px-4 py-7 sm:px-6 sm:py-9">
-        <div className="sticky top-[73px] z-30 -mx-4 border-y border-white/10 bg-black/90 px-4 py-3 backdrop-blur-xl sm:-mx-6 sm:px-6">
+      <section id="menu-products" className="mx-auto max-w-7xl scroll-mt-16 px-4 py-5 sm:scroll-mt-[4.5rem] sm:px-6 sm:py-8">
+        <div className="sticky top-16 z-30 -mx-4 border-y border-white/10 bg-black/90 px-4 py-3 backdrop-blur-xl sm:top-[4.5rem] sm:-mx-6 sm:px-6">
         <div className="mx-auto flex max-w-7xl flex-col gap-3 lg:flex-row lg:items-center">
-          {experience.menu.showSearch ? <label className="flex min-w-0 flex-1 items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.045] px-4 py-3 lg:max-w-xl">
+          {experience.menu.showSearch ? <label className="flex min-w-0 flex-1 items-center gap-3 rounded-xl border border-white/10 bg-white/[0.045] px-4 py-2 lg:max-w-xl">
             <span className="sr-only">{t.search}</span><Search className="h-5 w-5 text-[var(--muted)]" aria-hidden="true" /><input type="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder={t.search} className="w-full bg-transparent text-sm outline-none placeholder:text-white/30" />
           </label> : null}
           {experience.menu.showCategories ? <div className="salora-scroll-strip lg:flex-1" role="tablist" aria-label={language === "ar" ? "تصنيفات المنيو" : "Menu categories"}>
             {categories.map((item) => {
               const categoryProduct = initialProducts.find((product) => product.category === item);
               const label = item === "All" ? t.all : categoryProduct ? displayCategory(categoryProduct, language) : item;
-              return <button key={item} type="button" role="tab" aria-selected={category === item} onClick={() => setCategory(item)} className={`min-h-11 shrink-0 rounded-full border px-4 py-2 text-xs font-semibold transition ${category === item ? "border-[var(--gold)] bg-[var(--gold)] text-black" : "border-white/10 bg-white/[0.04] text-[var(--muted)] hover:border-white/25 hover:text-[var(--cream)]"}`}>{label}</button>;
+              const count = item === "All" ? initialProducts.length : initialProducts.filter((product) => product.category === item).length;
+              return <button key={item} type="button" role="tab" aria-selected={category === item} onClick={() => setCategory(item)} className={`min-h-11 shrink-0 rounded-full border px-4 py-2 text-xs font-semibold transition ${category === item ? "border-[var(--gold)] bg-[var(--gold)] text-black" : "border-white/10 bg-white/[0.04] text-[var(--muted)] hover:border-white/25 hover:text-[var(--cream)]"}`}>{label}<span className="ms-2 opacity-65">{count}</span></button>;
             })}
           </div> : null}
         </div></div>
 
         <div className="mt-5 flex items-center justify-between gap-4 border-b border-white/10 pb-4 text-sm text-[var(--muted)]" aria-live="polite">
           <span><strong className="text-[var(--cream)]">{filteredProducts.length}</strong> {t.results}</span>
-          {search || category !== "All" ? <button type="button" onClick={() => { setSearch(""); setCategory("All"); }} className="text-xs font-semibold text-[var(--gold-soft)] hover:underline">{language === "ar" ? "مسح التصفية" : "Clear filters"}</button> : null}
+          {search || category !== "All" ? <button type="button" onClick={() => { setSearch(""); setCategory("All"); }} className="min-h-11 text-xs font-semibold text-[var(--gold-soft)] hover:underline">{t.clearFilters}</button> : null}
         </div>
 
-        <div className={`mt-8 grid gap-5 ${gridClass}`}>
+        <div className={`mt-5 grid gap-4 sm:mt-7 sm:gap-5 ${gridClass}`}>
           {filteredProducts.map((product) => (
-            <article key={product.id} className={`group overflow-hidden border border-white/10 bg-white/[0.04] shadow-[0_18px_50px_rgba(0,0,0,.16)] transition duration-200 hover:-translate-y-0.5 hover:border-[var(--border-gold)] ${experience.menu.layout === "list" ? "sm:grid sm:grid-cols-[240px_1fr]" : ""}`} style={{ borderRadius: `${experience.theme.borderRadius}px` }}>
-              {experience.menu.showImages ? <div className={`relative ${experience.menu.layout === "list" ? "min-h-48 sm:aspect-auto" : ratioClass} bg-gradient-to-br ${productAccent(product)}`}>
-                {productImage(product) ? <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `linear-gradient(to top, rgba(0,0,0,.6), rgba(0,0,0,.05)), url("${productImage(product)}")` }} /> : null}
-                <div className="absolute inset-0 grid place-items-center"><Coffee className="h-16 w-16 text-white/15" strokeWidth={1} /></div>
-                {product.featured ? <span className="absolute start-4 top-4 rounded-full border border-[var(--border-gold)] bg-black/60 px-3 py-1 text-xs text-[var(--gold-soft)]">Signature</span> : null}
-                <span className="absolute end-4 top-4 rounded-full bg-black/60 px-3 py-1 text-xs text-white/70">{displayCategory(product, language)}</span>
-              </div> : null}
-              <div className="p-5">
-                <div className="flex items-start justify-between gap-4"><div><h2 className="text-xl font-semibold">{displayName(product, language)}</h2>{language === "ar" ? <p className="mt-1 text-xs text-[var(--muted)]">{product.name}</p> : null}</div><strong className="whitespace-nowrap text-[var(--gold-soft)]">{formatOmr(product.price, language)}</strong></div>
-                {experience.menu.showDescriptions ? <p className="mt-4 line-clamp-2 min-h-12 text-sm leading-6 text-[var(--muted)]">{displayDescription(product, language)}</p> : null}
-                <button type="button" onClick={() => openProduct(product)} className="mt-5 flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-[var(--border-gold)] bg-[var(--gold)]/10 px-4 py-3 text-sm font-semibold text-[var(--gold-soft)] transition hover:bg-[var(--gold)] hover:text-black">{t.add}<ChevronDown className="h-4 w-4" /></button>
-              </div>
-            </article>
+            <MenuProductCard key={product.id} product={product} language={language} showImages={experience.menu.showImages} showDescriptions={experience.menu.showDescriptions} ratioClass={ratioClass} list={experience.menu.layout === "list"} radius={experience.theme.borderRadius} onSelect={openProduct} />
           ))}
         </div>
         {filteredProducts.length === 0 ? <div className="mt-8"><SaloraEmptyState icon={<Search className="h-6 w-6" aria-hidden="true" />} title={language === "ar" ? "لا توجد أصناف مطابقة" : "No matching items"} description={t.noResults} action={<SaloraButton tone="gold" onClick={() => { setSearch(""); setCategory("All"); }}>{language === "ar" ? "عرض جميع الأصناف" : "Show all items"}</SaloraButton>} /></div> : null}
@@ -449,8 +467,9 @@ export function MenuExperience({ initialProducts, menuSource, menuStale, whatsap
 
       {selectedProduct ? (
         <div className="fixed inset-0 z-50 grid items-end bg-black/75 p-0 backdrop-blur-sm sm:place-items-center sm:p-4" role="dialog" aria-modal="true" aria-label={t.customize}>
-          <div className="max-h-[92vh] w-full overflow-y-auto rounded-t-3xl border border-white/10 bg-[#111] p-5 shadow-2xl sm:max-w-xl sm:rounded-3xl sm:p-7">
-            <div className="flex items-start justify-between gap-4"><div><p className="text-xs uppercase tracking-[0.25em] text-[var(--gold-soft)]">{t.customize}</p><h2 className="mt-2 text-2xl font-semibold">{displayName(selectedProduct, language)}</h2></div><button type="button" onClick={() => setSelectedProduct(null)} className="rounded-full border border-white/10 p-2"><X className="h-5 w-5" /></button></div>
+          <div className="salora-safe-bottom max-h-[92vh] w-full overflow-y-auto rounded-t-3xl border border-white/10 bg-[#111] p-5 shadow-2xl sm:max-w-xl sm:rounded-3xl sm:p-7">
+            <div className="mx-auto mb-5 h-1 w-12 rounded-full bg-white/20 sm:hidden" aria-hidden="true" />
+            <div className="flex items-start justify-between gap-4"><div><p className="text-xs uppercase tracking-[0.25em] text-[var(--gold-soft)]">{t.customize}</p><h2 className="mt-2 text-2xl font-semibold">{displayName(selectedProduct, language)}</h2></div><button type="button" aria-label={t.close} onClick={() => setSelectedProduct(null)} className="grid min-h-11 min-w-11 place-items-center rounded-full border border-white/10"><X className="h-5 w-5" /></button></div>
             {selectedGroups.length ? (
               <div className="mt-7 grid gap-6">
                 {selectedGroups.map((group) => (
@@ -466,8 +485,8 @@ export function MenuExperience({ initialProducts, menuSource, menuStale, whatsap
       {cartOpen ? (
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label={t.cart}>
           <aside className={`absolute inset-y-0 w-full max-w-md overflow-y-auto border-white/10 bg-[#0d0d0d] p-5 shadow-2xl ${language === "ar" ? "left-0 border-r" : "right-0 border-l"}`}>
-            <div className="flex items-center justify-between"><h2 className="text-2xl font-semibold">{t.cart}</h2><button type="button" onClick={() => setCartOpen(false)} className="rounded-full border border-white/10 p-2"><X className="h-5 w-5" /></button></div>
-            {cart.length ? <div className="mt-6 grid gap-4">{cart.map((line) => <div key={line.key} className="rounded-2xl border border-white/10 bg-white/[0.04] p-4"><div className="flex items-start justify-between gap-3"><div><h3 className="font-semibold">{displayName(line.product, language)}</h3><p className="mt-1 text-xs text-[var(--muted)]">{line.modifiers.length ? line.modifiers.map((modifier) => modifier.optionName).join(" · ") : t.standard}</p></div><span className="text-sm text-[var(--gold-soft)]">{formatOmr(line.unitPrice * line.quantity, language)}</span></div><div className="mt-4 flex items-center gap-3"><button type="button" onClick={() => changeQuantity(line.key, -1)} className="rounded-full border border-white/10 p-1"><Minus className="h-4 w-4" /></button><span>{line.quantity}</span><button type="button" onClick={() => changeQuantity(line.key, 1)} className="rounded-full border border-white/10 p-1"><Plus className="h-4 w-4" /></button></div></div>)}</div> : <p className="mt-10 text-center text-sm text-[var(--muted)]">{t.empty}</p>}
+            <div className="flex items-center justify-between"><h2 className="text-2xl font-semibold">{t.cart}</h2><button type="button" aria-label={t.close} onClick={() => setCartOpen(false)} className="grid min-h-11 min-w-11 place-items-center rounded-full border border-white/10"><X className="h-5 w-5" /></button></div>
+            {cart.length ? <div className="mt-6 grid gap-4">{cart.map((line) => <div key={line.key} className="rounded-2xl border border-white/10 bg-white/[0.04] p-4"><div className="flex items-start justify-between gap-3"><div><h3 className="font-semibold">{displayName(line.product, language)}</h3><p className="mt-1 text-xs text-[var(--muted)]">{line.modifiers.length ? line.modifiers.map((modifier) => modifier.optionName).join(" · ") : t.standard}</p></div><span className="text-sm text-[var(--gold-soft)]">{formatOmr(line.unitPrice * line.quantity, language)}</span></div><div className="mt-4 flex items-center gap-3"><button type="button" aria-label={`${t.decrease}: ${displayName(line.product, language)}`} onClick={() => changeQuantity(line.key, -1)} className="grid min-h-11 min-w-11 place-items-center rounded-full border border-white/10"><Minus className="h-4 w-4" /></button><span className="min-w-6 text-center font-semibold">{line.quantity}</span><button type="button" aria-label={`${t.increase}: ${displayName(line.product, language)}`} onClick={() => changeQuantity(line.key, 1)} className="grid min-h-11 min-w-11 place-items-center rounded-full border border-white/10"><Plus className="h-4 w-4" /></button></div></div>)}</div> : <p className="mt-10 text-center text-sm text-[var(--muted)]">{t.empty}</p>}
             {cart.length ? <div className="mt-7 grid gap-3 border-t border-white/10 pt-6"><input value={name} onChange={(event) => setName(event.target.value)} placeholder={t.customerName} className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 outline-none" /><input value={phone} onChange={(event) => setPhone(event.target.value)} placeholder={t.phone} inputMode="tel" className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 outline-none" />{serviceMode === "car" ? <input value={carDetails} onChange={(event) => setCarDetails(event.target.value)} placeholder={t.carDetails} className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 outline-none" /> : null}<textarea value={notes} onChange={(event) => setNotes(event.target.value)} placeholder={t.notes} rows={3} className="resize-none rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 outline-none" /><div className="flex items-center justify-between py-2"><span className="text-[var(--muted)]">{t.subtotal}</span><strong className="text-xl text-[var(--gold-soft)]">{formatOmr(subtotal, language)}</strong></div>{notice ? <p className="rounded-xl border border-white/10 bg-white/[0.04] p-3 text-sm leading-6 text-[var(--muted)]">{notice}</p> : null}<button type="button" disabled={submitting} onClick={checkout} className="rounded-2xl bg-[var(--gold)] px-5 py-4 font-semibold text-black disabled:opacity-50">{submitting ? "…" : t.checkout}</button></div> : null}
           </aside>
         </div>
@@ -479,4 +498,33 @@ export function MenuExperience({ initialProducts, menuSource, menuStale, whatsap
 
 function OptionGroup({ group, selected, language, onChange }: { group: ProductModifierGroup; selected?: string; language: Language; onChange: (option: ProductChoice) => void }) {
   return <fieldset><legend className="mb-3 text-sm font-semibold text-[var(--muted)]">{group.name}{group.required ? " *" : ""}</legend><div className="grid grid-cols-2 gap-2 sm:grid-cols-3">{group.options.map((option) => <button key={option.id} type="button" aria-pressed={selected === option.id} onClick={() => onChange(option)} className={`rounded-xl border px-3 py-3 text-sm font-semibold ${selected === option.id ? "border-[var(--gold)] bg-[var(--gold)]/15 text-[var(--gold-soft)]" : "border-white/10 text-[var(--muted)]"}`}><span className="block">{optionLabel(language, option.name)}</span>{option.priceDelta ? <small className="mt-1 block opacity-75">+{formatOmr(option.priceDelta, language)}</small> : null}</button>)}</div></fieldset>;
+}
+
+function MenuProductCard({ product, language, showImages, showDescriptions, ratioClass, list, radius, onSelect }: { product: Product; language: Language; showImages: boolean; showDescriptions: boolean; ratioClass: string; list: boolean; radius: number; onSelect: (product: Product) => void }) {
+  const [imageFailed, setImageFailed] = useState(false);
+  const t = copy[language];
+  const image = productImage(product);
+  const tags = product.tags.slice(0, 2);
+
+  return (
+    <article className={`group overflow-hidden border border-white/10 bg-white/[0.04] shadow-[0_18px_50px_rgba(0,0,0,.16)] transition duration-200 hover:-translate-y-0.5 hover:border-[var(--border-gold)] ${list ? "sm:grid sm:grid-cols-[240px_1fr]" : ""}`} style={{ borderRadius: `${radius}px` }}>
+      {showImages ? (
+        <button type="button" onClick={() => onSelect(product)} aria-label={`${t.customize}: ${displayName(product, language)}`} className={`relative block w-full overflow-hidden ${list ? "min-h-48 sm:aspect-auto" : ratioClass} bg-gradient-to-br ${productAccent(product)}`}>
+          {image && !imageFailed ? <Image src={image} alt={displayName(product, language)} fill sizes={list ? "(min-width: 640px) 240px, 100vw" : "(min-width: 1280px) 31vw, (min-width: 640px) 48vw, 100vw"} className="object-cover transition duration-500 group-hover:scale-[1.025]" onError={() => setImageFailed(true)} /> : <span className="absolute inset-0 grid place-items-center"><Coffee className="h-16 w-16 text-white/20" strokeWidth={1} /><span className="sr-only">{language === "ar" ? "صورة بديلة للمنتج" : "Product image fallback"}</span></span>}
+          <span className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/70 to-transparent" aria-hidden="true" />
+          {product.featured ? <span className="absolute start-3 top-3 rounded-full border border-[var(--border-gold)] bg-black/70 px-3 py-1 text-xs text-[var(--gold-soft)]">{t.signature}</span> : null}
+          <span className="absolute end-3 top-3 rounded-full bg-black/70 px-3 py-1 text-xs text-white/80">{displayCategory(product, language)}</span>
+        </button>
+      ) : null}
+      <div className="p-4 sm:p-5">
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0"><h2 className="text-lg font-semibold sm:text-xl">{displayName(product, language)}</h2>{language === "ar" ? <p className="mt-1 truncate text-xs text-[var(--muted)]">{product.name}</p> : null}</div>
+          <div className="shrink-0 text-end"><small className="block text-[0.65rem] text-[var(--muted)]">{t.from}</small><strong className="whitespace-nowrap text-[var(--gold-soft)]">{formatOmr(product.price, language)}</strong></div>
+        </div>
+        {showDescriptions ? <p className="mt-3 line-clamp-2 min-h-12 text-sm leading-6 text-[var(--muted)]">{displayDescription(product, language)}</p> : null}
+        {tags.length ? <div className="mt-3 flex flex-wrap gap-2">{tags.map((tag) => <span key={tag} className="rounded-full border border-white/10 px-2.5 py-1 text-[0.65rem] text-[var(--muted)]">{tag}</span>)}</div> : null}
+        <button type="button" onClick={() => onSelect(product)} className="mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-[var(--border-gold)] bg-[var(--gold)]/10 px-4 py-3 text-sm font-semibold text-[var(--gold-soft)] transition hover:bg-[var(--gold)] hover:text-black">{t.add}<ChevronDown className="h-4 w-4" /></button>
+      </div>
+    </article>
+  );
 }
