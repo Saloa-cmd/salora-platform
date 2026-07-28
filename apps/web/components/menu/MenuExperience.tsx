@@ -25,6 +25,16 @@ import { SaloraButton, SaloraEmptyState } from "@/components/ui/SaloraPrimitives
 type Language = "ar" | "en";
 type ServiceMode = "counter" | "car" | "dine-in" | "gift";
 type CartLine = { key: string; product: Product; quantity: number; modifiers: SelectedModifier[]; unitPrice: number };
+type PersistedOrder = {
+  id: string;
+  total: number | string;
+  items: Array<{
+    productName: string;
+    quantity: number;
+    unitPrice: number | string;
+    modifiers?: Array<{ optionName?: string }> | null;
+  }>;
+};
 
 const copy = {
   ar: {
@@ -55,7 +65,7 @@ const copy = {
     live: "بيانات مباشرة",
     fallback: "وضع العرض الاحتياطي",
     orderSaved: "تم حفظ الطلب. سيتم فتح واتساب للتأكيد.",
-    orderFailed: "تعذر حفظ الطلب الآن. يمكنك إرساله عبر واتساب دون فقد التفاصيل.",
+    orderFailed: "تعذر التحقق من السعر أو التوفر. راجع الطلب وحاول مرة أخرى.",
     customerName: "الاسم",
     phone: "رقم الهاتف",
     carDetails: "نوع السيارة ولونها",
@@ -96,7 +106,7 @@ const copy = {
     live: "Live data",
     fallback: "Fallback preview",
     orderSaved: "Order saved. WhatsApp will open for confirmation.",
-    orderFailed: "The order could not be saved. You can still send the full details on WhatsApp.",
+    orderFailed: "Price or availability could not be verified. Review the order and try again.",
     customerName: "Name",
     phone: "Phone number",
     carDetails: "Car model and color",
@@ -259,14 +269,21 @@ export function MenuExperience({ initialProducts, menuSource, menuStale, whatsap
     setCart((current) => current.map((line) => line.key === key ? { ...line, quantity: line.quantity + delta } : line).filter((line) => line.quantity > 0));
   }
 
-  function whatsappMessage() {
+  function whatsappMessage(order?: PersistedOrder) {
     const service = serviceModes.find((mode) => mode.id === serviceMode);
-    const lines = cart.map((line) => {
-      const detail = line.modifiers.length ? line.modifiers.map((modifier) => modifier.optionName).join(" · ") : t.standard;
-      return `${line.quantity}× ${displayName(line.product, language)} — ${detail} — ${formatOmr(line.unitPrice * line.quantity, language)}`;
-    });
+    const lines = order
+      ? order.items.map((item) => {
+          const detail = item.modifiers?.map((modifier) => modifier.optionName).filter(Boolean).join(" · ") || t.standard;
+          return `${item.quantity}× ${item.productName} — ${detail} — ${formatOmr(Number(item.unitPrice) * item.quantity, language)}`;
+        })
+      : cart.map((line) => {
+          const detail = line.modifiers.length ? line.modifiers.map((modifier) => modifier.optionName).join(" · ") : t.standard;
+          return `${line.quantity}× ${displayName(line.product, language)} — ${detail} — ${formatOmr(line.unitPrice * line.quantity, language)}`;
+        });
+    const confirmedTotal = order ? Number(order.total) : subtotal;
     return [
       language === "ar" ? "طلب جديد من SALORA" : "New SALORA order",
+      order ? `${language === "ar" ? "رقم الطلب" : "Order ID"}: ${order.id}` : "",
       `${t.customerName}: ${name}`,
       `${t.phone}: ${phone}`,
       `${t.service}: ${language === "ar" ? service?.ar : service?.en}`,
@@ -274,7 +291,7 @@ export function MenuExperience({ initialProducts, menuSource, menuStale, whatsap
       "",
       ...lines,
       "",
-      `${t.subtotal}: ${formatOmr(subtotal, language)}`,
+      `${t.subtotal}: ${formatOmr(confirmedTotal, language)}`,
       notes ? `${t.notes}: ${notes}` : ""
     ].filter(Boolean).join("\n");
   }
@@ -292,6 +309,7 @@ export function MenuExperience({ initialProducts, menuSource, menuStale, whatsap
     setSubmitting(true);
     setNotice("");
     let persisted = false;
+    let persistedOrder: PersistedOrder | undefined;
     try {
       const response = await fetch("/api/orders", {
         method: "POST",
@@ -300,20 +318,28 @@ export function MenuExperience({ initialProducts, menuSource, menuStale, whatsap
           customerName: name.trim(),
           customerPhone: phone.trim(),
           items: cart.map((line) => ({
-            productName: line.product.name,
+            productSlug: line.product.id,
             quantity: line.quantity,
-            unitPrice: line.unitPrice,
-            modifiers: line.modifiers
+            modifiers: line.modifiers.map((modifier) => ({
+              groupId: modifier.groupId,
+              optionId: modifier.optionId
+            }))
           })),
           notes: [serviceMode, carDetails, notes].filter(Boolean).join(" | ")
         })
       });
-      persisted = response.ok;
+      const payload = await response.json().catch(() => null) as { data?: PersistedOrder } | null;
+      persistedOrder = payload?.data;
+      persisted = response.ok && Boolean(persistedOrder?.id);
     } catch {
       persisted = false;
     }
     setNotice(persisted ? t.orderSaved : t.orderFailed);
-    if (whatsappWindow) whatsappWindow.location.href = `https://wa.me/${normalizedNumber}?text=${encodeURIComponent(whatsappMessage())}`;
+    if (whatsappWindow && persisted && persistedOrder) {
+      whatsappWindow.location.href = `https://wa.me/${normalizedNumber}?text=${encodeURIComponent(whatsappMessage(persistedOrder))}`;
+    } else {
+      whatsappWindow?.close();
+    }
     setSubmitting(false);
   }
 

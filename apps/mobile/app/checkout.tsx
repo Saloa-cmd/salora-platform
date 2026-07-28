@@ -47,28 +47,56 @@ export default function CheckoutScreen() {
           customerPhone: values.phone.trim(),
           notes: [values.orderType, values.notes].filter(Boolean).join(" | "),
           items: items.map((item) => ({
-            productName: item.product.name,
+            productSlug: item.product.id,
             quantity: item.quantity,
-            unitPrice: item.unitPrice ?? item.product.price,
-            modifiers: item.modifiers
+            modifiers: item.modifiers?.map((modifier) => ({
+              groupId: modifier.groupId,
+              optionId: modifier.optionId
+            }))
           }))
         })
       });
-      const payload = (await response.json()) as { data?: { id?: string; status?: string; total?: string | number }; error?: string };
+      const payload = (await response.json()) as {
+        data?: {
+          id?: string;
+          status?: string;
+          total?: string | number;
+          items?: Array<{
+            unitPrice: string | number;
+            modifiers?: Array<{
+              groupId: string;
+              groupName: string;
+              optionId: string;
+              optionName: string;
+              priceDelta: number;
+            }> | null;
+          }>;
+        };
+        error?: string;
+      };
 
       if (!response.ok || !payload.data?.id) {
         setSubmitError(payload.error ?? "Live order API is unavailable.");
         return;
       }
 
+      const authoritativeDraft = {
+        ...draft,
+        total: Number(payload.data.total),
+        items: items.map((item, index) => ({
+          ...item,
+          unitPrice: Number(payload.data?.items?.[index]?.unitPrice ?? item.product.price),
+          modifiers: payload.data?.items?.[index]?.modifiers ?? []
+        }))
+      };
       clear();
       router.push({
         pathname: "/confirmation",
         params: {
           orderId: payload.data.id,
           status: payload.data.status ?? "PENDING_CONFIRMATION",
-          message,
-          url: generateWhatsAppUrl(draft)
+          message: generateWhatsAppMessage(authoritativeDraft),
+          url: generateWhatsAppUrl(authoritativeDraft)
         }
       });
     } catch {

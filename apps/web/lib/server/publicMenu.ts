@@ -1,6 +1,7 @@
 import { products as fallbackProducts } from "@salora/data";
 import type { Product, ProductChoice } from "@salora/types";
 import { SYSTEM_AUTH_CONTEXT, withPrismaAuthContext } from "@salora/backend/database/rls-context";
+import { catalogProductIsAvailable, currentCatalogPrice, normalizeCatalogModifierOptions } from "./commerceIntegrity";
 
 export type PublicMenuSource = "database" | "fallback";
 
@@ -29,25 +30,15 @@ type PublicCatalogProduct = {
   variants: Array<{ id: string; name: string; priceDelta: { toString(): string } | number | string; sku: string | null }>;
   addons: Array<{ id: string; name: string; price: { toString(): string } | number | string }>;
   modifiers: Array<{ id: string; name: string; options: unknown; required: boolean }>;
+  pricingRules: Array<{ startsAt: Date | null; endsAt: Date | null; price: { toString(): string } | number | string }>;
+  availabilityRules: Array<{ dayOfWeek: number | null; startsAt: string | null; endsAt: string | null; isAvailable: boolean }>;
 };
 
 function normalizeOptions(value: unknown): ProductChoice[] {
-  if (!Array.isArray(value)) return [];
-  return value.flatMap((option, index) => {
-    if (typeof option === "string") return [{ id: `option-${index}`, name: option, priceDelta: 0 }];
-    if (!option || typeof option !== "object") return [];
-    const record = option as Record<string, unknown>;
-    const name = typeof record.name === "string" ? record.name : typeof record.label === "string" ? record.label : "";
-    if (!name) return [];
-    return [{
-      id: typeof record.id === "string" ? record.id : `option-${index}`,
-      name,
-      priceDelta: Number(record.priceDelta ?? record.price ?? 0) || 0
-    }];
-  });
+  return normalizeCatalogModifierOptions(value);
 }
 
-function mapCatalogProduct(product: PublicCatalogProduct): Product {
+function mapCatalogProduct(product: PublicCatalogProduct, now: Date): Product {
   const primaryImage = product.images.find((image) => image.publicUrl)?.publicUrl;
 
   return {
@@ -62,7 +53,7 @@ function mapCatalogProduct(product: PublicCatalogProduct): Product {
     descriptionAr: product.descriptionAr ?? undefined,
     descriptionEn: product.descriptionEn ?? product.description,
     story: product.description,
-    price: Number(product.basePrice.toString()),
+    price: currentCatalogPrice(product.basePrice, product.pricingRules, now),
     tags: product.tags,
     pairing: product.pairingHint ?? undefined,
     visual: primaryImage ?? product.slug,
@@ -74,6 +65,7 @@ function mapCatalogProduct(product: PublicCatalogProduct): Product {
 
 export async function getPublicMenuSnapshot(): Promise<PublicMenuSnapshot> {
   try {
+    const now = new Date();
     const products = await withPrismaAuthContext(SYSTEM_AUTH_CONTEXT, (db) => db.catalogProduct.findMany({
       where: { brandKey: "SALORA", status: "ACTIVE" },
       include: {
@@ -84,13 +76,17 @@ export async function getPublicMenuSnapshot(): Promise<PublicMenuSnapshot> {
         },
         variants: { orderBy: { name: "asc" } },
         addons: { orderBy: { name: "asc" } },
-        modifiers: { orderBy: { name: "asc" } }
+        modifiers: { orderBy: { name: "asc" } },
+        pricingRules: true,
+        availabilityRules: true
       },
       orderBy: [{ category: { sortOrder: "asc" } }, { name: "asc" }]
     }));
 
     return {
-      products: products.map(mapCatalogProduct),
+      products: products
+        .filter((product) => catalogProductIsAvailable(product.availabilityRules, now))
+        .map((product) => mapCatalogProduct(product, now)),
       source: "database",
       stale: false,
       runtimeMode: "live",
