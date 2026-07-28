@@ -4,6 +4,14 @@ import { SYSTEM_AUTH_CONTEXT, withPrismaAuthContext, type PrismaAuthContext } fr
 import { queueHealth } from "@salora/backend/jobs/health/health";
 import { z } from "zod";
 import { runAiDraft } from "./simpleLaunchControl";
+import {
+  catalogProductIsAvailable,
+  currentCatalogPrice,
+  decimalNumber,
+  money,
+  normalizeCatalogModifierOptions,
+  type CatalogModifierOption
+} from "./commerceIntegrity";
 
 export const mediaMutationSchema = z.discriminatedUnion("action", [
   z.object({
@@ -53,20 +61,129 @@ export const codOrderSchema = z.object({
   customerName: z.string().min(2).max(120).optional(),
   customerPhone: z.string().min(6).max(32).optional(),
   items: z.array(z.object({
-    productId: z.string().uuid().optional(),
-    productName: z.string().min(2).max(160),
-    quantity: z.number().int().positive(),
-    unitPrice: z.number().nonnegative(),
+    productSlug: z.string().min(2).max(140),
+    quantity: z.number().int().positive().max(25),
     modifiers: z.array(z.object({
       groupId: z.string().min(1).max(120),
-      groupName: z.string().min(1).max(120),
       optionId: z.string().min(1).max(120),
-      optionName: z.string().min(1).max(120),
-      priceDelta: z.number().min(-100).max(100)
+      groupName: z.string().min(1).max(120).optional(),
+      optionName: z.string().min(1).max(120).optional(),
+      priceDelta: z.number().min(-100).max(100).optional()
     })).max(20).optional()
-  })).min(1),
+  })).min(1).max(50),
   notes: z.string().max(1000).optional()
 });
+
+export class OrderIntegrityError extends Error {
+  constructor(message: string, readonly status = 409) {
+    super(message);
+    this.name = "OrderIntegrityError";
+  }
+}
+
+type AuthoritativeSelection = {
+  groupId: string;
+  groupName: string;
+  optionId: string;
+  optionName: string;
+  priceDelta: number;
+};
+
+const fallbackModifierGroups: Record<string, { name: string; required: boolean; options: Record<string, CatalogModifierOption> }> = {
+  size: {
+    name: "Size",
+    required: true,
+    options: {
+      regular: { id: "regular", name: "Regular", priceDelta: 0 },
+      large: { id: "large", name: "Large", priceDelta: 0.3 }
+    }
+  },
+  milk: {
+    name: "Milk",
+    required: true,
+    options: {
+      regular: { id: "regular", name: "Regular", priceDelta: 0 },
+      oat: { id: "oat", name: "Oat", priceDelta: 0.25 },
+      almond: { id: "almond", name: "Almond", priceDelta: 0.25 }
+    }
+  },
+  sugar: {
+    name: "Sugar",
+    required: true,
+    options: {
+      none: { id: "none", name: "None", priceDelta: 0 },
+      less: { id: "less", name: "Less", priceDelta: 0 },
+      regular: { id: "regular", name: "Regular", priceDelta: 0 }
+    }
+  },
+  ice: {
+    name: "Ice",
+    required: true,
+    options: {
+      none: { id: "none", name: "None", priceDelta: 0 },
+      light: { id: "light", name: "Light", priceDelta: 0 },
+      regular: { id: "regular", name: "Regular", priceDelta: 0 }
+    }
+  }
+};
+
+function assertUniqueSelections(selections: Array<{ groupId: string; optionId: string }>) {
+  const groups = new Set<string>();
+  for (const selection of selections) {
+    if (groups.has(selection.groupId)) {
+      throw new OrderIntegrityError("Each option group can only be selected once.", 400);
+    }
+    groups.add(selection.groupId);
+  }
+}
+
+function resolveSelections(
+  selections: Array<{ groupId: string; optionId: string }>,
+  product: {
+    variants: Array<{ id: string; name: string; priceDelta: { toString(): string } | number | string }>;
+    addons: Array<{ id: string; name: string; price: { toString(): string } | number | string }>;
+    modifiers: Array<{ id: string; name: string; required: boolean; options: unknown }>;
+  }
+): AuthoritativeSelection[] {
+  assertUniqueSelections(selections);
+  const hasDatabaseGroups = product.variants.length > 0 || product.addons.length > 0 || product.modifiers.length > 0;
+  const resolved = selections.map((selection) => {
+    if (selection.groupId === "variant") {
+      const option = product.variants.find((variant) => variant.id === selection.optionId);
+      if (!option) throw new OrderIntegrityError("The selected product variant is no longer available.");
+      return { groupId: "variant", groupName: "Variant", optionId: option.id, optionName: option.name, priceDelta: decimalNumber(option.priceDelta) };
+    }
+    if (selection.groupId === "addons") {
+      const option = product.addons.find((addon) => addon.id === selection.optionId);
+      if (!option) throw new OrderIntegrityError("The selected add-on is no longer available.");
+      return { groupId: "addons", groupName: "Add-ons", optionId: option.id, optionName: option.name, priceDelta: decimalNumber(option.price) };
+    }
+    const group = product.modifiers.find((modifier) => modifier.id === selection.groupId);
+    if (group) {
+      const option = normalizeCatalogModifierOptions(group.options).find((candidate) => candidate.id === selection.optionId);
+      if (!option) throw new OrderIntegrityError("The selected product option is no longer available.");
+      return { groupId: group.id, groupName: group.name, optionId: option.id, optionName: option.name, priceDelta: option.priceDelta };
+    }
+    if (!hasDatabaseGroups) {
+      const fallbackGroup = fallbackModifierGroups[selection.groupId];
+      const option = fallbackGroup?.options[selection.optionId];
+      if (fallbackGroup && option) {
+        return { groupId: selection.groupId, groupName: fallbackGroup.name, optionId: option.id, optionName: option.name, priceDelta: option.priceDelta };
+      }
+    }
+    throw new OrderIntegrityError("The selected product option is not recognized.");
+  });
+
+  if (product.variants.length > 0 && !resolved.some((selection) => selection.groupId === "variant")) {
+    throw new OrderIntegrityError("A product variant must be selected.", 400);
+  }
+  for (const group of product.modifiers.filter((modifier) => modifier.required)) {
+    if (!resolved.some((selection) => selection.groupId === group.id)) {
+      throw new OrderIntegrityError(`A required option is missing for ${group.name}.`, 400);
+    }
+  }
+  return resolved;
+}
 
 const orderTransitions: Record<string, string[]> = {
   PLACED: ["PENDING_CONFIRMATION", "ACCEPTED", "PREPARING", "CANCELLED"],
@@ -86,8 +203,43 @@ export function assertOrderTransition(from: string, to: string) {
 }
 
 export async function createCodOrder(input: z.infer<typeof codOrderSchema>, authContext: PrismaAuthContext = SYSTEM_AUTH_CONTEXT) {
-  const subtotal = input.items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0);
   return withPrismaAuthContext(authContext, async (db) => {
+    const productSlugs = [...new Set(input.items.map((item) => item.productSlug))];
+    const products = await db.catalogProduct.findMany({
+      where: { brandKey: "SALORA", status: "ACTIVE", slug: { in: productSlugs } },
+      include: {
+        variants: true,
+        addons: true,
+        modifiers: true,
+        pricingRules: true,
+        availabilityRules: true
+      }
+    });
+    if (products.length !== productSlugs.length) {
+      throw new OrderIntegrityError("One or more products are unavailable.");
+    }
+
+    const now = new Date();
+    const productsBySlug = new Map(products.map((product) => [product.slug, product]));
+    const authoritativeItems = input.items.map((item) => {
+      const product = productsBySlug.get(item.productSlug);
+      if (!product || !catalogProductIsAvailable(product.availabilityRules, now)) {
+        throw new OrderIntegrityError("One or more products are currently unavailable.");
+      }
+      const modifiers = resolveSelections(item.modifiers ?? [], product);
+      const basePrice = currentCatalogPrice(product.basePrice, product.pricingRules, now);
+      const unitPrice = money(basePrice + modifiers.reduce((sum, modifier) => sum + modifier.priceDelta, 0));
+      if (unitPrice < 0) throw new OrderIntegrityError("The authoritative product price is invalid.");
+      return {
+        productId: product.id,
+        productName: product.name,
+        quantity: item.quantity,
+        unitPrice,
+        totalPrice: money(item.quantity * unitPrice),
+        modifiers
+      };
+    });
+    const subtotal = money(authoritativeItems.reduce((sum, item) => sum + item.totalPrice, 0));
     const order = await db.cafeOrder.create({
       data: {
         customerId: input.customerId,
@@ -99,14 +251,7 @@ export async function createCodOrder(input: z.infer<typeof codOrderSchema>, auth
         total: subtotal,
         metadata: { paymentMethod: "COD", launchMode: "commercial", notes: input.notes },
         items: {
-          create: input.items.map((item) => ({
-            productId: item.productId,
-            productName: item.productName,
-            quantity: item.quantity,
-            unitPrice: item.unitPrice,
-            totalPrice: item.quantity * item.unitPrice,
-            modifiers: item.modifiers
-          }))
+          create: authoritativeItems
         },
         timeline: {
           create: { status: "PENDING_CONFIRMATION", message: "COD order created and waiting for Control Tower confirmation." }

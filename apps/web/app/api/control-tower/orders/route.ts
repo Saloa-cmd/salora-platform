@@ -3,7 +3,7 @@ import { type NextRequest } from "next/server";
 import { createControlTowerRepository } from "@salora/backend/domains/control-tower/repository";
 import { responseError, responseJson } from "@/lib/server/domainHttp";
 import { handleError, pagination, parseBody, requireControlPermission, requestId, writeActivity, writeAudit } from "@/lib/server/simpleLaunchControl";
-import { assertOrderTransition, codOrderSchema, createCodOrder, orderStatusSchema } from "@/lib/server/supremacyControl";
+import { assertOrderTransition, codOrderSchema, createCodOrder, OrderIntegrityError, orderStatusSchema } from "@/lib/server/supremacyControl";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -58,6 +58,7 @@ export async function POST(request: NextRequest) {
     await writeAudit({ actorId: actor.sub, action: "CREATE", entityType: "CafeOrder", entityId: order.id, after: order, requestId: id, reason: "COD order created from Control Tower" }, repo);
     return responseJson(order, id, 201);
   } catch (error) {
+    if (error instanceof OrderIntegrityError) return responseError(error.message, id, error.status);
     return handleError(error, id);
   }
 }

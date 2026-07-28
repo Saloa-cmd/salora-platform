@@ -5,7 +5,7 @@ import { parseJson, requirePermission, responseError, responseJson } from "@/lib
 import { currentAuthPayload } from "@/lib/server/auth/http";
 import { enforceRateLimit, rateLimitResponse } from "@/lib/server/rateLimit";
 import { writeActivity, writeAudit } from "@/lib/server/simpleLaunchControl";
-import { codOrderSchema, createCodOrder } from "@/lib/server/supremacyControl";
+import { codOrderSchema, createCodOrder, OrderIntegrityError } from "@/lib/server/supremacyControl";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -50,6 +50,9 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     const limited = rateLimitResponse(error, requestId);
     if (limited) return limited;
+    if (error instanceof OrderIntegrityError) {
+      return responseError(error.message, requestId, error.status);
+    }
     return responseError("Order could not be created safely.", requestId, 500);
   }
 }
