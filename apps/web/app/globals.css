@@ -66,6 +66,21 @@ body {
   text-wrap: balance;
 }
 
+.salora-menu-display {
+  max-inline-size: 17ch;
+  font-size: clamp(2rem, 4.25vw, 4.5rem);
+  line-height: 1.02;
+  letter-spacing: -0.04em;
+  text-wrap: balance;
+}
+
+:lang(ar) .salora-menu-display {
+  max-inline-size: 20ch;
+  font-size: clamp(1.9rem, 3.8vw, 4rem);
+  line-height: 1.18;
+  letter-spacing: -0.02em;
+}
+
 :lang(ar) .salora-display {
   max-inline-size: 16ch;
   font-size: var(--type-display-ar);
@@ -321,5 +336,11 @@ button:disabled {
   .salora-display,
   :lang(ar) .salora-display {
     max-inline-size: 100%;
+  }
+
+  .salora-menu-display,
+  :lang(ar) .salora-menu-display {
+    max-inline-size: 100%;
+    font-size: clamp(1.8rem, 8vw, 2.5rem);
   }
 }
