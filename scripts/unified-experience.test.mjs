@@ -7,6 +7,8 @@ const shell = read("apps/web/components/control-tower/ControlTowerShell.tsx");
 const css = read("apps/web/app/globals.css");
 const primitives = read("apps/web/components/ui/SaloraPrimitives.tsx");
 const mediaManager = read("apps/web/components/control-tower/ProductMediaManager.tsx");
+const mediaAudit = read("apps/web/components/control-tower/MediaGovernanceAudit.tsx");
+const mediaRoute = read("apps/web/app/api/control-tower/media/route.ts");
 const proxy = read("apps/web/proxy.ts");
 const menuLoading = read("apps/web/app/menu/loading.tsx");
 const menuError = read("apps/web/app/menu/error.tsx");
@@ -30,5 +32,9 @@ assert.match(proxy, /img-src[^"]+https:\/\/\*\.supabase\.co/, "CSP must allow th
 assert.match(mediaManager, /onError=\{\(\) => setFailedSrc\(src\)\}/, "Media cards must recover visibly when a storage asset cannot load.");
 assert.match(mediaManager, /salora_catalog_photography_v1/, "The authoritative 117-product media source must remain explicitly isolated.");
 assert.match(mediaManager, /authoritativeProducts/, "Media management must report unique product coverage instead of conflating products with draft records.");
+assert.match(mediaAudit, /activeProductsWithoutLiveImages/, "Media governance must surface active products that still lack a live image.");
+assert.match(mediaAudit, /productsWithMultiplePrimaryImages/, "Media governance must surface primary-image conflicts.");
+assert.match(mediaRoute, /productsWithNoPrimaryImage/, "The media API must calculate products that have live images but no primary image.");
+assert.match(mediaRoute, /productsWithMultiplePrimaryImages/, "The media API must calculate multiple-primary integrity conflicts.");
 
 console.log("Unified experience contract passed: responsive typography, RTL, primitives, and accessibility guards verified.");

@@ -22,30 +22,58 @@ export async function GET(request: NextRequest) {
       repo.mediaDrafts.findMany({ take, skip, where: { ...productWhere, archivedAt: null }, include: { product: true }, orderBy: [{ createdAt: "desc" }] }),
       repo.cms.run(async (db) => {
         const [catalogProducts, activeDrafts, liveImages] = await Promise.all([
-          db.catalogProduct.count({ where: { brandKey: "SALORA" } }),
+          db.catalogProduct.findMany({
+            where: { brandKey: "SALORA" },
+            select: { id: true, status: true }
+          }),
           db.productMediaDraft.findMany({
             where: { archivedAt: null, product: { brandKey: "SALORA" } },
             select: { id: true, productId: true, source: true, status: true }
           }),
           db.productImage.findMany({
             where: { deletedAt: null, product: { brandKey: "SALORA" } },
-            select: { id: true, productId: true }
+            select: { id: true, productId: true, isPrimary: true }
           })
         ]);
         const authoritative = activeDrafts.filter((draft: { source: string }) => draft.source === AUTHORITATIVE_MEDIA_SOURCE);
+        const authoritativeProductIds = new Set(authoritative.map((draft: { productId: string }) => draft.productId));
+        const activeProductIds = new Set(
+          catalogProducts
+            .filter((product: { status: string }) => product.status === "ACTIVE")
+            .map((product: { id: string }) => product.id)
+        );
+        const liveProductIds = new Set(liveImages.map((image: { productId: string }) => image.productId));
+        const imageCounts = liveImages.reduce((counts: Map<string, number>, image: { productId: string }) => {
+          counts.set(image.productId, (counts.get(image.productId) ?? 0) + 1);
+          return counts;
+        }, new Map<string, number>());
+        const primaryCounts = liveImages.reduce((counts: Map<string, number>, image: { productId: string; isPrimary: boolean }) => {
+          if (image.isPrimary) counts.set(image.productId, (counts.get(image.productId) ?? 0) + 1);
+          return counts;
+        }, new Map<string, number>());
         const statusCounts = authoritative.reduce((counts: Record<string, number>, draft: { status: string }) => {
           counts[draft.status] = (counts[draft.status] ?? 0) + 1;
           return counts;
         }, {});
+        const activeProductsWithLiveImages = [...activeProductIds].filter((productId) => liveProductIds.has(productId)).length;
         return {
-          catalogProducts,
+          catalogProducts: catalogProducts.length,
+          activeCatalogProducts: activeProductIds.size,
           draftRecords: activeDrafts.length,
           authoritativeRecords: authoritative.length,
-          authoritativeProducts: new Set(authoritative.map((draft: { productId: string }) => draft.productId)).size,
+          authoritativeProducts: authoritativeProductIds.size,
+          productsMissingAuthoritative: catalogProducts.length - authoritativeProductIds.size,
+          activeProductsMissingAuthoritative: [...activeProductIds].filter((productId) => !authoritativeProductIds.has(productId)).length,
           otherRecords: activeDrafts.length - authoritative.length,
-          duplicateAuthoritativeRecords: authoritative.length - new Set(authoritative.map((draft: { productId: string }) => draft.productId)).size,
+          duplicateAuthoritativeRecords: authoritative.length - authoritativeProductIds.size,
           liveImageRecords: liveImages.length,
-          liveImageProducts: new Set(liveImages.map((image: { productId: string }) => image.productId)).size,
+          liveImageProducts: liveProductIds.size,
+          activeProductsWithLiveImages,
+          activeProductsWithoutLiveImages: activeProductIds.size - activeProductsWithLiveImages,
+          productsWithoutLiveImages: catalogProducts.length - liveProductIds.size,
+          productsWithMultipleLiveImages: [...imageCounts.values()].filter((count) => count > 1).length,
+          productsWithNoPrimaryImage: [...liveProductIds].filter((productId) => (primaryCounts.get(productId) ?? 0) === 0).length,
+          productsWithMultiplePrimaryImages: [...liveProductIds].filter((productId) => (primaryCounts.get(productId) ?? 0) > 1).length,
           authoritativeStatusCounts: statusCounts
         };
       })

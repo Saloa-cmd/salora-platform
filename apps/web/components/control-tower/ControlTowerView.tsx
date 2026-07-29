@@ -17,6 +17,7 @@ import { useControlTowerLocale } from "./ControlTowerLocale";
 import { ExperienceDesignStudio } from "./ExperienceDesignStudio";
 import { ContentOperationsStudio } from "./ContentOperationsStudio";
 import { ProductMediaManager } from "./ProductMediaManager";
+import { MediaGovernanceAudit } from "./MediaGovernanceAudit";
 
 const cmsLifecycle = ["Draft", "Publish", "Schedule", "Archive"];
 const appConfigAreas = ["Theme", "Colors", "Typography", "Feature flags", "Navigation", "Homepage layout", "AI features", "WhatsApp features"];
@@ -83,6 +84,7 @@ function SectionSpecificWorkspace({ sectionId }: { sectionId: ControlTowerSectio
       <>
         <ContentOperationsStudio />
         <ExperienceDesignStudio />
+        <MediaGovernanceAudit />
         <ProductMediaManager />
         <DashboardGrid columns="two">
           <div id="product-operations-manager" className="scroll-mt-24">
