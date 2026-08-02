@@ -109,7 +109,15 @@ export const ModelName = {
   Role: 'Role',
   UserRole: 'UserRole',
   Session: 'Session',
-  RuntimeConfiguration: 'RuntimeConfiguration'
+  RuntimeConfiguration: 'RuntimeConfiguration',
+  MenuCollection: 'MenuCollection',
+  MenuCollectionSection: 'MenuCollectionSection',
+  MenuCollectionProduct: 'MenuCollectionProduct',
+  ProductNutritionProfile: 'ProductNutritionProfile',
+  ProductAllergenProfile: 'ProductAllergenProfile',
+  MenuCollectionRevision: 'MenuCollectionRevision',
+  MenuPublication: 'MenuPublication',
+  MenuRolePermission: 'MenuRolePermission'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1003,6 +1011,194 @@ export const RuntimeConfigurationScalarFieldEnum = {
 } as const
 
 export type RuntimeConfigurationScalarFieldEnum = (typeof RuntimeConfigurationScalarFieldEnum)[keyof typeof RuntimeConfigurationScalarFieldEnum]
+
+
+export const MenuCollectionScalarFieldEnum = {
+  id: 'id',
+  brandKey: 'brandKey',
+  key: 'key',
+  slug: 'slug',
+  kind: 'kind',
+  status: 'status',
+  nameAr: 'nameAr',
+  nameEn: 'nameEn',
+  descriptionAr: 'descriptionAr',
+  descriptionEn: 'descriptionEn',
+  accentTokens: 'accentTokens',
+  coverMedia: 'coverMedia',
+  banner: 'banner',
+  channels: 'channels',
+  completenessScore: 'completenessScore',
+  activeRevisionId: 'activeRevisionId',
+  scheduledAt: 'scheduledAt',
+  publishedAt: 'publishedAt',
+  pausedAt: 'pausedAt',
+  archivedAt: 'archivedAt',
+  createdBy: 'createdBy',
+  updatedBy: 'updatedBy',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type MenuCollectionScalarFieldEnum = (typeof MenuCollectionScalarFieldEnum)[keyof typeof MenuCollectionScalarFieldEnum]
+
+
+export const MenuCollectionSectionScalarFieldEnum = {
+  id: 'id',
+  collectionId: 'collectionId',
+  key: 'key',
+  nameAr: 'nameAr',
+  nameEn: 'nameEn',
+  descriptionAr: 'descriptionAr',
+  descriptionEn: 'descriptionEn',
+  sortOrder: 'sortOrder',
+  membershipRule: 'membershipRule',
+  isActive: 'isActive',
+  archivedAt: 'archivedAt',
+  createdBy: 'createdBy',
+  updatedBy: 'updatedBy',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type MenuCollectionSectionScalarFieldEnum = (typeof MenuCollectionSectionScalarFieldEnum)[keyof typeof MenuCollectionSectionScalarFieldEnum]
+
+
+export const MenuCollectionProductScalarFieldEnum = {
+  id: 'id',
+  collectionId: 'collectionId',
+  sectionId: 'sectionId',
+  productId: 'productId',
+  sortOrder: 'sortOrder',
+  titleArOverride: 'titleArOverride',
+  titleEnOverride: 'titleEnOverride',
+  descriptionArOverride: 'descriptionArOverride',
+  descriptionEnOverride: 'descriptionEnOverride',
+  presentationImage: 'presentationImage',
+  badges: 'badges',
+  membershipSource: 'membershipSource',
+  membershipRuleKey: 'membershipRuleKey',
+  sourceReason: 'sourceReason',
+  isFeatured: 'isFeatured',
+  reviewedBy: 'reviewedBy',
+  reviewedAt: 'reviewedAt',
+  archivedAt: 'archivedAt',
+  createdBy: 'createdBy',
+  updatedBy: 'updatedBy',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type MenuCollectionProductScalarFieldEnum = (typeof MenuCollectionProductScalarFieldEnum)[keyof typeof MenuCollectionProductScalarFieldEnum]
+
+
+export const ProductNutritionProfileScalarFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  servingLabelAr: 'servingLabelAr',
+  servingLabelEn: 'servingLabelEn',
+  servingAmount: 'servingAmount',
+  servingUnit: 'servingUnit',
+  caloriesKcal: 'caloriesKcal',
+  proteinG: 'proteinG',
+  carbohydratesG: 'carbohydratesG',
+  totalSugarG: 'totalSugarG',
+  addedSugarG: 'addedSugarG',
+  fatG: 'fatG',
+  saturatedFatG: 'saturatedFatG',
+  sodiumMg: 'sodiumMg',
+  caffeineMg: 'caffeineMg',
+  plantBased: 'plantBased',
+  sourceType: 'sourceType',
+  sourceReference: 'sourceReference',
+  recipeVersion: 'recipeVersion',
+  verificationStatus: 'verificationStatus',
+  confidenceScore: 'confidenceScore',
+  reviewedBy: 'reviewedBy',
+  reviewedAt: 'reviewedAt',
+  validUntil: 'validUntil',
+  archivedAt: 'archivedAt',
+  createdBy: 'createdBy',
+  updatedBy: 'updatedBy',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProductNutritionProfileScalarFieldEnum = (typeof ProductNutritionProfileScalarFieldEnum)[keyof typeof ProductNutritionProfileScalarFieldEnum]
+
+
+export const ProductAllergenProfileScalarFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  containsAllergens: 'containsAllergens',
+  mayContainAllergens: 'mayContainAllergens',
+  declaredFreeFrom: 'declaredFreeFrom',
+  ingredientVersion: 'ingredientVersion',
+  crossContactAssessment: 'crossContactAssessment',
+  warningAr: 'warningAr',
+  warningEn: 'warningEn',
+  sourceType: 'sourceType',
+  sourceReference: 'sourceReference',
+  verificationStatus: 'verificationStatus',
+  reviewedBy: 'reviewedBy',
+  reviewedAt: 'reviewedAt',
+  validUntil: 'validUntil',
+  archivedAt: 'archivedAt',
+  createdBy: 'createdBy',
+  updatedBy: 'updatedBy',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProductAllergenProfileScalarFieldEnum = (typeof ProductAllergenProfileScalarFieldEnum)[keyof typeof ProductAllergenProfileScalarFieldEnum]
+
+
+export const MenuCollectionRevisionScalarFieldEnum = {
+  id: 'id',
+  collectionId: 'collectionId',
+  version: 'version',
+  status: 'status',
+  snapshot: 'snapshot',
+  checksum: 'checksum',
+  changeSummary: 'changeSummary',
+  createdBy: 'createdBy',
+  createdAt: 'createdAt'
+} as const
+
+export type MenuCollectionRevisionScalarFieldEnum = (typeof MenuCollectionRevisionScalarFieldEnum)[keyof typeof MenuCollectionRevisionScalarFieldEnum]
+
+
+export const MenuPublicationScalarFieldEnum = {
+  id: 'id',
+  collectionId: 'collectionId',
+  revisionId: 'revisionId',
+  publicationKey: 'publicationKey',
+  status: 'status',
+  channels: 'channels',
+  scheduledAt: 'scheduledAt',
+  startedAt: 'startedAt',
+  publishedAt: 'publishedAt',
+  completedAt: 'completedAt',
+  rolledBackAt: 'rolledBackAt',
+  smokeTestStatus: 'smokeTestStatus',
+  failureReason: 'failureReason',
+  rollbackOfId: 'rollbackOfId',
+  createdBy: 'createdBy',
+  createdAt: 'createdAt'
+} as const
+
+export type MenuPublicationScalarFieldEnum = (typeof MenuPublicationScalarFieldEnum)[keyof typeof MenuPublicationScalarFieldEnum]
+
+
+export const MenuRolePermissionScalarFieldEnum = {
+  id: 'id',
+  roleName: 'roleName',
+  permission: 'permission',
+  createdBy: 'createdBy',
+  createdAt: 'createdAt'
+} as const
+
+export type MenuRolePermissionScalarFieldEnum = (typeof MenuRolePermissionScalarFieldEnum)[keyof typeof MenuRolePermissionScalarFieldEnum]
 
 
 export const SortOrder = {

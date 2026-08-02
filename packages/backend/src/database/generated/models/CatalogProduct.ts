@@ -322,6 +322,9 @@ export type CatalogProductWhereInput = {
   favorites?: Prisma.CustomerFavoriteListRelationFilter
   orderItems?: Prisma.OrderItemListRelationFilter
   savedOrders?: Prisma.SavedOrderListRelationFilter
+  collectionMemberships?: Prisma.MenuCollectionProductListRelationFilter
+  nutritionProfile?: Prisma.XOR<Prisma.ProductNutritionProfileNullableScalarRelationFilter, Prisma.ProductNutritionProfileWhereInput> | null
+  allergenProfile?: Prisma.XOR<Prisma.ProductAllergenProfileNullableScalarRelationFilter, Prisma.ProductAllergenProfileWhereInput> | null
 }
 
 export type CatalogProductOrderByWithRelationInput = {
@@ -356,6 +359,9 @@ export type CatalogProductOrderByWithRelationInput = {
   favorites?: Prisma.CustomerFavoriteOrderByRelationAggregateInput
   orderItems?: Prisma.OrderItemOrderByRelationAggregateInput
   savedOrders?: Prisma.SavedOrderOrderByRelationAggregateInput
+  collectionMemberships?: Prisma.MenuCollectionProductOrderByRelationAggregateInput
+  nutritionProfile?: Prisma.ProductNutritionProfileOrderByWithRelationInput
+  allergenProfile?: Prisma.ProductAllergenProfileOrderByWithRelationInput
 }
 
 export type CatalogProductWhereUniqueInput = Prisma.AtLeast<{
@@ -393,6 +399,9 @@ export type CatalogProductWhereUniqueInput = Prisma.AtLeast<{
   favorites?: Prisma.CustomerFavoriteListRelationFilter
   orderItems?: Prisma.OrderItemListRelationFilter
   savedOrders?: Prisma.SavedOrderListRelationFilter
+  collectionMemberships?: Prisma.MenuCollectionProductListRelationFilter
+  nutritionProfile?: Prisma.XOR<Prisma.ProductNutritionProfileNullableScalarRelationFilter, Prisma.ProductNutritionProfileWhereInput> | null
+  allergenProfile?: Prisma.XOR<Prisma.ProductAllergenProfileNullableScalarRelationFilter, Prisma.ProductAllergenProfileWhereInput> | null
 }, "id" | "slug">
 
 export type CatalogProductOrderByWithAggregationInput = {
@@ -474,6 +483,9 @@ export type CatalogProductCreateInput = {
   favorites?: Prisma.CustomerFavoriteCreateNestedManyWithoutProductInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutProductInput
   savedOrders?: Prisma.SavedOrderCreateNestedManyWithoutProductInput
+  collectionMemberships?: Prisma.MenuCollectionProductCreateNestedManyWithoutProductInput
+  nutritionProfile?: Prisma.ProductNutritionProfileCreateNestedOneWithoutProductInput
+  allergenProfile?: Prisma.ProductAllergenProfileCreateNestedOneWithoutProductInput
 }
 
 export type CatalogProductUncheckedCreateInput = {
@@ -507,6 +519,9 @@ export type CatalogProductUncheckedCreateInput = {
   favorites?: Prisma.CustomerFavoriteUncheckedCreateNestedManyWithoutProductInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutProductInput
   savedOrders?: Prisma.SavedOrderUncheckedCreateNestedManyWithoutProductInput
+  collectionMemberships?: Prisma.MenuCollectionProductUncheckedCreateNestedManyWithoutProductInput
+  nutritionProfile?: Prisma.ProductNutritionProfileUncheckedCreateNestedOneWithoutProductInput
+  allergenProfile?: Prisma.ProductAllergenProfileUncheckedCreateNestedOneWithoutProductInput
 }
 
 export type CatalogProductUpdateInput = {
@@ -540,6 +555,9 @@ export type CatalogProductUpdateInput = {
   favorites?: Prisma.CustomerFavoriteUpdateManyWithoutProductNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutProductNestedInput
   savedOrders?: Prisma.SavedOrderUpdateManyWithoutProductNestedInput
+  collectionMemberships?: Prisma.MenuCollectionProductUpdateManyWithoutProductNestedInput
+  nutritionProfile?: Prisma.ProductNutritionProfileUpdateOneWithoutProductNestedInput
+  allergenProfile?: Prisma.ProductAllergenProfileUpdateOneWithoutProductNestedInput
 }
 
 export type CatalogProductUncheckedUpdateInput = {
@@ -573,6 +591,9 @@ export type CatalogProductUncheckedUpdateInput = {
   favorites?: Prisma.CustomerFavoriteUncheckedUpdateManyWithoutProductNestedInput
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutProductNestedInput
   savedOrders?: Prisma.SavedOrderUncheckedUpdateManyWithoutProductNestedInput
+  collectionMemberships?: Prisma.MenuCollectionProductUncheckedUpdateManyWithoutProductNestedInput
+  nutritionProfile?: Prisma.ProductNutritionProfileUncheckedUpdateOneWithoutProductNestedInput
+  allergenProfile?: Prisma.ProductAllergenProfileUncheckedUpdateOneWithoutProductNestedInput
 }
 
 export type CatalogProductCreateManyInput = {
@@ -977,6 +998,48 @@ export type CatalogProductUpdateOneWithoutOrderItemsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.CatalogProductUpdateToOneWithWhereWithoutOrderItemsInput, Prisma.CatalogProductUpdateWithoutOrderItemsInput>, Prisma.CatalogProductUncheckedUpdateWithoutOrderItemsInput>
 }
 
+export type CatalogProductCreateNestedOneWithoutCollectionMembershipsInput = {
+  create?: Prisma.XOR<Prisma.CatalogProductCreateWithoutCollectionMembershipsInput, Prisma.CatalogProductUncheckedCreateWithoutCollectionMembershipsInput>
+  connectOrCreate?: Prisma.CatalogProductCreateOrConnectWithoutCollectionMembershipsInput
+  connect?: Prisma.CatalogProductWhereUniqueInput
+}
+
+export type CatalogProductUpdateOneRequiredWithoutCollectionMembershipsNestedInput = {
+  create?: Prisma.XOR<Prisma.CatalogProductCreateWithoutCollectionMembershipsInput, Prisma.CatalogProductUncheckedCreateWithoutCollectionMembershipsInput>
+  connectOrCreate?: Prisma.CatalogProductCreateOrConnectWithoutCollectionMembershipsInput
+  upsert?: Prisma.CatalogProductUpsertWithoutCollectionMembershipsInput
+  connect?: Prisma.CatalogProductWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CatalogProductUpdateToOneWithWhereWithoutCollectionMembershipsInput, Prisma.CatalogProductUpdateWithoutCollectionMembershipsInput>, Prisma.CatalogProductUncheckedUpdateWithoutCollectionMembershipsInput>
+}
+
+export type CatalogProductCreateNestedOneWithoutNutritionProfileInput = {
+  create?: Prisma.XOR<Prisma.CatalogProductCreateWithoutNutritionProfileInput, Prisma.CatalogProductUncheckedCreateWithoutNutritionProfileInput>
+  connectOrCreate?: Prisma.CatalogProductCreateOrConnectWithoutNutritionProfileInput
+  connect?: Prisma.CatalogProductWhereUniqueInput
+}
+
+export type CatalogProductUpdateOneRequiredWithoutNutritionProfileNestedInput = {
+  create?: Prisma.XOR<Prisma.CatalogProductCreateWithoutNutritionProfileInput, Prisma.CatalogProductUncheckedCreateWithoutNutritionProfileInput>
+  connectOrCreate?: Prisma.CatalogProductCreateOrConnectWithoutNutritionProfileInput
+  upsert?: Prisma.CatalogProductUpsertWithoutNutritionProfileInput
+  connect?: Prisma.CatalogProductWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CatalogProductUpdateToOneWithWhereWithoutNutritionProfileInput, Prisma.CatalogProductUpdateWithoutNutritionProfileInput>, Prisma.CatalogProductUncheckedUpdateWithoutNutritionProfileInput>
+}
+
+export type CatalogProductCreateNestedOneWithoutAllergenProfileInput = {
+  create?: Prisma.XOR<Prisma.CatalogProductCreateWithoutAllergenProfileInput, Prisma.CatalogProductUncheckedCreateWithoutAllergenProfileInput>
+  connectOrCreate?: Prisma.CatalogProductCreateOrConnectWithoutAllergenProfileInput
+  connect?: Prisma.CatalogProductWhereUniqueInput
+}
+
+export type CatalogProductUpdateOneRequiredWithoutAllergenProfileNestedInput = {
+  create?: Prisma.XOR<Prisma.CatalogProductCreateWithoutAllergenProfileInput, Prisma.CatalogProductUncheckedCreateWithoutAllergenProfileInput>
+  connectOrCreate?: Prisma.CatalogProductCreateOrConnectWithoutAllergenProfileInput
+  upsert?: Prisma.CatalogProductUpsertWithoutAllergenProfileInput
+  connect?: Prisma.CatalogProductWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CatalogProductUpdateToOneWithWhereWithoutAllergenProfileInput, Prisma.CatalogProductUpdateWithoutAllergenProfileInput>, Prisma.CatalogProductUncheckedUpdateWithoutAllergenProfileInput>
+}
+
 export type CatalogProductCreateWithoutCategoryInput = {
   id?: string
   brandKey?: string
@@ -1007,6 +1070,9 @@ export type CatalogProductCreateWithoutCategoryInput = {
   favorites?: Prisma.CustomerFavoriteCreateNestedManyWithoutProductInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutProductInput
   savedOrders?: Prisma.SavedOrderCreateNestedManyWithoutProductInput
+  collectionMemberships?: Prisma.MenuCollectionProductCreateNestedManyWithoutProductInput
+  nutritionProfile?: Prisma.ProductNutritionProfileCreateNestedOneWithoutProductInput
+  allergenProfile?: Prisma.ProductAllergenProfileCreateNestedOneWithoutProductInput
 }
 
 export type CatalogProductUncheckedCreateWithoutCategoryInput = {
@@ -1039,6 +1105,9 @@ export type CatalogProductUncheckedCreateWithoutCategoryInput = {
   favorites?: Prisma.CustomerFavoriteUncheckedCreateNestedManyWithoutProductInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutProductInput
   savedOrders?: Prisma.SavedOrderUncheckedCreateNestedManyWithoutProductInput
+  collectionMemberships?: Prisma.MenuCollectionProductUncheckedCreateNestedManyWithoutProductInput
+  nutritionProfile?: Prisma.ProductNutritionProfileUncheckedCreateNestedOneWithoutProductInput
+  allergenProfile?: Prisma.ProductAllergenProfileUncheckedCreateNestedOneWithoutProductInput
 }
 
 export type CatalogProductCreateOrConnectWithoutCategoryInput = {
@@ -1120,6 +1189,9 @@ export type CatalogProductCreateWithoutImagesInput = {
   favorites?: Prisma.CustomerFavoriteCreateNestedManyWithoutProductInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutProductInput
   savedOrders?: Prisma.SavedOrderCreateNestedManyWithoutProductInput
+  collectionMemberships?: Prisma.MenuCollectionProductCreateNestedManyWithoutProductInput
+  nutritionProfile?: Prisma.ProductNutritionProfileCreateNestedOneWithoutProductInput
+  allergenProfile?: Prisma.ProductAllergenProfileCreateNestedOneWithoutProductInput
 }
 
 export type CatalogProductUncheckedCreateWithoutImagesInput = {
@@ -1152,6 +1224,9 @@ export type CatalogProductUncheckedCreateWithoutImagesInput = {
   favorites?: Prisma.CustomerFavoriteUncheckedCreateNestedManyWithoutProductInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutProductInput
   savedOrders?: Prisma.SavedOrderUncheckedCreateNestedManyWithoutProductInput
+  collectionMemberships?: Prisma.MenuCollectionProductUncheckedCreateNestedManyWithoutProductInput
+  nutritionProfile?: Prisma.ProductNutritionProfileUncheckedCreateNestedOneWithoutProductInput
+  allergenProfile?: Prisma.ProductAllergenProfileUncheckedCreateNestedOneWithoutProductInput
 }
 
 export type CatalogProductCreateOrConnectWithoutImagesInput = {
@@ -1200,6 +1275,9 @@ export type CatalogProductUpdateWithoutImagesInput = {
   favorites?: Prisma.CustomerFavoriteUpdateManyWithoutProductNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutProductNestedInput
   savedOrders?: Prisma.SavedOrderUpdateManyWithoutProductNestedInput
+  collectionMemberships?: Prisma.MenuCollectionProductUpdateManyWithoutProductNestedInput
+  nutritionProfile?: Prisma.ProductNutritionProfileUpdateOneWithoutProductNestedInput
+  allergenProfile?: Prisma.ProductAllergenProfileUpdateOneWithoutProductNestedInput
 }
 
 export type CatalogProductUncheckedUpdateWithoutImagesInput = {
@@ -1232,6 +1310,9 @@ export type CatalogProductUncheckedUpdateWithoutImagesInput = {
   favorites?: Prisma.CustomerFavoriteUncheckedUpdateManyWithoutProductNestedInput
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutProductNestedInput
   savedOrders?: Prisma.SavedOrderUncheckedUpdateManyWithoutProductNestedInput
+  collectionMemberships?: Prisma.MenuCollectionProductUncheckedUpdateManyWithoutProductNestedInput
+  nutritionProfile?: Prisma.ProductNutritionProfileUncheckedUpdateOneWithoutProductNestedInput
+  allergenProfile?: Prisma.ProductAllergenProfileUncheckedUpdateOneWithoutProductNestedInput
 }
 
 export type CatalogProductCreateWithoutMediaDraftsInput = {
@@ -1264,6 +1345,9 @@ export type CatalogProductCreateWithoutMediaDraftsInput = {
   favorites?: Prisma.CustomerFavoriteCreateNestedManyWithoutProductInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutProductInput
   savedOrders?: Prisma.SavedOrderCreateNestedManyWithoutProductInput
+  collectionMemberships?: Prisma.MenuCollectionProductCreateNestedManyWithoutProductInput
+  nutritionProfile?: Prisma.ProductNutritionProfileCreateNestedOneWithoutProductInput
+  allergenProfile?: Prisma.ProductAllergenProfileCreateNestedOneWithoutProductInput
 }
 
 export type CatalogProductUncheckedCreateWithoutMediaDraftsInput = {
@@ -1296,6 +1380,9 @@ export type CatalogProductUncheckedCreateWithoutMediaDraftsInput = {
   favorites?: Prisma.CustomerFavoriteUncheckedCreateNestedManyWithoutProductInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutProductInput
   savedOrders?: Prisma.SavedOrderUncheckedCreateNestedManyWithoutProductInput
+  collectionMemberships?: Prisma.MenuCollectionProductUncheckedCreateNestedManyWithoutProductInput
+  nutritionProfile?: Prisma.ProductNutritionProfileUncheckedCreateNestedOneWithoutProductInput
+  allergenProfile?: Prisma.ProductAllergenProfileUncheckedCreateNestedOneWithoutProductInput
 }
 
 export type CatalogProductCreateOrConnectWithoutMediaDraftsInput = {
@@ -1344,6 +1431,9 @@ export type CatalogProductUpdateWithoutMediaDraftsInput = {
   favorites?: Prisma.CustomerFavoriteUpdateManyWithoutProductNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutProductNestedInput
   savedOrders?: Prisma.SavedOrderUpdateManyWithoutProductNestedInput
+  collectionMemberships?: Prisma.MenuCollectionProductUpdateManyWithoutProductNestedInput
+  nutritionProfile?: Prisma.ProductNutritionProfileUpdateOneWithoutProductNestedInput
+  allergenProfile?: Prisma.ProductAllergenProfileUpdateOneWithoutProductNestedInput
 }
 
 export type CatalogProductUncheckedUpdateWithoutMediaDraftsInput = {
@@ -1376,6 +1466,9 @@ export type CatalogProductUncheckedUpdateWithoutMediaDraftsInput = {
   favorites?: Prisma.CustomerFavoriteUncheckedUpdateManyWithoutProductNestedInput
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutProductNestedInput
   savedOrders?: Prisma.SavedOrderUncheckedUpdateManyWithoutProductNestedInput
+  collectionMemberships?: Prisma.MenuCollectionProductUncheckedUpdateManyWithoutProductNestedInput
+  nutritionProfile?: Prisma.ProductNutritionProfileUncheckedUpdateOneWithoutProductNestedInput
+  allergenProfile?: Prisma.ProductAllergenProfileUncheckedUpdateOneWithoutProductNestedInput
 }
 
 export type CatalogProductCreateWithoutVariantsInput = {
@@ -1408,6 +1501,9 @@ export type CatalogProductCreateWithoutVariantsInput = {
   favorites?: Prisma.CustomerFavoriteCreateNestedManyWithoutProductInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutProductInput
   savedOrders?: Prisma.SavedOrderCreateNestedManyWithoutProductInput
+  collectionMemberships?: Prisma.MenuCollectionProductCreateNestedManyWithoutProductInput
+  nutritionProfile?: Prisma.ProductNutritionProfileCreateNestedOneWithoutProductInput
+  allergenProfile?: Prisma.ProductAllergenProfileCreateNestedOneWithoutProductInput
 }
 
 export type CatalogProductUncheckedCreateWithoutVariantsInput = {
@@ -1440,6 +1536,9 @@ export type CatalogProductUncheckedCreateWithoutVariantsInput = {
   favorites?: Prisma.CustomerFavoriteUncheckedCreateNestedManyWithoutProductInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutProductInput
   savedOrders?: Prisma.SavedOrderUncheckedCreateNestedManyWithoutProductInput
+  collectionMemberships?: Prisma.MenuCollectionProductUncheckedCreateNestedManyWithoutProductInput
+  nutritionProfile?: Prisma.ProductNutritionProfileUncheckedCreateNestedOneWithoutProductInput
+  allergenProfile?: Prisma.ProductAllergenProfileUncheckedCreateNestedOneWithoutProductInput
 }
 
 export type CatalogProductCreateOrConnectWithoutVariantsInput = {
@@ -1488,6 +1587,9 @@ export type CatalogProductUpdateWithoutVariantsInput = {
   favorites?: Prisma.CustomerFavoriteUpdateManyWithoutProductNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutProductNestedInput
   savedOrders?: Prisma.SavedOrderUpdateManyWithoutProductNestedInput
+  collectionMemberships?: Prisma.MenuCollectionProductUpdateManyWithoutProductNestedInput
+  nutritionProfile?: Prisma.ProductNutritionProfileUpdateOneWithoutProductNestedInput
+  allergenProfile?: Prisma.ProductAllergenProfileUpdateOneWithoutProductNestedInput
 }
 
 export type CatalogProductUncheckedUpdateWithoutVariantsInput = {
@@ -1520,6 +1622,9 @@ export type CatalogProductUncheckedUpdateWithoutVariantsInput = {
   favorites?: Prisma.CustomerFavoriteUncheckedUpdateManyWithoutProductNestedInput
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutProductNestedInput
   savedOrders?: Prisma.SavedOrderUncheckedUpdateManyWithoutProductNestedInput
+  collectionMemberships?: Prisma.MenuCollectionProductUncheckedUpdateManyWithoutProductNestedInput
+  nutritionProfile?: Prisma.ProductNutritionProfileUncheckedUpdateOneWithoutProductNestedInput
+  allergenProfile?: Prisma.ProductAllergenProfileUncheckedUpdateOneWithoutProductNestedInput
 }
 
 export type CatalogProductCreateWithoutAddonsInput = {
@@ -1552,6 +1657,9 @@ export type CatalogProductCreateWithoutAddonsInput = {
   favorites?: Prisma.CustomerFavoriteCreateNestedManyWithoutProductInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutProductInput
   savedOrders?: Prisma.SavedOrderCreateNestedManyWithoutProductInput
+  collectionMemberships?: Prisma.MenuCollectionProductCreateNestedManyWithoutProductInput
+  nutritionProfile?: Prisma.ProductNutritionProfileCreateNestedOneWithoutProductInput
+  allergenProfile?: Prisma.ProductAllergenProfileCreateNestedOneWithoutProductInput
 }
 
 export type CatalogProductUncheckedCreateWithoutAddonsInput = {
@@ -1584,6 +1692,9 @@ export type CatalogProductUncheckedCreateWithoutAddonsInput = {
   favorites?: Prisma.CustomerFavoriteUncheckedCreateNestedManyWithoutProductInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutProductInput
   savedOrders?: Prisma.SavedOrderUncheckedCreateNestedManyWithoutProductInput
+  collectionMemberships?: Prisma.MenuCollectionProductUncheckedCreateNestedManyWithoutProductInput
+  nutritionProfile?: Prisma.ProductNutritionProfileUncheckedCreateNestedOneWithoutProductInput
+  allergenProfile?: Prisma.ProductAllergenProfileUncheckedCreateNestedOneWithoutProductInput
 }
 
 export type CatalogProductCreateOrConnectWithoutAddonsInput = {
@@ -1632,6 +1743,9 @@ export type CatalogProductUpdateWithoutAddonsInput = {
   favorites?: Prisma.CustomerFavoriteUpdateManyWithoutProductNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutProductNestedInput
   savedOrders?: Prisma.SavedOrderUpdateManyWithoutProductNestedInput
+  collectionMemberships?: Prisma.MenuCollectionProductUpdateManyWithoutProductNestedInput
+  nutritionProfile?: Prisma.ProductNutritionProfileUpdateOneWithoutProductNestedInput
+  allergenProfile?: Prisma.ProductAllergenProfileUpdateOneWithoutProductNestedInput
 }
 
 export type CatalogProductUncheckedUpdateWithoutAddonsInput = {
@@ -1664,6 +1778,9 @@ export type CatalogProductUncheckedUpdateWithoutAddonsInput = {
   favorites?: Prisma.CustomerFavoriteUncheckedUpdateManyWithoutProductNestedInput
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutProductNestedInput
   savedOrders?: Prisma.SavedOrderUncheckedUpdateManyWithoutProductNestedInput
+  collectionMemberships?: Prisma.MenuCollectionProductUncheckedUpdateManyWithoutProductNestedInput
+  nutritionProfile?: Prisma.ProductNutritionProfileUncheckedUpdateOneWithoutProductNestedInput
+  allergenProfile?: Prisma.ProductAllergenProfileUncheckedUpdateOneWithoutProductNestedInput
 }
 
 export type CatalogProductCreateWithoutModifiersInput = {
@@ -1696,6 +1813,9 @@ export type CatalogProductCreateWithoutModifiersInput = {
   favorites?: Prisma.CustomerFavoriteCreateNestedManyWithoutProductInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutProductInput
   savedOrders?: Prisma.SavedOrderCreateNestedManyWithoutProductInput
+  collectionMemberships?: Prisma.MenuCollectionProductCreateNestedManyWithoutProductInput
+  nutritionProfile?: Prisma.ProductNutritionProfileCreateNestedOneWithoutProductInput
+  allergenProfile?: Prisma.ProductAllergenProfileCreateNestedOneWithoutProductInput
 }
 
 export type CatalogProductUncheckedCreateWithoutModifiersInput = {
@@ -1728,6 +1848,9 @@ export type CatalogProductUncheckedCreateWithoutModifiersInput = {
   favorites?: Prisma.CustomerFavoriteUncheckedCreateNestedManyWithoutProductInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutProductInput
   savedOrders?: Prisma.SavedOrderUncheckedCreateNestedManyWithoutProductInput
+  collectionMemberships?: Prisma.MenuCollectionProductUncheckedCreateNestedManyWithoutProductInput
+  nutritionProfile?: Prisma.ProductNutritionProfileUncheckedCreateNestedOneWithoutProductInput
+  allergenProfile?: Prisma.ProductAllergenProfileUncheckedCreateNestedOneWithoutProductInput
 }
 
 export type CatalogProductCreateOrConnectWithoutModifiersInput = {
@@ -1776,6 +1899,9 @@ export type CatalogProductUpdateWithoutModifiersInput = {
   favorites?: Prisma.CustomerFavoriteUpdateManyWithoutProductNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutProductNestedInput
   savedOrders?: Prisma.SavedOrderUpdateManyWithoutProductNestedInput
+  collectionMemberships?: Prisma.MenuCollectionProductUpdateManyWithoutProductNestedInput
+  nutritionProfile?: Prisma.ProductNutritionProfileUpdateOneWithoutProductNestedInput
+  allergenProfile?: Prisma.ProductAllergenProfileUpdateOneWithoutProductNestedInput
 }
 
 export type CatalogProductUncheckedUpdateWithoutModifiersInput = {
@@ -1808,6 +1934,9 @@ export type CatalogProductUncheckedUpdateWithoutModifiersInput = {
   favorites?: Prisma.CustomerFavoriteUncheckedUpdateManyWithoutProductNestedInput
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutProductNestedInput
   savedOrders?: Prisma.SavedOrderUncheckedUpdateManyWithoutProductNestedInput
+  collectionMemberships?: Prisma.MenuCollectionProductUncheckedUpdateManyWithoutProductNestedInput
+  nutritionProfile?: Prisma.ProductNutritionProfileUncheckedUpdateOneWithoutProductNestedInput
+  allergenProfile?: Prisma.ProductAllergenProfileUncheckedUpdateOneWithoutProductNestedInput
 }
 
 export type CatalogProductCreateWithoutPricingRulesInput = {
@@ -1840,6 +1969,9 @@ export type CatalogProductCreateWithoutPricingRulesInput = {
   favorites?: Prisma.CustomerFavoriteCreateNestedManyWithoutProductInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutProductInput
   savedOrders?: Prisma.SavedOrderCreateNestedManyWithoutProductInput
+  collectionMemberships?: Prisma.MenuCollectionProductCreateNestedManyWithoutProductInput
+  nutritionProfile?: Prisma.ProductNutritionProfileCreateNestedOneWithoutProductInput
+  allergenProfile?: Prisma.ProductAllergenProfileCreateNestedOneWithoutProductInput
 }
 
 export type CatalogProductUncheckedCreateWithoutPricingRulesInput = {
@@ -1872,6 +2004,9 @@ export type CatalogProductUncheckedCreateWithoutPricingRulesInput = {
   favorites?: Prisma.CustomerFavoriteUncheckedCreateNestedManyWithoutProductInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutProductInput
   savedOrders?: Prisma.SavedOrderUncheckedCreateNestedManyWithoutProductInput
+  collectionMemberships?: Prisma.MenuCollectionProductUncheckedCreateNestedManyWithoutProductInput
+  nutritionProfile?: Prisma.ProductNutritionProfileUncheckedCreateNestedOneWithoutProductInput
+  allergenProfile?: Prisma.ProductAllergenProfileUncheckedCreateNestedOneWithoutProductInput
 }
 
 export type CatalogProductCreateOrConnectWithoutPricingRulesInput = {
@@ -1920,6 +2055,9 @@ export type CatalogProductUpdateWithoutPricingRulesInput = {
   favorites?: Prisma.CustomerFavoriteUpdateManyWithoutProductNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutProductNestedInput
   savedOrders?: Prisma.SavedOrderUpdateManyWithoutProductNestedInput
+  collectionMemberships?: Prisma.MenuCollectionProductUpdateManyWithoutProductNestedInput
+  nutritionProfile?: Prisma.ProductNutritionProfileUpdateOneWithoutProductNestedInput
+  allergenProfile?: Prisma.ProductAllergenProfileUpdateOneWithoutProductNestedInput
 }
 
 export type CatalogProductUncheckedUpdateWithoutPricingRulesInput = {
@@ -1952,6 +2090,9 @@ export type CatalogProductUncheckedUpdateWithoutPricingRulesInput = {
   favorites?: Prisma.CustomerFavoriteUncheckedUpdateManyWithoutProductNestedInput
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutProductNestedInput
   savedOrders?: Prisma.SavedOrderUncheckedUpdateManyWithoutProductNestedInput
+  collectionMemberships?: Prisma.MenuCollectionProductUncheckedUpdateManyWithoutProductNestedInput
+  nutritionProfile?: Prisma.ProductNutritionProfileUncheckedUpdateOneWithoutProductNestedInput
+  allergenProfile?: Prisma.ProductAllergenProfileUncheckedUpdateOneWithoutProductNestedInput
 }
 
 export type CatalogProductCreateWithoutPromotionProductsInput = {
@@ -1984,6 +2125,9 @@ export type CatalogProductCreateWithoutPromotionProductsInput = {
   favorites?: Prisma.CustomerFavoriteCreateNestedManyWithoutProductInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutProductInput
   savedOrders?: Prisma.SavedOrderCreateNestedManyWithoutProductInput
+  collectionMemberships?: Prisma.MenuCollectionProductCreateNestedManyWithoutProductInput
+  nutritionProfile?: Prisma.ProductNutritionProfileCreateNestedOneWithoutProductInput
+  allergenProfile?: Prisma.ProductAllergenProfileCreateNestedOneWithoutProductInput
 }
 
 export type CatalogProductUncheckedCreateWithoutPromotionProductsInput = {
@@ -2016,6 +2160,9 @@ export type CatalogProductUncheckedCreateWithoutPromotionProductsInput = {
   favorites?: Prisma.CustomerFavoriteUncheckedCreateNestedManyWithoutProductInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutProductInput
   savedOrders?: Prisma.SavedOrderUncheckedCreateNestedManyWithoutProductInput
+  collectionMemberships?: Prisma.MenuCollectionProductUncheckedCreateNestedManyWithoutProductInput
+  nutritionProfile?: Prisma.ProductNutritionProfileUncheckedCreateNestedOneWithoutProductInput
+  allergenProfile?: Prisma.ProductAllergenProfileUncheckedCreateNestedOneWithoutProductInput
 }
 
 export type CatalogProductCreateOrConnectWithoutPromotionProductsInput = {
@@ -2064,6 +2211,9 @@ export type CatalogProductUpdateWithoutPromotionProductsInput = {
   favorites?: Prisma.CustomerFavoriteUpdateManyWithoutProductNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutProductNestedInput
   savedOrders?: Prisma.SavedOrderUpdateManyWithoutProductNestedInput
+  collectionMemberships?: Prisma.MenuCollectionProductUpdateManyWithoutProductNestedInput
+  nutritionProfile?: Prisma.ProductNutritionProfileUpdateOneWithoutProductNestedInput
+  allergenProfile?: Prisma.ProductAllergenProfileUpdateOneWithoutProductNestedInput
 }
 
 export type CatalogProductUncheckedUpdateWithoutPromotionProductsInput = {
@@ -2096,6 +2246,9 @@ export type CatalogProductUncheckedUpdateWithoutPromotionProductsInput = {
   favorites?: Prisma.CustomerFavoriteUncheckedUpdateManyWithoutProductNestedInput
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutProductNestedInput
   savedOrders?: Prisma.SavedOrderUncheckedUpdateManyWithoutProductNestedInput
+  collectionMemberships?: Prisma.MenuCollectionProductUncheckedUpdateManyWithoutProductNestedInput
+  nutritionProfile?: Prisma.ProductNutritionProfileUncheckedUpdateOneWithoutProductNestedInput
+  allergenProfile?: Prisma.ProductAllergenProfileUncheckedUpdateOneWithoutProductNestedInput
 }
 
 export type CatalogProductCreateWithoutAvailabilityRulesInput = {
@@ -2128,6 +2281,9 @@ export type CatalogProductCreateWithoutAvailabilityRulesInput = {
   favorites?: Prisma.CustomerFavoriteCreateNestedManyWithoutProductInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutProductInput
   savedOrders?: Prisma.SavedOrderCreateNestedManyWithoutProductInput
+  collectionMemberships?: Prisma.MenuCollectionProductCreateNestedManyWithoutProductInput
+  nutritionProfile?: Prisma.ProductNutritionProfileCreateNestedOneWithoutProductInput
+  allergenProfile?: Prisma.ProductAllergenProfileCreateNestedOneWithoutProductInput
 }
 
 export type CatalogProductUncheckedCreateWithoutAvailabilityRulesInput = {
@@ -2160,6 +2316,9 @@ export type CatalogProductUncheckedCreateWithoutAvailabilityRulesInput = {
   favorites?: Prisma.CustomerFavoriteUncheckedCreateNestedManyWithoutProductInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutProductInput
   savedOrders?: Prisma.SavedOrderUncheckedCreateNestedManyWithoutProductInput
+  collectionMemberships?: Prisma.MenuCollectionProductUncheckedCreateNestedManyWithoutProductInput
+  nutritionProfile?: Prisma.ProductNutritionProfileUncheckedCreateNestedOneWithoutProductInput
+  allergenProfile?: Prisma.ProductAllergenProfileUncheckedCreateNestedOneWithoutProductInput
 }
 
 export type CatalogProductCreateOrConnectWithoutAvailabilityRulesInput = {
@@ -2208,6 +2367,9 @@ export type CatalogProductUpdateWithoutAvailabilityRulesInput = {
   favorites?: Prisma.CustomerFavoriteUpdateManyWithoutProductNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutProductNestedInput
   savedOrders?: Prisma.SavedOrderUpdateManyWithoutProductNestedInput
+  collectionMemberships?: Prisma.MenuCollectionProductUpdateManyWithoutProductNestedInput
+  nutritionProfile?: Prisma.ProductNutritionProfileUpdateOneWithoutProductNestedInput
+  allergenProfile?: Prisma.ProductAllergenProfileUpdateOneWithoutProductNestedInput
 }
 
 export type CatalogProductUncheckedUpdateWithoutAvailabilityRulesInput = {
@@ -2240,6 +2402,9 @@ export type CatalogProductUncheckedUpdateWithoutAvailabilityRulesInput = {
   favorites?: Prisma.CustomerFavoriteUncheckedUpdateManyWithoutProductNestedInput
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutProductNestedInput
   savedOrders?: Prisma.SavedOrderUncheckedUpdateManyWithoutProductNestedInput
+  collectionMemberships?: Prisma.MenuCollectionProductUncheckedUpdateManyWithoutProductNestedInput
+  nutritionProfile?: Prisma.ProductNutritionProfileUncheckedUpdateOneWithoutProductNestedInput
+  allergenProfile?: Prisma.ProductAllergenProfileUncheckedUpdateOneWithoutProductNestedInput
 }
 
 export type CatalogProductCreateWithoutFavoritesInput = {
@@ -2272,6 +2437,9 @@ export type CatalogProductCreateWithoutFavoritesInput = {
   recommendations?: Prisma.AiRecommendationRecordCreateNestedManyWithoutProductInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutProductInput
   savedOrders?: Prisma.SavedOrderCreateNestedManyWithoutProductInput
+  collectionMemberships?: Prisma.MenuCollectionProductCreateNestedManyWithoutProductInput
+  nutritionProfile?: Prisma.ProductNutritionProfileCreateNestedOneWithoutProductInput
+  allergenProfile?: Prisma.ProductAllergenProfileCreateNestedOneWithoutProductInput
 }
 
 export type CatalogProductUncheckedCreateWithoutFavoritesInput = {
@@ -2304,6 +2472,9 @@ export type CatalogProductUncheckedCreateWithoutFavoritesInput = {
   recommendations?: Prisma.AiRecommendationRecordUncheckedCreateNestedManyWithoutProductInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutProductInput
   savedOrders?: Prisma.SavedOrderUncheckedCreateNestedManyWithoutProductInput
+  collectionMemberships?: Prisma.MenuCollectionProductUncheckedCreateNestedManyWithoutProductInput
+  nutritionProfile?: Prisma.ProductNutritionProfileUncheckedCreateNestedOneWithoutProductInput
+  allergenProfile?: Prisma.ProductAllergenProfileUncheckedCreateNestedOneWithoutProductInput
 }
 
 export type CatalogProductCreateOrConnectWithoutFavoritesInput = {
@@ -2352,6 +2523,9 @@ export type CatalogProductUpdateWithoutFavoritesInput = {
   recommendations?: Prisma.AiRecommendationRecordUpdateManyWithoutProductNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutProductNestedInput
   savedOrders?: Prisma.SavedOrderUpdateManyWithoutProductNestedInput
+  collectionMemberships?: Prisma.MenuCollectionProductUpdateManyWithoutProductNestedInput
+  nutritionProfile?: Prisma.ProductNutritionProfileUpdateOneWithoutProductNestedInput
+  allergenProfile?: Prisma.ProductAllergenProfileUpdateOneWithoutProductNestedInput
 }
 
 export type CatalogProductUncheckedUpdateWithoutFavoritesInput = {
@@ -2384,6 +2558,9 @@ export type CatalogProductUncheckedUpdateWithoutFavoritesInput = {
   recommendations?: Prisma.AiRecommendationRecordUncheckedUpdateManyWithoutProductNestedInput
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutProductNestedInput
   savedOrders?: Prisma.SavedOrderUncheckedUpdateManyWithoutProductNestedInput
+  collectionMemberships?: Prisma.MenuCollectionProductUncheckedUpdateManyWithoutProductNestedInput
+  nutritionProfile?: Prisma.ProductNutritionProfileUncheckedUpdateOneWithoutProductNestedInput
+  allergenProfile?: Prisma.ProductAllergenProfileUncheckedUpdateOneWithoutProductNestedInput
 }
 
 export type CatalogProductCreateWithoutSavedOrdersInput = {
@@ -2416,6 +2593,9 @@ export type CatalogProductCreateWithoutSavedOrdersInput = {
   recommendations?: Prisma.AiRecommendationRecordCreateNestedManyWithoutProductInput
   favorites?: Prisma.CustomerFavoriteCreateNestedManyWithoutProductInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutProductInput
+  collectionMemberships?: Prisma.MenuCollectionProductCreateNestedManyWithoutProductInput
+  nutritionProfile?: Prisma.ProductNutritionProfileCreateNestedOneWithoutProductInput
+  allergenProfile?: Prisma.ProductAllergenProfileCreateNestedOneWithoutProductInput
 }
 
 export type CatalogProductUncheckedCreateWithoutSavedOrdersInput = {
@@ -2448,6 +2628,9 @@ export type CatalogProductUncheckedCreateWithoutSavedOrdersInput = {
   recommendations?: Prisma.AiRecommendationRecordUncheckedCreateNestedManyWithoutProductInput
   favorites?: Prisma.CustomerFavoriteUncheckedCreateNestedManyWithoutProductInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutProductInput
+  collectionMemberships?: Prisma.MenuCollectionProductUncheckedCreateNestedManyWithoutProductInput
+  nutritionProfile?: Prisma.ProductNutritionProfileUncheckedCreateNestedOneWithoutProductInput
+  allergenProfile?: Prisma.ProductAllergenProfileUncheckedCreateNestedOneWithoutProductInput
 }
 
 export type CatalogProductCreateOrConnectWithoutSavedOrdersInput = {
@@ -2496,6 +2679,9 @@ export type CatalogProductUpdateWithoutSavedOrdersInput = {
   recommendations?: Prisma.AiRecommendationRecordUpdateManyWithoutProductNestedInput
   favorites?: Prisma.CustomerFavoriteUpdateManyWithoutProductNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutProductNestedInput
+  collectionMemberships?: Prisma.MenuCollectionProductUpdateManyWithoutProductNestedInput
+  nutritionProfile?: Prisma.ProductNutritionProfileUpdateOneWithoutProductNestedInput
+  allergenProfile?: Prisma.ProductAllergenProfileUpdateOneWithoutProductNestedInput
 }
 
 export type CatalogProductUncheckedUpdateWithoutSavedOrdersInput = {
@@ -2528,6 +2714,9 @@ export type CatalogProductUncheckedUpdateWithoutSavedOrdersInput = {
   recommendations?: Prisma.AiRecommendationRecordUncheckedUpdateManyWithoutProductNestedInput
   favorites?: Prisma.CustomerFavoriteUncheckedUpdateManyWithoutProductNestedInput
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutProductNestedInput
+  collectionMemberships?: Prisma.MenuCollectionProductUncheckedUpdateManyWithoutProductNestedInput
+  nutritionProfile?: Prisma.ProductNutritionProfileUncheckedUpdateOneWithoutProductNestedInput
+  allergenProfile?: Prisma.ProductAllergenProfileUncheckedUpdateOneWithoutProductNestedInput
 }
 
 export type CatalogProductCreateWithoutReviewsInput = {
@@ -2560,6 +2749,9 @@ export type CatalogProductCreateWithoutReviewsInput = {
   favorites?: Prisma.CustomerFavoriteCreateNestedManyWithoutProductInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutProductInput
   savedOrders?: Prisma.SavedOrderCreateNestedManyWithoutProductInput
+  collectionMemberships?: Prisma.MenuCollectionProductCreateNestedManyWithoutProductInput
+  nutritionProfile?: Prisma.ProductNutritionProfileCreateNestedOneWithoutProductInput
+  allergenProfile?: Prisma.ProductAllergenProfileCreateNestedOneWithoutProductInput
 }
 
 export type CatalogProductUncheckedCreateWithoutReviewsInput = {
@@ -2592,6 +2784,9 @@ export type CatalogProductUncheckedCreateWithoutReviewsInput = {
   favorites?: Prisma.CustomerFavoriteUncheckedCreateNestedManyWithoutProductInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutProductInput
   savedOrders?: Prisma.SavedOrderUncheckedCreateNestedManyWithoutProductInput
+  collectionMemberships?: Prisma.MenuCollectionProductUncheckedCreateNestedManyWithoutProductInput
+  nutritionProfile?: Prisma.ProductNutritionProfileUncheckedCreateNestedOneWithoutProductInput
+  allergenProfile?: Prisma.ProductAllergenProfileUncheckedCreateNestedOneWithoutProductInput
 }
 
 export type CatalogProductCreateOrConnectWithoutReviewsInput = {
@@ -2640,6 +2835,9 @@ export type CatalogProductUpdateWithoutReviewsInput = {
   favorites?: Prisma.CustomerFavoriteUpdateManyWithoutProductNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutProductNestedInput
   savedOrders?: Prisma.SavedOrderUpdateManyWithoutProductNestedInput
+  collectionMemberships?: Prisma.MenuCollectionProductUpdateManyWithoutProductNestedInput
+  nutritionProfile?: Prisma.ProductNutritionProfileUpdateOneWithoutProductNestedInput
+  allergenProfile?: Prisma.ProductAllergenProfileUpdateOneWithoutProductNestedInput
 }
 
 export type CatalogProductUncheckedUpdateWithoutReviewsInput = {
@@ -2672,6 +2870,9 @@ export type CatalogProductUncheckedUpdateWithoutReviewsInput = {
   favorites?: Prisma.CustomerFavoriteUncheckedUpdateManyWithoutProductNestedInput
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutProductNestedInput
   savedOrders?: Prisma.SavedOrderUncheckedUpdateManyWithoutProductNestedInput
+  collectionMemberships?: Prisma.MenuCollectionProductUncheckedUpdateManyWithoutProductNestedInput
+  nutritionProfile?: Prisma.ProductNutritionProfileUncheckedUpdateOneWithoutProductNestedInput
+  allergenProfile?: Prisma.ProductAllergenProfileUncheckedUpdateOneWithoutProductNestedInput
 }
 
 export type CatalogProductCreateWithoutRecommendationsInput = {
@@ -2704,6 +2905,9 @@ export type CatalogProductCreateWithoutRecommendationsInput = {
   favorites?: Prisma.CustomerFavoriteCreateNestedManyWithoutProductInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutProductInput
   savedOrders?: Prisma.SavedOrderCreateNestedManyWithoutProductInput
+  collectionMemberships?: Prisma.MenuCollectionProductCreateNestedManyWithoutProductInput
+  nutritionProfile?: Prisma.ProductNutritionProfileCreateNestedOneWithoutProductInput
+  allergenProfile?: Prisma.ProductAllergenProfileCreateNestedOneWithoutProductInput
 }
 
 export type CatalogProductUncheckedCreateWithoutRecommendationsInput = {
@@ -2736,6 +2940,9 @@ export type CatalogProductUncheckedCreateWithoutRecommendationsInput = {
   favorites?: Prisma.CustomerFavoriteUncheckedCreateNestedManyWithoutProductInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutProductInput
   savedOrders?: Prisma.SavedOrderUncheckedCreateNestedManyWithoutProductInput
+  collectionMemberships?: Prisma.MenuCollectionProductUncheckedCreateNestedManyWithoutProductInput
+  nutritionProfile?: Prisma.ProductNutritionProfileUncheckedCreateNestedOneWithoutProductInput
+  allergenProfile?: Prisma.ProductAllergenProfileUncheckedCreateNestedOneWithoutProductInput
 }
 
 export type CatalogProductCreateOrConnectWithoutRecommendationsInput = {
@@ -2784,6 +2991,9 @@ export type CatalogProductUpdateWithoutRecommendationsInput = {
   favorites?: Prisma.CustomerFavoriteUpdateManyWithoutProductNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutProductNestedInput
   savedOrders?: Prisma.SavedOrderUpdateManyWithoutProductNestedInput
+  collectionMemberships?: Prisma.MenuCollectionProductUpdateManyWithoutProductNestedInput
+  nutritionProfile?: Prisma.ProductNutritionProfileUpdateOneWithoutProductNestedInput
+  allergenProfile?: Prisma.ProductAllergenProfileUpdateOneWithoutProductNestedInput
 }
 
 export type CatalogProductUncheckedUpdateWithoutRecommendationsInput = {
@@ -2816,6 +3026,9 @@ export type CatalogProductUncheckedUpdateWithoutRecommendationsInput = {
   favorites?: Prisma.CustomerFavoriteUncheckedUpdateManyWithoutProductNestedInput
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutProductNestedInput
   savedOrders?: Prisma.SavedOrderUncheckedUpdateManyWithoutProductNestedInput
+  collectionMemberships?: Prisma.MenuCollectionProductUncheckedUpdateManyWithoutProductNestedInput
+  nutritionProfile?: Prisma.ProductNutritionProfileUncheckedUpdateOneWithoutProductNestedInput
+  allergenProfile?: Prisma.ProductAllergenProfileUncheckedUpdateOneWithoutProductNestedInput
 }
 
 export type CatalogProductCreateWithoutOrderItemsInput = {
@@ -2848,6 +3061,9 @@ export type CatalogProductCreateWithoutOrderItemsInput = {
   recommendations?: Prisma.AiRecommendationRecordCreateNestedManyWithoutProductInput
   favorites?: Prisma.CustomerFavoriteCreateNestedManyWithoutProductInput
   savedOrders?: Prisma.SavedOrderCreateNestedManyWithoutProductInput
+  collectionMemberships?: Prisma.MenuCollectionProductCreateNestedManyWithoutProductInput
+  nutritionProfile?: Prisma.ProductNutritionProfileCreateNestedOneWithoutProductInput
+  allergenProfile?: Prisma.ProductAllergenProfileCreateNestedOneWithoutProductInput
 }
 
 export type CatalogProductUncheckedCreateWithoutOrderItemsInput = {
@@ -2880,6 +3096,9 @@ export type CatalogProductUncheckedCreateWithoutOrderItemsInput = {
   recommendations?: Prisma.AiRecommendationRecordUncheckedCreateNestedManyWithoutProductInput
   favorites?: Prisma.CustomerFavoriteUncheckedCreateNestedManyWithoutProductInput
   savedOrders?: Prisma.SavedOrderUncheckedCreateNestedManyWithoutProductInput
+  collectionMemberships?: Prisma.MenuCollectionProductUncheckedCreateNestedManyWithoutProductInput
+  nutritionProfile?: Prisma.ProductNutritionProfileUncheckedCreateNestedOneWithoutProductInput
+  allergenProfile?: Prisma.ProductAllergenProfileUncheckedCreateNestedOneWithoutProductInput
 }
 
 export type CatalogProductCreateOrConnectWithoutOrderItemsInput = {
@@ -2928,6 +3147,9 @@ export type CatalogProductUpdateWithoutOrderItemsInput = {
   recommendations?: Prisma.AiRecommendationRecordUpdateManyWithoutProductNestedInput
   favorites?: Prisma.CustomerFavoriteUpdateManyWithoutProductNestedInput
   savedOrders?: Prisma.SavedOrderUpdateManyWithoutProductNestedInput
+  collectionMemberships?: Prisma.MenuCollectionProductUpdateManyWithoutProductNestedInput
+  nutritionProfile?: Prisma.ProductNutritionProfileUpdateOneWithoutProductNestedInput
+  allergenProfile?: Prisma.ProductAllergenProfileUpdateOneWithoutProductNestedInput
 }
 
 export type CatalogProductUncheckedUpdateWithoutOrderItemsInput = {
@@ -2960,6 +3182,477 @@ export type CatalogProductUncheckedUpdateWithoutOrderItemsInput = {
   recommendations?: Prisma.AiRecommendationRecordUncheckedUpdateManyWithoutProductNestedInput
   favorites?: Prisma.CustomerFavoriteUncheckedUpdateManyWithoutProductNestedInput
   savedOrders?: Prisma.SavedOrderUncheckedUpdateManyWithoutProductNestedInput
+  collectionMemberships?: Prisma.MenuCollectionProductUncheckedUpdateManyWithoutProductNestedInput
+  nutritionProfile?: Prisma.ProductNutritionProfileUncheckedUpdateOneWithoutProductNestedInput
+  allergenProfile?: Prisma.ProductAllergenProfileUncheckedUpdateOneWithoutProductNestedInput
+}
+
+export type CatalogProductCreateWithoutCollectionMembershipsInput = {
+  id?: string
+  brandKey?: string
+  slug: string
+  name: string
+  nameAr?: string | null
+  nameEn?: string | null
+  description: string
+  descriptionAr?: string | null
+  descriptionEn?: string | null
+  status?: $Enums.ProductStatus
+  basePrice: runtime.Decimal | runtime.DecimalJsLike | number | string
+  tags?: Prisma.CatalogProductCreatetagsInput | string[]
+  pairingHint?: string | null
+  aiDescriptor?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  category: Prisma.ProductCategoryCreateNestedOneWithoutProductsInput
+  variants?: Prisma.ProductVariantCreateNestedManyWithoutProductInput
+  addons?: Prisma.ProductAddonCreateNestedManyWithoutProductInput
+  modifiers?: Prisma.ProductModifierCreateNestedManyWithoutProductInput
+  pricingRules?: Prisma.PricingRuleCreateNestedManyWithoutProductInput
+  availabilityRules?: Prisma.AvailabilityRuleCreateNestedManyWithoutProductInput
+  images?: Prisma.ProductImageCreateNestedManyWithoutProductInput
+  mediaDrafts?: Prisma.ProductMediaDraftCreateNestedManyWithoutProductInput
+  promotionProducts?: Prisma.PromotionProductCreateNestedManyWithoutProductInput
+  reviews?: Prisma.ProductReviewCreateNestedManyWithoutProductInput
+  recommendations?: Prisma.AiRecommendationRecordCreateNestedManyWithoutProductInput
+  favorites?: Prisma.CustomerFavoriteCreateNestedManyWithoutProductInput
+  orderItems?: Prisma.OrderItemCreateNestedManyWithoutProductInput
+  savedOrders?: Prisma.SavedOrderCreateNestedManyWithoutProductInput
+  nutritionProfile?: Prisma.ProductNutritionProfileCreateNestedOneWithoutProductInput
+  allergenProfile?: Prisma.ProductAllergenProfileCreateNestedOneWithoutProductInput
+}
+
+export type CatalogProductUncheckedCreateWithoutCollectionMembershipsInput = {
+  id?: string
+  brandKey?: string
+  categoryId: string
+  slug: string
+  name: string
+  nameAr?: string | null
+  nameEn?: string | null
+  description: string
+  descriptionAr?: string | null
+  descriptionEn?: string | null
+  status?: $Enums.ProductStatus
+  basePrice: runtime.Decimal | runtime.DecimalJsLike | number | string
+  tags?: Prisma.CatalogProductCreatetagsInput | string[]
+  pairingHint?: string | null
+  aiDescriptor?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  variants?: Prisma.ProductVariantUncheckedCreateNestedManyWithoutProductInput
+  addons?: Prisma.ProductAddonUncheckedCreateNestedManyWithoutProductInput
+  modifiers?: Prisma.ProductModifierUncheckedCreateNestedManyWithoutProductInput
+  pricingRules?: Prisma.PricingRuleUncheckedCreateNestedManyWithoutProductInput
+  availabilityRules?: Prisma.AvailabilityRuleUncheckedCreateNestedManyWithoutProductInput
+  images?: Prisma.ProductImageUncheckedCreateNestedManyWithoutProductInput
+  mediaDrafts?: Prisma.ProductMediaDraftUncheckedCreateNestedManyWithoutProductInput
+  promotionProducts?: Prisma.PromotionProductUncheckedCreateNestedManyWithoutProductInput
+  reviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutProductInput
+  recommendations?: Prisma.AiRecommendationRecordUncheckedCreateNestedManyWithoutProductInput
+  favorites?: Prisma.CustomerFavoriteUncheckedCreateNestedManyWithoutProductInput
+  orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutProductInput
+  savedOrders?: Prisma.SavedOrderUncheckedCreateNestedManyWithoutProductInput
+  nutritionProfile?: Prisma.ProductNutritionProfileUncheckedCreateNestedOneWithoutProductInput
+  allergenProfile?: Prisma.ProductAllergenProfileUncheckedCreateNestedOneWithoutProductInput
+}
+
+export type CatalogProductCreateOrConnectWithoutCollectionMembershipsInput = {
+  where: Prisma.CatalogProductWhereUniqueInput
+  create: Prisma.XOR<Prisma.CatalogProductCreateWithoutCollectionMembershipsInput, Prisma.CatalogProductUncheckedCreateWithoutCollectionMembershipsInput>
+}
+
+export type CatalogProductUpsertWithoutCollectionMembershipsInput = {
+  update: Prisma.XOR<Prisma.CatalogProductUpdateWithoutCollectionMembershipsInput, Prisma.CatalogProductUncheckedUpdateWithoutCollectionMembershipsInput>
+  create: Prisma.XOR<Prisma.CatalogProductCreateWithoutCollectionMembershipsInput, Prisma.CatalogProductUncheckedCreateWithoutCollectionMembershipsInput>
+  where?: Prisma.CatalogProductWhereInput
+}
+
+export type CatalogProductUpdateToOneWithWhereWithoutCollectionMembershipsInput = {
+  where?: Prisma.CatalogProductWhereInput
+  data: Prisma.XOR<Prisma.CatalogProductUpdateWithoutCollectionMembershipsInput, Prisma.CatalogProductUncheckedUpdateWithoutCollectionMembershipsInput>
+}
+
+export type CatalogProductUpdateWithoutCollectionMembershipsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  brandKey?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nameEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptionAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
+  basePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  tags?: Prisma.CatalogProductUpdatetagsInput | string[]
+  pairingHint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiDescriptor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  category?: Prisma.ProductCategoryUpdateOneRequiredWithoutProductsNestedInput
+  variants?: Prisma.ProductVariantUpdateManyWithoutProductNestedInput
+  addons?: Prisma.ProductAddonUpdateManyWithoutProductNestedInput
+  modifiers?: Prisma.ProductModifierUpdateManyWithoutProductNestedInput
+  pricingRules?: Prisma.PricingRuleUpdateManyWithoutProductNestedInput
+  availabilityRules?: Prisma.AvailabilityRuleUpdateManyWithoutProductNestedInput
+  images?: Prisma.ProductImageUpdateManyWithoutProductNestedInput
+  mediaDrafts?: Prisma.ProductMediaDraftUpdateManyWithoutProductNestedInput
+  promotionProducts?: Prisma.PromotionProductUpdateManyWithoutProductNestedInput
+  reviews?: Prisma.ProductReviewUpdateManyWithoutProductNestedInput
+  recommendations?: Prisma.AiRecommendationRecordUpdateManyWithoutProductNestedInput
+  favorites?: Prisma.CustomerFavoriteUpdateManyWithoutProductNestedInput
+  orderItems?: Prisma.OrderItemUpdateManyWithoutProductNestedInput
+  savedOrders?: Prisma.SavedOrderUpdateManyWithoutProductNestedInput
+  nutritionProfile?: Prisma.ProductNutritionProfileUpdateOneWithoutProductNestedInput
+  allergenProfile?: Prisma.ProductAllergenProfileUpdateOneWithoutProductNestedInput
+}
+
+export type CatalogProductUncheckedUpdateWithoutCollectionMembershipsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  brandKey?: Prisma.StringFieldUpdateOperationsInput | string
+  categoryId?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nameEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptionAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
+  basePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  tags?: Prisma.CatalogProductUpdatetagsInput | string[]
+  pairingHint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiDescriptor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  variants?: Prisma.ProductVariantUncheckedUpdateManyWithoutProductNestedInput
+  addons?: Prisma.ProductAddonUncheckedUpdateManyWithoutProductNestedInput
+  modifiers?: Prisma.ProductModifierUncheckedUpdateManyWithoutProductNestedInput
+  pricingRules?: Prisma.PricingRuleUncheckedUpdateManyWithoutProductNestedInput
+  availabilityRules?: Prisma.AvailabilityRuleUncheckedUpdateManyWithoutProductNestedInput
+  images?: Prisma.ProductImageUncheckedUpdateManyWithoutProductNestedInput
+  mediaDrafts?: Prisma.ProductMediaDraftUncheckedUpdateManyWithoutProductNestedInput
+  promotionProducts?: Prisma.PromotionProductUncheckedUpdateManyWithoutProductNestedInput
+  reviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutProductNestedInput
+  recommendations?: Prisma.AiRecommendationRecordUncheckedUpdateManyWithoutProductNestedInput
+  favorites?: Prisma.CustomerFavoriteUncheckedUpdateManyWithoutProductNestedInput
+  orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutProductNestedInput
+  savedOrders?: Prisma.SavedOrderUncheckedUpdateManyWithoutProductNestedInput
+  nutritionProfile?: Prisma.ProductNutritionProfileUncheckedUpdateOneWithoutProductNestedInput
+  allergenProfile?: Prisma.ProductAllergenProfileUncheckedUpdateOneWithoutProductNestedInput
+}
+
+export type CatalogProductCreateWithoutNutritionProfileInput = {
+  id?: string
+  brandKey?: string
+  slug: string
+  name: string
+  nameAr?: string | null
+  nameEn?: string | null
+  description: string
+  descriptionAr?: string | null
+  descriptionEn?: string | null
+  status?: $Enums.ProductStatus
+  basePrice: runtime.Decimal | runtime.DecimalJsLike | number | string
+  tags?: Prisma.CatalogProductCreatetagsInput | string[]
+  pairingHint?: string | null
+  aiDescriptor?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  category: Prisma.ProductCategoryCreateNestedOneWithoutProductsInput
+  variants?: Prisma.ProductVariantCreateNestedManyWithoutProductInput
+  addons?: Prisma.ProductAddonCreateNestedManyWithoutProductInput
+  modifiers?: Prisma.ProductModifierCreateNestedManyWithoutProductInput
+  pricingRules?: Prisma.PricingRuleCreateNestedManyWithoutProductInput
+  availabilityRules?: Prisma.AvailabilityRuleCreateNestedManyWithoutProductInput
+  images?: Prisma.ProductImageCreateNestedManyWithoutProductInput
+  mediaDrafts?: Prisma.ProductMediaDraftCreateNestedManyWithoutProductInput
+  promotionProducts?: Prisma.PromotionProductCreateNestedManyWithoutProductInput
+  reviews?: Prisma.ProductReviewCreateNestedManyWithoutProductInput
+  recommendations?: Prisma.AiRecommendationRecordCreateNestedManyWithoutProductInput
+  favorites?: Prisma.CustomerFavoriteCreateNestedManyWithoutProductInput
+  orderItems?: Prisma.OrderItemCreateNestedManyWithoutProductInput
+  savedOrders?: Prisma.SavedOrderCreateNestedManyWithoutProductInput
+  collectionMemberships?: Prisma.MenuCollectionProductCreateNestedManyWithoutProductInput
+  allergenProfile?: Prisma.ProductAllergenProfileCreateNestedOneWithoutProductInput
+}
+
+export type CatalogProductUncheckedCreateWithoutNutritionProfileInput = {
+  id?: string
+  brandKey?: string
+  categoryId: string
+  slug: string
+  name: string
+  nameAr?: string | null
+  nameEn?: string | null
+  description: string
+  descriptionAr?: string | null
+  descriptionEn?: string | null
+  status?: $Enums.ProductStatus
+  basePrice: runtime.Decimal | runtime.DecimalJsLike | number | string
+  tags?: Prisma.CatalogProductCreatetagsInput | string[]
+  pairingHint?: string | null
+  aiDescriptor?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  variants?: Prisma.ProductVariantUncheckedCreateNestedManyWithoutProductInput
+  addons?: Prisma.ProductAddonUncheckedCreateNestedManyWithoutProductInput
+  modifiers?: Prisma.ProductModifierUncheckedCreateNestedManyWithoutProductInput
+  pricingRules?: Prisma.PricingRuleUncheckedCreateNestedManyWithoutProductInput
+  availabilityRules?: Prisma.AvailabilityRuleUncheckedCreateNestedManyWithoutProductInput
+  images?: Prisma.ProductImageUncheckedCreateNestedManyWithoutProductInput
+  mediaDrafts?: Prisma.ProductMediaDraftUncheckedCreateNestedManyWithoutProductInput
+  promotionProducts?: Prisma.PromotionProductUncheckedCreateNestedManyWithoutProductInput
+  reviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutProductInput
+  recommendations?: Prisma.AiRecommendationRecordUncheckedCreateNestedManyWithoutProductInput
+  favorites?: Prisma.CustomerFavoriteUncheckedCreateNestedManyWithoutProductInput
+  orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutProductInput
+  savedOrders?: Prisma.SavedOrderUncheckedCreateNestedManyWithoutProductInput
+  collectionMemberships?: Prisma.MenuCollectionProductUncheckedCreateNestedManyWithoutProductInput
+  allergenProfile?: Prisma.ProductAllergenProfileUncheckedCreateNestedOneWithoutProductInput
+}
+
+export type CatalogProductCreateOrConnectWithoutNutritionProfileInput = {
+  where: Prisma.CatalogProductWhereUniqueInput
+  create: Prisma.XOR<Prisma.CatalogProductCreateWithoutNutritionProfileInput, Prisma.CatalogProductUncheckedCreateWithoutNutritionProfileInput>
+}
+
+export type CatalogProductUpsertWithoutNutritionProfileInput = {
+  update: Prisma.XOR<Prisma.CatalogProductUpdateWithoutNutritionProfileInput, Prisma.CatalogProductUncheckedUpdateWithoutNutritionProfileInput>
+  create: Prisma.XOR<Prisma.CatalogProductCreateWithoutNutritionProfileInput, Prisma.CatalogProductUncheckedCreateWithoutNutritionProfileInput>
+  where?: Prisma.CatalogProductWhereInput
+}
+
+export type CatalogProductUpdateToOneWithWhereWithoutNutritionProfileInput = {
+  where?: Prisma.CatalogProductWhereInput
+  data: Prisma.XOR<Prisma.CatalogProductUpdateWithoutNutritionProfileInput, Prisma.CatalogProductUncheckedUpdateWithoutNutritionProfileInput>
+}
+
+export type CatalogProductUpdateWithoutNutritionProfileInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  brandKey?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nameEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptionAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
+  basePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  tags?: Prisma.CatalogProductUpdatetagsInput | string[]
+  pairingHint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiDescriptor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  category?: Prisma.ProductCategoryUpdateOneRequiredWithoutProductsNestedInput
+  variants?: Prisma.ProductVariantUpdateManyWithoutProductNestedInput
+  addons?: Prisma.ProductAddonUpdateManyWithoutProductNestedInput
+  modifiers?: Prisma.ProductModifierUpdateManyWithoutProductNestedInput
+  pricingRules?: Prisma.PricingRuleUpdateManyWithoutProductNestedInput
+  availabilityRules?: Prisma.AvailabilityRuleUpdateManyWithoutProductNestedInput
+  images?: Prisma.ProductImageUpdateManyWithoutProductNestedInput
+  mediaDrafts?: Prisma.ProductMediaDraftUpdateManyWithoutProductNestedInput
+  promotionProducts?: Prisma.PromotionProductUpdateManyWithoutProductNestedInput
+  reviews?: Prisma.ProductReviewUpdateManyWithoutProductNestedInput
+  recommendations?: Prisma.AiRecommendationRecordUpdateManyWithoutProductNestedInput
+  favorites?: Prisma.CustomerFavoriteUpdateManyWithoutProductNestedInput
+  orderItems?: Prisma.OrderItemUpdateManyWithoutProductNestedInput
+  savedOrders?: Prisma.SavedOrderUpdateManyWithoutProductNestedInput
+  collectionMemberships?: Prisma.MenuCollectionProductUpdateManyWithoutProductNestedInput
+  allergenProfile?: Prisma.ProductAllergenProfileUpdateOneWithoutProductNestedInput
+}
+
+export type CatalogProductUncheckedUpdateWithoutNutritionProfileInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  brandKey?: Prisma.StringFieldUpdateOperationsInput | string
+  categoryId?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nameEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptionAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
+  basePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  tags?: Prisma.CatalogProductUpdatetagsInput | string[]
+  pairingHint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiDescriptor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  variants?: Prisma.ProductVariantUncheckedUpdateManyWithoutProductNestedInput
+  addons?: Prisma.ProductAddonUncheckedUpdateManyWithoutProductNestedInput
+  modifiers?: Prisma.ProductModifierUncheckedUpdateManyWithoutProductNestedInput
+  pricingRules?: Prisma.PricingRuleUncheckedUpdateManyWithoutProductNestedInput
+  availabilityRules?: Prisma.AvailabilityRuleUncheckedUpdateManyWithoutProductNestedInput
+  images?: Prisma.ProductImageUncheckedUpdateManyWithoutProductNestedInput
+  mediaDrafts?: Prisma.ProductMediaDraftUncheckedUpdateManyWithoutProductNestedInput
+  promotionProducts?: Prisma.PromotionProductUncheckedUpdateManyWithoutProductNestedInput
+  reviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutProductNestedInput
+  recommendations?: Prisma.AiRecommendationRecordUncheckedUpdateManyWithoutProductNestedInput
+  favorites?: Prisma.CustomerFavoriteUncheckedUpdateManyWithoutProductNestedInput
+  orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutProductNestedInput
+  savedOrders?: Prisma.SavedOrderUncheckedUpdateManyWithoutProductNestedInput
+  collectionMemberships?: Prisma.MenuCollectionProductUncheckedUpdateManyWithoutProductNestedInput
+  allergenProfile?: Prisma.ProductAllergenProfileUncheckedUpdateOneWithoutProductNestedInput
+}
+
+export type CatalogProductCreateWithoutAllergenProfileInput = {
+  id?: string
+  brandKey?: string
+  slug: string
+  name: string
+  nameAr?: string | null
+  nameEn?: string | null
+  description: string
+  descriptionAr?: string | null
+  descriptionEn?: string | null
+  status?: $Enums.ProductStatus
+  basePrice: runtime.Decimal | runtime.DecimalJsLike | number | string
+  tags?: Prisma.CatalogProductCreatetagsInput | string[]
+  pairingHint?: string | null
+  aiDescriptor?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  category: Prisma.ProductCategoryCreateNestedOneWithoutProductsInput
+  variants?: Prisma.ProductVariantCreateNestedManyWithoutProductInput
+  addons?: Prisma.ProductAddonCreateNestedManyWithoutProductInput
+  modifiers?: Prisma.ProductModifierCreateNestedManyWithoutProductInput
+  pricingRules?: Prisma.PricingRuleCreateNestedManyWithoutProductInput
+  availabilityRules?: Prisma.AvailabilityRuleCreateNestedManyWithoutProductInput
+  images?: Prisma.ProductImageCreateNestedManyWithoutProductInput
+  mediaDrafts?: Prisma.ProductMediaDraftCreateNestedManyWithoutProductInput
+  promotionProducts?: Prisma.PromotionProductCreateNestedManyWithoutProductInput
+  reviews?: Prisma.ProductReviewCreateNestedManyWithoutProductInput
+  recommendations?: Prisma.AiRecommendationRecordCreateNestedManyWithoutProductInput
+  favorites?: Prisma.CustomerFavoriteCreateNestedManyWithoutProductInput
+  orderItems?: Prisma.OrderItemCreateNestedManyWithoutProductInput
+  savedOrders?: Prisma.SavedOrderCreateNestedManyWithoutProductInput
+  collectionMemberships?: Prisma.MenuCollectionProductCreateNestedManyWithoutProductInput
+  nutritionProfile?: Prisma.ProductNutritionProfileCreateNestedOneWithoutProductInput
+}
+
+export type CatalogProductUncheckedCreateWithoutAllergenProfileInput = {
+  id?: string
+  brandKey?: string
+  categoryId: string
+  slug: string
+  name: string
+  nameAr?: string | null
+  nameEn?: string | null
+  description: string
+  descriptionAr?: string | null
+  descriptionEn?: string | null
+  status?: $Enums.ProductStatus
+  basePrice: runtime.Decimal | runtime.DecimalJsLike | number | string
+  tags?: Prisma.CatalogProductCreatetagsInput | string[]
+  pairingHint?: string | null
+  aiDescriptor?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  variants?: Prisma.ProductVariantUncheckedCreateNestedManyWithoutProductInput
+  addons?: Prisma.ProductAddonUncheckedCreateNestedManyWithoutProductInput
+  modifiers?: Prisma.ProductModifierUncheckedCreateNestedManyWithoutProductInput
+  pricingRules?: Prisma.PricingRuleUncheckedCreateNestedManyWithoutProductInput
+  availabilityRules?: Prisma.AvailabilityRuleUncheckedCreateNestedManyWithoutProductInput
+  images?: Prisma.ProductImageUncheckedCreateNestedManyWithoutProductInput
+  mediaDrafts?: Prisma.ProductMediaDraftUncheckedCreateNestedManyWithoutProductInput
+  promotionProducts?: Prisma.PromotionProductUncheckedCreateNestedManyWithoutProductInput
+  reviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutProductInput
+  recommendations?: Prisma.AiRecommendationRecordUncheckedCreateNestedManyWithoutProductInput
+  favorites?: Prisma.CustomerFavoriteUncheckedCreateNestedManyWithoutProductInput
+  orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutProductInput
+  savedOrders?: Prisma.SavedOrderUncheckedCreateNestedManyWithoutProductInput
+  collectionMemberships?: Prisma.MenuCollectionProductUncheckedCreateNestedManyWithoutProductInput
+  nutritionProfile?: Prisma.ProductNutritionProfileUncheckedCreateNestedOneWithoutProductInput
+}
+
+export type CatalogProductCreateOrConnectWithoutAllergenProfileInput = {
+  where: Prisma.CatalogProductWhereUniqueInput
+  create: Prisma.XOR<Prisma.CatalogProductCreateWithoutAllergenProfileInput, Prisma.CatalogProductUncheckedCreateWithoutAllergenProfileInput>
+}
+
+export type CatalogProductUpsertWithoutAllergenProfileInput = {
+  update: Prisma.XOR<Prisma.CatalogProductUpdateWithoutAllergenProfileInput, Prisma.CatalogProductUncheckedUpdateWithoutAllergenProfileInput>
+  create: Prisma.XOR<Prisma.CatalogProductCreateWithoutAllergenProfileInput, Prisma.CatalogProductUncheckedCreateWithoutAllergenProfileInput>
+  where?: Prisma.CatalogProductWhereInput
+}
+
+export type CatalogProductUpdateToOneWithWhereWithoutAllergenProfileInput = {
+  where?: Prisma.CatalogProductWhereInput
+  data: Prisma.XOR<Prisma.CatalogProductUpdateWithoutAllergenProfileInput, Prisma.CatalogProductUncheckedUpdateWithoutAllergenProfileInput>
+}
+
+export type CatalogProductUpdateWithoutAllergenProfileInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  brandKey?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nameEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptionAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
+  basePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  tags?: Prisma.CatalogProductUpdatetagsInput | string[]
+  pairingHint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiDescriptor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  category?: Prisma.ProductCategoryUpdateOneRequiredWithoutProductsNestedInput
+  variants?: Prisma.ProductVariantUpdateManyWithoutProductNestedInput
+  addons?: Prisma.ProductAddonUpdateManyWithoutProductNestedInput
+  modifiers?: Prisma.ProductModifierUpdateManyWithoutProductNestedInput
+  pricingRules?: Prisma.PricingRuleUpdateManyWithoutProductNestedInput
+  availabilityRules?: Prisma.AvailabilityRuleUpdateManyWithoutProductNestedInput
+  images?: Prisma.ProductImageUpdateManyWithoutProductNestedInput
+  mediaDrafts?: Prisma.ProductMediaDraftUpdateManyWithoutProductNestedInput
+  promotionProducts?: Prisma.PromotionProductUpdateManyWithoutProductNestedInput
+  reviews?: Prisma.ProductReviewUpdateManyWithoutProductNestedInput
+  recommendations?: Prisma.AiRecommendationRecordUpdateManyWithoutProductNestedInput
+  favorites?: Prisma.CustomerFavoriteUpdateManyWithoutProductNestedInput
+  orderItems?: Prisma.OrderItemUpdateManyWithoutProductNestedInput
+  savedOrders?: Prisma.SavedOrderUpdateManyWithoutProductNestedInput
+  collectionMemberships?: Prisma.MenuCollectionProductUpdateManyWithoutProductNestedInput
+  nutritionProfile?: Prisma.ProductNutritionProfileUpdateOneWithoutProductNestedInput
+}
+
+export type CatalogProductUncheckedUpdateWithoutAllergenProfileInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  brandKey?: Prisma.StringFieldUpdateOperationsInput | string
+  categoryId?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  nameAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nameEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptionAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
+  basePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  tags?: Prisma.CatalogProductUpdatetagsInput | string[]
+  pairingHint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiDescriptor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  variants?: Prisma.ProductVariantUncheckedUpdateManyWithoutProductNestedInput
+  addons?: Prisma.ProductAddonUncheckedUpdateManyWithoutProductNestedInput
+  modifiers?: Prisma.ProductModifierUncheckedUpdateManyWithoutProductNestedInput
+  pricingRules?: Prisma.PricingRuleUncheckedUpdateManyWithoutProductNestedInput
+  availabilityRules?: Prisma.AvailabilityRuleUncheckedUpdateManyWithoutProductNestedInput
+  images?: Prisma.ProductImageUncheckedUpdateManyWithoutProductNestedInput
+  mediaDrafts?: Prisma.ProductMediaDraftUncheckedUpdateManyWithoutProductNestedInput
+  promotionProducts?: Prisma.PromotionProductUncheckedUpdateManyWithoutProductNestedInput
+  reviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutProductNestedInput
+  recommendations?: Prisma.AiRecommendationRecordUncheckedUpdateManyWithoutProductNestedInput
+  favorites?: Prisma.CustomerFavoriteUncheckedUpdateManyWithoutProductNestedInput
+  orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutProductNestedInput
+  savedOrders?: Prisma.SavedOrderUncheckedUpdateManyWithoutProductNestedInput
+  collectionMemberships?: Prisma.MenuCollectionProductUncheckedUpdateManyWithoutProductNestedInput
+  nutritionProfile?: Prisma.ProductNutritionProfileUncheckedUpdateOneWithoutProductNestedInput
 }
 
 export type CatalogProductCreateManyCategoryInput = {
@@ -3011,6 +3704,9 @@ export type CatalogProductUpdateWithoutCategoryInput = {
   favorites?: Prisma.CustomerFavoriteUpdateManyWithoutProductNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutProductNestedInput
   savedOrders?: Prisma.SavedOrderUpdateManyWithoutProductNestedInput
+  collectionMemberships?: Prisma.MenuCollectionProductUpdateManyWithoutProductNestedInput
+  nutritionProfile?: Prisma.ProductNutritionProfileUpdateOneWithoutProductNestedInput
+  allergenProfile?: Prisma.ProductAllergenProfileUpdateOneWithoutProductNestedInput
 }
 
 export type CatalogProductUncheckedUpdateWithoutCategoryInput = {
@@ -3043,6 +3739,9 @@ export type CatalogProductUncheckedUpdateWithoutCategoryInput = {
   favorites?: Prisma.CustomerFavoriteUncheckedUpdateManyWithoutProductNestedInput
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutProductNestedInput
   savedOrders?: Prisma.SavedOrderUncheckedUpdateManyWithoutProductNestedInput
+  collectionMemberships?: Prisma.MenuCollectionProductUncheckedUpdateManyWithoutProductNestedInput
+  nutritionProfile?: Prisma.ProductNutritionProfileUncheckedUpdateOneWithoutProductNestedInput
+  allergenProfile?: Prisma.ProductAllergenProfileUncheckedUpdateOneWithoutProductNestedInput
 }
 
 export type CatalogProductUncheckedUpdateManyWithoutCategoryInput = {
@@ -3083,6 +3782,7 @@ export type CatalogProductCountOutputType = {
   favorites: number
   orderItems: number
   savedOrders: number
+  collectionMemberships: number
 }
 
 export type CatalogProductCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -3099,6 +3799,7 @@ export type CatalogProductCountOutputTypeSelect<ExtArgs extends runtime.Types.Ex
   favorites?: boolean | CatalogProductCountOutputTypeCountFavoritesArgs
   orderItems?: boolean | CatalogProductCountOutputTypeCountOrderItemsArgs
   savedOrders?: boolean | CatalogProductCountOutputTypeCountSavedOrdersArgs
+  collectionMemberships?: boolean | CatalogProductCountOutputTypeCountCollectionMembershipsArgs
 }
 
 /**
@@ -3202,6 +3903,13 @@ export type CatalogProductCountOutputTypeCountSavedOrdersArgs<ExtArgs extends ru
   where?: Prisma.SavedOrderWhereInput
 }
 
+/**
+ * CatalogProductCountOutputType without action
+ */
+export type CatalogProductCountOutputTypeCountCollectionMembershipsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.MenuCollectionProductWhereInput
+}
+
 
 export type CatalogProductSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -3235,6 +3943,9 @@ export type CatalogProductSelect<ExtArgs extends runtime.Types.Extensions.Intern
   favorites?: boolean | Prisma.CatalogProduct$favoritesArgs<ExtArgs>
   orderItems?: boolean | Prisma.CatalogProduct$orderItemsArgs<ExtArgs>
   savedOrders?: boolean | Prisma.CatalogProduct$savedOrdersArgs<ExtArgs>
+  collectionMemberships?: boolean | Prisma.CatalogProduct$collectionMembershipsArgs<ExtArgs>
+  nutritionProfile?: boolean | Prisma.CatalogProduct$nutritionProfileArgs<ExtArgs>
+  allergenProfile?: boolean | Prisma.CatalogProduct$allergenProfileArgs<ExtArgs>
   _count?: boolean | Prisma.CatalogProductCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["catalogProduct"]>
 
@@ -3316,6 +4027,9 @@ export type CatalogProductInclude<ExtArgs extends runtime.Types.Extensions.Inter
   favorites?: boolean | Prisma.CatalogProduct$favoritesArgs<ExtArgs>
   orderItems?: boolean | Prisma.CatalogProduct$orderItemsArgs<ExtArgs>
   savedOrders?: boolean | Prisma.CatalogProduct$savedOrdersArgs<ExtArgs>
+  collectionMemberships?: boolean | Prisma.CatalogProduct$collectionMembershipsArgs<ExtArgs>
+  nutritionProfile?: boolean | Prisma.CatalogProduct$nutritionProfileArgs<ExtArgs>
+  allergenProfile?: boolean | Prisma.CatalogProduct$allergenProfileArgs<ExtArgs>
   _count?: boolean | Prisma.CatalogProductCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type CatalogProductIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -3342,6 +4056,9 @@ export type $CatalogProductPayload<ExtArgs extends runtime.Types.Extensions.Inte
     favorites: Prisma.$CustomerFavoritePayload<ExtArgs>[]
     orderItems: Prisma.$OrderItemPayload<ExtArgs>[]
     savedOrders: Prisma.$SavedOrderPayload<ExtArgs>[]
+    collectionMemberships: Prisma.$MenuCollectionProductPayload<ExtArgs>[]
+    nutritionProfile: Prisma.$ProductNutritionProfilePayload<ExtArgs> | null
+    allergenProfile: Prisma.$ProductAllergenProfilePayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -3769,6 +4486,9 @@ export interface Prisma__CatalogProductClient<T, Null = never, ExtArgs extends r
   favorites<T extends Prisma.CatalogProduct$favoritesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CatalogProduct$favoritesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerFavoritePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   orderItems<T extends Prisma.CatalogProduct$orderItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CatalogProduct$orderItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OrderItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   savedOrders<T extends Prisma.CatalogProduct$savedOrdersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CatalogProduct$savedOrdersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SavedOrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  collectionMemberships<T extends Prisma.CatalogProduct$collectionMembershipsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CatalogProduct$collectionMembershipsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MenuCollectionProductPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  nutritionProfile<T extends Prisma.CatalogProduct$nutritionProfileArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CatalogProduct$nutritionProfileArgs<ExtArgs>>): Prisma.Prisma__ProductNutritionProfileClient<runtime.Types.Result.GetResult<Prisma.$ProductNutritionProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  allergenProfile<T extends Prisma.CatalogProduct$allergenProfileArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CatalogProduct$allergenProfileArgs<ExtArgs>>): Prisma.Prisma__ProductAllergenProfileClient<runtime.Types.Result.GetResult<Prisma.$ProductAllergenProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -4525,6 +5245,68 @@ export type CatalogProduct$savedOrdersArgs<ExtArgs extends runtime.Types.Extensi
   take?: number
   skip?: number
   distinct?: Prisma.SavedOrderScalarFieldEnum | Prisma.SavedOrderScalarFieldEnum[]
+}
+
+/**
+ * CatalogProduct.collectionMemberships
+ */
+export type CatalogProduct$collectionMembershipsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the MenuCollectionProduct
+   */
+  select?: Prisma.MenuCollectionProductSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the MenuCollectionProduct
+   */
+  omit?: Prisma.MenuCollectionProductOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MenuCollectionProductInclude<ExtArgs> | null
+  where?: Prisma.MenuCollectionProductWhereInput
+  orderBy?: Prisma.MenuCollectionProductOrderByWithRelationInput | Prisma.MenuCollectionProductOrderByWithRelationInput[]
+  cursor?: Prisma.MenuCollectionProductWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.MenuCollectionProductScalarFieldEnum | Prisma.MenuCollectionProductScalarFieldEnum[]
+}
+
+/**
+ * CatalogProduct.nutritionProfile
+ */
+export type CatalogProduct$nutritionProfileArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProductNutritionProfile
+   */
+  select?: Prisma.ProductNutritionProfileSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProductNutritionProfile
+   */
+  omit?: Prisma.ProductNutritionProfileOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductNutritionProfileInclude<ExtArgs> | null
+  where?: Prisma.ProductNutritionProfileWhereInput
+}
+
+/**
+ * CatalogProduct.allergenProfile
+ */
+export type CatalogProduct$allergenProfileArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProductAllergenProfile
+   */
+  select?: Prisma.ProductAllergenProfileSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProductAllergenProfile
+   */
+  omit?: Prisma.ProductAllergenProfileOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductAllergenProfileInclude<ExtArgs> | null
+  where?: Prisma.ProductAllergenProfileWhereInput
 }
 
 /**

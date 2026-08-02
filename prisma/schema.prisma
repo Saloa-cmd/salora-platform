@@ -228,6 +228,58 @@ enum CmsApprovalStatus {
   CANCELLED
 }
 
+enum MenuCollectionKind {
+  STANDARD
+  WELLNESS
+  KIDS
+  SEASONAL
+}
+
+enum MenuCollectionStatus {
+  DRAFT
+  CONTENT_REVIEW
+  FOOD_SAFETY_REVIEW
+  APPROVED
+  SCHEDULED
+  PUBLISHED
+  PAUSED
+  ARCHIVED
+}
+
+enum MenuMembershipSource {
+  MANUAL
+  RULE
+  AI_SUGGESTED
+}
+
+enum FoodDataVerificationStatus {
+  MISSING
+  DRAFT
+  PENDING_REVIEW
+  VERIFIED
+  REJECTED
+  EXPIRED
+}
+
+enum MenuPublicationStatus {
+  SCHEDULED
+  PUBLISHING
+  PUBLISHED
+  FAILED
+  ROLLED_BACK
+  CANCELLED
+}
+
+enum MenuCollectionPermission {
+  VIEW
+  EDIT
+  REVIEW_CONTENT
+  REVIEW_FOOD_SAFETY
+  APPROVE
+  PUBLISH
+  ROLLBACK
+}
+
 model User {
   id              String           @id @default(uuid()) @db.Uuid
   email           String           @unique @db.VarChar(255)
@@ -315,37 +367,40 @@ model ProductCategory {
 }
 
 model CatalogProduct {
-  id                String                   @id @default(uuid()) @db.Uuid
-  brandKey          String                   @default("SALORA") @map("brand_key") @db.VarChar(40)
-  categoryId        String                   @map("category_id") @db.Uuid
-  slug              String                   @unique @db.VarChar(140)
-  name              String                   @db.VarChar(160)
-  nameAr            String?                  @map("name_ar") @db.VarChar(160)
-  nameEn            String?                  @map("name_en") @db.VarChar(160)
-  description       String                   @db.Text
-  descriptionAr     String?                  @map("description_ar") @db.Text
-  descriptionEn     String?                  @map("description_en") @db.Text
-  status            ProductStatus            @default(DRAFT)
-  basePrice         Decimal                  @map("base_price") @db.Decimal(10, 3)
-  tags              String[]                 @default([])
-  pairingHint       String?                  @map("pairing_hint") @db.Text
-  aiDescriptor      String?                  @map("ai_descriptor") @db.Text
-  createdAt         DateTime                 @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt         DateTime                 @updatedAt @map("updated_at") @db.Timestamptz(6)
-  category          ProductCategory          @relation(fields: [categoryId], references: [id])
-  variants          ProductVariant[]
-  addons            ProductAddon[]
-  modifiers         ProductModifier[]
-  pricingRules      PricingRule[]
-  availabilityRules AvailabilityRule[]
-  images            ProductImage[]
-  mediaDrafts       ProductMediaDraft[]
-  promotionProducts PromotionProduct[]
-  reviews           ProductReview[]
-  recommendations   AiRecommendationRecord[]
-  favorites         CustomerFavorite[]
-  orderItems        OrderItem[]
-  savedOrders       SavedOrder[]
+  id                    String                   @id @default(uuid()) @db.Uuid
+  brandKey              String                   @default("SALORA") @map("brand_key") @db.VarChar(40)
+  categoryId            String                   @map("category_id") @db.Uuid
+  slug                  String                   @unique @db.VarChar(140)
+  name                  String                   @db.VarChar(160)
+  nameAr                String?                  @map("name_ar") @db.VarChar(160)
+  nameEn                String?                  @map("name_en") @db.VarChar(160)
+  description           String                   @db.Text
+  descriptionAr         String?                  @map("description_ar") @db.Text
+  descriptionEn         String?                  @map("description_en") @db.Text
+  status                ProductStatus            @default(DRAFT)
+  basePrice             Decimal                  @map("base_price") @db.Decimal(10, 3)
+  tags                  String[]                 @default([])
+  pairingHint           String?                  @map("pairing_hint") @db.Text
+  aiDescriptor          String?                  @map("ai_descriptor") @db.Text
+  createdAt             DateTime                 @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt             DateTime                 @updatedAt @map("updated_at") @db.Timestamptz(6)
+  category              ProductCategory          @relation(fields: [categoryId], references: [id])
+  variants              ProductVariant[]
+  addons                ProductAddon[]
+  modifiers             ProductModifier[]
+  pricingRules          PricingRule[]
+  availabilityRules     AvailabilityRule[]
+  images                ProductImage[]
+  mediaDrafts           ProductMediaDraft[]
+  promotionProducts     PromotionProduct[]
+  reviews               ProductReview[]
+  recommendations       AiRecommendationRecord[]
+  favorites             CustomerFavorite[]
+  orderItems            OrderItem[]
+  savedOrders           SavedOrder[]
+  collectionMemberships MenuCollectionProduct[]
+  nutritionProfile      ProductNutritionProfile?
+  allergenProfile       ProductAllergenProfile?
 
   @@index([categoryId])
   @@index([brandKey, status])
@@ -1272,4 +1327,227 @@ model RuntimeConfiguration {
   @@unique([scope, key])
   @@index([scope, isActive])
   @@map("runtime_configurations")
+}
+
+model MenuCollection {
+  id                String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  brandKey          String                   @default("SALORA") @map("brand_key") @db.VarChar(40)
+  key               String                   @db.VarChar(80)
+  slug              String                   @db.VarChar(120)
+  kind              MenuCollectionKind
+  status            MenuCollectionStatus     @default(DRAFT)
+  nameAr            String                   @map("name_ar") @db.VarChar(160)
+  nameEn            String                   @map("name_en") @db.VarChar(160)
+  descriptionAr     String?                  @map("description_ar") @db.Text
+  descriptionEn     String?                  @map("description_en") @db.Text
+  accentTokens      Json                     @default("{}") @map("accent_tokens")
+  coverMedia        Json?                    @map("cover_media")
+  banner            Json?
+  channels          String[]                 @default(["WEB", "DIGITAL_MENU", "MOBILE"])
+  completenessScore Int                      @default(0) @map("completeness_score")
+  activeRevisionId  String?                  @unique @map("active_revision_id") @db.Uuid
+  scheduledAt       DateTime?                @map("scheduled_at") @db.Timestamptz(6)
+  publishedAt       DateTime?                @map("published_at") @db.Timestamptz(6)
+  pausedAt          DateTime?                @map("paused_at") @db.Timestamptz(6)
+  archivedAt        DateTime?                @map("archived_at") @db.Timestamptz(6)
+  createdBy         String                   @map("created_by") @db.Uuid
+  updatedBy         String                   @map("updated_by") @db.Uuid
+  createdAt         DateTime                 @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt         DateTime                 @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  activeRevision    MenuCollectionRevision?  @relation("MenuCollectionActiveRevision", fields: [activeRevisionId], references: [id], onDelete: SetNull)
+  sections          MenuCollectionSection[]
+  products          MenuCollectionProduct[]
+  revisions         MenuCollectionRevision[] @relation("MenuCollectionRevisions")
+  publications      MenuPublication[]
+
+  @@unique([brandKey, key])
+  @@unique([brandKey, slug])
+  @@index([brandKey, status, kind])
+  @@index([status, scheduledAt])
+  @@index([archivedAt])
+  @@map("menu_collections")
+}
+
+model MenuCollectionSection {
+  id             String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  collectionId   String                  @map("collection_id") @db.Uuid
+  key            String                  @db.VarChar(80)
+  nameAr         String                  @map("name_ar") @db.VarChar(160)
+  nameEn         String                  @map("name_en") @db.VarChar(160)
+  descriptionAr  String?                 @map("description_ar") @db.Text
+  descriptionEn  String?                 @map("description_en") @db.Text
+  sortOrder      Int                     @default(0) @map("sort_order")
+  membershipRule Json?                   @map("membership_rule")
+  isActive       Boolean                 @default(true) @map("is_active")
+  archivedAt     DateTime?               @map("archived_at") @db.Timestamptz(6)
+  createdBy      String                  @map("created_by") @db.Uuid
+  updatedBy      String                  @map("updated_by") @db.Uuid
+  createdAt      DateTime                @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime                @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  collection     MenuCollection          @relation(fields: [collectionId], references: [id], onDelete: Restrict)
+  products       MenuCollectionProduct[]
+
+  @@unique([collectionId, key])
+  @@index([collectionId, sortOrder])
+  @@index([archivedAt])
+  @@map("menu_collection_sections")
+}
+
+model MenuCollectionProduct {
+  id                    String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  collectionId          String                 @map("collection_id") @db.Uuid
+  sectionId             String?                @map("section_id") @db.Uuid
+  productId             String                 @map("product_id") @db.Uuid
+  sortOrder             Int                    @default(0) @map("sort_order")
+  titleArOverride       String?                @map("title_ar_override") @db.VarChar(160)
+  titleEnOverride       String?                @map("title_en_override") @db.VarChar(160)
+  descriptionArOverride String?                @map("description_ar_override") @db.Text
+  descriptionEnOverride String?                @map("description_en_override") @db.Text
+  presentationImage     Json?                  @map("presentation_image")
+  badges                String[]               @default([])
+  membershipSource      MenuMembershipSource   @default(MANUAL) @map("membership_source")
+  membershipRuleKey     String?                @map("membership_rule_key") @db.VarChar(120)
+  sourceReason          String?                @map("source_reason") @db.Text
+  isFeatured            Boolean                @default(false) @map("is_featured")
+  reviewedBy            String?                @map("reviewed_by") @db.Uuid
+  reviewedAt            DateTime?              @map("reviewed_at") @db.Timestamptz(6)
+  archivedAt            DateTime?              @map("archived_at") @db.Timestamptz(6)
+  createdBy             String                 @map("created_by") @db.Uuid
+  updatedBy             String                 @map("updated_by") @db.Uuid
+  createdAt             DateTime               @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt             DateTime               @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  collection            MenuCollection         @relation(fields: [collectionId], references: [id], onDelete: Restrict)
+  section               MenuCollectionSection? @relation(fields: [sectionId], references: [id], onDelete: SetNull)
+  product               CatalogProduct         @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  @@unique([collectionId, productId])
+  @@index([collectionId, sectionId, sortOrder])
+  @@index([productId])
+  @@index([archivedAt])
+  @@map("menu_collection_products")
+}
+
+model ProductNutritionProfile {
+  id                 String                     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  productId          String                     @unique @map("product_id") @db.Uuid
+  servingLabelAr     String?                    @map("serving_label_ar") @db.VarChar(120)
+  servingLabelEn     String?                    @map("serving_label_en") @db.VarChar(120)
+  servingAmount      Decimal?                   @map("serving_amount") @db.Decimal(10, 3)
+  servingUnit        String?                    @map("serving_unit") @db.VarChar(32)
+  caloriesKcal       Decimal?                   @map("calories_kcal") @db.Decimal(10, 3)
+  proteinG           Decimal?                   @map("protein_g") @db.Decimal(10, 3)
+  carbohydratesG     Decimal?                   @map("carbohydrates_g") @db.Decimal(10, 3)
+  totalSugarG        Decimal?                   @map("total_sugar_g") @db.Decimal(10, 3)
+  addedSugarG        Decimal?                   @map("added_sugar_g") @db.Decimal(10, 3)
+  fatG               Decimal?                   @map("fat_g") @db.Decimal(10, 3)
+  saturatedFatG      Decimal?                   @map("saturated_fat_g") @db.Decimal(10, 3)
+  sodiumMg           Decimal?                   @map("sodium_mg") @db.Decimal(10, 3)
+  caffeineMg         Decimal?                   @map("caffeine_mg") @db.Decimal(10, 3)
+  plantBased         Boolean?                   @map("plant_based")
+  sourceType         String?                    @map("source_type") @db.VarChar(80)
+  sourceReference    String?                    @map("source_reference") @db.Text
+  recipeVersion      String?                    @map("recipe_version") @db.VarChar(80)
+  verificationStatus FoodDataVerificationStatus @default(MISSING) @map("verification_status")
+  confidenceScore    Decimal?                   @map("confidence_score") @db.Decimal(5, 4)
+  reviewedBy         String?                    @map("reviewed_by") @db.Uuid
+  reviewedAt         DateTime?                  @map("reviewed_at") @db.Timestamptz(6)
+  validUntil         DateTime?                  @map("valid_until") @db.Timestamptz(6)
+  archivedAt         DateTime?                  @map("archived_at") @db.Timestamptz(6)
+  createdBy          String                     @map("created_by") @db.Uuid
+  updatedBy          String                     @map("updated_by") @db.Uuid
+  createdAt          DateTime                   @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime                   @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  product            CatalogProduct             @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  @@index([verificationStatus, validUntil])
+  @@index([archivedAt])
+  @@map("product_nutrition_profiles")
+}
+
+model ProductAllergenProfile {
+  id                     String                     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  productId              String                     @unique @map("product_id") @db.Uuid
+  containsAllergens      String[]                   @default([]) @map("contains_allergens")
+  mayContainAllergens    String[]                   @default([]) @map("may_contain_allergens")
+  declaredFreeFrom       String[]                   @default([]) @map("declared_free_from")
+  ingredientVersion      String?                    @map("ingredient_version") @db.VarChar(80)
+  crossContactAssessment String?                    @map("cross_contact_assessment") @db.Text
+  warningAr              String?                    @map("warning_ar") @db.Text
+  warningEn              String?                    @map("warning_en") @db.Text
+  sourceType             String?                    @map("source_type") @db.VarChar(80)
+  sourceReference        String?                    @map("source_reference") @db.Text
+  verificationStatus     FoodDataVerificationStatus @default(MISSING) @map("verification_status")
+  reviewedBy             String?                    @map("reviewed_by") @db.Uuid
+  reviewedAt             DateTime?                  @map("reviewed_at") @db.Timestamptz(6)
+  validUntil             DateTime?                  @map("valid_until") @db.Timestamptz(6)
+  archivedAt             DateTime?                  @map("archived_at") @db.Timestamptz(6)
+  createdBy              String                     @map("created_by") @db.Uuid
+  updatedBy              String                     @map("updated_by") @db.Uuid
+  createdAt              DateTime                   @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt              DateTime                   @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  product                CatalogProduct             @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  @@index([verificationStatus, validUntil])
+  @@index([archivedAt])
+  @@map("product_allergen_profiles")
+}
+
+model MenuCollectionRevision {
+  id                  String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  collectionId        String               @map("collection_id") @db.Uuid
+  version             Int
+  status              MenuCollectionStatus
+  snapshot            Json
+  checksum            String               @db.VarChar(64)
+  changeSummary       String?              @map("change_summary") @db.VarChar(500)
+  createdBy           String               @map("created_by") @db.Uuid
+  createdAt           DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
+  collection          MenuCollection       @relation("MenuCollectionRevisions", fields: [collectionId], references: [id], onDelete: Restrict)
+  activeForCollection MenuCollection?      @relation("MenuCollectionActiveRevision")
+  publications        MenuPublication[]
+
+  @@unique([collectionId, version])
+  @@index([collectionId, createdAt])
+  @@index([checksum])
+  @@map("menu_collection_revisions")
+}
+
+model MenuPublication {
+  id              String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  collectionId    String                 @map("collection_id") @db.Uuid
+  revisionId      String                 @map("revision_id") @db.Uuid
+  publicationKey  String                 @unique @map("publication_key") @db.VarChar(160)
+  status          MenuPublicationStatus  @default(SCHEDULED)
+  channels        String[]               @default(["WEB", "DIGITAL_MENU", "MOBILE"])
+  scheduledAt     DateTime?              @map("scheduled_at") @db.Timestamptz(6)
+  startedAt       DateTime?              @map("started_at") @db.Timestamptz(6)
+  publishedAt     DateTime?              @map("published_at") @db.Timestamptz(6)
+  completedAt     DateTime?              @map("completed_at") @db.Timestamptz(6)
+  rolledBackAt    DateTime?              @map("rolled_back_at") @db.Timestamptz(6)
+  smokeTestStatus String?                @map("smoke_test_status") @db.VarChar(40)
+  failureReason   String?                @map("failure_reason") @db.Text
+  rollbackOfId    String?                @map("rollback_of_id") @db.Uuid
+  createdBy       String                 @map("created_by") @db.Uuid
+  createdAt       DateTime               @default(now()) @map("created_at") @db.Timestamptz(6)
+  collection      MenuCollection         @relation(fields: [collectionId], references: [id], onDelete: Restrict)
+  revision        MenuCollectionRevision @relation(fields: [revisionId], references: [id], onDelete: Restrict)
+  rollbackOf      MenuPublication?       @relation("MenuPublicationRollback", fields: [rollbackOfId], references: [id], onDelete: SetNull)
+  rollbacks       MenuPublication[]      @relation("MenuPublicationRollback")
+
+  @@index([collectionId, status, scheduledAt])
+  @@index([revisionId])
+  @@index([rollbackOfId])
+  @@map("menu_publications")
+}
+
+model MenuRolePermission {
+  id         String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  roleName   RoleName                 @map("role_name")
+  permission MenuCollectionPermission
+  createdBy  String?                  @map("created_by") @db.Uuid
+  createdAt  DateTime                 @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@unique([roleName, permission])
+  @@index([permission])
+  @@map("menu_role_permissions")
 }
