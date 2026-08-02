@@ -309,3 +309,73 @@ export const CmsApprovalStatus = {
 } as const
 
 export type CmsApprovalStatus = (typeof CmsApprovalStatus)[keyof typeof CmsApprovalStatus]
+
+
+export const MenuCollectionKind = {
+  STANDARD: 'STANDARD',
+  WELLNESS: 'WELLNESS',
+  KIDS: 'KIDS',
+  SEASONAL: 'SEASONAL'
+} as const
+
+export type MenuCollectionKind = (typeof MenuCollectionKind)[keyof typeof MenuCollectionKind]
+
+
+export const MenuCollectionStatus = {
+  DRAFT: 'DRAFT',
+  CONTENT_REVIEW: 'CONTENT_REVIEW',
+  FOOD_SAFETY_REVIEW: 'FOOD_SAFETY_REVIEW',
+  APPROVED: 'APPROVED',
+  SCHEDULED: 'SCHEDULED',
+  PUBLISHED: 'PUBLISHED',
+  PAUSED: 'PAUSED',
+  ARCHIVED: 'ARCHIVED'
+} as const
+
+export type MenuCollectionStatus = (typeof MenuCollectionStatus)[keyof typeof MenuCollectionStatus]
+
+
+export const MenuMembershipSource = {
+  MANUAL: 'MANUAL',
+  RULE: 'RULE',
+  AI_SUGGESTED: 'AI_SUGGESTED'
+} as const
+
+export type MenuMembershipSource = (typeof MenuMembershipSource)[keyof typeof MenuMembershipSource]
+
+
+export const FoodDataVerificationStatus = {
+  MISSING: 'MISSING',
+  DRAFT: 'DRAFT',
+  PENDING_REVIEW: 'PENDING_REVIEW',
+  VERIFIED: 'VERIFIED',
+  REJECTED: 'REJECTED',
+  EXPIRED: 'EXPIRED'
+} as const
+
+export type FoodDataVerificationStatus = (typeof FoodDataVerificationStatus)[keyof typeof FoodDataVerificationStatus]
+
+
+export const MenuPublicationStatus = {
+  SCHEDULED: 'SCHEDULED',
+  PUBLISHING: 'PUBLISHING',
+  PUBLISHED: 'PUBLISHED',
+  FAILED: 'FAILED',
+  ROLLED_BACK: 'ROLLED_BACK',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type MenuPublicationStatus = (typeof MenuPublicationStatus)[keyof typeof MenuPublicationStatus]
+
+
+export const MenuCollectionPermission = {
+  VIEW: 'VIEW',
+  EDIT: 'EDIT',
+  REVIEW_CONTENT: 'REVIEW_CONTENT',
+  REVIEW_FOOD_SAFETY: 'REVIEW_FOOD_SAFETY',
+  APPROVE: 'APPROVE',
+  PUBLISH: 'PUBLISH',
+  ROLLBACK: 'ROLLBACK'
+} as const
+
+export type MenuCollectionPermission = (typeof MenuCollectionPermission)[keyof typeof MenuCollectionPermission]

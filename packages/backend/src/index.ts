@@ -81,3 +81,4 @@ export * from "./ai/concierge/context-builders/customerPreferenceContext";
 export * from "./ai/concierge/context-builders/loyaltyContext";
 export * from "./ai/concierge/context-builders/orderContext";
 export * from "./ai/concierge/context-builders/menuRecommendationContext";
+export * from "./domains/menu-collections";

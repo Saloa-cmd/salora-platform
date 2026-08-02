@@ -312,3 +312,43 @@ export type Session = Prisma.SessionModel
  *
  */
 export type RuntimeConfiguration = Prisma.RuntimeConfigurationModel
+/**
+ * Model MenuCollection
+ *
+ */
+export type MenuCollection = Prisma.MenuCollectionModel
+/**
+ * Model MenuCollectionSection
+ *
+ */
+export type MenuCollectionSection = Prisma.MenuCollectionSectionModel
+/**
+ * Model MenuCollectionProduct
+ *
+ */
+export type MenuCollectionProduct = Prisma.MenuCollectionProductModel
+/**
+ * Model ProductNutritionProfile
+ *
+ */
+export type ProductNutritionProfile = Prisma.ProductNutritionProfileModel
+/**
+ * Model ProductAllergenProfile
+ *
+ */
+export type ProductAllergenProfile = Prisma.ProductAllergenProfileModel
+/**
+ * Model MenuCollectionRevision
+ *
+ */
+export type MenuCollectionRevision = Prisma.MenuCollectionRevisionModel
+/**
+ * Model MenuPublication
+ *
+ */
+export type MenuPublication = Prisma.MenuPublicationModel
+/**
+ * Model MenuRolePermission
+ *
+ */
+export type MenuRolePermission = Prisma.MenuRolePermissionModel
