@@ -227,9 +227,7 @@ async function readLegacyCatalog(): Promise<MenuAuthoritySnapshot> {
         addons: { orderBy: { name: "asc" } },
         modifiers: { orderBy: { name: "asc" } },
         pricingRules: true,
-        availabilityRules: true,
-        nutritionProfile: true,
-        allergenProfile: true
+        availabilityRules: true
       },
       orderBy: [{ category: { sortOrder: "asc" } }, { name: "asc" }]
     });
@@ -284,9 +282,7 @@ async function readLegacyCatalog(): Promise<MenuAuthoritySnapshot> {
             required: modifier.required,
             options: normalizeCatalogModifierOptions(modifier.options)
           }))
-          .filter((group) => group.options.length > 0),
-        nutrition: nutritionSummary(row.nutritionProfile),
-        allergens: allergenSummary(row.allergenProfile)
+          .filter((group) => group.options.length > 0)
       }));
 
     return {

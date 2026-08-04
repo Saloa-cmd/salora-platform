@@ -17,6 +17,9 @@ const authorityApi = read("apps/web/app/api/v1/menu-authority/route.ts");
 const readyRoute = read("apps/web/app/api/ready/route.ts");
 const analyticsApi = read("apps/web/app/api/analytics/menu-event/route.ts");
 const packageJson = JSON.parse(read("package.json"));
+const legacyCatalogBlock = authority.match(
+  /async function readLegacyCatalog\(\): Promise<MenuAuthoritySnapshot> \{([\s\S]*?)\nasync function loadAuthority/u
+)?.[1];
 
 const menuBlock = seed.match(/const menu: MenuRow\[\] = \[([\s\S]*?)\n\];/u)?.[1];
 assert.ok(menuBlock, "SALORA seed menu block is missing.");
@@ -48,6 +51,12 @@ assert.match(backendContract, /MENU_REVISION_CONTRACT_VERSION = 2/);
 assert.match(authority, /status: "PUBLISHED"/);
 assert.match(authority, /activeRevision/);
 assert.match(authority, /SALORA_MENU_AUTHORITY_MODE/);
+assert.ok(legacyCatalogBlock, "Legacy compatibility loader is missing.");
+assert.doesNotMatch(legacyCatalogBlock, /nutritionProfile:\s*true/);
+assert.doesNotMatch(legacyCatalogBlock, /allergenProfile:\s*true/);
+assert.doesNotMatch(legacyCatalogBlock, /row\.nutritionProfile|row\.allergenProfile/);
+assert.match(authority, /nutrition:\s*nutritionSummary\(product\.nutritionProfile\)/);
+assert.match(authority, /allergens:\s*allergenSummary\(product\.allergenProfile\)/);
 assert.doesNotMatch(publicMenu, /@salora\/data/);
 assert.doesNotMatch(aiHttp, /@salora\/data/);
 assert.doesNotMatch(menuExperience, /const arabicNames/);
@@ -71,5 +80,6 @@ console.log("SALORA P22 Menu Authority integration verified:");
 console.log("- 117 unique products, 104 ACTIVE-by-price, 13 exact drafts");
 console.log("- published MenuCollectionRevision contract v2 is authoritative");
 console.log("- static web and AI menu fallbacks are removed");
+console.log("- legacy compatibility avoids optional P21 profile tables");
 console.log("- mobile revision cache and offline mode are present");
 console.log("- Control Tower and revision-scoped analytics contracts are present");
