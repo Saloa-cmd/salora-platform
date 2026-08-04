@@ -19,7 +19,12 @@ export async function GET() {
     catalogLoaded: menuSnapshot.products.length > 0,
     catalogSource: menuSnapshot.source,
     catalogStale: menuSnapshot.stale,
-    catalogLive: menuSnapshot.source === "database" && !menuSnapshot.stale,
+    catalogLive:
+      menuSnapshot.source === "published-revision" &&
+      Boolean(menuSnapshot.revision) &&
+      !menuSnapshot.stale,
+    catalogRevisionId: menuSnapshot.revision?.id ?? null,
+    catalogRevisionVersion: menuSnapshot.revision?.version ?? null,
     databaseMenuHealth: menuSnapshot.databaseHealth,
     siteUrlConfigured: saloraRuntime.siteUrl.startsWith("http"),
     whatsappConfigured: /^\d{8,15}$/.test(saloraRuntime.whatsappNumber),

@@ -8,7 +8,8 @@ export const rateLimitPolicies = {
   orders: { limit: 40, windowSeconds: 60 },
   whatsapp: { limit: 60, windowSeconds: 60 },
   stripe: { limit: 60, windowSeconds: 60 },
-  controlTower: { limit: 120, windowSeconds: 60 }
+  controlTower: { limit: 120, windowSeconds: 60 },
+  analytics: { limit: 180, windowSeconds: 60 }
 } satisfies Record<string, RateLimitWindow>;
 
 function clientIp(request: NextRequest) {

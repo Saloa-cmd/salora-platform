@@ -18,6 +18,7 @@ import { ExperienceDesignStudio } from "./ExperienceDesignStudio";
 import { ContentOperationsStudio } from "./ContentOperationsStudio";
 import { ProductMediaManager } from "./ProductMediaManager";
 import { MediaGovernanceAudit } from "./MediaGovernanceAudit";
+import { MenuAuthorityStudio } from "./MenuAuthorityStudio";
 
 const cmsLifecycle = ["Draft", "Publish", "Schedule", "Archive"];
 const appConfigAreas = ["Theme", "Colors", "Typography", "Feature flags", "Navigation", "Homepage layout", "AI features", "WhatsApp features"];
@@ -77,6 +78,10 @@ function SectionSpecificWorkspace({ sectionId }: { sectionId: ControlTowerSectio
         <SupremacyCommandCenter />
       </>
     );
+  }
+
+  if (sectionId === "menu-authority") {
+    return <MenuAuthorityStudio />;
   }
 
   if (sectionId === "content") {

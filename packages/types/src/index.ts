@@ -4,6 +4,9 @@ export type OrderType = "Counter" | "Car" | "DineIn" | "Gift";
 
 export interface Product {
   id: string;
+  catalogId?: string;
+  menuRevisionId?: string;
+  sectionKey?: string;
   name: string;
   nameAr?: string;
   nameEn?: string;
@@ -19,6 +22,9 @@ export interface Product {
   pairing?: string;
   visual: string;
   featured?: boolean;
+  badges?: string[];
+  nutrition?: ProductNutritionSummary;
+  allergens?: ProductAllergenSummary;
   variants?: ProductChoice[];
   addons?: ProductChoice[];
   modifierGroups?: ProductModifierGroup[];
@@ -72,6 +78,59 @@ export interface ConciergeReply {
   pairing?: string;
   intent: "cold" | "sweet" | "pairing" | "light" | "matcha" | "unsure";
   quickReplies?: string[];
+}
+
+export interface ProductNutritionSummary {
+  caloriesKcal?: number;
+  proteinG?: number;
+  carbohydratesG?: number;
+  totalSugarG?: number;
+  fatG?: number;
+  verificationStatus: "VERIFIED";
+}
+
+export interface ProductAllergenSummary {
+  contains: string[];
+  mayContain: string[];
+  warningAr?: string;
+  warningEn?: string;
+  verificationStatus: "VERIFIED";
+}
+
+export type MenuAuthoritySource = "published-revision" | "legacy-catalog";
+
+export interface MenuAuthoritySection {
+  id: string;
+  key: string;
+  nameAr: string;
+  nameEn: string;
+  descriptionAr?: string;
+  descriptionEn?: string;
+  sortOrder: number;
+}
+
+export interface MenuAuthoritySnapshot {
+  collection: {
+    id: string;
+    key: string;
+    slug: string;
+    kind: string;
+    nameAr: string;
+    nameEn: string;
+  };
+  revision: {
+    id: string;
+    version: number;
+    checksum: string;
+    publishedAt: string;
+  } | null;
+  sections: MenuAuthoritySection[];
+  products: Product[];
+  source: MenuAuthoritySource;
+  stale: boolean;
+  runtimeMode: "live" | "compatibility" | "offline-cache";
+  databaseHealth: "available" | "unavailable";
+  generatedAt: string;
 }
 
 export type ExperienceLayout = "grid" | "list" | "editorial";

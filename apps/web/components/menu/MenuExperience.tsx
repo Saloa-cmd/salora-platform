@@ -19,7 +19,7 @@ import {
   UtensilsCrossed,
   X
 } from "lucide-react";
-import type { ExperienceConfiguration, Product, ProductChoice, ProductModifierGroup, SelectedModifier } from "@salora/types";
+import type { ExperienceConfiguration, MenuAuthoritySection, MenuAuthoritySnapshot, MenuAuthoritySource, Product, ProductChoice, ProductModifierGroup, SelectedModifier } from "@salora/types";
 import { SaloraButton, SaloraEmptyState } from "@/components/ui/SaloraPrimitives";
 
 type Language = "ar" | "en";
@@ -63,7 +63,7 @@ const copy = {
     light: "خفيف",
     confirm: "أضف إلى الطلب",
     live: "بيانات مباشرة",
-    fallback: "وضع العرض الاحتياطي",
+    fallback: "وضع توافق مؤقت",
     orderSaved: "تم حفظ الطلب. سيتم فتح واتساب للتأكيد.",
     orderFailed: "تعذر التحقق من السعر أو التوفر. راجع الطلب وحاول مرة أخرى.",
     customerName: "الاسم",
@@ -110,7 +110,7 @@ const copy = {
     light: "Light",
     confirm: "Add to order",
     live: "Live data",
-    fallback: "Fallback preview",
+    fallback: "Compatibility mode",
     orderSaved: "Order saved. WhatsApp will open for confirmation.",
     orderFailed: "Price or availability could not be verified. Review the order and try again.",
     customerName: "Name",
@@ -140,21 +140,6 @@ const serviceModes = [
   { id: "gift" as const, ar: "أرسل لحظة سالورا", en: "Send a SALORA moment", icon: Gift }
 ];
 
-const arabicNames: Record<string, string> = {
-  "american-cheese-cake": "تشيز كيك أمريكي",
-  americano: "أمريكانو",
-  cappuccino: "كابتشينو",
-  "cold-brew": "كولد برو",
-  espresso: "إسبريسو",
-  "flat-white": "فلات وايت",
-  "iced-americano": "آيس أمريكانو",
-  "iced-latte": "آيس لاتيه",
-  "iced-spanish-latte": "سبانش لاتيه بارد",
-  "lemon-mint": "ليمون ونعناع",
-  "pistachio-latte": "لاتيه بستاشيو",
-  "red-velvet": "ريد فيلفت",
-  "san-sabastian": "سان سباستيان"
-};
 
 function optionLabel(language: Language, value: string) {
   const labels = copy[language] as Record<string, string>;
@@ -163,7 +148,7 @@ function optionLabel(language: Language, value: string) {
 
 function displayName(product: Product, language: Language) {
   return language === "ar"
-    ? product.nameAr ?? arabicNames[product.id] ?? product.name
+    ? product.nameAr ?? product.name
     : product.nameEn ?? product.name;
 }
 
@@ -195,32 +180,32 @@ function productAccent(product: Product) {
   return "from-[#6d412d]/40 via-[#20140f] to-black";
 }
 
-function supportsDrinkOptions(product: Product) {
-  const category = product.category.toLowerCase();
-  return !category.includes("dessert") && !category.includes("cake");
-}
-
-function fallbackGroups(product: Product, language: Language): ProductModifierGroup[] {
-  if (!supportsDrinkOptions(product)) return [];
-  const label = (ar: string, en: string) => language === "ar" ? ar : en;
-  return [
-    { id: "size", name: label("الحجم", "Size"), required: true, options: [{ id: "regular", name: label("عادي", "Regular"), priceDelta: 0 }, { id: "large", name: label("كبير", "Large"), priceDelta: 0.3 }] },
-    { id: "milk", name: label("الحليب", "Milk"), required: true, options: [{ id: "regular", name: label("عادي", "Regular"), priceDelta: 0 }, { id: "oat", name: label("شوفان", "Oat"), priceDelta: 0.25 }, { id: "almond", name: label("لوز", "Almond"), priceDelta: 0.25 }] },
-    { id: "sugar", name: label("السكر", "Sugar"), required: true, options: [{ id: "none", name: label("بدون", "None"), priceDelta: 0 }, { id: "less", name: label("قليل", "Less"), priceDelta: 0 }, { id: "regular", name: label("عادي", "Regular"), priceDelta: 0 }] },
-    { id: "ice", name: label("الثلج", "Ice"), required: true, options: [{ id: "none", name: label("بدون", "None"), priceDelta: 0 }, { id: "light", name: label("خفيف", "Light"), priceDelta: 0 }, { id: "regular", name: label("عادي", "Regular"), priceDelta: 0 }] }
-  ];
-}
-
 function productGroups(product: Product, language: Language): ProductModifierGroup[] {
   const databaseGroups: ProductModifierGroup[] = [
     ...(product.variants?.length ? [{ id: "variant", name: language === "ar" ? "الحجم / النوع" : "Size / variant", required: true, options: product.variants }] : []),
     ...(product.modifierGroups ?? []),
     ...(product.addons?.length ? [{ id: "addons", name: language === "ar" ? "الإضافات" : "Add-ons", required: false, options: product.addons }] : [])
   ];
-  return databaseGroups.length ? databaseGroups : fallbackGroups(product, language);
+  return databaseGroups;
 }
 
-export function MenuExperience({ initialProducts, menuSource, menuStale, whatsappNumber, experience }: { initialProducts: Product[]; menuSource: "database" | "fallback"; menuStale: boolean; whatsappNumber: string; experience: ExperienceConfiguration }) {
+export function MenuExperience({
+  initialProducts,
+  sections,
+  revision,
+  menuSource,
+  menuStale,
+  whatsappNumber,
+  experience
+}: {
+  initialProducts: Product[];
+  sections: MenuAuthoritySection[];
+  revision: MenuAuthoritySnapshot["revision"];
+  menuSource: MenuAuthoritySource;
+  menuStale: boolean;
+  whatsappNumber: string;
+  experience: ExperienceConfiguration;
+}) {
   const [language, setLanguage] = useState<Language>("ar");
   const [serviceMode, setServiceMode] = useState<ServiceMode>("counter");
   const [category, setCategory] = useState("All");
@@ -237,12 +222,15 @@ export function MenuExperience({ initialProducts, menuSource, menuStale, whatsap
   const [submitting, setSubmitting] = useState(false);
   const t = copy[language];
 
-  const categories = useMemo(() => ["All", ...Array.from(new Set(initialProducts.map((product) => product.category)))], [initialProducts]);
+  const categories = useMemo(
+    () => ["All", ...sections.filter((section) => initialProducts.some((product) => product.sectionKey === section.key)).map((section) => section.key)],
+    [initialProducts, sections]
+  );
   const filteredProducts = useMemo(() => {
     const query = search.trim().toLowerCase();
     return initialProducts.filter((product) => {
-      const categoryMatch = category === "All" || product.category === category;
-      const searchMatch = !query || `${product.name} ${product.nameAr ?? arabicNames[product.id] ?? ""} ${product.nameEn ?? ""} ${product.category} ${product.categoryAr ?? ""} ${product.categoryEn ?? ""} ${product.tags.join(" ")}`.toLowerCase().includes(query);
+      const categoryMatch = category === "All" || product.sectionKey === category;
+      const searchMatch = !query || `${product.name} ${product.nameAr ?? ""} ${product.nameEn ?? ""} ${product.category} ${product.categoryAr ?? ""} ${product.categoryEn ?? ""} ${product.tags.join(" ")} ${(product.badges ?? []).join(" ")}`.toLocaleLowerCase("ar").includes(query.toLocaleLowerCase("ar"));
       return categoryMatch && searchMatch;
     });
   }, [category, initialProducts, search]);
@@ -255,6 +243,12 @@ export function MenuExperience({ initialProducts, menuSource, menuStale, whatsap
   });
   const selectedUnitPrice = selectedProduct ? Number((selectedProduct.price + selectedModifiers.reduce((sum, modifier) => sum + modifier.priceDelta, 0)).toFixed(3)) : 0;
   const requiredSelectionsComplete = selectedGroups.filter((group) => group.required).every((group) => selections[group.id]);
+
+  useEffect(() => {
+    if (!revision?.id || typeof navigator === "undefined") return;
+    const payload = JSON.stringify({ eventType: "view", revisionId: revision.id, channel: "web" });
+    navigator.sendBeacon("/api/analytics/menu-event", new Blob([payload], { type: "application/json" }));
+  }, [revision?.id]);
 
   useEffect(() => {
     if (!selectedProduct && !cartOpen) return;
@@ -272,7 +266,14 @@ export function MenuExperience({ initialProducts, menuSource, menuStale, whatsap
     };
   }, [cartOpen, selectedProduct]);
 
+  function trackAuthorityEvent(eventType: "view" | "click" | "search", productSlug?: string, query?: string) {
+    if (!revision?.id || typeof navigator === "undefined") return;
+    const payload = JSON.stringify({ eventType, revisionId: revision.id, productSlug, query, channel: "web" });
+    navigator.sendBeacon("/api/analytics/menu-event", new Blob([payload], { type: "application/json" }));
+  }
+
   function openProduct(product: Product) {
+    trackAuthorityEvent("click", product.id);
     setSelectedProduct(product);
     const groups = productGroups(product, language);
     setSelections(groups.reduce<Record<string, ProductChoice>>((initial, group) => { const option = group.options[0]; if (group.required && option) initial[group.id] = option; return initial; }, {}));
@@ -417,7 +418,7 @@ export function MenuExperience({ initialProducts, menuSource, menuStale, whatsap
             <div className="mt-4 flex flex-wrap items-center gap-3">
             <a href="#menu-products" className="inline-flex min-h-11 items-center justify-center rounded-full bg-[var(--gold)] px-5 text-sm font-semibold text-black transition hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--gold)]">{t.browse}</a>
             <span className={`inline-flex min-h-11 items-center gap-2 rounded-full border px-3 py-2 text-xs font-semibold ${menuStale ? "border-amber-300/20 bg-amber-300/10 text-amber-100" : "border-emerald-300/20 bg-emerald-300/10 text-emerald-200"}`}>
-              <span className="h-2 w-2 rounded-full bg-current" /> {menuSource === "database" ? t.live : t.fallback}
+              <span className="h-2 w-2 rounded-full bg-current" /> {menuSource === "published-revision" ? t.live : t.fallback}
             </span>
             </div>
           </div>
@@ -444,9 +445,9 @@ export function MenuExperience({ initialProducts, menuSource, menuStale, whatsap
           </label> : null}
           {experience.menu.showCategories ? <div className="salora-scroll-strip lg:flex-1" role="tablist" aria-label={language === "ar" ? "تصنيفات المنيو" : "Menu categories"}>
             {categories.map((item) => {
-              const categoryProduct = initialProducts.find((product) => product.category === item);
-              const label = item === "All" ? t.all : categoryProduct ? displayCategory(categoryProduct, language) : item;
-              const count = item === "All" ? initialProducts.length : initialProducts.filter((product) => product.category === item).length;
+              const authoritySection = sections.find((section) => section.key === item);
+              const label = item === "All" ? t.all : language === "ar" ? authoritySection?.nameAr ?? item : authoritySection?.nameEn ?? item;
+              const count = item === "All" ? initialProducts.length : initialProducts.filter((product) => product.sectionKey === item).length;
               return <button key={item} type="button" role="tab" aria-selected={category === item} onClick={() => setCategory(item)} className={`min-h-11 shrink-0 rounded-full border px-4 py-2 text-xs font-semibold transition ${category === item ? "border-[var(--gold)] bg-[var(--gold)] text-black" : "border-white/10 bg-white/[0.04] text-[var(--muted)] hover:border-white/25 hover:text-[var(--cream)]"}`}>{label}<span className="ms-2 opacity-65">{count}</span></button>;
             })}
           </div> : null}

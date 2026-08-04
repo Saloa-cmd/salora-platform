@@ -1,106 +1,11 @@
-import { products as fallbackProducts } from "@salora/data";
-import type { Product, ProductChoice } from "@salora/types";
-import { SYSTEM_AUTH_CONTEXT, withPrismaAuthContext } from "@salora/backend/database/rls-context";
-import { catalogProductIsAvailable, currentCatalogPrice, normalizeCatalogModifierOptions } from "./commerceIntegrity";
+import type { MenuAuthoritySnapshot, Product } from "@salora/types";
+import { getMenuAuthoritySnapshot } from "./menuAuthority";
 
-export type PublicMenuSource = "database" | "fallback";
-
-export type PublicMenuSnapshot = {
-  products: Product[];
-  source: PublicMenuSource;
-  stale: boolean;
-  runtimeMode: "live" | "fallback";
-  databaseHealth: "available" | "unavailable";
-};
-
-type PublicCatalogProduct = {
-  id: string;
-  slug: string;
-  name: string;
-  nameAr: string | null;
-  nameEn: string | null;
-  description: string;
-  descriptionAr: string | null;
-  descriptionEn: string | null;
-  basePrice: { toString(): string } | number | string;
-  tags: string[];
-  pairingHint: string | null;
-  category: { name: string; nameAr: string | null; nameEn: string | null } | null;
-  images: Array<{ publicUrl: string | null; storagePath: string }>;
-  variants: Array<{ id: string; name: string; priceDelta: { toString(): string } | number | string; sku: string | null }>;
-  addons: Array<{ id: string; name: string; price: { toString(): string } | number | string }>;
-  modifiers: Array<{ id: string; name: string; options: unknown; required: boolean }>;
-  pricingRules: Array<{ startsAt: Date | null; endsAt: Date | null; price: { toString(): string } | number | string }>;
-  availabilityRules: Array<{ dayOfWeek: number | null; startsAt: string | null; endsAt: string | null; isAvailable: boolean }>;
-};
-
-function normalizeOptions(value: unknown): ProductChoice[] {
-  return normalizeCatalogModifierOptions(value);
-}
-
-function mapCatalogProduct(product: PublicCatalogProduct, now: Date): Product {
-  const primaryImage = product.images.find((image) => image.publicUrl)?.publicUrl;
-
-  return {
-    id: product.slug,
-    name: product.name,
-    nameAr: product.nameAr ?? undefined,
-    nameEn: product.nameEn ?? product.name,
-    category: product.category?.name ?? "Menu",
-    categoryAr: product.category?.nameAr ?? undefined,
-    categoryEn: product.category?.nameEn ?? product.category?.name ?? undefined,
-    description: product.description,
-    descriptionAr: product.descriptionAr ?? undefined,
-    descriptionEn: product.descriptionEn ?? product.description,
-    story: product.description,
-    price: currentCatalogPrice(product.basePrice, product.pricingRules, now),
-    tags: product.tags,
-    pairing: product.pairingHint ?? undefined,
-    visual: primaryImage ?? product.slug,
-    variants: product.variants.map((variant) => ({ id: variant.id, name: variant.name, priceDelta: Number(variant.priceDelta.toString()), sku: variant.sku ?? undefined })),
-    addons: product.addons.map((addon) => ({ id: addon.id, name: addon.name, priceDelta: Number(addon.price.toString()) })),
-    modifierGroups: product.modifiers.map((modifier) => ({ id: modifier.id, name: modifier.name, required: modifier.required, options: normalizeOptions(modifier.options) })).filter((group) => group.options.length > 0)
-  };
-}
+export type PublicMenuSnapshot = MenuAuthoritySnapshot;
+export type PublicMenuSource = MenuAuthoritySnapshot["source"];
 
 export async function getPublicMenuSnapshot(): Promise<PublicMenuSnapshot> {
-  try {
-    const now = new Date();
-    const products = await withPrismaAuthContext(SYSTEM_AUTH_CONTEXT, (db) => db.catalogProduct.findMany({
-      where: { brandKey: "SALORA", status: "ACTIVE" },
-      include: {
-        category: true,
-        images: {
-          where: { archivedAt: null, deletedAt: null },
-          orderBy: [{ isPrimary: "desc" }, { sortOrder: "asc" }, { createdAt: "asc" }]
-        },
-        variants: { orderBy: { name: "asc" } },
-        addons: { orderBy: { name: "asc" } },
-        modifiers: { orderBy: { name: "asc" } },
-        pricingRules: true,
-        availabilityRules: true
-      },
-      orderBy: [{ category: { sortOrder: "asc" } }, { name: "asc" }]
-    }));
-
-    return {
-      products: products
-        .filter((product) => catalogProductIsAvailable(product.availabilityRules, now))
-        .map((product) => mapCatalogProduct(product, now)),
-      source: "database",
-      stale: false,
-      runtimeMode: "live",
-      databaseHealth: "available"
-    };
-  } catch {
-    return {
-      products: fallbackProducts,
-      source: "fallback",
-      stale: true,
-      runtimeMode: "fallback",
-      databaseHealth: "unavailable"
-    };
-  }
+  return getMenuAuthoritySnapshot();
 }
 
 export async function getPublicMenuProducts(): Promise<Product[]> {

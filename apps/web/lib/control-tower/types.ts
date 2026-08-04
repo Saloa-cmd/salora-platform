@@ -14,6 +14,7 @@ export type ControlTowerSectionId =
   | "instagram"
   | "notifications"
   | "content"
+  | "menu-authority"
   | "automation"
   | "integrations"
   | "settings";

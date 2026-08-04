@@ -12,20 +12,20 @@ type MenuRow = readonly [category: string, slug: string, nameAr: string, nameEn:
 const categories = [
   ["hot-coffee", "القهوة الساخنة", "Hot Coffee"],
   ["iced-coffee", "القهوة الباردة", "Iced Coffee"],
-  ["salora-signature", "قهوة سالورا المميزة", "SALORA Signature Coffee"],
   ["specialty-coffee", "القهوة المختصة", "Specialty Coffee"],
+  ["hot-drinks", "المشروبات الساخنة", "Hot Drinks"],
+  ["matcha", "قائمة الماتشا", "Matcha Menu"],
+  ["iced-tea", "الشاي المثلج", "Iced Tea"],
   ["fresh-juices", "العصائر الطازجة", "Fresh Juices"],
-  ["fruit-cocktails", "كوكتيلات الفواكه الطازجة", "Fresh Fruit Cocktails"],
-  ["mocktails", "الموكتيلات", "Mocktails"],
+  ["fruit-cocktails", "كوكتيلات الفواكه", "Fruit Cocktails"],
+  ["mocktails", "الكوكتيلات الباردة", "Soft Cocktails"],
   ["milkshakes", "الميلك شيك", "Milkshakes"],
   ["frappes", "الفرابيه", "Frappés"],
-  ["matcha", "الماتشا", "Matcha"],
   ["smoothies", "السموذي", "Smoothies"],
-  ["healthy-wellness", "قائمة الصحة", "Healthy Menu"],
-  ["kids-drinks", "قائمة الأطفال", "Kids Menu"],
-  ["hot-drinks", "المشروبات الساخنة", "Hot Drinks"],
-  ["iced-tea", "الشاي المثلج", "Iced Tea"],
-  ["desserts", "الحلويات", "Desserts"]
+  ["desserts", "الحلويات", "Desserts"],
+  ["healthy-wellness", "قائمة الصحة", "SALORA Wellness"],
+  ["kids-drinks", "الأطفال", "SALORA Kids"],
+  ["salora-signature", "قهوة سالورا المميزة", "SALORA Signature Coffee"]
 ] as const;
 
 const menu: MenuRow[] = [
@@ -115,24 +115,24 @@ const menu: MenuRow[] = [
   ["smoothies", "strawberry-smoothie", "سموذي فراولة", "Strawberry Smoothie", 1.5],
   ["smoothies", "lemon-mint-smoothie", "سموذي ليمون ونعناع", "Lemon Mint Smoothie", 1.4],
   ["healthy-wellness", "protein-shake", "مخفوق البروتين", "Protein Shake", null],
-  ["healthy-wellness", "collagen-drink", "مشروب الكولاجين", "Collagen Drink", null],
-  ["healthy-wellness", "healthy-pistachio-milkshake", "ميلك شيك صحي بالفستق", "Healthy Pistachio Milkshake", null],
-  ["healthy-wellness", "healthy-chocolate-milkshake", "ميلك شيك صحي بالشوكولاتة", "Healthy Chocolate Milkshake", null],
-  ["healthy-wellness", "keto-milkshake", "ميلك شيك كيتو دايت", "Keto Diet Milkshake", null],
-  ["healthy-wellness", "green-detox-stevia", "ديتوكس أخضر محلى بالستيفيا", "Green Detox with Stevia", null],
-  ["healthy-wellness", "lemon-mint-detox", "ديتوكس الليمون والنعناع بالستيفيا", "Lemon Mint Detox with Stevia", null],
+  ["healthy-wellness", "collagen-drink", "مشروب الكولاجين", "Collagen Drink", 2.0],
+  ["healthy-wellness", "healthy-pistachio-milkshake", "ميلك شيك صحي بالفستق", "Healthy Pistachio Milkshake", 2.2],
+  ["healthy-wellness", "healthy-chocolate-milkshake", "ميلك شيك صحي بالشوكولاتة", "Healthy Chocolate Milkshake", 1.8],
+  ["healthy-wellness", "keto-milkshake", "ميلك شيك كيتو دايت", "Keto Diet Milkshake", 2.2],
+  ["healthy-wellness", "green-detox-stevia", "ديتوكس أخضر محلى بالستيفيا", "Green Detox with Stevia", 1.5],
+  ["healthy-wellness", "lemon-mint-detox", "ديتوكس الليمون والنعناع بالستيفيا", "Lemon Mint Detox with Stevia", 1.4],
   ["healthy-wellness", "berry-detox", "ديتوكس التوت بالستيفيا", "Berry Detox with Stevia", null],
-  ["healthy-wellness", "protein-bar", "بروتين بار", "Protein Bar", null],
-  ["kids-drinks", "babyccino", "بيبي تشينو — بدون قهوة", "Babyccino — Coffee-Free", null],
-  ["kids-drinks", "strawberry-vanilla-milk", "حليب الفراولة والفانيليا", "Strawberry Vanilla Milk", null],
-  ["kids-drinks", "nesquik-chocolate-milk", "حليب شوكولاتة نسكويك", "Nesquik Chocolate Milk", null],
-  ["kids-drinks", "nutella-milk", "حليب النوتيلا", "Nutella Milk", null],
+  ["healthy-wellness", "protein-bar", "بروتين بار", "Protein Bar", 1.5],
+  ["kids-drinks", "babyccino", "بيبي تشينو — بدون قهوة", "Babyccino — Coffee-Free", 0.7],
+  ["kids-drinks", "strawberry-vanilla-milk", "حليب الفراولة والفانيليا", "Strawberry Vanilla Milk", 1.1],
+  ["kids-drinks", "nesquik-chocolate-milk", "حليب شوكولاتة نسكويك", "Nesquik Chocolate Milk", 1.0],
+  ["kids-drinks", "nutella-milk", "حليب النوتيلا", "Nutella Milk", 1.2],
   ["hot-drinks", "turkish-coffee", "قهوة تركية", "Turkish Coffee", 0.8],
   ["hot-drinks", "red-tea", "شاي أحمر", "Red Tea", 0.4],
   ["hot-drinks", "herbal-tea", "شاي أعشاب", "Herbal Tea", 0.6],
   ["hot-drinks", "hot-apple-cider", "سيدر تفاح ساخن", "Hot Apple Cider", 1.2],
   ["hot-drinks", "hot-chocolate", "شوكولاتة ساخنة", "Hot Chocolate", 1.3],
-  ["hot-drinks", "arabic-coffee", "قهوة عربية", "Arabic Coffee", null],
+  ["hot-drinks", "arabic-coffee", "قهوة عربية", "Arabic Coffee", 0.8],
   ["iced-tea", "pineapple-iced-tea", "شاي مثلج بالأناناس", "Pineapple Iced Tea", 1.6],
   ["iced-tea", "peach-iced-tea", "شاي مثلج بالخوخ", "Peach Iced Tea", 1.5],
   ["iced-tea", "strawberry-iced-tea", "شاي مثلج بالفراولة", "Strawberry Iced Tea", 1.4],
@@ -154,6 +154,7 @@ function imagePrompt(nameEn: string, categoryEn: string) {
 
 async function main() {
   const categoryIds = new Map<string, string>();
+  const productIds = new Map<string, string>();
   for (const [index, [slug, nameAr, nameEn]] of categories.entries()) {
     const category = await prisma.productCategory.upsert({
       where: { slug },
@@ -169,16 +170,177 @@ async function main() {
     const status = price === null ? "DRAFT" : "ACTIVE";
     const descriptionAr = price === null ? "صنف جديد قيد مراجعة السعر والصورة قبل النشر." : `${nameAr} محضّر بعناية وفق معايير سالورا.`;
     const descriptionEn = price === null ? "New item pending price and image approval before publication." : `${nameEn}, carefully prepared to SALORA standards.`;
+    const governanceTags = [
+      categorySlug,
+      ...(signature ? ["signature"] : []),
+      ...(categorySlug === "healthy-wellness" ? ["healthy", "wellness"] : []),
+      ...(categorySlug === "kids-drinks" ? ["kids", "kid-friendly"] : [])
+    ];
     const product = await prisma.catalogProduct.upsert({
       where: { slug },
-      create: { brandKey: BRAND, categoryId, slug, name: nameEn, nameAr, nameEn, description: descriptionEn, descriptionAr, descriptionEn, status, basePrice: price ?? 0, tags: [categorySlug, ...(signature ? ["signature"] : [])] },
-      update: { brandKey: BRAND, categoryId, name: nameEn, nameAr, nameEn, description: descriptionEn, descriptionAr, descriptionEn, tags: [categorySlug, ...(signature ? ["signature"] : [])] }
+      create: { brandKey: BRAND, categoryId, slug, name: nameEn, nameAr, nameEn, description: descriptionEn, descriptionAr, descriptionEn, status, basePrice: price ?? 0, tags: governanceTags },
+      update: { brandKey: BRAND, categoryId, name: nameEn, nameAr, nameEn, description: descriptionEn, descriptionAr, descriptionEn, status, basePrice: price ?? 0, tags: governanceTags }
     });
+    productIds.set(slug, product.id);
 
     const existingPrompt = await prisma.productMediaDraft.findFirst({ where: { productId: product.id, source: "seed_catalog", archivedAt: null } });
     if (!existingPrompt) {
       await prisma.productMediaDraft.create({ data: { productId: product.id, source: "seed_catalog", prompt: imagePrompt(nameEn, categories.find(([key]) => key === categorySlug)?.[2] ?? categorySlug), altText: `${nameAr} — ${nameEn}`, isPrimaryCandidate: true, metadata: { brand: BRAND, reviewRequired: true, generatedAssetPending: true } } });
     }
+  }
+
+
+  const P22_ACTOR_ID = "00000000-0000-0000-0000-000000000022";
+  const collectionDefinitions = [
+    {
+      key: "salora-menu",
+      slug: "salora-menu",
+      kind: "STANDARD",
+      nameAr: "منيو سالورا",
+      nameEn: "SALORA Menu",
+      descriptionAr: "المصدر الموحد لجميع قنوات منيو سالورا.",
+      descriptionEn: "The governed menu authority for every SALORA channel.",
+      categorySlugs: categories.map(([slug]) => slug),
+      sectionKey: null
+    },
+    {
+      key: "salora-wellness",
+      slug: "salora-wellness",
+      kind: "WELLNESS",
+      nameAr: "قائمة الصحة",
+      nameEn: "SALORA Wellness",
+      descriptionAr: "قائمة مستقلة؛ الادعاءات الغذائية لا تنشر قبل التحقق.",
+      descriptionEn: "A separate wellness menu with food claims gated by verification.",
+      categorySlugs: ["healthy-wellness"],
+      sectionKey: "wellness"
+    },
+    {
+      key: "salora-kids",
+      slug: "salora-kids",
+      kind: "KIDS",
+      nameAr: "قائمة الأطفال",
+      nameEn: "SALORA Kids",
+      descriptionAr: "قائمة أطفال مستقلة مع مراجعة الحساسية والعمر.",
+      descriptionEn: "A separate kids menu with allergen and age guidance review.",
+      categorySlugs: ["kids-drinks"],
+      sectionKey: "kids"
+    }
+  ] as const;
+
+  for (const definition of collectionDefinitions) {
+    const collection = await prisma.menuCollection.upsert({
+      where: { brandKey_key: { brandKey: BRAND, key: definition.key } },
+      create: {
+        brandKey: BRAND,
+        key: definition.key,
+        slug: definition.slug,
+        kind: definition.kind,
+        status: "DRAFT",
+        nameAr: definition.nameAr,
+        nameEn: definition.nameEn,
+        descriptionAr: definition.descriptionAr,
+        descriptionEn: definition.descriptionEn,
+        channels: ["WEB", "DIGITAL_MENU", "MOBILE"],
+        createdBy: P22_ACTOR_ID,
+        updatedBy: P22_ACTOR_ID
+      },
+      update: {
+        slug: definition.slug,
+        kind: definition.kind,
+        nameAr: definition.nameAr,
+        nameEn: definition.nameEn,
+        descriptionAr: definition.descriptionAr,
+        descriptionEn: definition.descriptionEn,
+        channels: ["WEB", "DIGITAL_MENU", "MOBILE"],
+        updatedBy: P22_ACTOR_ID
+      }
+    });
+
+    const sectionIds = new Map<string, string>();
+    const sectionCategories = definition.sectionKey
+      ? definition.categorySlugs.map((slug) => {
+          const category = categories.find(([candidate]) => candidate === slug);
+          if (!category) throw new Error(`Missing P22 category ${slug}`);
+          return [definition.sectionKey, category[1], category[2], 10] as const;
+        })
+      : definition.categorySlugs.map((slug, index) => {
+          const category = categories.find(([candidate]) => candidate === slug);
+          if (!category) throw new Error(`Missing P22 category ${slug}`);
+          return [slug, category[1], category[2], (index + 1) * 10] as const;
+        });
+
+    for (const [sectionKey, nameAr, nameEn, sortOrder] of sectionCategories) {
+      const section = await prisma.menuCollectionSection.upsert({
+        where: { collectionId_key: { collectionId: collection.id, key: sectionKey } },
+        create: {
+          collectionId: collection.id,
+          key: sectionKey,
+          nameAr,
+          nameEn,
+          sortOrder,
+          isActive: true,
+          createdBy: P22_ACTOR_ID,
+          updatedBy: P22_ACTOR_ID
+        },
+        update: {
+          nameAr,
+          nameEn,
+          sortOrder,
+          isActive: true,
+          archivedAt: null,
+          updatedBy: P22_ACTOR_ID
+        }
+      });
+      sectionIds.set(sectionKey, section.id);
+    }
+
+    const allowedRows = menu.filter(([categorySlug]) => definition.categorySlugs.includes(categorySlug as never));
+    const allowedIds: string[] = [];
+
+    for (const [categorySlug, slug, nameAr, nameEn] of allowedRows) {
+      const productId = productIds.get(slug);
+      const sectionKey = definition.sectionKey ?? categorySlug;
+      const sectionId = sectionIds.get(sectionKey);
+      if (!productId || !sectionId) throw new Error(`Missing authority membership dependency for ${slug}`);
+      allowedIds.push(productId);
+      const sortOrder = (menu.filter(([candidate]) => candidate === categorySlug).findIndex(([, candidateSlug]) => candidateSlug === slug) + 1) * 10;
+      await prisma.menuCollectionProduct.upsert({
+        where: { collectionId_productId: { collectionId: collection.id, productId } },
+        create: {
+          collectionId: collection.id,
+          sectionId,
+          productId,
+          sortOrder,
+          membershipSource: "MANUAL",
+          sourceReason: "Deterministic P22 approved menu authority seed.",
+          isFeatured: false,
+          createdBy: P22_ACTOR_ID,
+          updatedBy: P22_ACTOR_ID
+        },
+        update: {
+          sectionId,
+          sortOrder,
+          titleArOverride: null,
+          titleEnOverride: null,
+          membershipSource: "MANUAL",
+          sourceReason: "Deterministic P22 approved menu authority seed.",
+          archivedAt: null,
+          updatedBy: P22_ACTOR_ID
+        }
+      });
+    }
+
+    await prisma.menuCollectionProduct.updateMany({
+      where: {
+        collectionId: collection.id,
+        productId: { notIn: allowedIds },
+        archivedAt: null
+      },
+      data: {
+        archivedAt: new Date(),
+        updatedBy: P22_ACTOR_ID
+      }
+    });
   }
 
   const previousHealthySnacks = await prisma.productCategory.findUnique({ where: { slug: "healthy-snacks" } });
