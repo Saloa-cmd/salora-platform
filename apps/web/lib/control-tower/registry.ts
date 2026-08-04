@@ -1,6 +1,7 @@
 import {
   Bell,
   Bot,
+  BookOpenCheck,
   Boxes,
   Building2,
   ChartNoAxesCombined,
@@ -115,6 +116,16 @@ export const controlTowerSections: ControlTowerSection[] = [
     capabilities: [
       { title: "Queue notification", description: "Existing RBAC-protected notification queue API.", status: "live", owner: "Messaging" },
       { title: "Template lifecycle", description: "Draft, schedule, publish, archive notification templates.", status: "needs-backend", owner: "Messaging" }
+    ]
+  },
+  {
+    id: "menu-authority",
+    label: "Menu Authority",
+    icon: BookOpenCheck,
+    description: "One governed menu authority for collections, revisions, publishing, rollback, Website, Mobile, QR, AI and Analytics.",
+    capabilities: [
+      { title: "Published revision authority", description: "Website, Mobile, QR, Search and AI consume the same immutable published revision.", status: "live", owner: "Catalog Governance", href: "#menu-authority-studio", actionLabel: "Open menu authority" },
+      { title: "Publishing workflow", description: "Completeness, immutable revisions, scheduling, publication history and rollback use the existing P21 domain.", status: "live", owner: "Catalog Governance", href: "#menu-authority-studio", actionLabel: "Manage revisions" }
     ]
   },
   {

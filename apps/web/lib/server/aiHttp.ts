@@ -1,7 +1,8 @@
-import { products } from "@salora/data";
+import type { Product } from "@salora/types";
 import { z } from "zod";
 import { type NextRequest } from "next/server";
 import { responseError, responseJson } from "@/lib/server/domainHttp";
+import { getMenuAuthoritySnapshot } from "./menuAuthority";
 import { enforceRateLimit, rateLimitResponse } from "./rateLimit";
 
 export const aiRequestSchema = z.object({
@@ -16,8 +17,21 @@ export const aiRequestSchema = z.object({
   }).optional()
 });
 
-export async function handleAiRoute(request: NextRequest, run: (input: z.infer<typeof aiRequestSchema> & { products: typeof products }) => Promise<unknown>) {
+export type AuthorityAwareAiInput = z.infer<typeof aiRequestSchema> & {
+  products: Product[];
+  menuAuthority: {
+    collectionId: string;
+    revisionId: string;
+    revisionVersion: number;
+  };
+};
+
+export async function handleAiRoute(
+  request: NextRequest,
+  run: (input: AuthorityAwareAiInput) => Promise<unknown>
+) {
   const requestId = request.headers.get("x-request-id") || crypto.randomUUID();
+
   try {
     await enforceRateLimit(request, "ai");
     const body = await request.json().catch(() => null);
@@ -27,8 +41,24 @@ export async function handleAiRoute(request: NextRequest, run: (input: z.infer<t
       return responseError("Invalid AI payload.", requestId, 400);
     }
 
-    const result = await run({ ...parsed.data, products });
-    return responseJson(result, requestId);
+    const authority = await getMenuAuthoritySnapshot();
+    if (!authority.revision) {
+      return responseError("AI recommendations require a published menu revision.", requestId, 503);
+    }
+
+    const result = await run({
+      ...parsed.data,
+      products: authority.products,
+      menuAuthority: {
+        collectionId: authority.collection.id,
+        revisionId: authority.revision.id,
+        revisionVersion: authority.revision.version
+      }
+    });
+    const response = responseJson(result, requestId);
+    response.headers.set("x-salora-menu-revision", authority.revision.id);
+    response.headers.set("x-salora-menu-version", String(authority.revision.version));
+    return response;
   } catch (error) {
     const limited = rateLimitResponse(error, requestId);
     if (limited) return limited;

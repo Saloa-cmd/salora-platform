@@ -1,4 +1,5 @@
 import { createHash, randomUUID } from "node:crypto";
+import { buildMenuRevisionSnapshot } from "./revision-contract";
 import type { PrismaAuthContext } from "../../database/rls-context";
 import {
   menuCollectionCreateSchema,
@@ -309,12 +310,18 @@ export class MenuCollectionDomainService {
             include: {
               product: {
                 include: {
+                  category: true,
                   nutritionProfile: true,
                   allergenProfile: true,
                   images: {
                     where: { deletedAt: null, archivedAt: null },
-                    orderBy: { sortOrder: "asc" }
-                  }
+                    orderBy: [{ isPrimary: "desc" }, { sortOrder: "asc" }]
+                  },
+                  variants: { orderBy: { name: "asc" } },
+                  addons: { orderBy: { name: "asc" } },
+                  modifiers: { orderBy: { name: "asc" } },
+                  pricingRules: true,
+                  availabilityRules: true
                 }
               }
             }
@@ -329,11 +336,7 @@ export class MenuCollectionDomainService {
         select: { version: true }
       });
 
-      const snapshot = {
-        contractVersion: 1,
-        generatedAt: new Date().toISOString(),
-        collection
-      };
+      const snapshot = buildMenuRevisionSnapshot(collection);
       const revision = await database.menuCollectionRevision.create({
         data: {
           collectionId: input.collectionId,

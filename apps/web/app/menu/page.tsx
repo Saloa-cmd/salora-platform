@@ -8,15 +8,20 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "SALORA Menu | Taste the Harmony",
-  description: "Explore the SALORA menu, customize your order, and choose counter or beachfront pickup."
+  description: "Explore the current published SALORA menu revision, customize your order, and choose counter or beachfront pickup."
 };
 
 export default async function MenuPage() {
-  const [snapshot, experience] = await Promise.all([getPublicMenuSnapshot(), getPublishedExperienceConfiguration()]);
+  const [snapshot, experience] = await Promise.all([
+    getPublicMenuSnapshot(),
+    getPublishedExperienceConfiguration()
+  ]);
 
   return (
     <MenuExperience
       initialProducts={snapshot.products}
+      sections={snapshot.sections}
+      revision={snapshot.revision}
       menuSource={snapshot.source}
       menuStale={snapshot.stale}
       whatsappNumber={saloraRuntime.whatsappNumber}
