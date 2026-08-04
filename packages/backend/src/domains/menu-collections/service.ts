@@ -1,5 +1,5 @@
 import { createHash, randomUUID } from "node:crypto";
-import { buildMenuRevisionSnapshot } from "./revision-contract";
+import { buildMenuRevisionSnapshot, isMenuRevisionContractV2 } from "./revision-contract";
 import type { PrismaAuthContext } from "../../database/rls-context";
 import {
   menuCollectionCreateSchema,
@@ -32,6 +32,23 @@ function stableJson(value: unknown): string {
 
 function checksumSnapshot(snapshot: unknown): string {
   return createHash("sha256").update(stableJson(snapshot)).digest("hex");
+}
+
+function assertExpectedCollectionVersion(
+  actualUpdatedAt: Date,
+  expectedUpdatedAt?: Date
+): void {
+  if (expectedUpdatedAt && actualUpdatedAt.getTime() !== expectedUpdatedAt.getTime()) {
+    throw new Error("Collection changed after the operator loaded the workspace. Refresh and retry.");
+  }
+}
+
+function assertValidTimezone(timezone: string): void {
+  try {
+    new Intl.DateTimeFormat("en-US", { timeZone: timezone }).format(new Date());
+  } catch {
+    throw new Error("Publication timezone is invalid.");
+  }
 }
 
 function auditData(
@@ -329,6 +346,7 @@ export class MenuCollectionDomainService {
         }
       });
       if (!collection) throw new Error("Menu collection was not found.");
+      assertExpectedCollectionVersion(collection.updatedAt, input.expectedUpdatedAt);
 
       const latest = await database.menuCollectionRevision.findFirst({
         where: { collectionId: input.collectionId },
@@ -372,6 +390,7 @@ export class MenuCollectionDomainService {
         where: { id: input.collectionId }
       });
       if (!collection) throw new Error("Menu collection was not found.");
+      assertExpectedCollectionVersion(collection.updatedAt, input.expectedUpdatedAt);
 
       assertMenuCollectionTransition(collection.status, input.targetStatus, this.authContext.roles);
 
@@ -435,8 +454,16 @@ export class MenuCollectionDomainService {
       if (!collection || !revision || revision.collectionId !== input.collectionId) {
         throw new Error("Collection and revision do not match.");
       }
+      assertExpectedCollectionVersion(collection.updatedAt, input.expectedUpdatedAt);
+      assertValidTimezone(input.timezone);
+      if (!isMenuRevisionContractV2(revision.snapshot)) {
+        throw new Error("Only a canonical contractVersion 2 revision can be published.");
+      }
       if (collection.completenessScore !== 100) {
         throw new Error("Collection completeness must be 100 before scheduling publication.");
+      }
+      if (input.scheduledAt && input.scheduledAt.getTime() <= Date.now() + 60_000) {
+        throw new Error("Scheduled publication must be at least one minute in the future.");
       }
 
       const publication = await database.menuPublication.create({
@@ -486,12 +513,19 @@ export class MenuCollectionDomainService {
     const input = menuRollbackRequestSchema.parse(rawInput);
 
     return this.repository.run(async (database) => {
-      const target = await database.menuPublication.findUnique({
-        where: { id: input.targetPublicationId },
-        include: { revision: true }
-      });
-      if (!target || target.collectionId !== input.collectionId) {
+      const [target, collection] = await Promise.all([
+        database.menuPublication.findUnique({
+          where: { id: input.targetPublicationId },
+          include: { revision: true }
+        }),
+        database.menuCollection.findUnique({ where: { id: input.collectionId } })
+      ]);
+      if (!target || !collection || target.collectionId !== input.collectionId) {
         throw new Error("Rollback target does not belong to the collection.");
+      }
+      assertExpectedCollectionVersion(collection.updatedAt, input.expectedUpdatedAt);
+      if (!isMenuRevisionContractV2(target.revision.snapshot)) {
+        throw new Error("Rollback target must use the canonical contractVersion 2 revision.");
       }
 
       const current = await database.menuPublication.findFirst({

@@ -140,12 +140,14 @@ export const productAllergenProfileSchema = z.object({
 export const menuCollectionTransitionSchema = z.object({
   collectionId: uuidSchema,
   targetStatus: z.enum(MENU_COLLECTION_STATUSES),
-  reason: z.string().trim().min(3).max(1000)
+  reason: z.string().trim().min(3).max(1000),
+  expectedUpdatedAt: z.coerce.date().optional()
 });
 
 export const menuCollectionRevisionRequestSchema = z.object({
   collectionId: uuidSchema,
-  changeSummary: z.string().trim().min(3).max(500).nullable().optional()
+  changeSummary: z.string().trim().min(3).max(500).nullable().optional(),
+  expectedUpdatedAt: z.coerce.date().optional()
 });
 
 export const menuPublicationRequestSchema = z.object({
@@ -153,11 +155,14 @@ export const menuPublicationRequestSchema = z.object({
   revisionId: uuidSchema,
   publicationKey: z.string().trim().min(8).max(160),
   channels: z.array(z.enum(MENU_CHANNELS)).min(1),
-  scheduledAt: z.coerce.date().nullable().optional()
+  scheduledAt: z.coerce.date().nullable().optional(),
+  timezone: z.string().trim().min(1).max(80).default("Asia/Muscat"),
+  expectedUpdatedAt: z.coerce.date().optional()
 });
 
 export const menuRollbackRequestSchema = z.object({
   collectionId: uuidSchema,
   targetPublicationId: uuidSchema,
-  reason: z.string().trim().min(3).max(1000)
+  reason: z.string().trim().min(3).max(1000),
+  expectedUpdatedAt: z.coerce.date().optional()
 });
