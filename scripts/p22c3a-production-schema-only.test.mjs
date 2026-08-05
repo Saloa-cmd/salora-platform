@@ -59,15 +59,24 @@ const packageJson = JSON.parse(
   readFileSync(packagePath, "utf8")
 );
 
+const canonicalLf = (value) =>
+  value.replace(/\r\n?/gu, "\n");
+
 const sha256 = (value) =>
   createHash("sha256")
-    .update(value, "utf8")
+    .update(canonicalLf(value), "utf8")
     .digest("hex");
 
 assert.equal(
   manifest.migration.sha256,
   sha256(migration),
   "Manifest migration SHA-256 does not match the generated SQL."
+);
+
+assert.equal(
+  manifest.migration.hashCanonicalization,
+  "UTF8_LF",
+  "Manifest must declare UTF-8 LF hash canonicalization."
 );
 
 assert.equal(

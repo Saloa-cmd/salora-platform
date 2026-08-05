@@ -1,47 +1,48 @@
 {
-    "schemaVersion":  1,
-    "phase":  "P22C-3A",
-    "mode":  "REPOSITORY_ONLY_SCHEMA_BUILD",
-    "branch":  "agent/p22c-3a-production-authority-schema-only",
-    "baseCommit":  "56ce7cfacf3a6c65e4792296498785d4c9985269",
-    "productionProjectRef":  "grcycqdtjjfklibutfos",
-    "migration":  {
-                      "path":  "prisma/migrations/202608050001_p22c3a_production_authority_schema_only/migration.sql",
-                      "sha256":  "40c07e8401d018f53425735a380786a58372df8af656809494890c002e88ead0",
-                      "createsTables":  8,
-                      "createsEnums":  6,
-                      "createsFinalPolicies":  24
-                  },
-    "sources":  [
-                    {
-                        "path":  "prisma/migrations/202608020001_menu_collections_domain_foundation/migration.sql",
-                        "gitBlobSha":  "5e08e72bd9b82f7db150c793f6b5c50f7cb07ed1",
-                        "use":  "foundation_without_permission_seed"
-                    },
-                    {
-                        "path":  "prisma/migrations/202608020002_menu_collections_security_performance_hardening/migration.sql",
-                        "gitBlobSha":  "cc1ac87a05ea35a9c548a4af1cb959cf639249f5",
-                        "use":  "final_security_and_performance_state"
-                    }
-                ],
-    "productionInvariants":  {
-                                 "products":  117,
-                                 "active":  104,
-                                 "draft":  13,
-                                 "categories":  16,
-                                 "runtimeSource":  "legacy-catalog",
-                                 "runtimeMode":  "compatibility"
-                             },
-    "guarantees":  {
-                       "databaseConnectionAttempted":  false,
-                       "migrationApplied":  false,
-                       "dataDmlPresent":  false,
-                       "seedPresent":  false,
-                       "catalogMutationPresent":  false,
-                       "stagingMetadataPresent":  false,
-                       "environmentChanged":  false,
-                       "commitCreated":  false,
-                       "pushPerformed":  false,
-                       "deploymentPerformed":  false
-                   }
+  "schemaVersion": 1,
+  "phase": "P22C-3A",
+  "mode": "REPOSITORY_ONLY_SCHEMA_BUILD",
+  "branch": "agent/p22c-3a-production-authority-schema-only",
+  "baseCommit": "56ce7cfacf3a6c65e4792296498785d4c9985269",
+  "productionProjectRef": "grcycqdtjjfklibutfos",
+  "migration": {
+    "path": "prisma/migrations/202608050001_p22c3a_production_authority_schema_only/migration.sql",
+    "sha256": "9dc141be031edc4956b59c0a89c8de10fadadfff0cac57168a150ff80e4b97c4",
+    "createsTables": 8,
+    "createsEnums": 6,
+    "createsFinalPolicies": 24,
+    "hashCanonicalization": "UTF8_LF"
+  },
+  "sources": [
+    {
+      "path": "prisma/migrations/202608020001_menu_collections_domain_foundation/migration.sql",
+      "gitBlobSha": "5e08e72bd9b82f7db150c793f6b5c50f7cb07ed1",
+      "use": "foundation_without_permission_seed"
+    },
+    {
+      "path": "prisma/migrations/202608020002_menu_collections_security_performance_hardening/migration.sql",
+      "gitBlobSha": "cc1ac87a05ea35a9c548a4af1cb959cf639249f5",
+      "use": "final_security_and_performance_state"
+    }
+  ],
+  "productionInvariants": {
+    "products": 117,
+    "active": 104,
+    "draft": 13,
+    "categories": 16,
+    "runtimeSource": "legacy-catalog",
+    "runtimeMode": "compatibility"
+  },
+  "guarantees": {
+    "databaseConnectionAttempted": false,
+    "migrationApplied": false,
+    "dataDmlPresent": false,
+    "seedPresent": false,
+    "catalogMutationPresent": false,
+    "stagingMetadataPresent": false,
+    "environmentChanged": false,
+    "commitCreated": false,
+    "pushPerformed": false,
+    "deploymentPerformed": false
+  }
 }

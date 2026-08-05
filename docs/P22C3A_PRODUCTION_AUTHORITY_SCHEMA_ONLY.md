@@ -32,6 +32,8 @@ Direct replay of Staging migrations remains prohibited because Production uses t
 
 `prisma/migrations/202608050001_p22c3a_production_authority_schema_only/migration.sql`
 
+The certified SHA-256 is calculated from UTF-8 text after normalizing CRLF and CR line endings to LF. This keeps the artifact identity stable across Windows and Linux.
+
 The migration creates only:
 
 1. Six Menu Authority enum types.
