@@ -29,7 +29,7 @@ const manifestPath = resolve(
 
 const workflowPath = resolve(
   root,
-  ".github/workflows/p22c3b-isolated-postgres.yml"
+  ".github/workflows/ci.yml"
 );
 
 const baselinePath = resolve(
