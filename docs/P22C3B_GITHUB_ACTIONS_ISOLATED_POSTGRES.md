@@ -4,7 +4,7 @@
 
 P22C-3B certifies the merged P22C-3A schema-only migration without using a paid Supabase Branch and without requiring Docker on the developer workstation.
 
-The certification runs as a dedicated conditional job inside the existing `SALORA CI` workflow. The job uses a temporary PostgreSQL 17 service container attached to a GitHub-hosted Ubuntu runner.
+The certification runs in a temporary PostgreSQL 17 service container attached to a GitHub-hosted Ubuntu runner.
 
 ## Approved migration
 
@@ -18,27 +18,29 @@ Canonical UTF-8/LF SHA-256:
 9dc141be031edc4956b59c0a89c8de10fadadfff0cac57168a150ff80e4b97c4
 ```
 
-## Workflow integration
+## Workflow
 
-The certification job is located in:
-
-```text
-.github/workflows/ci.yml
-```
-
-Job name:
+Certification workflow:
 
 ```text
-P22C-3B isolated PostgreSQL 17
+.github/workflows/p22c3b-isolated-postgres.yml
 ```
 
-It is restricted to the dedicated pull-request branch:
+Workflow name:
+
+```text
+P22C-3B Isolated PostgreSQL Certification
+```
+
+The workflow is triggered by pushes to the dedicated certification branch:
 
 ```text
 agent/p22c-3b-github-actions-postgres17
 ```
 
-This avoids relying on a newly introduced standalone workflow before that workflow exists on the default branch.
+It also keeps `workflow_dispatch` for controlled manual certification after the workflow exists on the default branch.
+
+The general `.github/workflows/ci.yml` remains unchanged from `main`.
 
 ## Synthetic Legacy baseline
 
