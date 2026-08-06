@@ -234,6 +234,7 @@ WITH product_state AS (
       )
     ) AS fingerprint
   FROM public.catalog_products
+  WHERE brand_key = 'SALORA'
 ),
 category_state AS (
   SELECT
@@ -259,6 +260,7 @@ category_state AS (
     ) AS fingerprint,
     COALESCE(jsonb_agg(slug ORDER BY slug), '[]'::jsonb) AS slugs
   FROM public.product_categories
+  WHERE brand_key = 'SALORA'
 )
 SELECT jsonb_build_object(
   'phase', 'P22C-3C',

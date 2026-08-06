@@ -154,11 +154,13 @@ BEGIN
     product_draft,
     product_paused,
     product_archived
-  FROM public.catalog_products;
+  FROM public.catalog_products
+  WHERE brand_key = 'SALORA';
 
   SELECT count(*)::integer
   INTO category_total
-  FROM public.product_categories;
+  FROM public.product_categories
+  WHERE brand_key = 'SALORA';
 
   IF product_total <> 117 OR product_active <> 104 OR product_draft <> 13 THEN
     RAISE EXCEPTION
@@ -184,7 +186,9 @@ BEGIN
   FROM public.catalog_products product
   LEFT JOIN public.product_categories category
     ON category.id = product.category_id
-  WHERE category.id IS NULL;
+    AND category.brand_key = 'SALORA'
+  WHERE product.brand_key = 'SALORA'
+    AND category.id IS NULL;
 
   IF orphan_products <> 0 THEN
     RAISE EXCEPTION 'P22C-3C found % products with missing categories', orphan_products;
@@ -195,6 +199,7 @@ BEGIN
   FROM (
     SELECT slug
     FROM public.catalog_products
+    WHERE brand_key = 'SALORA'
     GROUP BY slug
     HAVING count(*) > 1
   ) duplicate_slugs;
@@ -208,6 +213,7 @@ BEGIN
   FROM (
     SELECT slug
     FROM public.product_categories
+    WHERE brand_key = 'SALORA'
     GROUP BY slug
     HAVING count(*) > 1
   ) duplicate_slugs;
