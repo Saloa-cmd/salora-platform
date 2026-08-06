@@ -129,3 +129,22 @@ The report uses this runner-local path:
 ```
 
 The runner.temp context is not used in job-level env, because GitHub validates that environment before the runner context is available.
+## PostgreSQL identifier semantics
+
+PostgreSQL stores identifiers using a default maximum of 63 bytes.
+
+The approved migration contains one 64-byte index name:
+
+```text
+menu_collection_products_collection_id_section_id_sort_order_idx
+```
+
+PostgreSQL creates the index using its 63-byte database identifier:
+
+```text
+menu_collection_products_collection_id_section_id_sort_order_id
+```
+
+The P22C-3B certifier normalizes parsed object names to PostgreSQL database semantics before comparing system catalogs. It also fails closed if two source names would collide after normalization.
+
+This does not change the migration file or its approved canonical SHA-256.

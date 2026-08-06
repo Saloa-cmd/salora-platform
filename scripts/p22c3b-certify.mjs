@@ -94,6 +94,45 @@ const parseNames = (text, pattern) =>
       .map((match) => match[1])
   );
 
+const postgresIdentifierMaxBytes = 63;
+
+const postgresIdentifier = (value) => {
+  const bytes = Buffer.from(value, "utf8");
+
+  if (bytes.length <= postgresIdentifierMaxBytes) {
+    return value;
+  }
+
+  let end = postgresIdentifierMaxBytes;
+
+  while (
+    end > 0 &&
+    (bytes[end] & 0xc0) === 0x80
+  ) {
+    end -= 1;
+  }
+
+  return bytes
+    .subarray(0, end)
+    .toString("utf8");
+};
+
+const postgresObjectNames = (
+  values,
+  label
+) => {
+  const normalized =
+    values.map(postgresIdentifier);
+
+  assert.equal(
+    new Set(normalized).size,
+    values.length,
+    `${label} collide after PostgreSQL 63-byte identifier normalization.`
+  );
+
+  return unique(normalized);
+};
+
 const migration = readFileSync(
   migrationPath,
   "utf8"
@@ -190,22 +229,56 @@ const expectedEnums = parseNames(
   /CREATE TYPE "([^"]+)" AS ENUM/gu
 );
 
-const expectedPolicies = parseNames(
-  migration,
-  /CREATE POLICY "([^"]+)"/gu
+const expectedPolicies = postgresObjectNames(
+  parseNames(
+    migration,
+    /CREATE POLICY "([^"]+)"/gu
+  ),
+  "Policy names"
 );
 
-const expectedIndexes = parseNames(
+const expectedIndexSourceNames = parseNames(
   migration,
   /CREATE (?:UNIQUE )?INDEX(?: IF NOT EXISTS)? "([^"]+)"/gu
 );
 
-const expectedTriggers = parseNames(
-  migration,
-  /CREATE TRIGGER ([a-zA-Z0-9_]+)/gu
+const expectedIndexes = postgresObjectNames(
+  expectedIndexSourceNames,
+  "Index names"
 );
 
-const expectedFunctions = parseNames(
+const normalizedIdentifiers =
+  expectedIndexSourceNames
+    .map((sourceName, index) => ({
+      sourceName,
+      databaseName: expectedIndexes[index]
+    }))
+    .filter((entry) =>
+      entry.sourceName !== entry.databaseName
+    );
+
+assert.deepEqual(
+  normalizedIdentifiers,
+  [
+    {
+      sourceName:
+        "menu_collection_products_collection_id_section_id_sort_order_idx",
+      databaseName:
+        "menu_collection_products_collection_id_section_id_sort_order_id"
+    }
+  ],
+  "Unexpected PostgreSQL identifier normalization set."
+);
+
+const expectedTriggers = postgresObjectNames(
+  parseNames(
+    migration,
+    /CREATE TRIGGER ([a-zA-Z0-9_]+)/gu
+  ),
+  "Trigger names"
+);
+
+const expectedFunctionSourceNames = parseNames(
   migration,
   /CREATE OR REPLACE FUNCTION public\.([a-zA-Z0-9_]+)\(/gu
 ).filter((name) =>
@@ -213,7 +286,12 @@ const expectedFunctions = parseNames(
   !baselineHelpers.includes(name)
 );
 
-const expectedConstraints = unique([
+const expectedFunctions = postgresObjectNames(
+  expectedFunctionSourceNames,
+  "Function names"
+);
+
+const expectedConstraintSourceNames = unique([
   ...parseNames(
     migration,
     /CONSTRAINT "([^"]+)"/gu
@@ -223,6 +301,11 @@ const expectedConstraints = unique([
     /ADD CONSTRAINT "([^"]+)"/gu
   )
 ]);
+
+const expectedConstraints = postgresObjectNames(
+  expectedConstraintSourceNames,
+  "Constraint names"
+);
 
 assert.deepEqual(
   sorted(expectedTables),
@@ -267,6 +350,11 @@ console.log(
 
 console.log(
   "- rollback removes only Menu Authority objects"
+);
+
+
+console.log(
+  "- PostgreSQL 63-byte identifier semantics are collision-free"
 );
 
 if (process.argv.includes("--contract-only")) {
@@ -833,6 +921,9 @@ const report = {
     triggers: expectedTriggers.length,
     functions: expectedFunctions.length,
     constraints: expectedConstraints.length,
+    identifierMaxBytes: postgresIdentifierMaxBytes,
+    identifierCollisions: 0,
+    normalizedIdentifiers,
     authorityRows: 0,
     stagingMetadataTables: 0,
     catalogFingerprintPreserved: true,
