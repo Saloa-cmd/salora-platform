@@ -41,6 +41,56 @@ assert.match(packageJson.scripts.test, /p22c3c-production-ddl-gate\.test\.mjs/u)
 
 const readOnlyArtifacts = [snapshot, preflight, postApply];
 
+assert.equal(
+  (snapshot.match(/WHERE brand_key = 'SALORA'/gu) ?? []).length,
+  2,
+  "Snapshot product/category authority must be scoped to SALORA."
+);
+
+assert.ok(
+  (preflight.match(/brand_key = 'SALORA'/gu) ?? []).length >= 6,
+  "Preflight counts, orphan checks, and slug checks must be scoped to SALORA."
+);
+
+assert.match(
+  preflight,
+  /AND category\.brand_key = 'SALORA'[\s\S]*WHERE product\.brand_key = 'SALORA'[\s\S]*AND category\.id IS NULL/u,
+  "Preflight must reject SALORA products attached to non-SALORA or missing categories."
+);
+
+assert.match(
+  preflight,
+  /FROM public\.catalog_products[\s\S]*WHERE brand_key = 'SALORA'[\s\S]*GROUP BY slug/u,
+  "Product slug uniqueness must be evaluated inside SALORA."
+);
+
+assert.match(
+  preflight,
+  /FROM public\.product_categories[\s\S]*WHERE brand_key = 'SALORA'[\s\S]*GROUP BY slug/u,
+  "Category slug uniqueness must be evaluated inside SALORA."
+);
+
+assert.equal(
+  (postApply.match(/WHERE brand_key = 'SALORA'/gu) ?? []).length,
+  2,
+  "Post-apply product/category fingerprints must be scoped to SALORA."
+);
+
+assert.deepEqual(
+  manifest.catalogScope,
+  {
+    brandKey: "SALORA",
+    productAuthorityOnly: true,
+    categoryAuthorityOnly: true,
+    fullCatalogRowsExcluded: true
+  }
+);
+
+assert.equal(
+  manifest.correction.phase,
+  "P22C-3C-A"
+);
+
 for (const artifact of readOnlyArtifacts) {
   assert.match(artifact, /BEGIN TRANSACTION[\s\S]*READ ONLY;/u);
   assert.match(artifact, /ROLLBACK;/u);

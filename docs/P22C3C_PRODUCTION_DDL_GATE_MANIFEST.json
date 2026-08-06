@@ -1,74 +1,87 @@
 {
-    "schemaVersion":  1,
-    "phase":  "P22C-3C",
-    "mode":  "PREPARATION_ONLY",
-    "branch":  "agent/p22c-3c-production-ddl-gate",
-    "baseContainsMergeCommit":  "8710c409dbd6ebd8f3fee280b2846379bb21f9f9",
-    "productionProjectRef":  "grcycqdtjjfklibutfos",
-    "productionExecutionAllowed":  false,
-    "finalApprovalIssued":  false,
-    "compatibilityModeRequired":  true,
-    "requiredRuntimeMode":  "compatibility",
-    "catalogBaseline":  {
-                            "total":  117,
-                            "active":  104,
-                            "draft":  13,
-                            "categories":  16
-                        },
-    "migration":  {
-                      "path":  "prisma/migrations/202608050001_p22c3a_production_authority_schema_only/migration.sql",
-                      "sha256":  "9dc141be031edc4956b59c0a89c8de10fadadfff0cac57168a150ff80e4b97c4",
-                      "hashCanonicalization":  "UTF8_LF",
-                      "createsTables":  8,
-                      "createsEnums":  6,
-                      "createsPolicies":  24,
-                      "createsFunctions":  7,
-                      "createsTriggers":  11,
-                      "createsDataRows":  0
-                  },
-    "artifacts":  {
-                      "snapshot":  {
-                                       "path":  "scripts/p22c3c/sql/01_snapshot_read_only.sql",
-                                       "sha256":  "eebc74afa1fbaced667ce0b06c84cec478b67137875e1d134058e0f11b46c5ad",
-                                       "readOnly":  true
-                                   },
-                      "preflight":  {
-                                        "path":  "scripts/p22c3c/sql/02_preflight_read_only.sql",
-                                        "sha256":  "6502be7013f3a149318403a2a30bb8ef15114d6e34de5d48449a77237d3da07e",
-                                        "readOnly":  true,
-                                        "failClosed":  true
-                                    },
-                      "postApplyVerification":  {
-                                                    "path":  "scripts/p22c3c/sql/03_post_apply_verify_read_only.sql",
-                                                    "sha256":  "0193b8dec5848b66e1d7502f026b4a7fd5ef8533763da52309735c2348a41546",
-                                                    "readOnly":  true
-                                                },
-                      "rollback":  {
-                                       "path":  "scripts/p22c3c/sql/04_rollback_authority_schema.sql",
-                                       "sha256":  "77ca4b28321972c967ead4a123e20f7874b55945568ffe32976354b3dba9b18a",
-                                       "requiresSeparateApproval":  true,
-                                       "emptyAuthorityDataRequired":  true,
-                                       "usesCascade":  false
-                                   },
-                      "snapshotComparison":  {
-                                                 "path":  "scripts/p22c3c/compare-snapshots.mjs",
-                                                 "sha256":  "cb5b3834b1323d57a267e54b39b10216355212d6e93541d55dde52a1233ae99d"
-                                             }
-                  },
-    "prohibitedDuringPreparation":  [
-                                        "Production database connection",
-                                        "Staging database connection",
-                                        "Migration execution",
-                                        "Database write",
-                                        "Environment mutation",
-                                        "Deployment",
-                                        "MENU_AUTHORITY_MODE change",
-                                        "Migration-ledger mutation",
-                                        "P22C-3D data creation"
-                                    ],
-    "separateApprovalsRequired":  [
-                                      "Production read-only Snapshot and Preflight access",
-                                      "Final Production DDL execution",
-                                      "Rollback execution"
-                                  ]
+  "schemaVersion": 1,
+  "phase": "P22C-3C",
+  "mode": "PREPARATION_ONLY",
+  "branch": "agent/p22c-3c-production-ddl-gate",
+  "baseContainsMergeCommit": "8710c409dbd6ebd8f3fee280b2846379bb21f9f9",
+  "productionProjectRef": "grcycqdtjjfklibutfos",
+  "productionExecutionAllowed": false,
+  "finalApprovalIssued": false,
+  "compatibilityModeRequired": true,
+  "requiredRuntimeMode": "compatibility",
+  "catalogBaseline": {
+    "total": 117,
+    "active": 104,
+    "draft": 13,
+    "categories": 16
+  },
+  "migration": {
+    "path": "prisma/migrations/202608050001_p22c3a_production_authority_schema_only/migration.sql",
+    "sha256": "9dc141be031edc4956b59c0a89c8de10fadadfff0cac57168a150ff80e4b97c4",
+    "hashCanonicalization": "UTF8_LF",
+    "createsTables": 8,
+    "createsEnums": 6,
+    "createsPolicies": 24,
+    "createsFunctions": 7,
+    "createsTriggers": 11,
+    "createsDataRows": 0
+  },
+  "artifacts": {
+    "snapshot": {
+      "path": "scripts/p22c3c/sql/01_snapshot_read_only.sql",
+      "sha256": "bad1ab94e65b3faac8f6b1dd868a41d9eeff88a3d28faeb6d4aa95066c667168",
+      "readOnly": true
+    },
+    "preflight": {
+      "path": "scripts/p22c3c/sql/02_preflight_read_only.sql",
+      "sha256": "fb846ceabfbf07cbe665f99f95cf81492a2dd4388c6b7f6e2ee1e75226454504",
+      "readOnly": true,
+      "failClosed": true
+    },
+    "postApplyVerification": {
+      "path": "scripts/p22c3c/sql/03_post_apply_verify_read_only.sql",
+      "sha256": "a767c651ba44da4fc7b8e35e45af59805cd2fd24de59368912caea278d30a32c",
+      "readOnly": true
+    },
+    "rollback": {
+      "path": "scripts/p22c3c/sql/04_rollback_authority_schema.sql",
+      "sha256": "77ca4b28321972c967ead4a123e20f7874b55945568ffe32976354b3dba9b18a",
+      "requiresSeparateApproval": true,
+      "emptyAuthorityDataRequired": true,
+      "usesCascade": false
+    },
+    "snapshotComparison": {
+      "path": "scripts/p22c3c/compare-snapshots.mjs",
+      "sha256": "cb5b3834b1323d57a267e54b39b10216355212d6e93541d55dde52a1233ae99d"
+    }
+  },
+  "prohibitedDuringPreparation": [
+    "Production database connection",
+    "Staging database connection",
+    "Migration execution",
+    "Database write",
+    "Environment mutation",
+    "Deployment",
+    "MENU_AUTHORITY_MODE change",
+    "Migration-ledger mutation",
+    "P22C-3D data creation"
+  ],
+  "separateApprovalsRequired": [
+    "Production read-only Snapshot and Preflight access",
+    "Final Production DDL execution",
+    "Rollback execution"
+  ],
+  "catalogScope": {
+    "brandKey": "SALORA",
+    "productAuthorityOnly": true,
+    "categoryAuthorityOnly": true,
+    "fullCatalogRowsExcluded": true
+  },
+  "correction": {
+    "phase": "P22C-3C-A",
+    "reason": "Production contains catalog rows outside the SALORA authority baseline.",
+    "productionConnectionUsed": false,
+    "productionWritePerformed": false,
+    "migrationChanged": false
+  }
 }

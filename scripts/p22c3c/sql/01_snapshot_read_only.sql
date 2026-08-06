@@ -42,6 +42,7 @@ WITH product_state AS (
       )
     ) AS fingerprint
   FROM public.catalog_products
+  WHERE brand_key = 'SALORA'
 ),
 category_state AS (
   SELECT
@@ -70,6 +71,7 @@ category_state AS (
       '[]'::jsonb
     ) AS slugs
   FROM public.product_categories
+  WHERE brand_key = 'SALORA'
 ),
 authority_tables AS (
   SELECT jsonb_object_agg(

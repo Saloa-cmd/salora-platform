@@ -156,3 +156,26 @@ The final execution gate must explicitly choose and document one ledger strategy
 - **P22C-3E:** shadow/dual-read certification and later consideration of required mode.
 
 Neither P22C-3D nor P22C-3E is authorized here.
+
+## P22C-3C-A — SALORA brand-scope correction
+
+All Production Snapshot, Preflight, and Post-apply catalog authority queries are explicitly restricted to:
+
+```sql
+brand_key = 'SALORA'
+```
+
+This is required because the Production database may contain catalog rows belonging to other brands. The certified authority baseline `117 / 104 ACTIVE / 13 DRAFT / 16 categories` applies only to SALORA.
+
+The correction covers:
+
+- product counts and deterministic fingerprints;
+- category counts, slugs, and deterministic fingerprints;
+- product-to-category orphan detection;
+- duplicate product-slug checks;
+- duplicate category-slug checks;
+- before/after Snapshot comparison inputs.
+
+A SALORA product linked to a missing or non-SALORA category fails the Preflight.
+
+This correction changes no migration, authority schema, Production data, environment variable, deployment setting, or runtime mode. Production Snapshot and Preflight remain unexecuted until a new read-only execution approval is issued after this correction is merged.
