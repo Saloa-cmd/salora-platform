@@ -1,4 +1,4 @@
-# SALORA P22C-3B — GitHub Actions Isolated PostgreSQL 17 Certification
+# SALORA P22C-3B â€” GitHub Actions Isolated PostgreSQL 17 Certification
 
 ## Purpose
 
@@ -35,7 +35,7 @@ P22C-3B Isolated PostgreSQL Certification
 The workflow is triggered by pushes to the dedicated certification branch:
 
 ```text
-agent/p22c-3b-github-actions-postgres17
+agent/p22c-3b-*
 ```
 
 It also keeps `workflow_dispatch` for controlled manual certification after the workflow exists on the default branch.
@@ -119,3 +119,13 @@ The artifact contains `p22c3b-certification.json` and is retained for 14 days.
 P22C-3B is evidence only.
 
 It does not authorize or perform P22C-3C. No Production DDL may be applied without a new explicit approval after reviewing the P22C-3B report.
+
+## GitHub Actions context repair
+
+The report uses this runner-local path:
+
+```text
+/tmp/p22c3b-certification.json
+```
+
+The runner.temp context is not used in job-level env, because GitHub validates that environment before the runner context is available.
