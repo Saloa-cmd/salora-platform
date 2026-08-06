@@ -1,4 +1,4 @@
-# SALORA P22C-3B — GitHub Actions Isolated PostgreSQL 17 Certification
+# SALORA P22C-3B â€” GitHub Actions Isolated PostgreSQL 17 Certification
 
 ## Purpose
 
@@ -35,7 +35,7 @@ P22C-3B Isolated PostgreSQL Certification
 The workflow is triggered by pushes to the dedicated certification branch:
 
 ```text
-agent/p22c-3b-github-actions-postgres17
+agent/p22c-3b-*
 ```
 
 It also keeps `workflow_dispatch` for controlled manual certification after the workflow exists on the default branch.
@@ -119,3 +119,32 @@ The artifact contains `p22c3b-certification.json` and is retained for 14 days.
 P22C-3B is evidence only.
 
 It does not authorize or perform P22C-3C. No Production DDL may be applied without a new explicit approval after reviewing the P22C-3B report.
+
+## GitHub Actions context repair
+
+The report uses this runner-local path:
+
+```text
+/tmp/p22c3b-certification.json
+```
+
+The runner.temp context is not used in job-level env, because GitHub validates that environment before the runner context is available.
+## PostgreSQL identifier semantics
+
+PostgreSQL stores identifiers using a default maximum of 63 bytes.
+
+The approved migration contains one 64-byte index name:
+
+```text
+menu_collection_products_collection_id_section_id_sort_order_idx
+```
+
+PostgreSQL creates the index using its 63-byte database identifier:
+
+```text
+menu_collection_products_collection_id_section_id_sort_order_id
+```
+
+The P22C-3B certifier normalizes parsed object names to PostgreSQL database semantics before comparing system catalogs. It also fails closed if two source names would collide after normalization.
+
+This does not change the migration file or its approved canonical SHA-256.

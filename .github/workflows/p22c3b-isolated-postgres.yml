@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - agent/p22c-3b-github-actions-postgres17
+      - "agent/p22c-3b-*"
 
 permissions:
   contents: read
@@ -37,7 +37,7 @@ jobs:
     env:
       DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres
       P22C3B_APPROVED_SHA: 9dc141be031edc4956b59c0a89c8de10fadadfff0cac57168a150ff80e4b97c4
-      P22C3B_REPORT_PATH: ${{ runner.temp }}/p22c3b-certification.json
+      P22C3B_REPORT_PATH: /tmp/p22c3b-certification.json
 
     steps:
       - name: Check out repository
@@ -69,6 +69,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: p22c3b-postgres17-certification
-          path: ${{ runner.temp }}/p22c3b-certification.json
+          path: /tmp/p22c3b-certification.json
           if-no-files-found: warn
           retention-days: 14
