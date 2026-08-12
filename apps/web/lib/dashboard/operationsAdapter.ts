@@ -2,10 +2,7 @@ import { combineStatus, dashboardFetch, requestIdsFrom, statusFromScore } from "
 import type { DashboardAlert, DashboardResult, OperationsDashboardData, OperationsEnvelope, RuntimeStatus } from "./types";
 
 type HealthResponse = {
-  ok: boolean;
-  status: "ok" | "warning" | "critical" | string;
-  service: string;
-  checkedAt: string;
+  status: "ok";
 };
 
 export async function getOperationsDashboard(): Promise<DashboardResult<OperationsDashboardData>> {
@@ -48,8 +45,9 @@ export async function getOperationsDashboard(): Promise<DashboardResult<Operatio
     severity: alert.severity,
     createdAt: alert.createdAt
   }));
+  const webRuntimeLive = health.data?.status === "ok";
   const systemHealth: RuntimeStatus[] = [
-    { label: "Web runtime", status: health.data?.ok ? "ok" : "error", detail: health.data?.service ?? health.message ?? "Health unavailable", checkedAt: health.data?.checkedAt },
+    { label: "Web runtime", status: webRuntimeLive ? "ok" : "error", detail: webRuntimeLive ? "Liveness probe passed" : health.message ?? "Health unavailable" },
     { label: "Forecasting", status: "warning", detail: operations.data.forecasting.requiredNextData.join(", ") }
   ];
 

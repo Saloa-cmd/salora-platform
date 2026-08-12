@@ -1,16 +1,19 @@
 import { saloraRuntime } from "@salora/config";
 import { aggregateStatus, databaseHealth, queueHealth, redisHealth } from "@salora/backend";
-import { NextResponse } from "next/server";
 import { getPublicMenuSnapshot } from "@/lib/server/publicMenu";
+import {
+  createPublicOperationalStatus,
+  PUBLIC_OPERATIONAL_STATUS_HEADERS
+} from "@/lib/server/publicOperationalStatus";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
   const [infrastructure, menuSnapshot] = await Promise.all([
     Promise.all([
-    databaseHealth(),
-    redisHealth(),
-    queueHealth()
+      databaseHealth(),
+      redisHealth(),
+      queueHealth()
     ]),
     getPublicMenuSnapshot()
   ]);
@@ -36,16 +39,18 @@ export async function GET() {
     checks.siteUrlConfigured &&
     checks.whatsappConfigured &&
     infrastructureStatus !== "critical";
+  const status = ok ? "ready" : "not-ready";
 
-  return NextResponse.json(
-    {
-      ok,
-      status: ok ? "ready" : "not-ready",
-      service: "salora-web",
+  return Response.json(
+    createPublicOperationalStatus({
+      status,
       checks,
       infrastructure,
-      checkedAt: new Date().toISOString()
-    },
-    { status: ok ? 200 : 503 }
+      infrastructureStatus
+    }),
+    {
+      status: ok ? 200 : 503,
+      headers: PUBLIC_OPERATIONAL_STATUS_HEADERS
+    }
   );
 }

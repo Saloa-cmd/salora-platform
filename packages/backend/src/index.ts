@@ -4,7 +4,6 @@ export * from "./runtime/metrics";
 export * from "./runtime/shutdown";
 export * from "./database/health";
 export * from "./database/prisma";
-export * from "./database/p22c3c-readonly";
 export * from "./database/rls-context";
 export * from "./database/transactions";
 export * from "./repositories/control-tower";
