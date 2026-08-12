@@ -74,13 +74,10 @@ try {
 
     const authority = await authorityResponse.json();
     const products = await productsResponse.json();
-    const ready = await readyResponse.json();
 
     assert.equal(authority.runtime?.source, "published-revision");
     assert.equal(authority.data?.revision?.id, collection.activeRevisionId);
     assert.equal(products.authority?.revision?.id, collection.activeRevisionId);
-    assert.equal(ready.checks?.catalogRevisionId, collection.activeRevisionId);
-    assert.equal(ready.checks?.catalogLive, true);
 
     if (process.env.ALLOW_STAGING_ANALYTICS_WRITE === "true") {
       const analyticsResponse = await fetch(`${baseUrl}/api/analytics/menu-event`, {

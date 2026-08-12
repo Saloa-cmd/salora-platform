@@ -2,9 +2,7 @@ import { combineStatus, dashboardFetch, requestIdsFrom } from "./client";
 import type { DashboardResult, OperationsEnvelope, WhatsappDashboardData } from "./types";
 
 type HealthResponse = {
-  ok: boolean;
-  checkedAt: string;
-  service: string;
+  status: "ok";
 };
 
 export async function getWhatsappDashboard(): Promise<DashboardResult<WhatsappDashboardData>> {
@@ -33,6 +31,7 @@ export async function getWhatsappDashboard(): Promise<DashboardResult<WhatsappDa
   }
 
   const ready = operations.data.operations.whatsappDashboardReady;
+  const webRuntimeLive = health.data?.status === "ok";
 
   return {
     status,
@@ -49,7 +48,7 @@ export async function getWhatsappDashboard(): Promise<DashboardResult<WhatsappDa
         { label: "Loyalty assistance", value: "Unavailable", detail: "Loyalty-intent metric not exposed", status: "empty" }
       ],
       channelHealth: [
-        { label: "Webhook route", status: health.data?.ok ? "warning" : "error", detail: health.data?.ok ? "Platform is live; WhatsApp webhook requires channel event telemetry" : health.message ?? "Health unavailable", checkedAt: health.data?.checkedAt },
+        { label: "Webhook route", status: webRuntimeLive ? "warning" : "error", detail: webRuntimeLive ? "Platform is live; WhatsApp webhook requires channel event telemetry" : health.message ?? "Health unavailable" },
         { label: "Operations readiness", status: ready ? "warning" : "empty", detail: ready ? "Dashboard readiness flag is true; exact counters pending" : "Operations reports WhatsApp dashboard unavailable" }
       ],
       assistance: [
