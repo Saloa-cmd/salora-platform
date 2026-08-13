@@ -372,22 +372,23 @@ export async function createControlTowerRepository(
       commandCenter: () =>
         withPrismaAuthContext(authContext, async (db) => {
           incrementMetric("salora_control_tower_whatsapp_command_center");
-          const [conversations, messages, webhookEvents] = await Promise.all([
-            db.conversation.findMany({
-              where: { channel: "WHATSAPP" },
-              orderBy: { updatedAt: "desc" },
-              take: 50,
-              include: { messages: { orderBy: { createdAt: "desc" }, take: 5 }, customer: true, order: true }
-            }).catch(() => []),
-            db.conversationMessage.findMany({
-              where: { channel: "WHATSAPP" },
-              orderBy: { createdAt: "desc" },
-              take: 100
-            }).catch(() => []),
-            db.whatsappWebhookEvent
-              ? db.whatsappWebhookEvent.findMany({ orderBy: { receivedAt: "desc" }, take: 50 }).catch(() => [])
-              : Promise.resolve([])
-          ]);
+          // withPrismaAuthContext uses one interactive transaction client. Keep
+          // these independent reads ordered so pg.Client never receives a query
+          // while it is already executing another one.
+          const conversations = await db.conversation.findMany({
+            where: { channel: "WHATSAPP" },
+            orderBy: { updatedAt: "desc" },
+            take: 50,
+            include: { messages: { orderBy: { createdAt: "desc" }, take: 5 }, customer: true, order: true }
+          }).catch(() => []);
+          const messages = await db.conversationMessage.findMany({
+            where: { channel: "WHATSAPP" },
+            orderBy: { createdAt: "desc" },
+            take: 100
+          }).catch(() => []);
+          const webhookEvents = db.whatsappWebhookEvent
+            ? await db.whatsappWebhookEvent.findMany({ orderBy: { receivedAt: "desc" }, take: 50 }).catch(() => [])
+            : [];
 
           return { conversations, messages, webhookEvents, webhookLedgerReady: Boolean(db.whatsappWebhookEvent) };
         })

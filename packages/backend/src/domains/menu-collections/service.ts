@@ -447,10 +447,15 @@ export class MenuCollectionDomainService {
     const input = menuPublicationRequestSchema.parse(rawInput);
 
     return this.repository.run(async (database) => {
-      const [collection, revision] = await Promise.all([
-        database.menuCollection.findUnique({ where: { id: input.collectionId } }),
-        database.menuCollectionRevision.findUnique({ where: { id: input.revisionId } })
-      ]);
+      // `repository.run` supplies one interactive transaction client. node-postgres
+      // does not support concurrent queries on that client, so transaction reads
+      // must remain explicitly ordered.
+      const collection = await database.menuCollection.findUnique({
+        where: { id: input.collectionId }
+      });
+      const revision = await database.menuCollectionRevision.findUnique({
+        where: { id: input.revisionId }
+      });
       if (!collection || !revision || revision.collectionId !== input.collectionId) {
         throw new Error("Collection and revision do not match.");
       }
@@ -513,13 +518,15 @@ export class MenuCollectionDomainService {
     const input = menuRollbackRequestSchema.parse(rawInput);
 
     return this.repository.run(async (database) => {
-      const [target, collection] = await Promise.all([
-        database.menuPublication.findUnique({
-          where: { id: input.targetPublicationId },
-          include: { revision: true }
-        }),
-        database.menuCollection.findUnique({ where: { id: input.collectionId } })
-      ]);
+      // Keep reads on this interactive transaction client sequential. Parallel
+      // Prisma calls here enqueue multiple queries on one pg.Client.
+      const target = await database.menuPublication.findUnique({
+        where: { id: input.targetPublicationId },
+        include: { revision: true }
+      });
+      const collection = await database.menuCollection.findUnique({
+        where: { id: input.collectionId }
+      });
       if (!target || !collection || target.collectionId !== input.collectionId) {
         throw new Error("Rollback target does not belong to the collection.");
       }
