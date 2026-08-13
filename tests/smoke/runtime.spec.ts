@@ -35,7 +35,7 @@ test("login shell renders with matching CSP nonces", async ({ page }) => {
   expect(scriptSource).not.toContain("'unsafe-inline'");
 
   const scriptNonces = await page.locator("script").evaluateAll((scripts) =>
-    scripts.map((script) => script.getAttribute("nonce")).filter(Boolean)
+    scripts.map((script) => script.nonce).filter(Boolean)
   );
   expect(scriptNonces.length).toBeGreaterThan(0);
   expect(new Set(scriptNonces)).toEqual(new Set([nonce]));
