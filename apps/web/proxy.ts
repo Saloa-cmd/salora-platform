@@ -1,66 +1,28 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { createContentSecurityPolicy } from "@/lib/server/contentSecurityPolicy";
 
-const requestWindowMs = 60_000;
-const maxRequestsPerWindow = 120;
-const requestCounts = new Map<string, { count: number; resetAt: number }>();
-
-const csp = [
-  "default-src 'self'",
-  "base-uri 'self'",
-  "form-action 'self'",
-  "frame-ancestors 'none'",
-  "object-src 'none'",
-  // Product photography is delivered from the isolated SALORA Supabase
-  // Storage bucket. Keep the allow-list narrow instead of permitting every
-  // HTTPS image origin.
-  "img-src 'self' data: blob: https://*.supabase.co",
-  "font-src 'self' data:",
-  "connect-src 'self' https://wa.me https://api.whatsapp.com",
-  "script-src 'self' 'unsafe-inline'",
-  "style-src 'self' 'unsafe-inline'",
-  "upgrade-insecure-requests"
-].join("; ");
-
-function getClientKey(request: NextRequest): string {
-  return request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
-}
-
-function isRateLimited(key: string): boolean {
-  const now = Date.now();
-  const record = requestCounts.get(key);
-
-  if (!record || record.resetAt <= now) {
-    requestCounts.set(key, { count: 1, resetAt: now + requestWindowMs });
-    return false;
-  }
-
-  record.count += 1;
-  return record.count > maxRequestsPerWindow;
+function requestId(request: NextRequest): string {
+  const candidate = request.headers.get("x-request-id");
+  return candidate && /^[a-zA-Z0-9][a-zA-Z0-9._:-]{0,127}$/.test(candidate)
+    ? candidate
+    : crypto.randomUUID();
 }
 
 export function proxy(request: NextRequest) {
-  const requestId = request.headers.get("x-request-id") || crypto.randomUUID();
-  const key = getClientKey(request);
-
-  if (isRateLimited(key)) {
-    return NextResponse.json(
-      { error: "Rate limit exceeded", requestId },
-      {
-        status: 429,
-        headers: {
-          "x-request-id": requestId,
-          "retry-after": "60"
-        }
-      }
-    );
-  }
+  const id = requestId(request);
+  const nonce = crypto.randomUUID().replaceAll("-", "");
+  const contentSecurityPolicy = createContentSecurityPolicy(nonce);
 
   const requestHeaders = new Headers(request.headers);
-  requestHeaders.set("x-request-id", requestId);
+  requestHeaders.set("x-request-id", id);
+  requestHeaders.set("x-nonce", nonce);
+  // Next.js reads the request CSP while rendering and applies the nonce to its
+  // generated framework scripts and style elements.
+  requestHeaders.set("Content-Security-Policy", contentSecurityPolicy);
 
   const response = NextResponse.next({ request: { headers: requestHeaders } });
-  response.headers.set("x-request-id", requestId);
-  response.headers.set("Content-Security-Policy", csp);
+  response.headers.set("x-request-id", id);
+  response.headers.set("Content-Security-Policy", contentSecurityPolicy);
   response.headers.set("X-DNS-Prefetch-Control", "on");
   response.headers.set("X-Frame-Options", "DENY");
   response.headers.set("X-Content-Type-Options", "nosniff");
@@ -71,5 +33,13 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|brand/).*)"]
+  matcher: [
+    {
+      source: "/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|brand/).*)",
+      missing: [
+        { type: "header", key: "next-router-prefetch" },
+        { type: "header", key: "purpose", value: "prefetch" }
+      ]
+    }
+  ]
 };

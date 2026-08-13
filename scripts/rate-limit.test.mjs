@@ -32,6 +32,8 @@ function walk(relativeDir) {
 const backendLimiter = read("packages/backend/src/cache/rateLimit.ts");
 assert(backendLimiter.includes("connectRedis"), "Distributed limiter must use Redis runtime.");
 assert(backendLimiter.includes("RateLimitExceededError"), "Distributed limiter must expose typed 429 error.");
+assert(backendLimiter.includes("RateLimitUnavailableError"), "Distributed limiter must expose a typed unavailable error.");
+assert(backendLimiter.includes("salora_rate_limit_unavailable_total"), "Redis limiter outages must be observable.");
 assert(!backendLimiter.includes("new Map"), "Distributed limiter must not use process-local Map storage.");
 assert(!backendLimiter.includes("setInterval"), "Distributed limiter must not depend on process-local timers.");
 
@@ -45,6 +47,14 @@ for (const policy of ["auth", "ai", "orders", "whatsapp", "stripe", "controlTowe
   assert(webLimiter.includes(`${policy}:`), `Missing ${policy} rate-limit policy.`);
 }
 assert(webLimiter.includes("retry-after"), "429 responses must include retry-after header.");
+assert(webLimiter.includes('failureMode: "closed"'), "Sensitive application policies must declare fail-closed behavior.");
+assert(webLimiter.includes("RateLimitUnavailableError"), "Limiter outages must return a sanitized response.");
+assert(webLimiter.includes("503"), "Fail-closed limiter outages must use HTTP 503.");
+assert(webLimiter.includes("no-store"), "Rate-limit failures must not be cached.");
+
+const proxy = read("apps/web/proxy.ts");
+assert(!proxy.includes("new Map"), "Proxy must not claim process-local counters are a production rate limiter.");
+assert(!proxy.includes("requestCounts"), "Proxy must not retain serverless-instance request counters.");
 
 const requiredFiles = [
   "apps/web/lib/server/aiHttp.ts",
@@ -71,7 +81,12 @@ for (const file of requiredFiles) {
 for (const file of walk("apps/web/app/api/control-tower")) {
   if (!file.endsWith("route.ts")) continue;
   const content = read(file);
-  assert(content.includes("requireControlPermission"), `Control Tower route must pass through central rate-limited permission guard: ${file}`);
+  const centralGuard = content.includes("requireControlPermission");
+  const explicitEquivalent = content.includes("enforceRateLimit") && content.includes("requirePermission");
+  assert(
+    centralGuard || explicitEquivalent,
+    `Control Tower route must pass through a rate-limited permission guard: ${file}`
+  );
 }
 
 if (failures.length > 0) {

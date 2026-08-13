@@ -5,6 +5,8 @@ dist/
 build/
 *.tsbuildinfo
 *.log
+playwright-report/
+test-results/
 *-pid.txt
 *-job.txt
 .DS_Store

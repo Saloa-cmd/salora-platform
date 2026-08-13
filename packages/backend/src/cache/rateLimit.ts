@@ -25,6 +25,13 @@ export class RateLimitExceededError extends Error {
   }
 }
 
+export class RateLimitUnavailableError extends Error {
+  constructor(cause: unknown) {
+    super("Distributed rate limit service is unavailable.", { cause });
+    this.name = "RateLimitUnavailableError";
+  }
+}
+
 function normalizeScope(scope: string) {
   return scope.replace(/[^a-zA-Z0-9:_-]/g, "_").slice(0, 180);
 }
@@ -65,7 +72,13 @@ export async function checkDistributedRateLimit(scope: string, window: RateLimit
 }
 
 export async function assertDistributedRateLimit(scope: string, window: RateLimitWindow): Promise<RateLimitResult> {
-  const result = await checkDistributedRateLimit(scope, window);
+  let result: RateLimitResult;
+  try {
+    result = await checkDistributedRateLimit(scope, window);
+  } catch (error) {
+    incrementMetric("salora_rate_limit_unavailable_total");
+    throw new RateLimitUnavailableError(error);
+  }
   if (!result.allowed) {
     throw new RateLimitExceededError(result);
   }
