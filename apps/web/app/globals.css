@@ -32,6 +32,23 @@
   --type-display: clamp(2.5rem, 5.4vw, 5.75rem);
   --type-display-ar: clamp(2.35rem, 4.8vw, 5rem);
   --type-title: clamp(1.35rem, 2.2vw, 2rem);
+  --foreground: var(--cream);
+  --foreground-muted: var(--muted);
+  --interactive: #0b0a09;
+  --border: var(--border-subtle);
+  --brand: var(--gold);
+  --brand-hover: var(--gold-soft);
+  --brand-foreground: var(--background);
+  --border-brand: var(--border-gold);
+  --info: #8ec5e8;
+  --radius-control: 0.75rem;
+  --radius-card: 1.125rem;
+  --radius-modal: 1.5rem;
+  --duration-fast: 120ms;
+  --duration-normal: 180ms;
+  --duration-slow: 280ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-emphasized: cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 * {
@@ -175,7 +192,7 @@ button:disabled {
 
 .skip-link {
   position: fixed;
-  left: 1rem;
+  inset-inline-start: 1rem;
   top: 1rem;
   z-index: 100;
   transform: translateY(-160%);
@@ -251,8 +268,7 @@ button:disabled {
 .product-visual::after {
   content: "";
   position: absolute;
-  left: 22%;
-  right: 22%;
+  inset-inline: 22%;
   bottom: 10%;
   height: 10%;
   border-radius: 999px;
@@ -264,7 +280,7 @@ button:disabled {
   display: inline-block;
   width: 6px;
   height: 6px;
-  margin-right: 4px;
+  margin-inline-end: 4px;
   border-radius: 999px;
   background: var(--gold-soft);
   opacity: 0.45;
