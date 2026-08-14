@@ -36,7 +36,8 @@
     "certify:p22b:staging": "node --experimental-strip-types scripts/p22b-staging-required-mode.test.mjs",
     "test:p22c3a-production-schema": "node scripts/p22c3a-production-schema-only.test.mjs",
     "test:p22c3c-production-ddl-gate": "node scripts/p22c3c-production-ddl-gate.test.mjs",
-    "test:p22c3c-gate-retirement": "node --experimental-strip-types scripts/p22c3c-gate-retirement.test.mjs"
+    "test:p22c3c-gate-retirement": "node --experimental-strip-types scripts/p22c3c-gate-retirement.test.mjs",
+    "test:ui-foundation": "node scripts/ui-foundation.test.mjs"
   },
   "packageManager": "pnpm@11.7.0",
   "engines": {
