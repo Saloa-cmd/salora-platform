@@ -61,6 +61,8 @@ export async function withPrismaAuthContext<T>(
 /**
  * Executes a transaction with RLS context set.
  * All queries within the transaction will have RLS context applied.
+ * The operation must await queries sequentially; an interactive transaction
+ * owns one pg.Client and must not use Promise.all for database calls.
  * @param context Auth context with userId and roles
  * @param operation Function that receives transaction client with RLS context set
  */

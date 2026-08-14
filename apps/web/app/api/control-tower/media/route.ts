@@ -21,20 +21,21 @@ export async function GET(request: NextRequest) {
       repo.productImages.findMany({ take, skip, where: { ...productWhere, deletedAt: null }, include: { product: true }, orderBy: [{ isPrimary: "desc" }, { sortOrder: "asc" }] }),
       repo.mediaDrafts.findMany({ take, skip, where: { ...productWhere, archivedAt: null }, include: { product: true }, orderBy: [{ createdAt: "desc" }] }),
       repo.cms.run(async (db) => {
-        const [catalogProducts, activeDrafts, liveImages] = await Promise.all([
-          db.catalogProduct.findMany({
-            where: { brandKey: "SALORA" },
-            select: { id: true, status: true }
-          }),
-          db.productMediaDraft.findMany({
-            where: { archivedAt: null, product: { brandKey: "SALORA" } },
-            select: { id: true, productId: true, source: true, status: true }
-          }),
-          db.productImage.findMany({
-            where: { deletedAt: null, product: { brandKey: "SALORA" } },
-            select: { id: true, productId: true, isPrimary: true }
-          })
-        ]);
+        // `cms.run` is one RLS transaction. Reads inside it must be sequential;
+        // the two sibling repository calls above use separate transactions and
+        // may still run in parallel safely.
+        const catalogProducts = await db.catalogProduct.findMany({
+          where: { brandKey: "SALORA" },
+          select: { id: true, status: true }
+        });
+        const activeDrafts = await db.productMediaDraft.findMany({
+          where: { archivedAt: null, product: { brandKey: "SALORA" } },
+          select: { id: true, productId: true, source: true, status: true }
+        });
+        const liveImages = await db.productImage.findMany({
+          where: { deletedAt: null, product: { brandKey: "SALORA" } },
+          select: { id: true, productId: true, isPrimary: true }
+        });
         const authoritative = activeDrafts.filter((draft: { source: string }) => draft.source === AUTHORITATIVE_MEDIA_SOURCE);
         const authoritativeProductIds = new Set(authoritative.map((draft: { productId: string }) => draft.productId));
         const activeProductIds = new Set(

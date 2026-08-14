@@ -9,7 +9,7 @@ const primitives = read("apps/web/components/ui/SaloraPrimitives.tsx");
 const mediaManager = read("apps/web/components/control-tower/ProductMediaManager.tsx");
 const mediaAudit = read("apps/web/components/control-tower/MediaGovernanceAudit.tsx");
 const mediaRoute = read("apps/web/app/api/control-tower/media/route.ts");
-const proxy = read("apps/web/proxy.ts");
+const contentSecurityPolicy = read("apps/web/lib/server/contentSecurityPolicy.ts");
 const menuLoading = read("apps/web/app/menu/loading.tsx");
 const menuError = read("apps/web/app/menu/error.tsx");
 
@@ -28,7 +28,7 @@ assert.match(css, /prefers-reduced-motion: reduce/, "Reduced-motion support is r
 assert.match(css, /forced-colors: active/, "Forced-colors support is required.");
 assert.match(primitives, /export function SaloraButton/, "The shared button primitive is required.");
 assert.match(primitives, /export function SaloraEmptyState/, "The shared empty-state primitive is required.");
-assert.match(proxy, /img-src[^"]+https:\/\/\*\.supabase\.co/, "CSP must allow the isolated Supabase product-media origin.");
+assert.match(contentSecurityPolicy, /img-src[^"]+https:\/\/\*\.supabase\.co/, "CSP must allow the isolated Supabase product-media origin.");
 assert.match(mediaManager, /onError=\{\(\) => setFailedSrc\(src\)\}/, "Media cards must recover visibly when a storage asset cannot load.");
 assert.match(mediaManager, /salora_catalog_photography_v1/, "The authoritative 117-product media source must remain explicitly isolated.");
 assert.match(mediaManager, /authoritativeProducts/, "Media management must report unique product coverage instead of conflating products with draft records.");

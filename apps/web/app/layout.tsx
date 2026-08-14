@@ -2,6 +2,10 @@ import type { Metadata } from "next";
 import { saloraRuntime } from "@salora/config";
 import "./globals.css";
 
+// A request-specific CSP nonce is applied by proxy.ts. Nonces require dynamic
+// rendering so Next.js can attach the same value to framework scripts/styles.
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   metadataBase: new URL(saloraRuntime.siteUrl),
   title: "SALORA / Salora.Cafe",
