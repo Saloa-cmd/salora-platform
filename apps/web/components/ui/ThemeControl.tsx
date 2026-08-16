@@ -1,7 +1,7 @@
 "use client";
 
 import { Monitor, Moon, Sun } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import type { ThemePreference } from "@salora/ui";
 import { THEME_COOKIE, THEME_EVENT, THEME_PREFERENCES, THEME_STORAGE, isThemePreference, resolveBrowserTheme } from "@/lib/theme";
 
@@ -26,16 +26,16 @@ function applyTheme(preference: ThemePreference) {
 }
 
 export function ThemeControl({ locale = "ar", compact = true }: { locale?: "ar" | "en"; compact?: boolean }) {
-  const [preference, setPreference] = useState<ThemePreference>("system");
-  useEffect(() => {
-    setPreference(currentPreference());
+  const preference = useSyncExternalStore((onStoreChange) => {
+    const sync = () => onStoreChange();
     const media = window.matchMedia("(prefers-color-scheme: dark)");
-    const syncSystem = () => { if (currentPreference() === "system") applyTheme("system"); };
+    const syncSystem = () => { if (currentPreference() === "system") applyTheme("system"); onStoreChange(); };
+    window.addEventListener(THEME_EVENT, sync);
     media.addEventListener("change", syncSystem);
-    return () => media.removeEventListener("change", syncSystem);
-  }, []);
+    return () => { window.removeEventListener(THEME_EVENT, sync); media.removeEventListener("change", syncSystem); };
+  }, currentPreference, () => "system");
   const next = THEME_PREFERENCES[(THEME_PREFERENCES.indexOf(preference) + 1) % THEME_PREFERENCES.length] ?? "system";
   const Icon = icons[preference];
   const label = labels[locale][preference];
-  return <button type="button" className="salora-theme-control" aria-label={`${label}. ${locale === "ar" ? "تغيير إلى" : "Change to"} ${labels[locale][next]}`} title={label} onClick={() => { applyTheme(next); setPreference(next); }}><Icon aria-hidden="true" className="h-4 w-4" /><span className={compact ? "sr-only" : ""}>{label}</span></button>;
+  return <button type="button" className="salora-theme-control" aria-label={`${label}. ${locale === "ar" ? "تغيير إلى" : "Change to"} ${labels[locale][next]}`} title={label} onClick={() => applyTheme(next)}><Icon aria-hidden="true" className="h-4 w-4" /><span className={compact ? "sr-only" : ""}>{label}</span></button>;
 }
