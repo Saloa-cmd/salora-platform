@@ -8,19 +8,30 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   metadataBase: new URL(saloraRuntime.siteUrl),
-  title: "SALORA / Salora.Cafe",
-  description: "A premium AI-powered cafe platform foundation for matcha, specialty coffee, desserts, and effortless ordering.",
+  title: {
+    default: "SALORA.CAFE | Taste the Harmony",
+    template: "%s | SALORA.CAFE"
+  },
+  description: "اكتشف منيو سالورا في واجهة شاطئ الدهاريز: قهوة مختصة، ماتشا، مشروبات وحلويات تُحضّر بعناية في صلالة.",
+  alternates: {
+    canonical: saloraRuntime.siteUrl
+  },
   openGraph: {
-    title: "SALORA - Where Taste Meets Intelligence",
-    description: "Cinematic AI cafe experience for ordering, recommendations, loyalty, and future hospitality intelligence.",
+    title: "SALORA.CAFE — Taste the Harmony",
+    description: "A premium coffee, matcha and dessert experience at Dahariz Beachfront, Salalah.",
     type: "website",
     url: saloraRuntime.siteUrl
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "SALORA.CAFE — Taste the Harmony",
+    description: "Premium coffee, matcha and desserts in Salalah."
   }
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
+    <html lang="ar" dir="rtl">
       <body>{children}</body>
     </html>
   );

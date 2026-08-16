@@ -386,9 +386,9 @@ export function MenuExperience({
   const menuBanners = experience.banners.filter((banner) => banner.active && (banner.placement === "menu" || banner.placement === "both")).sort((a, b) => a.sortOrder - b.sortOrder);
 
   return (
-    <main lang={language} dir={t.direction} style={experienceStyle} className="min-h-screen text-[var(--cream)]">
+    <main lang={language} dir={t.direction} style={experienceStyle} className="premium-menu-shell min-h-screen text-[var(--cream)]">
       <a href="#menu-products" className="skip-link">{t.browse}</a>
-      <header className="sticky top-0 z-40 border-b border-white/10 bg-black/85 backdrop-blur-xl">
+      <header className="premium-menu-header sticky top-0 z-40 border-b border-white/10 bg-black/85 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:h-[4.5rem] sm:px-6">
           <Link href="/" className="flex items-center gap-3" aria-label="SALORA home">
             {experience.site.logoUrl ? <span aria-label="SALORA logo" className="h-10 w-10 rounded-full border border-[var(--border-gold)] bg-cover bg-center sm:h-11 sm:w-11" style={{ backgroundImage: `url(${experience.site.logoUrl})` }} /> : <Image src="/brand/salora-logo-dark.jpeg" alt="SALORA" width={44} height={44} priority className="h-10 w-10 rounded-full border border-[var(--border-gold)] object-cover shadow-[0_0_24px_rgba(201,164,92,0.18)] sm:h-11 sm:w-11" />}
@@ -408,7 +408,7 @@ export function MenuExperience({
 
       {experience.site.showAnnouncement ? <div className="bg-[var(--gold)] px-4 py-2 text-center text-sm font-semibold text-black">{language === "ar" ? experience.site.announcementAr : experience.site.announcementEn}</div> : null}
 
-      <section className="relative overflow-hidden border-b border-white/10 px-4 py-5 sm:px-6 sm:py-8">
+      <section className="premium-menu-hero relative overflow-hidden border-b border-white/10 px-4 py-5 sm:px-6 sm:py-8">
         <div className="hero-depth" />
         <div className={`mx-auto grid max-w-7xl gap-5 lg:items-end ${language === "ar" ? "lg:grid-cols-[minmax(0,1.15fr)_minmax(20rem,0.85fr)]" : "lg:grid-cols-[minmax(0,1.1fr)_minmax(20rem,0.9fr)]"}`}>
           <div className="min-w-0">
@@ -508,7 +508,7 @@ function MenuProductCard({ product, language, showImages, showDescriptions, rati
   const tags = product.tags.slice(0, 2);
 
   return (
-    <article className={`group overflow-hidden border border-white/10 bg-white/[0.04] shadow-[0_18px_50px_rgba(0,0,0,.16)] transition duration-200 hover:-translate-y-0.5 hover:border-[var(--border-gold)] ${list ? "sm:grid sm:grid-cols-[240px_1fr]" : ""}`} style={{ borderRadius: `${radius}px` }}>
+    <article className={`premium-menu-card group overflow-hidden border border-white/10 bg-white/[0.04] shadow-[0_18px_50px_rgba(0,0,0,.16)] transition duration-200 hover:-translate-y-0.5 hover:border-[var(--border-gold)] ${list ? "sm:grid sm:grid-cols-[240px_1fr]" : ""}`} style={{ borderRadius: `${radius}px` }}>
       {showImages ? (
         <button type="button" onClick={() => onSelect(product)} aria-label={`${t.customize}: ${displayName(product, language)}`} className={`relative block w-full overflow-hidden ${list ? "min-h-48 sm:aspect-auto" : ratioClass} bg-gradient-to-br ${productAccent(product)}`}>
           {image && !imageFailed ? <Image src={image} alt={displayName(product, language)} fill sizes={list ? "(min-width: 640px) 240px, 100vw" : "(min-width: 1280px) 31vw, (min-width: 640px) 48vw, 100vw"} className="object-cover transition duration-500 group-hover:scale-[1.025]" onError={() => setImageFailed(true)} /> : <span className="absolute inset-0 grid place-items-center"><Coffee className="h-16 w-16 text-white/20" strokeWidth={1} /><span className="sr-only">{language === "ar" ? "صورة بديلة للمنتج" : "Product image fallback"}</span></span>}
