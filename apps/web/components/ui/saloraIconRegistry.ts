@@ -5,6 +5,7 @@ import {
   WandSparkles, X, type LucideIcon
 } from "lucide-react";
 import type { SaloraSemanticIconName } from "@salora/types";
+import { saloraIconMetadata } from "@salora/ui";
 
 export const SALORA_ICON_REGISTRY: Readonly<Record<SaloraSemanticIconName, LucideIcon>> = {
   ai: Bot, analytics: BarChart3, assets: Image, back: ChevronLeft, bell: Bell, brand: WandSparkles,
@@ -16,3 +17,4 @@ export const SALORA_ICON_REGISTRY: Readonly<Record<SaloraSemanticIconName, Lucid
 };
 
 export const SALORA_ICON_NAMES = Object.freeze(Object.keys(SALORA_ICON_REGISTRY) as SaloraSemanticIconName[]);
+export const SALORA_ICON_METADATA: Readonly<Record<SaloraSemanticIconName, (typeof saloraIconMetadata)[SaloraSemanticIconName]>> = saloraIconMetadata;

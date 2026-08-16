@@ -1,6 +1,9 @@
-import { designTokens } from "@salora/ui";
+import { designTokens, semanticThemes, type ResolvedTheme } from "@salora/ui";
 
-export const colors = designTokens.colors;
+const aliases = (theme: ResolvedTheme) => ({ ...semanticThemes[theme], gold: semanticThemes[theme].brand, goldSoft: semanticThemes[theme].brandHover, cream: semanticThemes[theme].foreground, muted: semanticThemes[theme].foregroundMuted, matcha: semanticThemes[theme].accent, espresso: "#3A2418" });
+export const mobileThemes = { dark: aliases("dark"), light: aliases("light") } as const;
+/** Dark compatibility snapshot for legacy StyleSheets; new code uses useSaloraTheme(). */
+export const colors = mobileThemes.dark;
 
 export const spacing = {
   xs: designTokens.spacing[2],

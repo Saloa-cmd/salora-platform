@@ -1,15 +1,16 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
-import { colors } from "@/lib/theme";
+import { useSaloraTheme } from "@/lib/ThemeProvider";
 
 export default function TabsLayout() {
+  const { colors } = useSaloraTheme();
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
           backgroundColor: colors.surface,
-          borderTopColor: "rgba(245,239,227,0.1)",
+          borderTopColor: colors.border,
           height: 82,
           paddingTop: 8
         },

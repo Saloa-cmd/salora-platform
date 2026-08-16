@@ -9,6 +9,7 @@ import { ControlTowerPerf } from "./ControlTowerPerf";
 import { useState, type ReactNode } from "react";
 import type { ControlTowerSectionId } from "@/lib/control-tower/types";
 import { ControlTowerLocaleProvider, useControlTowerLocale } from "./ControlTowerLocale";
+import { ThemeControl } from "@/components/ui/ThemeControl";
 
 const controlTowerGroups: Array<{ label: string; sections: ControlTowerSectionId[] }> = [
   { label: "Overview", sections: ["executive"] },
@@ -44,8 +45,8 @@ function ControlTowerShellContent({ children }: { children: ReactNode }) {
       <ControlTowerPerf />
       <a href="#control-tower-content" className="skip-link">{tr("Skip to control tower content")}</a>
       <div className="flex min-h-screen">
-        {mobileNavigationOpen ? <button type="button" className="fixed inset-0 z-40 bg-black/70 backdrop-blur-sm xl:hidden" onClick={() => setMobileNavigationOpen(false)} aria-label={tr("Close navigation")} /> : null}
-        <aside className={`${mobileNavigationOpen ? "fixed inset-y-0 z-50 flex w-[min(22rem,88vw)] flex-col" : "hidden"} ${isArabic ? "right-0 border-l" : "left-0 border-r"} shrink-0 border-[rgba(201,164,92,0.08)] bg-[#070706]/95 shadow-2xl backdrop-blur-xl transition-all duration-200 xl:static xl:z-auto xl:flex xl:flex-col xl:bg-black/40 xl:shadow-none ${collapsed ? "xl:w-16" : "xl:w-64"}`} aria-label={tr("Control Tower navigation")}>
+        {mobileNavigationOpen ? <button type="button" className="fixed inset-0 z-40 bg-[var(--overlay)] backdrop-blur-sm xl:hidden" onClick={() => setMobileNavigationOpen(false)} aria-label={tr("Close navigation")} /> : null}
+        <aside className={`${mobileNavigationOpen ? "fixed inset-y-0 z-50 flex w-[min(22rem,88vw)] flex-col" : "hidden"} ${isArabic ? "right-0 border-l" : "left-0 border-r"} shrink-0 border-[var(--border)] bg-[var(--backdrop)] shadow-2xl backdrop-blur-xl transition-all duration-200 xl:static xl:z-auto xl:flex xl:flex-col xl:shadow-none ${collapsed ? "xl:w-16" : "xl:w-64"}`} aria-label={tr("Control Tower navigation")}>
           <div className={`flex h-16 items-center border-b border-[rgba(201,164,92,0.08)] ${collapsed ? "justify-center px-0" : "gap-3 px-5"}`}>
             <Link href="/control-tower" className="flex min-w-0 flex-1 items-center gap-3" onClick={() => setMobileNavigationOpen(false)}>
               <Image src="/brand/salora-logo-dark.jpeg" alt="SALORA" width={36} height={36} priority className="h-9 w-9 shrink-0 rounded-full border border-[var(--border-gold)] object-cover" />
@@ -115,7 +116,7 @@ function ControlTowerShellContent({ children }: { children: ReactNode }) {
           </div>
         </aside>
         <div className="min-w-0 flex-1">
-          <header className="sticky top-0 z-30 border-b border-[rgba(201,164,92,0.08)] bg-[rgba(5,5,5,0.9)] backdrop-blur-xl">
+          <header className="sticky top-0 z-30 border-b border-[var(--border)] bg-[var(--backdrop)] backdrop-blur-xl">
             <div className="flex min-h-16 flex-col gap-3 px-4 py-3 sm:px-6 lg:flex-row lg:items-center lg:justify-between">
               <div className="flex min-w-0 items-center gap-4">
                 <button type="button" onClick={() => setMobileNavigationOpen(true)} className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-white/10 bg-white/5 text-[var(--cream)] xl:hidden" aria-label={tr("Open navigation")} aria-expanded={mobileNavigationOpen}><Menu className="h-5 w-5" aria-hidden="true" /></button>
@@ -138,6 +139,7 @@ function ControlTowerShellContent({ children }: { children: ReactNode }) {
                 </div>
               </div>
               <div className="salora-command-bar max-w-full pb-1 lg:justify-end lg:pb-0" aria-label={tr("Control Tower commands")}>
+                <ThemeControl locale={locale} />
                 <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] text-[var(--muted)]" title={tr("Notifications")}>
                   <Bell className="h-4 w-4" aria-hidden="true" />
                 </span>

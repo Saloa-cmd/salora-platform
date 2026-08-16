@@ -1,11 +1,12 @@
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { colors } from "@/lib/theme";
+import { SaloraThemeProvider, useSaloraTheme } from "@/lib/ThemeProvider";
 
-export default function RootLayout() {
+function ThemedNavigation() {
+  const { colors, resolved } = useSaloraTheme();
   return (
     <>
-      <StatusBar style="light" />
+      <StatusBar style={resolved === "dark" ? "light" : "dark"} />
       <Stack
         screenOptions={{
           headerStyle: { backgroundColor: colors.background },
@@ -24,3 +25,5 @@ export default function RootLayout() {
     </>
   );
 }
+
+export default function RootLayout() { return <SaloraThemeProvider><ThemedNavigation /></SaloraThemeProvider>; }

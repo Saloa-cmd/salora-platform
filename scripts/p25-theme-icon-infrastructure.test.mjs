@@ -1,0 +1,16 @@
+import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
+const paths = { tokens: "../packages/ui/design-tokens.ts", icons: "../packages/ui/icon-registry.ts", layout: "../apps/web/app/layout.tsx", runtime: "../apps/web/lib/theme.ts", control: "../apps/web/components/ui/ThemeControl.tsx", webIcon: "../apps/web/components/ui/SaloraIcon.tsx", mobile: "../apps/mobile/src/lib/ThemeProvider.tsx", mobileIcon: "../apps/mobile/src/components/SaloraIcon.tsx", css: "../apps/web/app/globals.css" };
+const entries = await Promise.all(Object.entries(paths).map(async ([key, path]) => [key, await readFile(new URL(path, import.meta.url), "utf8")]));
+const files = Object.fromEntries(entries);
+for (const theme of ["dark", "light", "system"]) assert.match(files.tokens + files.runtime, new RegExp(`\\b${theme}\\b`));
+for (const semantic of ["background", "surface", "foreground", "foregroundMuted", "brand", "success", "warning", "danger", "focus"]) assert.match(files.tokens, new RegExp(`\\b${semantic}:`));
+assert.match(files.layout, /suppressHydrationWarning/); assert.match(files.layout, /nonce=\{nonce\}/); assert.match(files.runtime, /prefers-color-scheme/);
+assert.match(files.control, /Max-Age=31536000/); assert.match(files.control, /SameSite=Lax/); assert.match(files.mobile, /AsyncStorage/); assert.match(files.mobile, /Appearance\.addChangeListener/);
+for (const name of ["navigation.back", "action.search", "commerce.cart", "status.success", "system.theme"]) assert.match(files.icons, new RegExp(name.replaceAll(".", "\\.")));
+assert.match(files.icons, /directional/); assert.match(files.icons, /platforms/); assert.match(files.icons, /sizes/); assert.match(files.webIcon, /role=\{decorative \? undefined : "img"\}/); assert.match(files.mobileIcon, /accessibilityLabel/);
+assert.match(files.css, /\[data-theme="light"\]/); assert.match(files.css, /salora-icon-directional:dir\(rtl\)/);
+const luminance = (hex) => { const values = hex.match(/[a-f\d]{2}/gi).map((value) => parseInt(value, 16) / 255).map((value) => value <= .03928 ? value / 12.92 : ((value + .055) / 1.055) ** 2.4); return values[0] * .2126 + values[1] * .7152 + values[2] * .0722; };
+const contrast = (a, b) => { const [high, low] = [luminance(a), luminance(b)].sort((x, y) => y - x); return (high + .05) / (low + .05); };
+for (const [name, foreground, background] of [["dark text", "#F5EFE3", "#050505"], ["light text", "#211B16", "#FBF8F1"], ["dark action", "#050505", "#C9A45C"], ["light action", "#FFFFFF", "#8B6727"]]) assert.ok(contrast(foreground, background) >= 4.5, `${name} must meet WCAG AA`);
+console.log("P25 Theme & Icon Infrastructure: PASS");
