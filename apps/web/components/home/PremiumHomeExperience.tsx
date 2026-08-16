@@ -101,6 +101,7 @@ export function PremiumHomeExperience({
   const rtl = language === "ar";
   const heroProduct = featuredProducts[0];
   const heroImage = publicImage(heroProduct);
+  const heroAlt = heroProduct ? displayName(heroProduct, language) : "SALORA";
   const normalizedNumber = whatsappNumber.replace(/\D/g, "");
   const whatsappUrl = normalizedNumber ? `https://wa.me/${normalizedNumber}` : "/menu";
   const title = language === "ar"
@@ -152,12 +153,12 @@ export function PremiumHomeExperience({
           </div>
         </div>
 
-        <div className="premium-hero-art" aria-label={heroProduct ? displayName(heroProduct, language) : "SALORA"}>
+        <div className="premium-hero-art" aria-label={heroAlt}>
           <div className="premium-orbit premium-orbit-one" />
           <div className="premium-orbit premium-orbit-two" />
           <div className="premium-hero-halo" />
           <div className="premium-hero-product">
-            {heroImage ? <Image src={heroImage} alt={displayName(heroProduct, language)} fill priority sizes="(min-width: 1024px) 38vw, 72vw" /> : <Image src="/brand/salora-logo-dark.jpeg" alt="SALORA" fill priority sizes="320px" />}
+            {heroImage ? <Image src={heroImage} alt={heroAlt} fill priority sizes="(min-width: 1024px) 38vw, 72vw" /> : <Image src="/brand/salora-logo-dark.jpeg" alt="SALORA" fill priority sizes="320px" />}
           </div>
           {heroProduct ? (
             <>
