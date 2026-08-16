@@ -656,7 +656,7 @@ button:disabled {
   width: clamp(13rem, 20vw, 18rem);
   height: clamp(21rem, 35vw, 32rem);
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.34);
+  border: 1px solid var(--border-strong);
   border-radius: 1.5rem 1.5rem 4rem 4rem;
   background: rgba(255, 255, 255, 0.06);
   box-shadow: 0 3rem 6rem rgba(0, 0, 0, 0.5);
@@ -670,8 +670,9 @@ button:disabled {
 .premium-floating-card {
   position: absolute;
   padding: 1rem 1.2rem;
-  border: 1px solid var(--border-subtle);
-  background: rgba(10, 9, 7, 0.72);
+  border: 1px solid var(--border-strong);
+  background: var(--backdrop);
+  box-shadow: var(--shadow-raised);
   backdrop-filter: blur(18px);
   font-size: 0.7rem;
 }
