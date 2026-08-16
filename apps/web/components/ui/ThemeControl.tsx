@@ -33,7 +33,7 @@ export function ThemeControl({ locale = "ar", compact = true }: { locale?: "ar" 
     window.addEventListener(THEME_EVENT, sync);
     media.addEventListener("change", syncSystem);
     return () => { window.removeEventListener(THEME_EVENT, sync); media.removeEventListener("change", syncSystem); };
-  }, currentPreference, () => "system");
+  }, currentPreference, (): ThemePreference => "system");
   const next = THEME_PREFERENCES[(THEME_PREFERENCES.indexOf(preference) + 1) % THEME_PREFERENCES.length] ?? "system";
   const Icon = icons[preference];
   const label = labels[locale][preference];
