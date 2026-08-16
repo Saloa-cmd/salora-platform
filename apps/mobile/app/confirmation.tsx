@@ -1,33 +1,43 @@
 import { useLocalSearchParams } from "expo-router";
-import { StyleSheet, View } from "react-native";
+import { Linking, StyleSheet, View } from "react-native";
+import { Button } from "@/components/Button";
 import { Screen } from "@/components/Screen";
 import { Text } from "@/components/Text";
 import { colors, radii, spacing } from "@/lib/theme";
 
-const steps = ["received", "preparing", "ready"];
+const steps = [
+  { id: "received", title: "تم استلام الطلب", copy: "تم التحقق من الأسعار والتوفر وحفظ طلبك في سالورا." },
+  { id: "confirm", title: "تأكيد واتساب", copy: "أرسل ملخص الطلب إلى فريق سالورا لتأكيد وقت الاستلام." },
+  { id: "preparing", title: "قيد التحضير", copy: "سيؤكد الفريق بدء تحضير طلبك عبر واتساب." }
+];
 
 export default function ConfirmationScreen() {
-  const { message, url } = useLocalSearchParams<{ message?: string; url?: string }>();
+  const { orderId, status, message, url } = useLocalSearchParams<{ orderId?: string; status?: string; message?: string; url?: string }>();
 
   return (
     <Screen>
-      <Text variant="eyebrow">Mock confirmation</Text>
-      <Text variant="title" style={styles.title}>Order timeline</Text>
+      <Text variant="eyebrow" style={styles.rtl}>تم تسجيل طلبك</Text>
+      <Text variant="title" style={[styles.title, styles.rtl]}>لحظتك مع سالورا بدأت</Text>
+      <View style={styles.orderMeta}>
+        <Text variant="muted">رقم الطلب</Text>
+        <Text variant="price">{orderId ?? "—"}</Text>
+        <Text variant="muted">{status ?? "PENDING_CONFIRMATION"}</Text>
+      </View>
       <View style={styles.timeline}>
         {steps.map((step, index) => (
-          <View key={step} style={styles.step}>
+          <View key={step.id} style={styles.step}>
             <View style={[styles.dot, index === 0 && styles.activeDot]} />
-            <View>
-              <Text variant="subtitle" style={styles.stepTitle}>{step}</Text>
-              <Text variant="muted">{index === 0 ? "Local mock order created." : "Prepared for future live order updates."}</Text>
+            <View style={styles.stepCopy}>
+              <Text variant="subtitle" style={styles.rtl}>{step.title}</Text>
+              <Text variant="muted" style={styles.rtl}>{step.copy}</Text>
             </View>
           </View>
         ))}
       </View>
       <View style={styles.card}>
-        <Text variant="eyebrow">WhatsApp-ready summary</Text>
-        <Text variant="muted" style={styles.message}>{message || "No message generated."}</Text>
-        <Text variant="muted" style={styles.url}>{url || "WhatsApp URL placeholder will appear after checkout."}</Text>
+        <Text variant="eyebrow" style={styles.rtl}>ملخص واتساب</Text>
+        <Text variant="muted" style={[styles.message, styles.rtl]}>{message || "تم حفظ الطلب، لكن تعذر إنشاء ملخص واتساب."}</Text>
+        {url ? <Button style={styles.action} onPress={() => void Linking.openURL(url)}>أرسل الطلب إلى واتساب</Button> : null}
       </View>
     </Screen>
   );
@@ -35,15 +45,27 @@ export default function ConfirmationScreen() {
 
 const styles = StyleSheet.create({
   title: { marginTop: spacing.sm, marginBottom: spacing.lg },
+  rtl: { textAlign: "right", alignSelf: "stretch" },
+  orderMeta: {
+    alignItems: "flex-end",
+    gap: spacing.xs,
+    marginBottom: spacing.xl,
+    padding: spacing.md,
+    borderRadius: radii.md,
+    backgroundColor: "rgba(201,164,92,0.08)",
+    borderWidth: 1,
+    borderColor: "rgba(201,164,92,0.22)"
+  },
   timeline: {
     gap: spacing.lg,
     marginBottom: spacing.lg
   },
   step: {
-    flexDirection: "row",
+    flexDirection: "row-reverse",
     gap: spacing.md,
     alignItems: "flex-start"
   },
+  stepCopy: { flex: 1, alignItems: "flex-end", gap: spacing.xs },
   dot: {
     width: 18,
     height: 18,
@@ -56,9 +78,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.gold,
     borderColor: colors.gold
   },
-  stepTitle: {
-    textTransform: "capitalize"
-  },
   card: {
     borderRadius: radii.md,
     padding: spacing.md,
@@ -67,5 +86,5 @@ const styles = StyleSheet.create({
     borderColor: "rgba(245,239,227,0.1)"
   },
   message: { marginTop: spacing.md },
-  url: { marginTop: spacing.md, color: colors.goldSoft }
+  action: { marginTop: spacing.lg }
 });
