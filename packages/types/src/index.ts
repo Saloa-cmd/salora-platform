@@ -189,3 +189,108 @@ export interface ExperienceConfiguration {
   };
   banners: ExperienceBanner[];
 }
+
+export type ExperiencePlatform = "web" | "mobile" | "digital-menu";
+export type ExperienceRevisionStatus = "DRAFT" | "IN_REVIEW" | "APPROVED" | "PUBLISHED" | "SUPERSEDED";
+export type ExperienceThemeMode = "dark" | "light" | "system";
+export type ExperienceSectionWidth = "full" | "wide" | "content" | "compact";
+export type ExperienceSpacing = "none" | "xs" | "sm" | "md" | "lg" | "xl";
+export type ExperienceAlignment = "start" | "center" | "end";
+export type ExperienceSurface = "background" | "surface" | "elevated" | "brand" | "hero";
+
+export interface LocalizedText {
+  ar: string;
+  en: string;
+}
+
+export interface ExperienceAction {
+  label: LocalizedText;
+  destination: string;
+  icon?: SaloraSemanticIconName;
+  external?: boolean;
+}
+
+export type SaloraSemanticIconName =
+  | "ai" | "analytics" | "assets" | "back" | "bell" | "brand" | "car" | "cart"
+  | "check" | "close" | "coffee" | "dashboard" | "dineIn" | "forward" | "gift"
+  | "history" | "language" | "location" | "menu" | "mobile" | "navigation" | "orders"
+  | "pages" | "preview" | "publish" | "revision" | "search" | "settings" | "sparkles"
+  | "store" | "theme" | "user" | "whatsapp";
+
+export interface ExperienceResponsiveSettings {
+  hiddenOn?: ExperiencePlatform[];
+  width: ExperienceSectionWidth;
+  spacing: ExperienceSpacing;
+  alignment: ExperienceAlignment;
+  surface: ExperienceSurface;
+}
+
+interface ExperienceSectionBase {
+  id: string;
+  componentVersion: 1;
+  visible: boolean;
+  responsive: ExperienceResponsiveSettings;
+}
+
+export interface HeroLuxurySection extends ExperienceSectionBase {
+  componentId: "hero.luxury.v1";
+  variant: "split" | "editorial";
+  content: {
+    title: LocalizedText;
+    subtitle: LocalizedText;
+    imageAssetId?: string;
+    primaryAction: ExperienceAction;
+    secondaryAction?: ExperienceAction;
+  };
+}
+
+export interface ProductGridPremiumSection extends ExperienceSectionBase {
+  componentId: "menu.product-grid.premium.v1";
+  variant: "grid" | "editorial" | "list";
+  content: {
+    heading: LocalizedText;
+    description?: LocalizedText;
+    source: "menu-authority-adapter";
+    categoryKey?: string;
+    featuredOnly: boolean;
+    maxItems: number;
+  };
+}
+
+export interface StoryEditorialSection extends ExperienceSectionBase {
+  componentId: "story.editorial.v1";
+  variant: "image-start" | "image-end" | "text-only";
+  content: { heading: LocalizedText; body: LocalizedText; imageAssetId?: string; action?: ExperienceAction };
+}
+
+export interface LocationMapCardSection extends ExperienceSectionBase {
+  componentId: "location.map-card.v1";
+  variant: "split" | "compact";
+  content: { heading: LocalizedText; address: LocalizedText; hours: LocalizedText; latitude: number; longitude: number; action: ExperienceAction };
+}
+
+export interface CtaGoldSection extends ExperienceSectionBase {
+  componentId: "cta.gold.v1";
+  variant: "solid" | "outline";
+  content: { heading: LocalizedText; body?: LocalizedText; action: ExperienceAction };
+}
+
+export type ExperienceSectionV2 = HeroLuxurySection | ProductGridPremiumSection | StoryEditorialSection | LocationMapCardSection | CtaGoldSection;
+
+export interface ExperiencePlatformOverride {
+  hiddenSectionIds?: string[];
+  sectionOrder?: string[];
+}
+
+export interface ExperiencePageV2 {
+  schemaVersion: 2;
+  brandKey: "SALORA";
+  id: string;
+  slug: string;
+  version: number;
+  status: ExperienceRevisionStatus;
+  title: LocalizedText;
+  defaultTheme: ExperienceThemeMode;
+  sections: ExperienceSectionV2[];
+  platformOverrides?: Partial<Record<ExperiencePlatform, ExperiencePlatformOverride>>;
+}
