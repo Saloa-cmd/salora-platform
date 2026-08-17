@@ -1,18 +1,34 @@
-const primitiveColors = {
+export const primitiveColors = {
   black950: "#050505", black900: "#0B0A09", black850: "#111111", black800: "#181614", black750: "#201C18",
   cream50: "#F5EFE3", cream500: "#9C9387", gold400: "#C9A45C", gold300: "#E7D3A1", green400: "#9CAF88",
   green300: "#79D6A3", amber300: "#F7CC75", red300: "#E7A1A1", blue300: "#8EC5E8"
 } as const;
 
-export const designTokens = {
-  colors: {
-    ...primitiveColors,
+export const semanticThemes = {
+  dark: {
     background: primitiveColors.black950, surface: primitiveColors.black850, surfaceSoft: primitiveColors.black800,
     surfaceRaised: primitiveColors.black750, interactive: primitiveColors.black900, foreground: primitiveColors.cream50,
     foregroundMuted: primitiveColors.cream500, border: "rgba(245, 239, 227, 0.10)", borderStrong: "rgba(245, 239, 227, 0.18)",
     brand: primitiveColors.gold400, brandHover: primitiveColors.gold300, brandForeground: primitiveColors.black950,
-    accent: primitiveColors.green400, success: primitiveColors.green300, warning: primitiveColors.amber300,
-    danger: primitiveColors.red300, info: primitiveColors.blue300, focus: primitiveColors.gold300,
+    accent: primitiveColors.green400, success: "#6EE7B7", warning: primitiveColors.amber300, danger: primitiveColors.red300,
+    info: primitiveColors.blue300, focus: "#F3D88F", backdrop: "rgba(5, 5, 5, 0.90)", overlay: "rgba(0, 0, 0, 0.70)"
+  },
+  light: {
+    background: "#FBF8F1", surface: "#FFFFFF", surfaceSoft: "#F4EEE3", surfaceRaised: "#FFFDF8", interactive: "#F1EADF",
+    foreground: "#211B16", foregroundMuted: "#6B6259", border: "rgba(58, 36, 24, 0.14)", borderStrong: "rgba(58, 36, 24, 0.25)",
+    brand: "#8B6727", brandHover: "#704F18", brandForeground: "#FFFFFF", accent: "#536B46", success: "#17633C",
+    warning: "#7A5414", danger: "#A33737", info: "#245F84", focus: "#6D4D17", backdrop: "rgba(255, 253, 248, 0.92)", overlay: "rgba(33, 27, 22, 0.46)"
+  }
+} as const;
+
+export type ThemePreference = "dark" | "light" | "system";
+export type ResolvedTheme = keyof typeof semanticThemes;
+export function resolveTheme(preference: ThemePreference, systemTheme: ResolvedTheme): ResolvedTheme { return preference === "system" ? systemTheme : preference; }
+
+export const designTokens = {
+  colors: {
+    ...primitiveColors,
+    ...semanticThemes.dark,
     // Compatibility aliases. New components should use semantic names above.
     gold: primitiveColors.gold400, goldSoft: primitiveColors.gold300, cream: primitiveColors.cream50,
     muted: primitiveColors.cream500, matcha: primitiveColors.green400, espresso: "#3A2418"

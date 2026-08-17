@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
+import { cookies, headers } from "next/headers";
 import { saloraRuntime } from "@salora/config";
+import type { ThemePreference } from "@salora/ui";
+import { isThemePreference, themeBootstrapScript } from "@/lib/theme";
 import "./globals.css";
 
 // A request-specific CSP nonce is applied by proxy.ts. Nonces require dynamic
@@ -29,9 +32,15 @@ export const metadata: Metadata = {
   }
 };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const [cookieStore, headerStore] = await Promise.all([cookies(), headers()]);
+  const stored = cookieStore.get("salora_theme")?.value;
+  const preference: ThemePreference = isThemePreference(stored) ? stored : "system";
+  const nonce = headerStore.get("x-nonce") ?? undefined;
+  const initialTheme = preference === "light" ? "light" : "dark";
   return (
-    <html lang="ar" dir="rtl">
+    <html lang="ar" dir="rtl" data-theme={initialTheme} data-theme-preference={preference} suppressHydrationWarning>
+      <head><script nonce={nonce} dangerouslySetInnerHTML={{ __html: themeBootstrapScript }} /></head>
       <body>{children}</body>
     </html>
   );

@@ -3,8 +3,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowDown, ArrowUpLeft, Instagram, Languages, MapPin, Menu, MessageCircle, ShoppingBag } from "lucide-react";
-import { useState, type CSSProperties } from "react";
+import { useState } from "react";
 import type { ExperienceConfiguration, MenuAuthoritySource, Product } from "@salora/types";
+import { ThemeControl } from "@/components/ui/ThemeControl";
 
 type Language = "ar" | "en";
 
@@ -110,15 +111,8 @@ export function PremiumHomeExperience({
   const intro = language === "ar"
     ? experience.site.heroSubtitleAr || t.defaultIntro
     : experience.site.heroSubtitleEn || t.defaultIntro;
-  const themeStyle = {
-    "--premium-gold": experience.theme.primaryColor,
-    "--premium-cream": experience.theme.textColor,
-    "--premium-muted": experience.theme.mutedColor,
-    "--premium-background": experience.theme.backgroundColor
-  } as CSSProperties;
-
   return (
-    <main id="main-content" lang={language} dir={t.direction} className="premium-home" style={themeStyle}>
+    <main id="main-content" lang={language} dir={t.direction} className="premium-home">
       <a href="#featured-menu" className="skip-link">{t.explore}</a>
       <header className="premium-header">
         <Link className="premium-brand" href="/" aria-label="SALORA home">
@@ -131,6 +125,7 @@ export function PremiumHomeExperience({
           <a href="#visit">{t.nav.visit}</a>
         </nav>
         <div className="premium-header-actions">
+          <ThemeControl locale={language} />
           <button type="button" onClick={() => setLanguage(rtl ? "en" : "ar")} aria-label={rtl ? "Switch to English" : "التبديل إلى العربية"}>
             <Languages aria-hidden="true" /> <span>{rtl ? "EN" : "ع"}</span>
           </button>

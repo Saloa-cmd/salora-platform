@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useEffect, useMemo, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Car,
   Check,
@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import type { ExperienceConfiguration, MenuAuthoritySection, MenuAuthoritySnapshot, MenuAuthoritySource, Product, ProductChoice, ProductModifierGroup, SelectedModifier } from "@salora/types";
 import { SaloraButton, SaloraEmptyState } from "@/components/ui/SaloraPrimitives";
+import { ThemeControl } from "@/components/ui/ThemeControl";
 
 type Language = "ar" | "en";
 type ServiceMode = "counter" | "car" | "dine-in" | "gift";
@@ -372,21 +373,12 @@ export function MenuExperience({
     setSubmitting(false);
   }
 
-  const experienceStyle = {
-    "--gold": experience.theme.primaryColor,
-    "--gold-soft": experience.theme.primaryColor,
-    "--border-gold": `${experience.theme.primaryColor}66`,
-    "--cream": experience.theme.textColor,
-    "--muted": experience.theme.mutedColor,
-    backgroundColor: experience.theme.backgroundColor,
-    color: experience.theme.textColor
-  } as CSSProperties;
   const gridClass = experience.menu.layout === "list" ? "grid-cols-1" : experience.menu.columns === 4 ? "sm:grid-cols-2 xl:grid-cols-4" : experience.menu.columns === 2 ? "sm:grid-cols-2" : "sm:grid-cols-2 xl:grid-cols-3";
   const ratioClass = experience.menu.cardRatio === "square" ? "aspect-square" : experience.menu.cardRatio === "portrait" ? "aspect-[4/5]" : "aspect-[16/10]";
   const menuBanners = experience.banners.filter((banner) => banner.active && (banner.placement === "menu" || banner.placement === "both")).sort((a, b) => a.sortOrder - b.sortOrder);
 
   return (
-    <main lang={language} dir={t.direction} style={experienceStyle} className="premium-menu-shell min-h-screen text-[var(--cream)]">
+    <main lang={language} dir={t.direction} className="premium-menu-shell min-h-screen text-[var(--cream)]">
       <a href="#menu-products" className="skip-link">{t.browse}</a>
       <header className="premium-menu-header sticky top-0 z-40 border-b border-white/10 bg-black/85 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:h-[4.5rem] sm:px-6">
@@ -395,6 +387,7 @@ export function MenuExperience({
             <span><strong className="block text-sm tracking-[0.24em] sm:text-base">SALORA</strong><small className="hidden text-[var(--muted)] sm:block">Taste the Harmony</small></span>
           </Link>
           <div className="flex items-center gap-2">
+            <ThemeControl locale={language} />
             <SaloraButton type="button" aria-label={language === "ar" ? "Switch to English" : "التبديل إلى العربية"} onClick={() => setLanguage((value) => value === "ar" ? "en" : "ar")} className="min-h-11 rounded-full px-3 text-xs">
               <Languages className="h-4 w-4" /><span className="hidden sm:inline">{language === "ar" ? "English" : "العربية"}</span>
             </SaloraButton>
