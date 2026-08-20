@@ -1,186 +1,20 @@
-import {
-  Bell,
-  Bot,
-  BookOpenCheck,
-  Boxes,
-  Building2,
-  ChartNoAxesCombined,
-  CreditCard,
-  FileStack,
-  Gauge,
-  Gift,
-  Instagram,
-  MessageCircle,
-  Package,
-  Settings,
-  Workflow
-} from "lucide-react";
 import type { ControlTowerSection, ControlTowerSectionId } from "./types";
 
-export const controlTowerSections: ControlTowerSection[] = [
-  {
-    id: "executive",
-    label: "Executive",
-    icon: Gauge,
-    description: "Single source of truth for operating health, decisions, risk, and executive visibility.",
-    capabilities: [
-      { title: "Executive command view", description: "Links to Phase 9 executive dashboards.", status: "live", owner: "Executive Intelligence" },
-      { title: "Approval inbox", description: "Central queue for pricing, campaign, AI, and broadcast approvals.", status: "needs-backend", owner: "Governance" }
-    ]
-  },
-  {
-    id: "revenue",
-    label: "Revenue",
-    icon: CreditCard,
-    description: "Pricing, payment health, revenue intelligence, refunds, campaigns, and offers.",
-    capabilities: [
-      { title: "Revenue intelligence", description: "Gross, net, AOV, refunds, failed payments, and channel revenue.", status: "live", owner: "Revenue Platform" },
-      { title: "Simple launch offers", description: "Promotions and coupons are connected to Supabase commercial data.", status: "live", owner: "CMS + Revenue" }
-    ]
-  },
-  {
-    id: "orders",
-    label: "Orders",
-    icon: Package,
-    description: "Order lifecycle, queue visibility, assistance, and exception workflows.",
-    capabilities: [
-      { title: "COD order queue", description: "Control Tower order queue uses Supabase cafe orders and launch-safe status transitions.", status: "live", owner: "Operations" },
-      { title: "Stripe payment mode", description: "Stripe remains Phase 2 and is governed by runtime configuration.", status: "configured", owner: "Revenue Platform" }
-    ]
-  },
-  {
-    id: "inventory",
-    label: "Inventory",
-    icon: Boxes,
-    description: "Ingredients, stock movement, reorder risk, and product availability control.",
-    capabilities: [
-      { title: "Inventory movement", description: "Record stock changes through an RBAC-protected API.", status: "live", owner: "Catalog" },
-      { title: "Availability rules", description: "No-code product availability and stockout handling.", status: "needs-backend", owner: "Catalog" }
-    ]
-  },
-  {
-    id: "customers",
-    label: "Customers",
-    icon: ChartNoAxesCombined,
-    description: "Customer health, segments, preferences, retention, and lifecycle actions.",
-    capabilities: [
-      { title: "Customer intelligence", description: "Health, churn risk, repeat readiness, and value signals.", status: "live", owner: "Customer Intelligence" },
-      { title: "Lifecycle campaigns", description: "Segment-based no-code campaigns.", status: "needs-backend", owner: "Marketing" }
-    ]
-  },
-  {
-    id: "loyalty",
-    label: "Loyalty",
-    icon: Gift,
-    description: "Points, rewards, tiers, eligibility, and loyalty automations.",
-    capabilities: [
-      { title: "Award loyalty points", description: "Existing RBAC-protected loyalty entry API.", status: "live", owner: "Loyalty" },
-      { title: "Rule builder", description: "No-code earn/burn/tier rules with versioning.", status: "needs-backend", owner: "Loyalty" }
-    ]
-  },
-  {
-    id: "ai",
-    label: "AI",
-    icon: Bot,
-    description: "Providers, models, routing, fallback, safety, prompts, recommendations, and cost limits.",
-    capabilities: [
-      { title: "AI intelligence", description: "Provider usage, evaluation, safety, and cost signals.", status: "live", owner: "AI Platform" },
-      { title: "AI product drafts", description: "Description, pairing, upsell, category, and image-prompt drafts are review-only.", status: "live", owner: "AI Governance" }
-    ]
-  },
-  {
-    id: "whatsapp",
-    label: "WhatsApp",
-    icon: MessageCircle,
-    description: "Templates, flows, auto replies, concierge, order assistance, loyalty assistance, and broadcasts.",
-    capabilities: [
-      { title: "Webhook platform", description: "Existing WhatsApp webhook and provider architecture.", status: "configured", owner: "Omnichannel" },
-      { title: "Command drafts", description: "WhatsApp order and promotion drafts are Control Tower governed and blocked until Meta credentials validate.", status: "configured", owner: "Omnichannel" }
-    ]
-  },
-  {
-    id: "instagram",
-    label: "Instagram",
-    icon: Instagram,
-    description: "Draft captions, post ideas, schedules, approval status, and Meta publishing readiness for @salora.cafe.",
-    capabilities: [
-      { title: "Content drafts", description: "Instagram drafts are review-only and never auto-published.", status: "configured", owner: "Marketing" },
-      { title: "Meta Graph readiness", description: "Publishing remains blocked until Meta credentials and human approval are present.", status: "restricted", owner: "Platform" }
-    ]
-  },
-  {
-    id: "notifications",
-    label: "Notifications",
-    icon: Bell,
-    description: "Email, SMS, push, in-app messages, templates, and delivery queues.",
-    capabilities: [
-      { title: "Queue notification", description: "Existing RBAC-protected notification queue API.", status: "live", owner: "Messaging" },
-      { title: "Template lifecycle", description: "Draft, schedule, publish, archive notification templates.", status: "needs-backend", owner: "Messaging" }
-    ]
-  },
-  {
-    id: "menu-authority",
-    label: "Menu Authority",
-    icon: BookOpenCheck,
-    description: "One governed menu authority for collections, revisions, publishing, rollback, Website, Mobile, QR, AI and Analytics.",
-    capabilities: [
-      { title: "Published revision authority", description: "Website, Mobile, QR, Search and AI consume the same immutable published revision.", status: "live", owner: "Catalog Governance", href: "#menu-authority-studio", actionLabel: "Open menu authority" },
-      { title: "Publishing workflow", description: "Completeness, immutable revisions, scheduling, publication history and rollback use the existing P21 domain.", status: "live", owner: "Catalog Governance", href: "#menu-authority-studio", actionLabel: "Manage revisions" }
-    ]
-  },
-  {
-    id: "content",
-    label: "Content",
-    icon: FileStack,
-    description: "Headless CMS for pages, sections, banners, promotions, menus, categories, products, and landing pages.",
-    capabilities: [
-      { title: "Product operations", description: "Products, categories, status, price, and image URL management are connected to Supabase.", status: "live", owner: "Catalog", href: "#product-operations-manager", actionLabel: "Open product manager" },
-      { title: "Product media command", description: "Media drafts, approval, primary image, archive, and publish workflow are Control Tower governed.", status: "live", owner: "Catalog", href: "#product-media-manager", actionLabel: "Manage product media" },
-      { title: "CMS lifecycle", description: "Pages, navigation, banners, campaigns, approvals, scheduling and rollback are managed from the content studio.", status: "live", owner: "CMS", href: "#content-operations-studio", actionLabel: "Open content studio" }
-    ]
-  },
-  {
-    id: "automation",
-    label: "Automation",
-    icon: Workflow,
-    description: "Visual trigger, condition, and action workflows for no-code operations.",
-    capabilities: [
-      { title: "Recipe catalog", description: "Order Paid -> Loyalty Award, Customer Inactive -> Offer, Payment Failed -> WhatsApp.", status: "configured", owner: "Automation" },
-      { title: "Execution engine", description: "Persistent automation runtime with dry-run, retry, idempotency, and audit.", status: "needs-backend", owner: "Automation" }
-    ]
-  },
-  {
-    id: "integrations",
-    label: "Integrations",
-    icon: Building2,
-    description: "Connector registry, credential vault, health monitor, and provider activation.",
-    capabilities: [
-      { title: "Provider architecture", description: "OpenAI, Gemini, Claude, Stripe, WhatsApp, and mock provider modules exist.", status: "configured", owner: "Platform" },
-      { title: "Credential vault UI", description: "No-code integration activation without exposing secrets.", status: "needs-backend", owner: "Security" }
-    ]
-  },
-  {
-    id: "settings",
-    label: "Settings",
-    icon: Settings,
-    description: "Tenants, roles, permissions, theme, navigation, feature flags, governance, and rollout control.",
-    capabilities: [
-      { title: "RBAC foundation", description: "Role and permission checks exist for API writes.", status: "live", owner: "Security" },
-      { title: "Runtime configuration API", description: "Configuration-as-data endpoint for pricing, AI, WhatsApp, notifications, flags, homepage, app, and recommendations.", status: "live", owner: "Platform" },
-      { title: "Feature flags and governance logs", description: "Launch flags, activity logs, and audit logs are readable from Control Tower.", status: "live", owner: "Operations" },
-      { title: "Runtime activation governance", description: "Readiness center for PostgreSQL, Redis, OpenAI, Gemini, WhatsApp, Stripe, runbooks, approvals, provider governance, and continuity.", status: "configured", owner: "Operations" },
-      { title: "Multi-tenant config", description: "Future cafes, brands, restaurants, business switcher, and tenant-scoped settings.", status: "needs-backend", owner: "Platform" }
-    ]
-  }
-];
+const capability = (title: string, description: string, owner: string, status: "live" | "configured" | "needs-backend" | "restricted" = "live") => ({ title, description, owner, status });
 
-export function findControlTowerSection(id?: string): ControlTowerSection {
-  const fallback = controlTowerSections[0];
-  if (!fallback) {
-    throw new Error("Control Tower registry must include at least one section.");
-  }
+export const controlTowerSections: readonly ControlTowerSection[] = [
+  { id: "overview", label: "Overview", icon: "dashboard", readPermission: "content:read", commandLabel: "Open overview", keywords: ["dashboard", "tasks", "alerts", "activity"], description: "Decisions, readiness, drafts and operational attention in one action-oriented view.", capabilities: [capability("Operational brief", "Shows real system capability and pending operator work without invented business metrics.", "Operations"), capability("Experience readiness", "Surfaces draft state, Menu Authority boundary and outstanding content risk.", "Experience")] },
+  { id: "experience", label: "Experience", icon: "pages", readPermission: "content:read", commandLabel: "Edit homepage experience", keywords: ["homepage", "pages", "brand", "assets", "navigation", "mobile"], description: "Draft-first workspace for Website, Homepage, Mobile presentation, navigation and approved brand surfaces.", capabilities: [capability("Experience Studio", "Uses the production ExperiencePageV2 renderer, approved registry and safe presentation controls.", "Experience"), capability("Draft-only workflow", "PR3 saves typed drafts. Review, publish, scheduling and rollback remain deferred to PR4.", "Governance", "restricted")] },
+  { id: "menu", label: "Menu", icon: "menu", readPermission: "catalog:read", commandLabel: "Open menu control center", keywords: ["products", "categories", "collections", "modifiers", "featured", "presentation"], description: "Products, media, collections and presentation with the current Menu Authority stated explicitly.", capabilities: [capability("Product operations", "Reuses catalog APIs for bounded product and category management.", "Catalog"), capability("Menu Authority", "Revision status remains visible; presentation never overrides the product visibility contract.", "Catalog Governance")] },
+  { id: "orders", label: "Orders", icon: "orders", readPermission: "order:read", commandLabel: "Open orders", keywords: ["active", "preparing", "ready", "history", "issues"], description: "Order queues, details and validated state transitions using the existing order domain.", capabilities: [capability("Order operations", "Reads bounded order pages and uses the current server-validated transition API.", "Operations")] },
+  { id: "customers", label: "Customers", icon: "user", readPermission: "staff:read", commandLabel: "Open customers", keywords: ["directory", "profiles", "loyalty", "segments"], description: "Customer and loyalty operations exposed only where current permissions and domain services support them.", capabilities: [capability("Customer intelligence", "Reuses existing customer intelligence surfaces with least-privilege access.", "Customer Intelligence"), capability("Loyalty operations", "Only existing loyalty rules and protected award operations are exposed.", "Loyalty")] },
+  { id: "marketing", label: "Marketing", icon: "brand", readPermission: "catalog:read", commandLabel: "Open marketing", keywords: ["campaigns", "promotions", "offers", "qr", "social"], description: "Promotions, offers and campaign content built on existing commercial services.", capabilities: [capability("Promotions and coupons", "Reuses existing bounded APIs; no direct table editor or arbitrary configuration writes.", "Marketing")] },
+  { id: "ai", label: "AI", icon: "ai", readPermission: "catalog:read", commandLabel: "Open SALORA AI", keywords: ["assistant", "copy", "translation", "recommendations", "audit"], description: "Contextual, human-reviewed assistance for content, localization and experience quality.", capabilities: [capability("AI draft tools", "Suggestions remain review-only and can only be applied to a draft.", "AI Governance"), capability("Production authority", "AI has no publish permission and receives no secrets or unnecessary customer data.", "Security", "restricted")] },
+  { id: "analytics", label: "Analytics", icon: "analytics", readPermission: "system:read", commandLabel: "Open analytics", keywords: ["products", "menu", "customers", "campaigns", "revenue"], description: "Links existing business and operational intelligence into a coherent workspace.", capabilities: [capability("Existing dashboards", "Reuses authoritative dashboards without fabricating unavailable metrics.", "Analytics")] },
+  { id: "operations", label: "Operations", icon: "whatsapp", readPermission: "system:read", commandLabel: "Open operations", keywords: ["whatsapp", "runtime", "integrations", "diagnostics", "deployments"], description: "Operational status, WhatsApp, runtime governance and safe diagnostics without exposing topology or secrets.", capabilities: [capability("WhatsApp operations", "Reuses provider and message operations while keeping credentials server-only.", "Omnichannel"), capability("Runtime governance", "Shows safe operational abstractions and existing governance controls.", "SRE")] },
+  { id: "settings", label: "Settings", icon: "settings", readPermission: "system:read", commandLabel: "Open settings", keywords: ["general", "brand", "languages", "users", "roles", "permissions", "audit", "integrations"], description: "Governed configuration, access and audit surfaces—not a generic database administration console.", capabilities: [capability("RBAC and audit", "Uses current roles, server permission checks and protected audit services.", "Security"), capability("Runtime configuration", "Existing typed, non-secret configuration remains server-controlled.", "Platform")] }
+] as const;
 
-  return controlTowerSections.find((section) => section.id === id) ?? fallback;
-}
-
+export const legacyControlTowerSectionAliases: Readonly<Record<string, ControlTowerSectionId>> = { executive: "overview", revenue: "analytics", inventory: "menu", loyalty: "customers", whatsapp: "operations", instagram: "marketing", notifications: "operations", content: "experience", "menu-authority": "menu", automation: "operations", integrations: "operations" };
+export function findControlTowerSection(id?: string): ControlTowerSection { const canonicalId = id ? legacyControlTowerSectionAliases[id] ?? id : "overview"; const section = controlTowerSections.find((item) => item.id === canonicalId) ?? controlTowerSections[0]; if (!section) throw new Error("Control Tower registry must include Overview."); return section; }
 export const validControlTowerSectionIds = controlTowerSections.map((section) => section.id) as ControlTowerSectionId[];

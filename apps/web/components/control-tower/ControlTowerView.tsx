@@ -1,170 +1,67 @@
 "use client";
 
 import Link from "next/link";
-import { AlertCard } from "@/components/dashboard/AlertCard";
+import { SaloraIcon } from "@/components/ui/SaloraIcon";
 import { DashboardCard } from "@/components/dashboard/DashboardCard";
 import { DashboardGrid } from "@/components/dashboard/DashboardGrid";
 import { DashboardSection } from "@/components/dashboard/DashboardSection";
 import { CapabilityCard } from "./CapabilityCard";
-import { InventoryActionPanel, LoyaltyActionPanel, NotificationActionPanel, ProductActionPanel, RuntimeConfigActionPanel } from "./NoCodeActionPanel";
-import { OperationalGovernanceCenter } from "./OperationalGovernanceCenter";
+import { ExperienceDesignStudio } from "./ExperienceDesignStudio";
+import { MenuAuthorityStudio } from "./MenuAuthorityStudio";
+import { ProductMediaManager } from "./ProductMediaManager";
+import { MediaGovernanceAudit } from "./MediaGovernanceAudit";
+import { ProductActionPanel, LoyaltyActionPanel, RuntimeConfigActionPanel } from "./NoCodeActionPanel";
 import { SimpleLaunchOperationsCenter } from "./SimpleLaunchOperationsCenter";
 import { SupremacyCommandCenter } from "./SupremacyCommandCenter";
 import { WhatsAppCommandCenter } from "./WhatsAppCommandCenter";
+import { OperationalGovernanceCenter } from "./OperationalGovernanceCenter";
 import { findControlTowerSection } from "@/lib/control-tower/registry";
 import type { ControlTowerSectionId } from "@/lib/control-tower/types";
 import { useControlTowerLocale } from "./ControlTowerLocale";
-import { ExperienceDesignStudio } from "./ExperienceDesignStudio";
-import { ContentOperationsStudio } from "./ContentOperationsStudio";
-import { ProductMediaManager } from "./ProductMediaManager";
-import { MediaGovernanceAudit } from "./MediaGovernanceAudit";
-import { MenuAuthorityStudio } from "./MenuAuthorityStudio";
 
-const cmsLifecycle = ["Draft", "Publish", "Schedule", "Archive"];
-const appConfigAreas = ["Theme", "Colors", "Typography", "Feature flags", "Navigation", "Homepage layout", "AI features", "WhatsApp features"];
-const aiControls = ["Providers", "Models", "Routing rules", "Fallback rules", "Cost limits", "Safety policies", "Prompt templates", "Recommendation rules"];
-const whatsappControls = ["Templates", "Flows", "Auto replies", "AI concierge", "Order assistance", "Loyalty assistance", "Broadcast campaigns"];
-const automationRecipes = ["Order Paid -> Loyalty Award", "Customer Inactive -> Offer Campaign", "Payment Failed -> WhatsApp Reminder"];
-const integrations = ["OpenAI", "Gemini", "Claude", "Stripe", "WhatsApp", "Firebase", "Google Analytics", "Meta", "Future Systems"];
-const governance = ["RBAC", "Permission matrix", "Audit trail", "Approval workflows", "Secrets management", "Change history", "Rollback"];
-
-function PillList({ items }: { items: string[] }) {
+function Overview() {
   const { tr } = useControlTowerLocale();
-  return (
-    <div className="flex flex-wrap gap-2">
-      {items.map((item) => (
-        <span key={item} className="rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-[var(--muted)]">{tr(item)}</span>
-      ))}
-    </div>
-  );
+  const actions = [
+    { href: "/control-tower/experience", icon: "pages" as const, title: "Edit homepage draft", detail: "Open the typed ExperiencePageV2 studio." },
+    { href: "/control-tower/menu", icon: "menu" as const, title: "Review menu authority", detail: "Inspect source, revisions and presentation boundaries." },
+    { href: "/control-tower/orders", icon: "orders" as const, title: "Open order operations", detail: "Use existing validated order workflows." },
+    { href: "/control-tower/operations", icon: "whatsapp" as const, title: "Review operational status", detail: "WhatsApp and runtime governance without secret exposure." }
+  ];
+  return <div className="grid gap-6">
+    <DashboardGrid columns="two">
+      <DashboardCard title={tr("Priority work")} eyebrow={tr("Action center")}>
+        <div className="grid gap-2">{actions.map((action) => <Link key={action.href} href={action.href} className="flex min-h-16 items-center gap-3 rounded-xl border border-white/[0.08] bg-white/[0.025] px-3 transition hover:border-[var(--border-gold)]"><span className="grid h-10 w-10 place-items-center rounded-xl bg-[var(--gold)]/10 text-[var(--gold-soft)]"><SaloraIcon name={action.icon} className="h-5 w-5" /></span><span><strong className="block text-sm text-[var(--cream)]">{tr(action.title)}</strong><span className="mt-1 block text-xs text-[var(--muted)]">{tr(action.detail)}</span></span></Link>)}</div>
+      </DashboardCard>
+      <DashboardCard title={tr("Experience governance")} eyebrow={tr("Verified boundary")}>
+        <div className="grid gap-3 text-sm"><div className="rounded-xl border border-amber-300/20 bg-amber-300/10 p-4"><strong className="text-amber-200">{tr("Menu Authority remains explicit")}</strong><p className="mt-2 leading-6 text-[var(--muted)]">{tr("The operator interface does not describe legacy-catalog as a governed published authority.")}</p></div><div className="rounded-xl border border-emerald-300/20 bg-emerald-300/10 p-4"><strong className="text-emerald-200">{tr("PR3 experience changes are draft-only")}</strong><p className="mt-2 leading-6 text-[var(--muted)]">{tr("Review, approval, publish, scheduling and rollback are deferred to P25 PR4.")}</p></div></div>
+      </DashboardCard>
+    </DashboardGrid>
+    <DashboardCard title={tr("Operational surfaces")} eyebrow={tr("No invented business metrics")}><p className="text-sm leading-6 text-[var(--muted)]">{tr("Revenue, orders, customers and campaign values are shown only inside the existing data-backed dashboards. This overview is intentionally an action workspace rather than a placeholder KPI grid.")}</p></DashboardCard>
+  </div>;
 }
 
-function BackendActivationCard({ title, items }: { title: string; items: string[] }) {
-  const { tr } = useControlTowerLocale();
-  return (
-    <DashboardCard title={tr(title)} eyebrow={tr("No-code workspace")}>
-      <p className="mb-4 text-sm leading-6 text-[var(--muted)]">{tr("This workspace is modeled in the Control Tower and ready for persistent backend activation. It is intentionally not marked live until the domain API, audit trail, and rollback contract exist.")}</p>
-      <PillList items={items} />
-    </DashboardCard>
-  );
-}
-
-function LiveActionForSection({ sectionId }: { sectionId: ControlTowerSectionId }) {
-  if (sectionId === "content") return <ProductActionPanel />;
-  if (sectionId === "inventory") return <InventoryActionPanel />;
-  if (sectionId === "loyalty") return <LoyaltyActionPanel />;
-  if (sectionId === "notifications") return <NotificationActionPanel />;
-  return null;
-}
-
-function SectionSpecificWorkspace({ sectionId }: { sectionId: ControlTowerSectionId }) {
-  if (sectionId === "executive") {
-    return (
-      <>
-        <DashboardGrid columns="two">
-          <DashboardCard title="Command Links" eyebrow="Executive">
-            <div className="grid gap-3 sm:grid-cols-2">
-              {["/menu", "/dashboard", "/dashboard/revenue", "/dashboard/operations", "/dashboard/ai", "/dashboard/customers", "/dashboard/whatsapp"].map((href) => (
-                <Link key={href} href={href} className="rounded-lg border border-white/10 bg-black/20 px-3 py-3 text-sm font-semibold text-[var(--cream)] hover:border-[var(--border-gold)]">{href}</Link>
-              ))}
-            </div>
-          </DashboardCard>
-          <AlertCard title="Control gaps" alerts={[
-            { id: "approval", title: "Approval inbox pending", detail: "Risky changes need persistent approval workflow before live editing.", severity: "warning" },
-            { id: "rollback", title: "Rollback pending", detail: "CMS, AI, automation, and integration changes require version rollback contracts.", severity: "warning" }
-          ]} />
-        </DashboardGrid>
-        <SimpleLaunchOperationsCenter />
-        <SupremacyCommandCenter />
-      </>
-    );
-  }
-
-  if (sectionId === "menu-authority") {
-    return <MenuAuthorityStudio />;
-  }
-
-  if (sectionId === "content") {
-    return (
-      <>
-        <ContentOperationsStudio />
-        <ExperienceDesignStudio />
-        <MediaGovernanceAudit />
-        <ProductMediaManager />
-        <DashboardGrid columns="two">
-          <div id="product-operations-manager" className="scroll-mt-24">
-            <ProductActionPanel />
-          </div>
-          <BackendActivationCard title="Headless CMS Lifecycle" items={[...cmsLifecycle, "Pages", "Sections", "Banners", "Promotions", "Menus", "Categories", "Landing pages"]} />
-        </DashboardGrid>
-        <SimpleLaunchOperationsCenter />
-        <SupremacyCommandCenter />
-      </>
-    );
-  }
-
-  if (sectionId === "inventory") return <InventoryActionPanel />;
-  if (sectionId === "loyalty") return <LoyaltyActionPanel />;
-  if (sectionId === "notifications") return <NotificationActionPanel />;
-
-  if (sectionId === "ai") return <><SimpleLaunchOperationsCenter /><SupremacyCommandCenter /></>;
-  if (sectionId === "whatsapp") return <><WhatsAppCommandCenter /><BackendActivationCard title="WhatsApp Operations Center" items={whatsappControls} /><SupremacyCommandCenter /></>;
-  if (sectionId === "instagram") return <SupremacyCommandCenter />;
-  if (sectionId === "automation") return <BackendActivationCard title="Visual Automation Builder" items={[...automationRecipes, "Triggers", "Conditions", "Actions", "Dry run", "Retry", "Audit"]} />;
-  if (sectionId === "integrations") return <BackendActivationCard title="Universal Integration Hub" items={[...integrations, "Connector registry", "Credential vault", "Health monitor"]} />;
-  if (sectionId === "settings") {
-    return (
-      <>
-        <DashboardGrid columns="two">
-          <RuntimeConfigActionPanel />
-          <BackendActivationCard title="Settings and Governance" items={[...appConfigAreas, ...governance, "Tenant switcher", "Future brands"]} />
-        </DashboardGrid>
-        <SimpleLaunchOperationsCenter />
-        <SupremacyCommandCenter />
-        <OperationalGovernanceCenter />
-      </>
-    );
-  }
-  if (sectionId === "revenue") return <><SimpleLaunchOperationsCenter /><SupremacyCommandCenter /></>;
+function DomainWorkspace({ sectionId }: { sectionId: ControlTowerSectionId }) {
+  if (sectionId === "overview") return <Overview />;
+  if (sectionId === "experience") return <ExperienceDesignStudio />;
+  if (sectionId === "menu") return <><MenuAuthorityStudio /><div className="mt-6 grid gap-6"><ProductActionPanel /><MediaGovernanceAudit /><ProductMediaManager /></div></>;
   if (sectionId === "orders") return <SupremacyCommandCenter />;
-  if (sectionId === "customers") return <BackendActivationCard title="Customer Management" items={["Segments", "Preferences", "Retention campaigns", "Churn risk", "Recommendation acceptance", "Value tiers"]} />;
-
-  return <LiveActionForSection sectionId={sectionId} />;
+  if (sectionId === "customers") return <><DashboardGrid columns="two"><DashboardCard title="Customer workspace" eyebrow="Existing intelligence"><p className="text-sm leading-6 text-[var(--muted)]">Customer details remain permission-scoped in the existing intelligence dashboard. PR3 does not widen PII access.</p><Link href="/dashboard/customers" className="premium-button premium-button-ghost mt-4">Open customer intelligence</Link></DashboardCard><LoyaltyActionPanel /></DashboardGrid></>;
+  if (sectionId === "marketing") return <SimpleLaunchOperationsCenter />;
+  if (sectionId === "ai") return <><SimpleLaunchOperationsCenter /><div className="mt-6"><SupremacyCommandCenter /></div></>;
+  if (sectionId === "analytics") return <DashboardGrid columns="two">{[{ label: "Revenue", href: "/dashboard/revenue" }, { label: "Customers", href: "/dashboard/customers" }, { label: "Operations", href: "/dashboard/operations" }, { label: "AI", href: "/dashboard/ai" }].map(({ label, href }) => <Link key={href} href={href} className="rounded-2xl border border-white/[0.08] bg-white/[0.03] p-5 transition hover:border-[var(--border-gold)]"><span className="text-xs uppercase tracking-[0.18em] text-[var(--muted)]">Existing dashboard</span><strong className="mt-2 block text-lg">{label}</strong></Link>)}</DashboardGrid>;
+  if (sectionId === "operations") return <><WhatsAppCommandCenter /><div className="mt-6"><OperationalGovernanceCenter /></div></>;
+  return <><DashboardGrid columns="two"><RuntimeConfigActionPanel /><DashboardCard title="Governed settings" eyebrow="Server controlled"><p className="text-sm leading-6 text-[var(--muted)]">Configuration writes remain typed, non-secret, permission checked and audited. No arbitrary table or SQL surface exists.</p></DashboardCard></DashboardGrid><div className="mt-6"><OperationalGovernanceCenter /></div></>;
 }
 
 export function ControlTowerView({ sectionId }: { sectionId?: string }) {
   const { tr } = useControlTowerLocale();
   const section = findControlTowerSection(sectionId);
-  const Icon = section.icon;
-
-  return (
-    <div className="space-y-8">
-      <section className="overflow-hidden rounded-2xl border border-[var(--border-gold)] bg-[linear-gradient(135deg,rgba(201,164,92,0.12),rgba(255,255,255,0.025))] p-5 sm:p-6">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex items-start gap-4">
-            <span className="rounded-xl border border-[var(--border-gold)] bg-black/20 p-3 text-[var(--gold-soft)]">
-              <Icon className="h-6 w-6" aria-hidden="true" />
-            </span>
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--gold-soft)]">{tr("Control Tower Section")}</p>
-              <h2 className="mt-1 text-2xl font-semibold leading-tight text-[var(--cream)] sm:text-3xl">{tr(section.label)}</h2>
-              <p className="mt-2 max-w-4xl text-sm leading-6 text-[var(--muted)]">{tr(section.description)}</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <DashboardSection title={tr("Capabilities")} description={tr("Live capabilities use existing SALORA APIs. Pending capabilities are modeled without claiming production readiness.")}>
-        <DashboardGrid columns="two">
-          {section.capabilities.map((capability) => <CapabilityCard key={capability.title} capability={capability} />)}
-        </DashboardGrid>
-      </DashboardSection>
-
-      <div id="no-code-workspace" className="scroll-mt-24">
-        <DashboardSection title={tr("No-Code Workspace")} description={tr("Operator-first controls for the selected business capability. Live write actions remain protected by existing RBAC permissions.")}>
-          <SectionSpecificWorkspace sectionId={section.id} />
-        </DashboardSection>
-      </div>
-    </div>
-  );
+  return <div className="space-y-8">
+    <header className="flex flex-col gap-4 border-b border-white/[0.08] pb-6 lg:flex-row lg:items-end lg:justify-between">
+      <div className="flex items-start gap-4"><span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-[var(--border-gold)] bg-[var(--gold)]/10 text-[var(--gold-soft)]"><SaloraIcon name={section.icon} className="h-6 w-6" /></span><div><p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[var(--gold-soft)]">SALORA OPERATING SYSTEM</p><h1 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">{tr(section.label)}</h1><p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--muted)]">{tr(section.description)}</p></div></div>
+      <span className="inline-flex w-fit items-center gap-2 rounded-full border border-emerald-300/15 bg-emerald-300/10 px-3 py-2 text-xs font-semibold text-emerald-200"><span className="h-1.5 w-1.5 rounded-full bg-emerald-300" />{tr("Permission-scoped workspace")}</span>
+    </header>
+    <DashboardSection title={tr("What you can do here")} description={tr("Only capabilities backed by current services or explicitly bounded draft workflows are shown.")}><DashboardGrid columns="two">{section.capabilities.map((item) => <CapabilityCard key={item.title} capability={item} />)}</DashboardGrid></DashboardSection>
+    <DashboardSection title={tr(section.commandLabel)} description={tr("Domain-specific actions pass through authentication, validation, authorization, application services, repositories and audit controls.")}><DomainWorkspace sectionId={section.id} /></DashboardSection>
+  </div>;
 }

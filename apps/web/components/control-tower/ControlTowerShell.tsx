@@ -1,186 +1,86 @@
 "use client";
 
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Bell, ChevronDown, ExternalLink, Languages, LogOut, Menu, X } from "lucide-react";
-import { controlTowerSections } from "@/lib/control-tower/registry";
-import { ControlTowerPerf } from "./ControlTowerPerf";
 import { useState, type ReactNode } from "react";
+import type { RoleName } from "@/lib/server/auth/types";
 import type { ControlTowerSectionId } from "@/lib/control-tower/types";
-import { ControlTowerLocaleProvider, useControlTowerLocale } from "./ControlTowerLocale";
+import { controlTowerSections } from "@/lib/control-tower/registry";
+import { SaloraIcon } from "@/components/ui/SaloraIcon";
 import { ThemeControl } from "@/components/ui/ThemeControl";
+import { ControlTowerLocaleProvider, useControlTowerLocale } from "./ControlTowerLocale";
+import { ControlTowerCommandPalette } from "./ControlTowerCommandPalette";
+import { ControlTowerPerf } from "./ControlTowerPerf";
 
-const controlTowerGroups: Array<{ label: string; sections: ControlTowerSectionId[] }> = [
-  { label: "Overview", sections: ["executive"] },
-  { label: "Operations", sections: ["revenue", "orders", "inventory", "customers", "loyalty"] },
-  { label: "Content", sections: ["content", "ai", "notifications"] },
-  { label: "Channels", sections: ["whatsapp", "instagram"] },
-  { label: "System", sections: ["automation", "integrations", "settings"] }
-];
+type ShellProps = { children: ReactNode; visibleSections: ControlTowerSectionId[]; actor: { email: string; roles: RoleName[] } };
 
-function ControlTowerShellContent({ children }: { children: ReactNode }) {
+function ShellContent({ children, visibleSections, actor }: ShellProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const [collapsed, setCollapsed] = useState(false);
-  const [mobileNavigationOpen, setMobileNavigationOpen] = useState(false);
   const { isArabic, locale, setLocale, tr } = useControlTowerLocale();
-  const defaultSection = controlTowerSections[0];
-  if (!defaultSection) {
-    throw new Error("Control Tower registry must include at least one section.");
-  }
-  const activeSection = controlTowerSections.find((section) => {
-    const href = `/control-tower/${section.id}`;
-    return pathname === href || (pathname === "/control-tower" && section.id === "executive");
-  }) ?? defaultSection;
+  const [collapsed, setCollapsed] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [paletteOpen, setPaletteOpen] = useState(false);
+  const sections = controlTowerSections.filter((section) => visibleSections.includes(section.id));
+  const active = sections.find((section) => pathname === `/control-tower/${section.id}`) ?? sections[0];
 
-  async function signOut() {
-    await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
-    router.replace("/login");
-    router.refresh();
-  }
+  async function signOut() { await fetch("/api/auth/logout", { method: "POST", credentials: "include" }); router.replace("/login"); router.refresh(); }
 
   return (
-    <div dir={isArabic ? "rtl" : "ltr"} lang={locale} className={`min-h-screen bg-[var(--background)] text-[var(--cream)] ${isArabic ? "font-sans" : ""}`}>
+    <div dir={isArabic ? "rtl" : "ltr"} lang={locale} className="control-tower-app min-h-screen bg-[var(--background)] text-[var(--cream)]">
       <ControlTowerPerf />
+      <ControlTowerCommandPalette visibleSections={visibleSections} open={paletteOpen} onOpenChange={setPaletteOpen} />
       <a href="#control-tower-content" className="skip-link">{tr("Skip to control tower content")}</a>
       <div className="flex min-h-screen">
-        {mobileNavigationOpen ? <button type="button" className="fixed inset-0 z-40 bg-[var(--overlay)] backdrop-blur-sm xl:hidden" onClick={() => setMobileNavigationOpen(false)} aria-label={tr("Close navigation")} /> : null}
-        <aside className={`${mobileNavigationOpen ? "fixed inset-y-0 z-50 flex w-[min(22rem,88vw)] flex-col" : "hidden"} ${isArabic ? "right-0 border-l" : "left-0 border-r"} shrink-0 border-[var(--border)] bg-[var(--backdrop)] shadow-2xl backdrop-blur-xl transition-all duration-200 xl:static xl:z-auto xl:flex xl:flex-col xl:shadow-none ${collapsed ? "xl:w-16" : "xl:w-64"}`} aria-label={tr("Control Tower navigation")}>
-          <div className={`flex h-16 items-center border-b border-[rgba(201,164,92,0.08)] ${collapsed ? "justify-center px-0" : "gap-3 px-5"}`}>
-            <Link href="/control-tower" className="flex min-w-0 flex-1 items-center gap-3" onClick={() => setMobileNavigationOpen(false)}>
-              <Image src="/brand/salora-logo-dark.jpeg" alt="SALORA" width={36} height={36} priority className="h-9 w-9 shrink-0 rounded-full border border-[var(--border-gold)] object-cover" />
-              {!collapsed ? (
-                <span className="min-w-0">
-                  <span className="block text-sm font-semibold leading-none tracking-wide text-[var(--cream)]">SALORA</span>
-                  <span className="mt-1 block text-[0.62rem] uppercase leading-none tracking-[0.22em] text-[var(--muted)]">Control Tower</span>
-                </span>
-              ) : null}
+        {mobileOpen ? <button type="button" className="fixed inset-0 z-40 bg-black/70 backdrop-blur-sm xl:hidden" onClick={() => setMobileOpen(false)} aria-label={tr("Close navigation")} /> : null}
+        <aside className={`${mobileOpen ? `fixed inset-y-0 z-50 flex w-[min(20rem,88vw)] ${isArabic ? "right-0" : "left-0"}` : "hidden"} ${collapsed ? "xl:w-[4.75rem]" : "xl:w-[17rem]"} flex-col border-e border-white/[0.07] bg-[color:var(--surface)] transition-[width] xl:sticky xl:top-0 xl:flex xl:h-screen`} aria-label={tr("Control Tower navigation")}>
+          <div className="flex min-h-20 items-center gap-3 border-b border-white/[0.07] px-4">
+            <Link href="/control-tower" className="flex min-w-0 flex-1 items-center gap-3" onClick={() => setMobileOpen(false)}>
+              <Image src="/brand/salora-logo-dark.jpeg" alt="SALORA" width={40} height={40} priority className="h-10 w-10 shrink-0 rounded-full border border-[var(--border-gold)] object-cover" />
+              {!collapsed ? <span><strong className="block text-sm tracking-[0.12em]">SALORA</strong><span className="text-[10px] uppercase tracking-[0.22em] text-[var(--muted)]">Control Tower</span></span> : null}
             </Link>
-            <button type="button" onClick={() => setMobileNavigationOpen(false)} className="grid h-10 w-10 place-items-center rounded-xl text-[var(--muted)] hover:bg-white/10 hover:text-[var(--cream)] xl:hidden" aria-label={tr("Close navigation")}><X className="h-5 w-5" aria-hidden="true" /></button>
+            <button type="button" onClick={() => setMobileOpen(false)} className="grid h-10 w-10 place-items-center rounded-xl text-[var(--muted)] xl:hidden" aria-label={tr("Close navigation")}><SaloraIcon name="close" className="h-5 w-5" /></button>
           </div>
-          <nav className="flex-1 overflow-y-auto px-2 py-4" aria-label="Control Tower sections">
-            {controlTowerGroups.map((group) => {
-              const sections = group.sections
-                .map((id) => controlTowerSections.find((section) => section.id === id))
-                .filter(Boolean);
-              if (sections.length === 0) return null;
-
-              return (
-                <div key={group.label} className="mb-4">
-                  {!collapsed ? <p className="px-2 py-1.5 text-[0.62rem] font-semibold uppercase tracking-[0.22em] text-white/20">{tr(group.label)}</p> : null}
-                  <div className="grid gap-1">
-                    {sections.map((section) => {
-                      if (!section) return null;
-                      const Icon = section.icon;
-                      const href = `/control-tower/${section.id}`;
-                      const active = pathname === href || (pathname === "/control-tower" && section.id === "executive");
-
-                      return (
-                        <Link
-                          key={section.id}
-                          href={href}
-                          aria-current={active ? "page" : undefined}
-                          title={collapsed ? tr(section.label) : undefined}
-                          onClick={() => setMobileNavigationOpen(false)}
-                          className={`relative flex items-center rounded-lg text-sm transition ${collapsed ? "justify-center px-0 py-3" : "gap-3 px-3 py-2.5"} ${
-                            active
-                              ? "bg-[var(--gold)]/10 text-[var(--gold-soft)]"
-                              : "text-[var(--muted)] hover:bg-white/[0.055] hover:text-[var(--cream)]"
-                          }`}
-                        >
-                          {active ? <span className={`absolute ${isArabic ? "right-0 rounded-l-full" : "left-0 rounded-r-full"} top-1/2 h-5 w-0.5 -translate-y-1/2 bg-[var(--gold)]`} /> : null}
-                          <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
-                          {!collapsed ? <span className="min-w-0 flex-1 truncate font-semibold">{tr(section.label)}</span> : null}
-                        </Link>
-                      );
-                    })}
-                  </div>
-                </div>
-              );
-            })}
+          <nav className="flex-1 overflow-y-auto p-3" aria-label={tr("Primary navigation")}>
+            <p className={`${collapsed ? "sr-only" : "px-3 pb-2 pt-1"} text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--muted)]`}>{tr("Workspace")}</p>
+            <div className="grid gap-1">
+              {sections.map((section) => {
+                const current = pathname === `/control-tower/${section.id}` || (pathname === "/control-tower" && section.id === "overview");
+                return <Link key={section.id} href={`/control-tower/${section.id}`} aria-current={current ? "page" : undefined} title={collapsed ? tr(section.label) : undefined} onClick={() => setMobileOpen(false)} className={`group relative flex min-h-11 items-center rounded-xl ${collapsed ? "justify-center" : "gap-3 px-3"} ${current ? "bg-[var(--gold)]/12 text-[var(--gold-soft)]" : "text-[var(--muted)] hover:bg-white/[0.05] hover:text-[var(--cream)]"}`}>
+                  {current ? <span className="absolute inset-y-3 start-0 w-0.5 rounded-full bg-[var(--gold)]" /> : null}
+                  <SaloraIcon name={section.icon} className="h-[18px] w-[18px] shrink-0" />
+                  {!collapsed ? <span className="truncate text-sm font-medium">{tr(section.label)}</span> : null}
+                </Link>;
+              })}
+            </div>
           </nav>
-          <div className={`border-t border-[rgba(201,164,92,0.08)] p-3 ${collapsed ? "flex justify-center" : ""}`}>
-            <div className={`flex items-center rounded-lg px-2 py-2 transition ${collapsed ? "justify-center" : "gap-3 hover:bg-white/[0.055]"}`}>
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[var(--border-gold)] bg-[var(--gold)]/10 text-xs font-semibold text-[var(--gold-soft)]">AD</span>
-              {!collapsed ? (
-                <>
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-xs font-semibold text-[var(--cream)]">{tr("Admin")}</span>
-                    <span className="mt-0.5 block truncate text-[0.68rem] text-[var(--muted)]">{tr("Role-gated session")}</span>
-                  </span>
-                  <ChevronDown className="h-3.5 w-3.5 text-white/25" aria-hidden="true" />
-                </>
-              ) : null}
+          <div className="border-t border-white/[0.07] p-3">
+            <div className={`flex min-h-12 items-center rounded-xl bg-white/[0.035] ${collapsed ? "justify-center" : "gap-3 px-3"}`}>
+              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[var(--gold)]/15 text-xs font-bold text-[var(--gold-soft)]">{actor.email.slice(0, 2).toUpperCase()}</span>
+              {!collapsed ? <span className="min-w-0"><span className="block truncate text-xs font-semibold">{actor.email}</span><span className="block truncate text-[10px] text-[var(--muted)]">{actor.roles.join(" · ")}</span></span> : null}
             </div>
           </div>
         </aside>
         <div className="min-w-0 flex-1">
-          <header className="sticky top-0 z-30 border-b border-[var(--border)] bg-[var(--backdrop)] backdrop-blur-xl">
-            <div className="flex min-h-16 flex-col gap-3 px-4 py-3 sm:px-6 lg:flex-row lg:items-center lg:justify-between">
-              <div className="flex min-w-0 items-center gap-4">
-                <button type="button" onClick={() => setMobileNavigationOpen(true)} className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-white/10 bg-white/5 text-[var(--cream)] xl:hidden" aria-label={tr("Open navigation")} aria-expanded={mobileNavigationOpen}><Menu className="h-5 w-5" aria-hidden="true" /></button>
-                <button
-                  type="button"
-                  onClick={() => setCollapsed((value) => !value)}
-                  className="hidden h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[var(--muted)] transition hover:bg-white/[0.055] hover:text-[var(--cream)] xl:flex"
-                  aria-label={tr(collapsed ? "Expand Control Tower navigation" : "Collapse Control Tower navigation")}
-                  aria-pressed={collapsed}
-                >
-                  <Menu className="h-4 w-4" aria-hidden="true" />
-                </button>
-                <div className="min-w-0">
-                  <p className="flex items-center gap-2 text-xs text-[var(--muted)]">
-                    <span>{tr("Control Tower")}</span>
-                    <span className="text-white/20">/</span>
-                    <span className="truncate text-[var(--cream)]">{tr(activeSection.label)}</span>
-                  </p>
-                  <h1 className="salora-page-title mt-1 max-w-[24ch] font-semibold text-[var(--cream)]">{tr("No-Code Commerce Operating System")}</h1>
-                </div>
-              </div>
-              <div className="salora-command-bar max-w-full pb-1 lg:justify-end lg:pb-0" aria-label={tr("Control Tower commands")}>
-                <ThemeControl locale={locale} />
-                <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] text-[var(--muted)]" title={tr("Notifications")}>
-                  <Bell className="h-4 w-4" aria-hidden="true" />
-                </span>
-                <span className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-emerald-300/15 bg-emerald-300/10 px-3 py-2 text-xs font-semibold text-emerald-300">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-300" aria-hidden="true" />
-                  {tr("Live")}
-                </span>
-                <Link href="/menu" target="_blank" className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-[var(--border-gold)] bg-[var(--gold)]/10 px-3 py-2 text-xs font-semibold text-[var(--gold-soft)] transition hover:bg-[var(--gold)]/15">
-                  {tr("Customer menu")} <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
-                </Link>
-                <button type="button" onClick={() => setLocale(isArabic ? "en" : "ar")} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-[var(--cream)] transition hover:bg-white/10" aria-label={isArabic ? "Switch to English" : "التبديل إلى العربية"}>
-                  <Languages className="h-3.5 w-3.5" aria-hidden="true" /> {isArabic ? "English" : "العربية"}
-                </button>
-                <div>
-                  <button type="button" onClick={() => void signOut()} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-red-300/15 bg-red-300/5 px-3 py-2 text-xs font-semibold text-red-100 transition hover:bg-red-300/10">
-                    <LogOut className="h-3.5 w-3.5" aria-hidden="true" /> {isArabic ? "تسجيل الخروج" : "Sign out"}
-                  </button>
-                </div>
-              </div>
+          <header className="sticky top-0 z-30 border-b border-white/[0.07] bg-[var(--backdrop)] backdrop-blur-xl">
+            <div className="salora-command-bar flex min-h-20 items-center gap-3 px-4 sm:px-6">
+              <button type="button" onClick={() => setMobileOpen(true)} className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-white/10 xl:hidden" aria-label={tr("Open navigation")}><SaloraIcon name="menu" className="h-5 w-5" /></button>
+              <button type="button" onClick={() => setCollapsed((value) => !value)} className="hidden h-10 w-10 shrink-0 place-items-center rounded-xl text-[var(--muted)] hover:bg-white/[0.05] xl:grid" aria-label={tr(collapsed ? "Expand navigation" : "Collapse navigation")}><SaloraIcon name="menu" className="h-5 w-5" /></button>
+              <div className="min-w-0 flex-1"><p className="truncate text-xs text-[var(--muted)]">{tr("Control Tower")} <span className="px-1 text-white/20">/</span> <span className="text-[var(--cream)]">{tr(active?.label ?? "Overview")}</span></p><p className="salora-page-title mt-1 truncate text-sm font-semibold sm:text-base">{tr(active?.commandLabel ?? "Open overview")}</p></div>
+              <button type="button" onClick={() => setPaletteOpen(true)} className="hidden min-h-11 min-w-64 items-center gap-3 rounded-xl border border-white/10 bg-white/[0.035] px-3 text-start text-xs text-[var(--muted)] transition hover:border-[var(--border-gold)] md:flex"><SaloraIcon name="search" className="h-4 w-4" /><span className="flex-1">{tr("Search or run a command")}</span><kbd className="rounded border border-white/10 px-1.5 py-1">⌘K</kbd></button>
+              <button type="button" onClick={() => setPaletteOpen(true)} className="grid h-11 w-11 place-items-center rounded-xl border border-white/10 md:hidden" aria-label={tr("Search and commands")}><SaloraIcon name="search" className="h-5 w-5" /></button>
+              <ThemeControl locale={locale} />
+              <button type="button" onClick={() => setLocale(isArabic ? "en" : "ar")} className="grid h-11 min-w-11 place-items-center rounded-xl border border-white/10 px-2 text-xs font-semibold" aria-label={isArabic ? "Switch to English" : "التبديل إلى العربية"}><SaloraIcon name="language" className="h-4 w-4" /><span className="sr-only">{isArabic ? "English" : "العربية"}</span></button>
+              <button type="button" className="relative grid h-11 w-11 place-items-center rounded-xl border border-white/10 text-[var(--muted)]" aria-label={tr("Notifications")}><SaloraIcon name="bell" className="h-4 w-4" /></button>
+              <button type="button" onClick={() => void signOut()} className="hidden min-h-11 rounded-xl border border-white/10 px-3 text-xs text-[var(--muted)] hover:text-[var(--cream)] sm:block">{tr("Sign out")}</button>
             </div>
-            <nav className="salora-scroll-strip border-t border-white/[0.06] px-4 py-2 sm:px-6 xl:hidden" aria-label={tr("Mobile Control Tower navigation")}>
-              {controlTowerSections.map((section) => {
-                const href = `/control-tower/${section.id}`;
-                const active = pathname === href || (pathname === "/control-tower" && section.id === "executive");
-                return (
-                  <Link key={section.id} href={href} className={`shrink-0 rounded-full border px-3 py-2 text-xs font-semibold ${active ? "border-[var(--border-gold)] bg-[var(--gold)]/15 text-[var(--gold-soft)]" : "border-white/10 bg-white/5 text-[var(--muted)]"}`}>
-                    {tr(section.label)}
-                  </Link>
-                );
-              })}
-            </nav>
           </header>
-          <main id="control-tower-content" className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 py-6 sm:px-6 lg:py-8">
-            {children}
-          </main>
+          <main id="control-tower-content" className="mx-auto w-full max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8 lg:py-8">{children}</main>
         </div>
       </div>
     </div>
   );
 }
 
-export function ControlTowerShell({ children }: { children: ReactNode }) {
-  return <ControlTowerLocaleProvider><ControlTowerShellContent>{children}</ControlTowerShellContent></ControlTowerLocaleProvider>;
-}
+export function ControlTowerShell(props: ShellProps) { return <ControlTowerLocaleProvider><ShellContent {...props} /></ControlTowerLocaleProvider>; }
