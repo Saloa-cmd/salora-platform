@@ -60,6 +60,31 @@ test("login shell renders with matching CSP nonces", async ({ page }) => {
   expect(browserErrors).toEqual([]);
 });
 
+test("login distinguishes invalid credentials from service outages", async ({ page }) => {
+  await page.goto("/login", { waitUntil: "networkidle" });
+
+  const loginResponse = page.waitForResponse((response) =>
+    response.url().endsWith("/api/auth/login") && response.request().method() === "POST"
+  );
+
+  await page.getByLabel("البريد الإلكتروني").fill("qa-auth-check@salora.cafe");
+  await page.getByLabel("كلمة المرور").fill("NotARealCredential-For-QA-2026!");
+  await page.getByRole("button", { name: "دخول آمن" }).click();
+
+  const response = await loginResponse;
+  expect([401, 503]).toContain(response.status());
+
+  const alert = page.getByRole("alert");
+  await expect(alert).toBeVisible();
+
+  if (response.status() === 401) {
+    await expect(alert).toContainText("البريد الإلكتروني أو كلمة المرور غير صحيحة");
+  } else {
+    await expect(alert).toContainText("لم يتم التحقق من بياناتك");
+    await expect(alert).not.toContainText("غير صحيحة");
+  }
+});
+
 test.describe("public experience resilience", () => {
   for (const path of ["/", "/menu"]) {
     test(`${path} renders without a 5xx`, async ({ page }) => {
