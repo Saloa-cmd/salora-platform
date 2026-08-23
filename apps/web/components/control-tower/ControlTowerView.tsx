@@ -11,6 +11,7 @@ import { MenuAuthorityStudio } from "./MenuAuthorityStudio";
 import { ProductMediaManager } from "./ProductMediaManager";
 import { MediaGovernanceAudit } from "./MediaGovernanceAudit";
 import { ProductActionPanel, LoyaltyActionPanel, RuntimeConfigActionPanel } from "./NoCodeActionPanel";
+import { MarketingOperationsWorkspace } from "./MarketingOperationsWorkspace";
 import { SimpleLaunchOperationsCenter } from "./SimpleLaunchOperationsCenter";
 import { SupremacyCommandCenter } from "./SupremacyCommandCenter";
 import { WhatsAppCommandCenter } from "./WhatsAppCommandCenter";
@@ -33,7 +34,7 @@ function DomainWorkspace({ sectionId }: { sectionId: ControlTowerSectionId }) {
   if (sectionId === "menu") return <><MenuAuthorityStudio /><div className="mt-6 grid gap-6"><ProductActionPanel /><MediaGovernanceAudit /><ProductMediaManager /></div></>;
   if (sectionId === "orders") return <div className="space-y-6"><DashboardView kind="operations" /><SupremacyCommandCenter /></div>;
   if (sectionId === "customers") return <div className="space-y-6"><DashboardView kind="customers" /><LoyaltyActionPanel /></div>;
-  if (sectionId === "marketing") return <SimpleLaunchOperationsCenter />;
+  if (sectionId === "marketing") return <MarketingOperationsWorkspace />;
   if (sectionId === "ai") return <div className="space-y-6"><DashboardView kind="ai" /><SimpleLaunchOperationsCenter /><SupremacyCommandCenter /></div>;
   if (sectionId === "analytics") return <ControlTowerIntelligenceWorkspace />;
   if (sectionId === "operations") return <div className="space-y-6"><DashboardView kind="operations" /><WhatsAppCommandCenter /><OperationalGovernanceCenter /></div>;
