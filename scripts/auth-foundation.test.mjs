@@ -5,6 +5,8 @@ import { hashPassword, signJwt, verifyJwt, verifyPassword } from "../apps/web/li
 import { hasPermission, hasRole } from "../apps/web/lib/server/auth/rbac.ts";
 import { canAccessControlTower } from "../apps/web/lib/server/auth/controlTowerAccess.ts";
 import { publicRegistrationRoles } from "../apps/web/lib/server/auth/registration.ts";
+import { InvalidCredentialsError, loginFailureStatus } from "../apps/web/lib/server/auth/errors.ts";
+import { loginErrorMessage } from "../apps/web/lib/auth/loginError.ts";
 
 const root = process.cwd();
 const schema = readFileSync(join(root, "prisma/schema.prisma"), "utf8");
@@ -42,5 +44,12 @@ assert.equal(canAccessControlTower(["STAFF"]), true);
 assert.equal(canAccessControlTower(["MANAGER"]), true);
 assert.equal(canAccessControlTower(["ADMIN"]), true);
 assert.equal(canAccessControlTower(["CUSTOMER"]), false);
+
+assert.equal(loginFailureStatus(new InvalidCredentialsError()), 401, "invalid credentials should remain a 401");
+assert.equal(loginFailureStatus(new Error("DATABASE_URL is not configured")), 503, "auth infrastructure errors should be a 503");
+assert.match(loginErrorMessage(401, "ar"), /البريد الإلكتروني أو كلمة المرور/);
+assert.match(loginErrorMessage(429, "en"), /Too many sign-in attempts/);
+assert.match(loginErrorMessage(503, "ar"), /لم يتم التحقق من بياناتك/);
+assert.doesNotMatch(loginErrorMessage(503, "ar"), /غير صحيحة/);
 
 console.log("Auth foundation tests passed.");

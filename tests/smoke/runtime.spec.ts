@@ -15,6 +15,13 @@ test("liveness is minimal, safe, and non-cacheable", async ({ request }) => {
   expect(response.headers()["x-content-type-options"]).toBe("nosniff");
 });
 
+test("readiness reports structured state instead of a 5xx crash", async ({ request }) => {
+  const response = await request.get("/api/ready");
+  expect([200, 503]).toContain(response.status());
+  expect(await response.json()).toEqual({ status: response.status() === 200 ? "ready" : "not-ready" });
+  expect(response.headers()["content-type"]).toContain("application/json");
+});
+
 test("login shell renders with matching CSP nonces", async ({ page }) => {
   const browserErrors: string[] = [];
   page.on("console", (message) => {
@@ -53,12 +60,32 @@ test("login shell renders with matching CSP nonces", async ({ page }) => {
   expect(browserErrors).toEqual([]);
 });
 
-test.describe("preview public reads", () => {
-  test.skip(
-    !process.env.PLAYWRIGHT_BASE_URL,
-    "Public DB-backed reads run only against an explicitly selected external Preview."
+test("login distinguishes invalid credentials from service outages", async ({ page }) => {
+  await page.goto("/login", { waitUntil: "networkidle" });
+
+  const loginResponse = page.waitForResponse((response) =>
+    response.url().endsWith("/api/auth/login") && response.request().method() === "POST"
   );
 
+  await page.getByLabel("البريد الإلكتروني").fill("qa-auth-check@salora.cafe");
+  await page.getByLabel("كلمة المرور").fill("NotARealCredential-For-QA-2026!");
+  await page.getByRole("button", { name: "دخول آمن" }).click();
+
+  const response = await loginResponse;
+  expect([401, 503]).toContain(response.status());
+
+  const alert = page.getByRole("alert").filter({ hasText: /\S/ });
+  await expect(alert).toBeVisible();
+
+  if (response.status() === 401) {
+    await expect(alert).toContainText("البريد الإلكتروني أو كلمة المرور غير صحيحة");
+  } else {
+    await expect(alert).toContainText("لم يتم التحقق من بياناتك");
+    await expect(alert).not.toContainText("غير صحيحة");
+  }
+});
+
+test.describe("public experience resilience", () => {
   for (const path of ["/", "/menu"]) {
     test(`${path} renders without a 5xx`, async ({ page }) => {
       const response = await page.goto(path, { waitUntil: "networkidle" });

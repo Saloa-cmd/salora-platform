@@ -4,8 +4,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowDown, ArrowUpLeft, Instagram, Languages, MapPin, Menu, MessageCircle, ShoppingBag } from "lucide-react";
 import { useState } from "react";
-import type { ExperienceConfiguration, MenuAuthoritySource, Product } from "@salora/types";
+import type { ExperienceConfiguration, MenuAuthoritySnapshot, MenuAuthoritySource, Product } from "@salora/types";
 import { ThemeControl } from "@/components/ui/ThemeControl";
+import { ExperienceStatus } from "@/components/public/ExperienceStatus";
 
 type Language = "ar" | "en";
 
@@ -88,12 +89,14 @@ export function PremiumHomeExperience({
   featuredProducts,
   menuSource,
   menuStale,
+  menuDatabaseHealth,
   whatsappNumber,
   experience
 }: {
   featuredProducts: Product[];
   menuSource: MenuAuthoritySource;
   menuStale: boolean;
+  menuDatabaseHealth: MenuAuthoritySnapshot["databaseHealth"];
   whatsappNumber: string;
   experience: ExperienceConfiguration;
 }) {
@@ -146,6 +149,7 @@ export function PremiumHomeExperience({
             <Link className="premium-button premium-button-gold" href="/menu">{t.explore}<ArrowUpLeft aria-hidden="true" /></Link>
             <a className="premium-button premium-button-ghost" href="#visit">{t.location}</a>
           </div>
+          <ExperienceStatus language={language} source={menuSource} stale={menuStale} databaseHealth={menuDatabaseHealth} compact />
         </div>
 
         <div className="premium-hero-art" aria-label={heroAlt}>
@@ -168,7 +172,7 @@ export function PremiumHomeExperience({
       <section id="featured-menu" className="premium-menu-preview">
         <div className="premium-section-heading">
           <div><p className="premium-kicker"><span />{t.selection}</p><h2>{t.menuTitle}</h2></div>
-          <div><p>{t.menuIntro}</p><small className={menuStale ? "is-stale" : ""}>{menuStale ? t.fallback : t.live} · {menuSource}</small></div>
+          <div><p>{t.menuIntro}</p><ExperienceStatus language={language} source={menuSource} stale={menuStale} databaseHealth={menuDatabaseHealth} /></div>
         </div>
         <div className="premium-product-grid">
           {featuredProducts.map((product, index) => {

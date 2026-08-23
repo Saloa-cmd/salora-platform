@@ -4,7 +4,7 @@ import { queueNames } from "../queues/definitions";
 import { getQueue } from "../queues/factory";
 
 export async function queueHealth(): Promise<ServiceHealth> {
-  const env = getInfrastructureEnv();
+  const env = getInfrastructureEnv({ strict: false });
 
   if (!env.REDIS_URL) {
     return {

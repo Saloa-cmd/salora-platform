@@ -3,7 +3,7 @@ import type { ServiceHealth } from "../runtime/health";
 import { connectRedis } from "./redis";
 
 export async function redisHealth(): Promise<ServiceHealth> {
-  const env = getInfrastructureEnv();
+  const env = getInfrastructureEnv({ strict: false });
 
   if (!env.REDIS_URL) {
     return {

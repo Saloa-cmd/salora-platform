@@ -3,7 +3,9 @@ import type { ServiceHealth } from "../runtime/health";
 import { connectPrisma, withQueryProtection } from "./prisma";
 
 export async function databaseHealth(): Promise<ServiceHealth> {
-  const env = getInfrastructureEnv();
+  // Health endpoints must report missing infrastructure as structured state,
+  // not throw before a readiness response can be returned.
+  const env = getInfrastructureEnv({ strict: false });
 
   if (!env.DATABASE_URL) {
     return {
@@ -38,7 +40,7 @@ export async function databaseHealth(): Promise<ServiceHealth> {
 }
 
 export async function databaseMigrationStatus(): Promise<ServiceHealth> {
-  const env = getInfrastructureEnv();
+  const env = getInfrastructureEnv({ strict: false });
   return {
     name: "postgresql-migrations",
     status: env.DATABASE_URL ? "healthy" : "degraded",

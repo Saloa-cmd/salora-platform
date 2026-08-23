@@ -27,7 +27,9 @@ export function getInfrastructureEnv(options: { strict?: boolean } = {}): Infras
     throw new Error(`SALORA infrastructure env invalid: ${message}`);
   }
 
-  if (options.strict || parsed.data.NODE_ENV === "production") {
+  const strict = options.strict ?? parsed.data.NODE_ENV === "production";
+
+  if (strict) {
     const missing = [
       !parsed.data.DATABASE_URL && "DATABASE_URL",
       !parsed.data.REDIS_URL && "REDIS_URL"
