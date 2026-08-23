@@ -49,10 +49,10 @@ export function ControlTowerDataPulse() {
     void controlTowerGet<Pulse>("/api/control-tower/data-pulse").then((result) => {
       if (!active) return;
       if (result.status === "success" && result.data) setState({ status: "success", pulse: result.data });
-      else setState({ status: "error", message: result.message ?? copy("تعذر تحميل نبض البيانات.", "The database pulse could not load.") });
+      else setState({ status: "error", message: result.message ?? (isArabic ? "تعذر تحميل نبض البيانات." : "The database pulse could not load.") });
     });
     return () => { active = false; };
-  }, []);
+  }, [isArabic]);
 
   const number = useMemo(() => new Intl.NumberFormat(isArabic ? "ar-OM" : "en-OM"), [isArabic]);
   const omr = useMemo(() => new Intl.NumberFormat(isArabic ? "ar-OM" : "en-OM", { style: "currency", currency: "OMR", minimumFractionDigits: 3, maximumFractionDigits: 3 }), [isArabic]);
