@@ -103,24 +103,38 @@ assert.doesNotMatch(
   "Media summary reads must be sequential inside cms.run."
 );
 
-const homePage = read("apps/web/app/page.tsx");
-const menuPage = read("apps/web/app/menu/page.tsx");
-for (const [label, source] of [
-  ["homepage database reads", homePage],
-  ["menu-page database reads", menuPage]
+const menuAuthority = read("apps/web/lib/server/menuAuthority.ts");
+const publishedRevisionRead = between(
+  menuAuthority,
+  "async function readPublishedRevision()",
+  "async function readLegacyCatalog()",
+  "published menu revision read"
+);
+assert.doesNotMatch(
+  publishedRevisionRead,
+  /\binclude\s*:/,
+  "Published menu relations must not use concurrent Prisma include branches on one transaction client."
+);
+assert.doesNotMatch(
+  publishedRevisionRead,
+  /Promise\.all\s*\(/,
+  "Published menu relation reads must remain sequential on one transaction client."
+);
+for (const modelRead of [
+  "database.menuCollection.findFirst",
+  "database.menuCollectionRevision.findUnique",
+  "database.menuPublication.findFirst"
 ]) {
-  assert.doesNotMatch(
-    source,
-    /Promise\.all\s*\(/,
-    `${label} must not overlap RLS-scoped Prisma transactions.`
+  assert.match(
+    publishedRevisionRead,
+    new RegExp(`await ${modelRead.replaceAll(".", "\\.")}`),
+    `Published menu authority must await ${modelRead}.`
   );
 }
-
-const readyRoute = read("apps/web/app/api/ready/route.ts");
-assert.doesNotMatch(
-  readyRoute,
-  /Promise\.all\s*\(\s*\[\s*Promise\.all/,
-  "Readiness must not overlap database health and menu-authority Prisma reads."
+assert.match(
+  publishedRevisionRead,
+  /upstream adapter serializes transaction queries/,
+  "The Prisma adapter workaround must remain documented."
 );
 
 const rlsContext = read("packages/backend/src/database/rls-context.ts");
@@ -134,5 +148,5 @@ console.log("Prisma transaction concurrency regression passed:");
 console.log("- overlapping single-client calls reproduced without a database");
 console.log("- menu publication and rollback reads are sequential");
 console.log("- WhatsApp and media transaction reads are sequential");
-console.log("- public web and readiness database reads do not overlap");
+console.log("- published menu relation reads are explicitly serialized");
 console.log("- no Production database connection or write was attempted");

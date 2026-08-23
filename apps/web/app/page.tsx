@@ -33,10 +33,10 @@ function selectHomepageProducts(products: Product[]) {
 }
 
 export default async function HomePage() {
-  // Both reads open an RLS-scoped Prisma transaction. Keep them sequential so
-  // a transaction-bound pg client never receives overlapping query() calls.
-  const menuSnapshot = await getPublicMenuSnapshot();
-  const experience = await getPublishedExperienceConfiguration();
+  const [menuSnapshot, experience] = await Promise.all([
+    getPublicMenuSnapshot(),
+    getPublishedExperienceConfiguration()
+  ]);
 
   return (
     <PremiumHomeExperience

@@ -198,17 +198,26 @@ async function readPublishedRevision(): Promise<MenuAuthoritySnapshot | null> {
         status: "PUBLISHED",
         archivedAt: null,
         activeRevisionId: { not: null }
-      },
-      include: {
-        activeRevision: true,
-        publications: {
-          where: { status: "PUBLISHED" },
-          orderBy: { publishedAt: "desc" },
-          take: 1
-        }
       }
     });
-    return revisionAuthority(collection);
+    if (!collection?.activeRevisionId) return null;
+
+    // Prisma 7's query compiler may resolve multiple include branches in
+    // parallel on one transaction-bound pg client. Read each relation in
+    // sequence until the upstream adapter serializes transaction queries.
+    const activeRevision = await database.menuCollectionRevision.findUnique({
+      where: { id: collection.activeRevisionId }
+    });
+    const latestPublication = await database.menuPublication.findFirst({
+      where: { collectionId: collection.id, status: "PUBLISHED" },
+      orderBy: { publishedAt: "desc" }
+    });
+
+    return revisionAuthority({
+      ...collection,
+      activeRevision,
+      publications: latestPublication ? [latestPublication] : []
+    });
   });
 }
 

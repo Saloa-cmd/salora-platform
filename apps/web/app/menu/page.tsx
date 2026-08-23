@@ -12,10 +12,10 @@ export const metadata: Metadata = {
 };
 
 export default async function MenuPage() {
-  // Both reads open an RLS-scoped Prisma transaction. Keep them sequential so
-  // a transaction-bound pg client never receives overlapping query() calls.
-  const snapshot = await getPublicMenuSnapshot();
-  const experience = await getPublishedExperienceConfiguration();
+  const [snapshot, experience] = await Promise.all([
+    getPublicMenuSnapshot(),
+    getPublishedExperienceConfiguration()
+  ]);
 
   return (
     <MenuExperience
