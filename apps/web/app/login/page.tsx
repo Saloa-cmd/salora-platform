@@ -4,6 +4,7 @@ import { FormEvent, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AlertCircle, ArrowLeft, ArrowRight, LockKeyhole } from "lucide-react";
 import { ThemeControl } from "@/components/ui/ThemeControl";
+import { loginErrorMessage } from "@/lib/auth/loginError";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -33,7 +34,7 @@ export default function LoginPage() {
       });
 
       if (!response.ok) {
-        setError(copy("البريد الإلكتروني أو كلمة المرور غير صحيحة.", "The email or password is incorrect."));
+        setError(loginErrorMessage(response.status, locale));
         return;
       }
 
@@ -42,7 +43,7 @@ export default function LoginPage() {
       router.replace(destination);
       router.refresh();
     } catch {
-      setError(copy("تعذر الاتصال. تحقق من الشبكة وحاول مجددًا.", "Connection failed. Check your network and try again."));
+      setError(loginErrorMessage(0, locale));
     } finally {
       setLoading(false);
     }
@@ -72,7 +73,7 @@ export default function LoginPage() {
         <p className="mt-3 text-sm leading-6 text-[var(--muted)]">{copy("أدخل بيانات حسابك للانتقال إلى النظرة العامة.", "Use your account to continue to the operational overview.")}</p>
 
         <form id="login-form" onSubmit={handleSubmit} className="mt-8 space-y-5" aria-busy={loading}>
-          {error ? <div className="flex items-start gap-3 rounded-xl border border-red-400/25 bg-red-400/[0.07] p-3" role="alert"><AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-red-400" aria-hidden="true" /><p className="text-sm text-red-200">{error}</p></div> : null}
+          {error ? <div className="flex items-start gap-3 rounded-xl border border-red-400/25 bg-red-400/[0.07] p-3" role="alert" aria-live="assertive"><AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-red-400" aria-hidden="true" /><p className="text-sm text-red-200">{error}</p></div> : null}
           <div><label htmlFor="email" className="mb-2 block text-sm font-semibold">{copy("البريد الإلكتروني", "Email address")}</label><input ref={emailInputRef} id="email" type="email" name="email" autoComplete="email" required value={email} onChange={(event) => setEmail(event.target.value)} disabled={loading} placeholder="name@salora.cafe" className="min-h-12 w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] px-4 text-sm outline-none transition placeholder:text-[var(--muted)] focus:border-[var(--border-gold)] disabled:opacity-50" /></div>
           <div><label htmlFor="password" className="mb-2 block text-sm font-semibold">{copy("كلمة المرور", "Password")}</label><input id="password" type="password" name="password" autoComplete="current-password" required value={password} onChange={(event) => setPassword(event.target.value)} disabled={loading} placeholder="••••••••" className="min-h-12 w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] px-4 text-sm outline-none transition placeholder:text-[var(--muted)] focus:border-[var(--border-gold)] disabled:opacity-50" /></div>
           <button type="submit" disabled={loading} className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[var(--cream)] px-4 text-sm font-semibold text-[var(--background)] transition hover:opacity-90 disabled:opacity-50"><span>{loading ? copy("جارٍ التحقق…", "Checking…") : copy("دخول آمن", "Secure sign in")}</span><Arrow className="h-4 w-4" aria-hidden="true" /></button>

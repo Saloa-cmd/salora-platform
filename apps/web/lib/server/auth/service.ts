@@ -3,6 +3,7 @@ import type { AuthRepository } from "./repository";
 import type { AuthEnv } from "./env";
 import { publicRegistrationRoles } from "./registration";
 import type { AuthResult, PublicUser, RoleName } from "./types";
+import { InvalidCredentialsError } from "./errors";
 
 function publicUser(user: { id: string; email: string; name: string; roles: RoleName[] }): PublicUser {
   return {
@@ -47,7 +48,7 @@ export class AuthService {
     const user = await this.repository.findUserByEmail(input.email);
 
     if (!user || !user.isActive || !(await verifyPassword(input.password, user.passwordHash))) {
-      throw new Error("Invalid SALORA credentials.");
+      throw new InvalidCredentialsError();
     }
 
     return this.issueTokens(user, meta);
