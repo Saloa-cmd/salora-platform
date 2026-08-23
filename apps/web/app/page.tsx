@@ -43,6 +43,7 @@ export default async function HomePage() {
       featuredProducts={selectHomepageProducts(menuSnapshot.products)}
       menuSource={menuSnapshot.source}
       menuStale={menuSnapshot.stale}
+      menuDatabaseHealth={menuSnapshot.databaseHealth}
       whatsappNumber={saloraRuntime.whatsappNumber}
       experience={experience}
     />

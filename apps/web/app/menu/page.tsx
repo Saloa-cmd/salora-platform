@@ -24,6 +24,7 @@ export default async function MenuPage() {
       revision={snapshot.revision}
       menuSource={snapshot.source}
       menuStale={snapshot.stale}
+      menuDatabaseHealth={snapshot.databaseHealth}
       whatsappNumber={saloraRuntime.whatsappNumber}
       experience={experience}
     />
