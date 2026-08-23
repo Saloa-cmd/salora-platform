@@ -16,17 +16,19 @@ type IntelligenceTab = {
   detailEn: string;
 };
 
-const tabs: IntelligenceTab[] = [
+const tabs: readonly IntelligenceTab[] = [
   { id: "revenue", icon: "analytics", ar: "الإيرادات", en: "Revenue", detailAr: "الدفع، الاسترداد، القنوات وصافي الإيراد", detailEn: "Payments, refunds, channels and net revenue" },
   { id: "customers", icon: "user", ar: "العملاء", en: "Customers", detailAr: "الصحة، التكرار، القيمة والاحتفاظ", detailEn: "Health, repeat rate, value and retention" },
   { id: "operations", icon: "orders", ar: "التشغيل", en: "Operations", detailAr: "الطلبات، الطوابير، المخزون والتنبيهات", detailEn: "Orders, queues, inventory and alerts" },
   { id: "ai", icon: "ai", ar: "الذكاء الاصطناعي", en: "AI", detailAr: "الاستخدام، الجودة، التكلفة والسلامة", detailEn: "Usage, quality, cost and safety" }
 ];
 
+const defaultTab: IntelligenceTab = tabs[0]!;
+
 export function ControlTowerIntelligenceWorkspace({ initial = "revenue" }: { initial?: IntelligenceKind }) {
   const { isArabic } = useControlTowerLocale();
   const [active, setActive] = useState<IntelligenceKind>(initial);
-  const selected = tabs.find((tab) => tab.id === active) ?? tabs[0];
+  const selected = tabs.find((tab) => tab.id === active) ?? defaultTab;
 
   return (
     <div className="space-y-6">
