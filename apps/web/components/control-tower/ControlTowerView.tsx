@@ -16,12 +16,14 @@ import { SupremacyCommandCenter } from "./SupremacyCommandCenter";
 import { WhatsAppCommandCenter } from "./WhatsAppCommandCenter";
 import { OperationalGovernanceCenter } from "./OperationalGovernanceCenter";
 import { ControlTowerOverview } from "./ControlTowerOverview";
+import { ControlTowerDataPulse } from "./ControlTowerDataPulse";
+import { ControlTowerCopilot } from "./ControlTowerCopilot";
 import { findControlTowerSection } from "@/lib/control-tower/registry";
 import type { ControlTowerSectionId } from "@/lib/control-tower/types";
 import { useControlTowerLocale } from "./ControlTowerLocale";
 
 function Overview() {
-  return <ControlTowerOverview />;
+  return <div className="space-y-6"><ControlTowerDataPulse /><ControlTowerOverview /></div>;
 }
 
 function DomainWorkspace({ sectionId }: { sectionId: ControlTowerSectionId }) {
@@ -29,7 +31,7 @@ function DomainWorkspace({ sectionId }: { sectionId: ControlTowerSectionId }) {
   if (sectionId === "experience") return <ExperienceDesignStudio />;
   if (sectionId === "menu") return <><MenuAuthorityStudio /><div className="mt-6 grid gap-6"><ProductActionPanel /><MediaGovernanceAudit /><ProductMediaManager /></div></>;
   if (sectionId === "orders") return <SupremacyCommandCenter />;
-  if (sectionId === "customers") return <><DashboardGrid columns="two"><DashboardCard title="Customer workspace" eyebrow="Existing intelligence"><p className="text-sm leading-6 text-[var(--muted)]">Customer details remain permission-scoped in the existing intelligence dashboard. PR3 does not widen PII access.</p><Link href="/dashboard/customers" className="premium-button premium-button-ghost mt-4">Open customer intelligence</Link></DashboardCard><LoyaltyActionPanel /></DashboardGrid></>;
+  if (sectionId === "customers") return <><DashboardGrid columns="two"><DashboardCard title="Customer workspace" eyebrow="Existing intelligence"><p className="text-sm leading-6 text-[var(--muted)]">Customer details remain permission-scoped in the existing intelligence dashboard. P29 does not widen PII access.</p><Link href="/dashboard/customers" className="premium-button premium-button-ghost mt-4">Open customer intelligence</Link></DashboardCard><LoyaltyActionPanel /></DashboardGrid></>;
   if (sectionId === "marketing") return <SimpleLaunchOperationsCenter />;
   if (sectionId === "ai") return <><SimpleLaunchOperationsCenter /><div className="mt-6"><SupremacyCommandCenter /></div></>;
   if (sectionId === "analytics") return <DashboardGrid columns="two">{[{ label: "Revenue", href: "/dashboard/revenue" }, { label: "Customers", href: "/dashboard/customers" }, { label: "Operations", href: "/dashboard/operations" }, { label: "AI", href: "/dashboard/ai" }].map(({ label, href }) => <Link key={href} href={href} className="rounded-2xl border border-white/[0.08] bg-white/[0.03] p-5 transition hover:border-[var(--border-gold)]"><span className="text-xs uppercase tracking-[0.18em] text-[var(--muted)]">Existing dashboard</span><strong className="mt-2 block text-lg">{label}</strong></Link>)}</DashboardGrid>;
@@ -48,5 +50,6 @@ export function ControlTowerView({ sectionId }: { sectionId?: string }) {
     </header>
     {!isOverview ? <DashboardSection title={tr("Workspace scope")} description={tr("Only current, permission-backed capabilities are available here.")}><DashboardGrid columns="two">{section.capabilities.map((item) => <CapabilityCard key={item.title} capability={item} />)}</DashboardGrid></DashboardSection> : null}
     {isOverview ? <DomainWorkspace sectionId={section.id} /> : <DashboardSection title={tr(section.commandLabel)} description={tr("Actions are authenticated, validated, authorized and audited by the existing services.")}><DomainWorkspace sectionId={section.id} /></DashboardSection>}
+    <ControlTowerCopilot key={section.id} sectionId={section.id} />
   </div>;
 }
