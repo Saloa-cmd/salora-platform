@@ -1,12 +1,10 @@
-import { detectOperationalAlerts, getForecastingReadiness, getInventoryIntelligenceSnapshot, getOperationsSnapshot } from "@salora/backend";
 import { type NextRequest } from "next/server";
 import { handleIntelligenceRoute } from "@/lib/server/intelligenceHttp";
+import { databaseOperationsEnvelope, loadDatabaseIntelligence } from "@/lib/server/databaseIntelligence";
 
 export function GET(request: NextRequest) {
-  return handleIntelligenceRoute(request, () => ({
-    operations: getOperationsSnapshot(),
-    inventory: getInventoryIntelligenceSnapshot(),
-    alerts: detectOperationalAlerts(),
-    forecasting: getForecastingReadiness()
-  }));
+  return handleIntelligenceRoute(request, async (actor) => {
+    const snapshot = await loadDatabaseIntelligence({ userId: actor.userId, roles: actor.roles });
+    return databaseOperationsEnvelope(snapshot);
+  });
 }
