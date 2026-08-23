@@ -5,21 +5,22 @@ import { Text } from "@/components/Text";
 import { colors, radii, spacing } from "@/lib/theme";
 import { askMobileConcierge, type MobileConciergeResponse } from "@/services/aiConcierge";
 
+const defaultPrompt = "Something cold and not too sweet";
 const quickReplies = [
-  "Something cold and not too sweet",
+  defaultPrompt,
   "Coffee with dessert",
   "Matcha",
   "A calm evening drink"
-];
+] as const;
 
 export default function ConciergeScreen() {
-  const [prompt, setPrompt] = useState(quickReplies[0]);
+  const [prompt, setPrompt] = useState<string>(defaultPrompt);
   const [reply, setReply] = useState<MobileConciergeResponse | null>(null);
   const [message, setMessage] = useState("Tell SALORA your mood and I’ll use the published menu to help you choose.");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  async function ask(value = prompt) {
+  async function ask(value: string = prompt) {
     const normalized = value.trim();
     if (!normalized || loading) return;
     setPrompt(normalized);
