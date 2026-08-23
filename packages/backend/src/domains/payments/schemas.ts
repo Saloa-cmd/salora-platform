@@ -14,8 +14,7 @@ export const createPaymentIntentSchema = z.object({
 });
 
 export const confirmPaymentSchema = z.object({
-  paymentId: z.string().min(1),
-  providerPaymentIntentId: z.string().min(1).optional()
+  paymentId: z.string().min(1)
 });
 
 export const refundPaymentSchema = z.object({

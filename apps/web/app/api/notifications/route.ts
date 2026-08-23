@@ -2,8 +2,10 @@ import { listNotifications, notificationInputSchema, queueNotification } from "@
 import { type NextRequest } from "next/server";
 import { parseJson, requirePermission, responseError, responseJson } from "@/lib/server/domainHttp";
 
-export function GET(request: NextRequest) {
-  return responseJson(listNotifications(), request.headers.get("x-request-id") || crypto.randomUUID());
+export async function GET(request: NextRequest) {
+  const requestId = request.headers.get("x-request-id") || crypto.randomUUID();
+  if (!(await requirePermission(request, "system:read"))) return responseError("Forbidden.", requestId, 403);
+  return responseJson(listNotifications(), requestId);
 }
 
 export async function POST(request: NextRequest) {

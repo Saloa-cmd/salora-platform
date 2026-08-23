@@ -17,18 +17,27 @@ import {
 } from "../domains/payments/service";
 import type { ConfirmPaymentInput, CreatePaymentIntentInput, RefundPaymentInput } from "../domains/payments/schemas";
 import { recordPaymentFailure, recordPaymentIntent, recordPaymentLatency, recordPaymentProviderLatency, recordPaymentSuccess, recordPaymentWebhookDuplicate, recordPaymentWebhookFailure, recordRefund } from "./metrics";
+import { paymentsEnabled } from "./config";
 
 export async function createRevenuePaymentIntent(input: CreatePaymentIntentInput) {
   const started = Date.now();
+  if (!paymentsEnabled()) throw new Error("Payments are disabled.");
   assertNoCardData(input);
   await assertRateLimit(paymentRateLimitKey(input.customerId, input.orderId));
-  validateOrderForPayment(input.orderId);
+  const order = validateOrderForPayment(input.orderId);
+  const authoritativeInput: CreatePaymentIntentInput = {
+    ...input,
+    customerId: order.customerId,
+    amount: order.total,
+    currency: "OMR",
+    metadata: { ...input.metadata, orderId: order.id }
+  };
   const provider = getPaymentProvider();
   const providerStarted = Date.now();
-  const intent = await provider.createPaymentIntent({ ...input, idempotencyKey: input.idempotencyKey ?? `payment-${input.orderId}` });
+  const intent = await provider.createPaymentIntent({ ...authoritativeInput, idempotencyKey: input.idempotencyKey ?? `payment-${input.orderId}` });
   recordPaymentProviderLatency(provider.provider, Date.now() - providerStarted);
   const payment = createPaymentRecord({
-    ...input,
+    ...authoritativeInput,
     provider: provider.provider,
     providerPaymentId: intent.providerPaymentIntentId,
     status: intent.status,
@@ -41,10 +50,17 @@ export async function createRevenuePaymentIntent(input: CreatePaymentIntentInput
 }
 
 export async function confirmRevenuePayment(input: ConfirmPaymentInput) {
+  if (!paymentsEnabled()) throw new Error("Payments are disabled.");
   const payment = getPayment(input.paymentId);
   if (!payment) throw new Error("Payment not found.");
   const provider = getPaymentProvider(payment.provider === "stripe" ? "stripe" : "mock");
-  const result = await provider.confirmPayment(input.providerPaymentIntentId ?? payment.providerPaymentId ?? payment.id);
+  const providerPaymentId = payment.providerPaymentId;
+  if (!providerPaymentId) throw new Error("Payment provider reference is missing.");
+  const result = await provider.confirmPayment(providerPaymentId);
+  const amountMatches = Math.round(result.amount * 1000) === Math.round(payment.amount * 1000);
+  if (result.providerPaymentIntentId !== providerPaymentId || !amountMatches || result.currency !== payment.currency) {
+    throw new Error("Payment provider response did not match the expected payment.");
+  }
   if (result.status === "PAID") {
     recordPaymentSuccess();
     const updated = markPaymentSucceeded(payment.id, result.providerPaymentIntentId);

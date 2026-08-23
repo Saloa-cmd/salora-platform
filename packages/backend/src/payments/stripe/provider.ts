@@ -49,7 +49,8 @@ export class StripePaymentProvider implements PaymentProvider {
         "idempotency-key": input.idempotencyKey ?? `salora-${input.orderId}`,
         "content-type": "application/x-www-form-urlencoded"
       },
-      body
+      body,
+      signal: AbortSignal.timeout(env.PAYMENT_INTENT_TIMEOUT_MS)
     });
     if (!response.ok) throw new Error(`Stripe payment intent failed: ${response.status}`);
     const data = await response.json() as { id: string; status?: string; amount: number; currency: string; client_secret?: string };
@@ -68,7 +69,8 @@ export class StripePaymentProvider implements PaymentProvider {
     const env = this.assertReady();
     const response = await fetch(`https://api.stripe.com/v1/payment_intents/${paymentIntentId}/confirm`, {
       method: "POST",
-      headers: { authorization: `Bearer ${env.STRIPE_SECRET_KEY}`, "stripe-version": env.STRIPE_API_VERSION }
+      headers: { authorization: `Bearer ${env.STRIPE_SECRET_KEY}`, "stripe-version": env.STRIPE_API_VERSION },
+      signal: AbortSignal.timeout(env.PAYMENT_INTENT_TIMEOUT_MS)
     });
     if (!response.ok) throw new Error(`Stripe confirm failed: ${response.status}`);
     const data = await response.json() as { id: string; status?: string; amount: number; currency: string };
@@ -79,7 +81,8 @@ export class StripePaymentProvider implements PaymentProvider {
     const env = this.assertReady();
     const response = await fetch(`https://api.stripe.com/v1/payment_intents/${paymentIntentId}/cancel`, {
       method: "POST",
-      headers: { authorization: `Bearer ${env.STRIPE_SECRET_KEY}`, "stripe-version": env.STRIPE_API_VERSION }
+      headers: { authorization: `Bearer ${env.STRIPE_SECRET_KEY}`, "stripe-version": env.STRIPE_API_VERSION },
+      signal: AbortSignal.timeout(env.PAYMENT_INTENT_TIMEOUT_MS)
     });
     if (!response.ok) throw new Error(`Stripe cancel failed: ${response.status}`);
     const data = await response.json() as { id: string; status?: string; amount: number; currency: string };
@@ -97,7 +100,8 @@ export class StripePaymentProvider implements PaymentProvider {
         "idempotency-key": input.idempotencyKey ?? `refund-${input.paymentId}`,
         "content-type": "application/x-www-form-urlencoded"
       },
-      body: new URLSearchParams({ payment_intent: input.providerPaymentIntentId, amount: String(Math.round(input.amount * 1000)) })
+      body: new URLSearchParams({ payment_intent: input.providerPaymentIntentId, amount: String(Math.round(input.amount * 1000)) }),
+      signal: AbortSignal.timeout(env.PAYMENT_INTENT_TIMEOUT_MS)
     });
     if (!response.ok) throw new Error(`Stripe refund failed: ${response.status}`);
     const data = await response.json() as { id: string; status?: string; amount: number; currency: string };
@@ -142,7 +146,8 @@ export class StripePaymentProvider implements PaymentProvider {
   async getPaymentStatus(paymentIntentId: string): Promise<PaymentStatus> {
     const env = this.assertReady();
     const response = await fetch(`https://api.stripe.com/v1/payment_intents/${paymentIntentId}`, {
-      headers: { authorization: `Bearer ${env.STRIPE_SECRET_KEY}`, "stripe-version": env.STRIPE_API_VERSION }
+      headers: { authorization: `Bearer ${env.STRIPE_SECRET_KEY}`, "stripe-version": env.STRIPE_API_VERSION },
+      signal: AbortSignal.timeout(env.PAYMENT_INTENT_TIMEOUT_MS)
     });
     if (!response.ok) throw new Error(`Stripe status failed: ${response.status}`);
     const data = await response.json() as { status?: string };
@@ -152,7 +157,8 @@ export class StripePaymentProvider implements PaymentProvider {
   async getRefundStatus(refundId: string): Promise<RefundStatus> {
     const env = this.assertReady();
     const response = await fetch(`https://api.stripe.com/v1/refunds/${refundId}`, {
-      headers: { authorization: `Bearer ${env.STRIPE_SECRET_KEY}`, "stripe-version": env.STRIPE_API_VERSION }
+      headers: { authorization: `Bearer ${env.STRIPE_SECRET_KEY}`, "stripe-version": env.STRIPE_API_VERSION },
+      signal: AbortSignal.timeout(env.PAYMENT_INTENT_TIMEOUT_MS)
     });
     if (!response.ok) throw new Error(`Stripe refund status failed: ${response.status}`);
     const data = await response.json() as { status?: string };

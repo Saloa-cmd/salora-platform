@@ -15,7 +15,7 @@
 SALORA_ADMIN_BOOTSTRAP_ENABLED=true
 SALORA_ADMIN_BOOTSTRAP_EMAIL=admin@salora.cafe
 SALORA_ADMIN_BOOTSTRAP_NAME=SALORA Admin
-SALORA_ADMIN_BOOTSTRAP_PASSWORD=SaloraCtrlTower2026!@#$
+SALORA_ADMIN_BOOTSTRAP_PASSWORD=[REDACTED—ROTATE_IMMEDIATELY]
 ```
 
 **Status:** ✅ ALL VARIABLES PRESENT
@@ -60,7 +60,7 @@ pnpm bootstrap:admin
 2. **Validate SALORA_ADMIN_BOOTSTRAP_ENABLED** → Must equal "true"
 3. **Validate Email** → admin@salora.cafe (lowercase)
 4. **Validate Name** → SALORA Admin
-5. **Validate Password** → SaloraCtrlTower2026!@#$ (24 chars > 16 min)
+5. **Validate Password** → `[REDACTED—ROTATE_IMMEDIATELY]`
 6. **Connect Prisma** → Connect to Supabase PostgreSQL
 7. **Hash Password** → Argon2id hash
 8. **Upsert Role** → Ensure "ADMIN" role exists

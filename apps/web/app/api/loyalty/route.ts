@@ -2,8 +2,10 @@ import { awardLoyaltyPoints, listLoyaltyEntries, loyaltyInputSchema } from "@sal
 import { type NextRequest } from "next/server";
 import { parseJson, requirePermission, responseError, responseJson } from "@/lib/server/domainHttp";
 
-export function GET(request: NextRequest) {
-  return responseJson(listLoyaltyEntries(), request.headers.get("x-request-id") || crypto.randomUUID());
+export async function GET(request: NextRequest) {
+  const requestId = request.headers.get("x-request-id") || crypto.randomUUID();
+  if (!(await requirePermission(request, "staff:read"))) return responseError("Forbidden.", requestId, 403);
+  return responseJson(listLoyaltyEntries(), requestId);
 }
 
 export async function POST(request: NextRequest) {

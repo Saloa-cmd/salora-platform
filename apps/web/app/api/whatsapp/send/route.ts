@@ -1,6 +1,6 @@
 import { createWhatsAppEnterpriseService, validateWhatsAppSend } from "@salora/backend";
 import { type NextRequest } from "next/server";
-import { responseError, responseJson } from "@/lib/server/domainHttp";
+import { requirePermission, responseError, responseJson } from "@/lib/server/domainHttp";
 import { enforceRateLimit, rateLimitResponse } from "@/lib/server/rateLimit";
 
 export const dynamic = "force-dynamic";
@@ -9,6 +9,9 @@ export const runtime = "nodejs";
 export async function POST(request: NextRequest) {
   const correlationId = request.headers.get("x-correlation-id") || request.headers.get("x-request-id") || crypto.randomUUID();
   try {
+    if (!(await requirePermission(request, "system:write"))) {
+      return responseError("Forbidden.", correlationId, 403);
+    }
     await enforceRateLimit(request, "whatsapp");
     const body = await request.json().catch(() => null);
     const parsed = validateWhatsAppSend({ ...(body ?? {}), correlationId: body?.correlationId ?? correlationId });
