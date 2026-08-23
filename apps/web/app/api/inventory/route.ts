@@ -2,8 +2,10 @@ import { inventoryInputSchema, listInventoryMovements, recordInventoryMovement }
 import { type NextRequest } from "next/server";
 import { parseJson, requirePermission, responseError, responseJson } from "@/lib/server/domainHttp";
 
-export function GET(request: NextRequest) {
-  return responseJson(listInventoryMovements(), request.headers.get("x-request-id") || crypto.randomUUID());
+export async function GET(request: NextRequest) {
+  const requestId = request.headers.get("x-request-id") || crypto.randomUUID();
+  if (!(await requirePermission(request, "catalog:read"))) return responseError("Forbidden.", requestId, 403);
+  return responseJson(listInventoryMovements(), requestId);
 }
 
 export async function POST(request: NextRequest) {

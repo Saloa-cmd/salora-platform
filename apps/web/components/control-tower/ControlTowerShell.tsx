@@ -6,7 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useState, type ReactNode } from "react";
 import type { RoleName } from "@/lib/server/auth/types";
 import type { ControlTowerSectionId } from "@/lib/control-tower/types";
-import { controlTowerSections } from "@/lib/control-tower/registry";
+import { controlTowerNavigationGroups, controlTowerSections } from "@/lib/control-tower/registry";
 import { SaloraIcon } from "@/components/ui/SaloraIcon";
 import { ThemeControl } from "@/components/ui/ThemeControl";
 import { ControlTowerLocaleProvider, useControlTowerLocale } from "./ControlTowerLocale";
@@ -24,6 +24,10 @@ function ShellContent({ children, visibleSections, actor }: ShellProps) {
   const [paletteOpen, setPaletteOpen] = useState(false);
   const sections = controlTowerSections.filter((section) => visibleSections.includes(section.id));
   const active = sections.find((section) => pathname === `/control-tower/${section.id}`) ?? sections[0];
+  const navigationGroups = controlTowerNavigationGroups.map((group) => ({
+    ...group,
+    sections: sections.filter((section) => (group.sections as readonly string[]).includes(section.id))
+  })).filter((group) => group.sections.length > 0);
 
   async function signOut() { await fetch("/api/auth/logout", { method: "POST", credentials: "include" }); router.replace("/login"); router.refresh(); }
 
@@ -44,14 +48,25 @@ function ShellContent({ children, visibleSections, actor }: ShellProps) {
           </div>
           <nav className="flex-1 overflow-y-auto p-3" aria-label={tr("Primary navigation")}>
             <p className={`${collapsed ? "sr-only" : "px-3 pb-2 pt-1"} text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--muted)]`}>{tr("Workspace")}</p>
-            <div className="grid gap-1">
-              {sections.map((section) => {
-                const current = pathname === `/control-tower/${section.id}` || (pathname === "/control-tower" && section.id === "overview");
-                return <Link key={section.id} href={`/control-tower/${section.id}`} aria-current={current ? "page" : undefined} title={collapsed ? tr(section.label) : undefined} onClick={() => setMobileOpen(false)} className={`group relative flex min-h-11 items-center rounded-xl ${collapsed ? "justify-center" : "gap-3 px-3"} ${current ? "bg-[var(--gold)]/12 text-[var(--gold-soft)]" : "text-[var(--muted)] hover:bg-white/[0.05] hover:text-[var(--cream)]"}`}>
-                  {current ? <span className="absolute inset-y-3 start-0 w-0.5 rounded-full bg-[var(--gold)]" /> : null}
-                  <SaloraIcon name={section.icon} className="h-[18px] w-[18px] shrink-0" />
-                  {!collapsed ? <span className="truncate text-sm font-medium">{tr(section.label)}</span> : null}
-                </Link>;
+            <div className="grid gap-1.5">
+              {navigationGroups.map((group) => {
+                const groupActive = group.sections.some((section) => pathname === `/control-tower/${section.id}`)
+                  || (pathname === "/control-tower" && group.key === "overview");
+                const target = group.sections[0];
+                if (!target) return null;
+                return <div key={group.key} className={groupActive && !collapsed ? "rounded-xl bg-white/[0.025] pb-1" : undefined}>
+                  <Link href={`/control-tower/${target.id}`} aria-current={groupActive ? "page" : undefined} title={collapsed ? tr(group.label) : undefined} onClick={() => setMobileOpen(false)} className={`group relative flex min-h-11 items-center rounded-xl ${collapsed ? "justify-center" : "gap-3 px-3"} ${groupActive ? "bg-[var(--gold)]/12 text-[var(--gold-soft)]" : "text-[var(--muted)] hover:bg-white/[0.05] hover:text-[var(--cream)]"}`}>
+                    {groupActive ? <span className="absolute inset-y-3 start-0 w-0.5 rounded-full bg-[var(--gold)]" /> : null}
+                    <SaloraIcon name={group.icon} className="h-[18px] w-[18px] shrink-0" />
+                    {!collapsed ? <span className="truncate text-sm font-medium">{tr(group.label)}</span> : null}
+                  </Link>
+                  {groupActive && !collapsed && group.sections.length > 1 ? <div className="ms-5 mt-1 grid border-s border-white/[0.08] ps-3">
+                    {group.sections.map((section) => {
+                      const current = pathname === `/control-tower/${section.id}`;
+                      return <Link key={section.id} href={`/control-tower/${section.id}`} onClick={() => setMobileOpen(false)} className={`rounded-lg px-3 py-2 text-xs transition ${current ? "text-[var(--gold-soft)]" : "text-[var(--muted)] hover:text-[var(--cream)]"}`}>{tr(section.label)}</Link>;
+                    })}
+                  </div> : null}
+                </div>;
               })}
             </div>
           </nav>

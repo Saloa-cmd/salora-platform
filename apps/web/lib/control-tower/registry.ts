@@ -15,6 +15,14 @@ export const controlTowerSections: readonly ControlTowerSection[] = [
   { id: "settings", label: "Settings", icon: "settings", readPermission: "system:read", commandLabel: "Open settings", keywords: ["general", "brand", "languages", "users", "roles", "permissions", "audit", "integrations"], description: "Governed configuration, access and audit surfaces—not a generic database administration console.", capabilities: [capability("RBAC and audit", "Uses current roles, server permission checks and protected audit services.", "Security"), capability("Runtime configuration", "Existing typed, non-secret configuration remains server-controlled.", "Platform")] }
 ] as const;
 
+export const controlTowerNavigationGroups = [
+  { key: "overview", label: "Overview", icon: "dashboard", sections: ["overview"] },
+  { key: "experience", label: "Experience", icon: "pages", sections: ["experience"] },
+  { key: "commerce", label: "Commerce", icon: "orders", sections: ["menu", "orders", "customers"] },
+  { key: "growth", label: "Growth", icon: "analytics", sections: ["marketing", "ai", "analytics"] },
+  { key: "operations", label: "Operations", icon: "settings", sections: ["operations", "settings"] }
+] as const;
+
 export const legacyControlTowerSectionAliases: Readonly<Record<string, ControlTowerSectionId>> = { executive: "overview", revenue: "analytics", inventory: "menu", loyalty: "customers", whatsapp: "operations", instagram: "marketing", notifications: "operations", content: "experience", "menu-authority": "menu", automation: "operations", integrations: "operations" };
 export function findControlTowerSection(id?: string): ControlTowerSection { const canonicalId = id ? legacyControlTowerSectionAliases[id] ?? id : "overview"; const section = controlTowerSections.find((item) => item.id === canonicalId) ?? controlTowerSections[0]; if (!section) throw new Error("Control Tower registry must include Overview."); return section; }
 export const validControlTowerSectionIds = controlTowerSections.map((section) => section.id) as ControlTowerSectionId[];

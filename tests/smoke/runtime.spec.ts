@@ -24,8 +24,14 @@ test("login shell renders with matching CSP nonces", async ({ page }) => {
 
   const response = await page.goto("/login", { waitUntil: "networkidle" });
   expect(response?.status()).toBe(200);
-  await expect(page.getByRole("heading", { name: "Control Tower" })).toBeVisible();
-  await expect(page.getByLabel("Email Address")).toBeFocused();
+  await expect(page.getByRole("heading", { name: "تسجيل الدخول" })).toBeVisible();
+  await expect(page.getByLabel("البريد الإلكتروني")).toBeFocused();
+  await expect(page.locator("main")).toHaveAttribute("dir", "rtl");
+
+  await page.getByRole("button", { name: "Switch to English" }).click();
+  await expect(page.getByRole("heading", { name: "Sign in" })).toBeVisible();
+  await expect(page.getByLabel("Email address")).toBeVisible();
+  await expect(page.locator("main")).toHaveAttribute("dir", "ltr");
 
   const policy = response?.headers()["content-security-policy"] ?? "";
   const scriptSource = cspDirective(policy, "script-src");

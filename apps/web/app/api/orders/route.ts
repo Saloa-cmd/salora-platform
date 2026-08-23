@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
     await enforceRateLimit(request, "orders");
     const parsed = await parseJson(request, codOrderSchema);
     if (!parsed.success) return responseError("Invalid COD order payload.", requestId);
-    const order = await createCodOrder(parsed.data);
+    const order = await createCodOrder({ ...parsed.data, customerId: undefined });
     await notifyWhatsAppOrderEvent({
       event: "ORDER_CREATED",
       orderId: order.id,
@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
     }).catch(() => undefined);
     await writeActivity({ action: "order.codCreate.public", entityType: "CafeOrder", entityId: order.id, requestId, metadata: { paymentMethod: "COD" } });
     await writeAudit({ action: "CREATE", entityType: "CafeOrder", entityId: order.id, after: order, requestId, reason: "Public COD checkout order created" });
-    return responseJson(order, requestId, 201);
+    return responseJson({ ...order, customer: undefined }, requestId, 201);
   } catch (error) {
     const limited = rateLimitResponse(error, requestId);
     if (limited) return limited;

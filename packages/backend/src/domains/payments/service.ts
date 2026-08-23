@@ -216,7 +216,8 @@ export function getOrderPaymentState(orderId: string) {
   return store.orderPaymentStates.get(orderId) ?? "UNPAID";
 }
 
-export function validateOrderForPayment(orderId: string): void {
+export function validateOrderForPayment(orderId: string) {
   const order = listOrders().find((item) => item.id === orderId);
   if (!order) throw new Error("Order not found.");
+  return order;
 }

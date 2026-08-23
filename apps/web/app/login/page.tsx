@@ -1,206 +1,84 @@
 "use client";
 
-import { useState, FormEvent, useRef, useEffect } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
-import { motion } from "framer-motion";
-import { Coffee, AlertCircle, ChevronRight } from "lucide-react";
+import { AlertCircle, ArrowLeft, ArrowRight, LockKeyhole } from "lucide-react";
+import { ThemeControl } from "@/components/ui/ThemeControl";
 
 export default function LoginPage() {
   const router = useRouter();
+  const [locale, setLocale] = useState<"ar" | "en">("ar");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const emailInputRef = useRef<HTMLInputElement>(null);
+  const isArabic = locale === "ar";
+  const copy = (ar: string, en: string) => isArabic ? ar : en;
+  const Arrow = isArabic ? ArrowLeft : ArrowRight;
 
-  useEffect(() => {
-    // Focus email input on mount for accessibility
-    emailInputRef.current?.focus();
-  }, []);
+  useEffect(() => { emailInputRef.current?.focus(); }, []);
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     setError("");
     setLoading(true);
 
     try {
       const response = await fetch("/api/auth/login", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        credentials: "include", // Important for HTTP-only cookies
-        body: JSON.stringify({
-          email: email.trim(),
-          password
-        })
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ email: email.trim(), password })
       });
 
-      const data = await response.json();
-
       if (!response.ok) {
-        // Show safe error message
-        setError("Invalid email or password. Please try again.");
+        setError(copy("البريد الإلكتروني أو كلمة المرور غير صحيحة.", "The email or password is incorrect."));
         return;
       }
 
-      // Success - redirect to control tower
-      // The HTTP-only cookie is automatically stored by the browser
-      router.push("/control-tower/content");
+      const requested = new URLSearchParams(window.location.search).get("next");
+      const destination = requested?.startsWith("/control-tower") ? requested : "/control-tower/overview";
+      router.replace(destination);
       router.refresh();
     } catch {
-      setError("Connection error. Please try again.");
+      setError(copy("تعذر الاتصال. تحقق من الشبكة وحاول مجددًا.", "Connection failed. Check your network and try again."));
     } finally {
       setLoading(false);
     }
   };
 
-  return (
-    <main className="min-h-screen bg-gradient-to-br from-[#050505] via-[#0a0805] to-[#050505] flex items-center justify-center px-4">
-      {/* Ambient background */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-[#C9A45C]/5 rounded-full blur-3xl" aria-hidden="true" />
-        <div className="absolute bottom-1/4 left-1/3 w-80 h-80 bg-[#9CAF88]/5 rounded-full blur-3xl" aria-hidden="true" />
+  return <main id="main-content" dir={isArabic ? "rtl" : "ltr"} lang={locale} className="relative grid min-h-screen bg-[var(--background)] text-[var(--cream)] lg:grid-cols-[minmax(20rem,.8fr)_minmax(28rem,1.2fr)]">
+    <a href="#login-form" className="skip-link">{copy("انتقل إلى نموذج الدخول", "Skip to sign in")}</a>
+    <aside className="relative hidden overflow-hidden border-e border-[var(--border-subtle)] bg-[var(--surface)] p-10 lg:flex lg:flex-col lg:justify-between xl:p-14" aria-label={copy("تعريف منصة التحكم", "Control Tower introduction")}>
+      <div><p className="text-lg font-semibold tracking-[0.24em] text-[var(--gold-soft)]">SALORA</p><p className="mt-2 text-xs uppercase tracking-[0.2em] text-[var(--muted)]">Control Tower</p></div>
+      <div className="max-w-md">
+        <span className="mb-6 grid h-12 w-12 place-items-center rounded-xl border border-[var(--border-gold)] text-[var(--gold-soft)]"><LockKeyhole className="h-5 w-5" aria-hidden="true" /></span>
+        <h2 className="text-4xl font-semibold leading-tight tracking-tight xl:text-5xl">{copy("كل ما تحتاجه لتشغيل سالورا، في مكان واحد.", "Everything you need to operate SALORA, in one place.")}</h2>
+        <p className="mt-5 max-w-sm text-sm leading-7 text-[var(--muted)]">{copy("وصول آمن للفريق إلى التجربة والتجارة والنمو والتشغيل.", "Secure team access to experience, commerce, growth and operations.")}</p>
+      </div>
+      <p className="text-xs text-[var(--muted)]">{copy("الدخول مخصص لفريق سالورا المصرّح له.", "Access is restricted to authorized SALORA operators.")}</p>
+    </aside>
+
+    <section className="flex min-h-screen flex-col px-5 py-5 sm:px-8 lg:px-14 xl:px-24">
+      <div className="flex items-center justify-between gap-3">
+        <div className="lg:hidden"><p className="font-semibold tracking-[0.2em] text-[var(--gold-soft)]">SALORA</p><p className="mt-1 text-[10px] uppercase tracking-[0.18em] text-[var(--muted)]">Control Tower</p></div>
+        <div className="ms-auto flex items-center gap-2"><ThemeControl locale={locale} /><button type="button" onClick={() => setLocale(isArabic ? "en" : "ar")} className="min-h-11 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] px-3 text-xs font-semibold transition hover:border-[var(--border-gold)]" aria-label={isArabic ? "Switch to English" : "التبديل إلى العربية"}>{isArabic ? "EN" : "ع"}</button></div>
       </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className="relative z-10 w-full max-w-md"
-      >
-        {/* Header */}
-        <div className="mb-8 text-center">
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="flex justify-center mb-4"
-          >
-            <div className="flex items-center gap-3 px-4 py-2 rounded-full bg-white/[0.03] border border-[#C9A45C]/15 backdrop-blur-xl">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#C9A45C]/20">
-                <Coffee className="h-4 w-4 text-[#C9A45C]" aria-hidden="true" />
-              </div>
-              <span className="text-sm font-semibold tracking-[0.24em] text-[#F5EFE3]">SALORA</span>
-            </div>
-          </motion.div>
+      <div className="mx-auto flex w-full max-w-md flex-1 items-center py-12"><div className="w-full">
+        <p className="text-xs font-semibold text-[var(--gold-soft)]">{copy("وصول الفريق", "TEAM ACCESS")}</p>
+        <h1 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">{copy("تسجيل الدخول", "Sign in")}</h1>
+        <p className="mt-3 text-sm leading-6 text-[var(--muted)]">{copy("أدخل بيانات حسابك للانتقال إلى النظرة العامة.", "Use your account to continue to the operational overview.")}</p>
 
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
-            <h1 className="text-3xl md:text-4xl font-semibold text-[#F5EFE3] mb-2 tracking-tight">
-              Control Tower
-            </h1>
-            <p className="text-[#9C9387] text-sm">
-              Sign in to your SALORA administrative dashboard
-            </p>
-          </motion.div>
-        </div>
-
-        {/* Login Form */}
-        <motion.form
-          onSubmit={handleSubmit}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className="space-y-5"
-        >
-          {/* Error Message */}
-          {error && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="flex items-start gap-3 p-3 rounded-lg bg-red-950/30 border border-red-900/50 backdrop-blur-xl"
-              role="alert"
-            >
-              <AlertCircle className="h-4 w-4 text-red-400 shrink-0 mt-0.5" aria-hidden="true" />
-              <p className="text-sm text-red-200">{error}</p>
-            </motion.div>
-          )}
-
-          {/* Email Field */}
-          <div>
-            <label htmlFor="email" className="block text-sm font-semibold text-[#F5EFE3] mb-2">
-              Email Address
-            </label>
-            <input
-              ref={emailInputRef}
-              id="email"
-              type="email"
-              name="email"
-              autoComplete="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              disabled={loading}
-              placeholder="admin@salora.cafe"
-              className="w-full px-4 py-3 rounded-lg bg-white/[0.03] border border-[#C9A45C]/20 text-[#F5EFE3] placeholder-[#9C9387] focus:outline-none focus:border-[#C9A45C]/50 focus:ring-1 focus:ring-[#C9A45C]/30 disabled:opacity-50 transition"
-            />
-          </div>
-
-          {/* Password Field */}
-          <div>
-            <label htmlFor="password" className="block text-sm font-semibold text-[#F5EFE3] mb-2">
-              Password
-            </label>
-            <input
-              id="password"
-              type="password"
-              name="password"
-              autoComplete="current-password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              disabled={loading}
-              placeholder="••••••••"
-              className="w-full px-4 py-3 rounded-lg bg-white/[0.03] border border-[#C9A45C]/20 text-[#F5EFE3] placeholder-[#9C9387] focus:outline-none focus:border-[#C9A45C]/50 focus:ring-1 focus:ring-[#C9A45C]/30 disabled:opacity-50 transition"
-            />
-          </div>
-
-          {/* Submit Button */}
-          <motion.button
-            type="submit"
-            disabled={loading}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className="w-full mt-6 px-4 py-3 rounded-lg font-semibold text-black bg-gradient-to-r from-[#C9A45C] to-[#E7D3A1] hover:shadow-[0_0_80px_rgba(201,164,92,0.16)] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
-          >
-            {loading ? (
-              <>
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                  className="h-4 w-4 border-2 border-black border-t-transparent rounded-full"
-                />
-                <span>Signing in...</span>
-              </>
-            ) : (
-              <>
-                <span>Sign In</span>
-                <ChevronRight className="h-4 w-4" aria-hidden="true" />
-              </>
-            )}
-          </motion.button>
-        </motion.form>
-
-        {/* Footer Info */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="mt-8 pt-6 border-t border-[#C9A45C]/10 text-center text-xs text-[#9C9387]"
-        >
-          <p>SALORA Admin Access • Secure Authentication</p>
-        </motion.div>
-      </motion.div>
-
-      {/* Skip to main link for accessibility */}
-      <a href="#main-content" className="sr-only focus:not-sr-only">
-        Skip to main content
-      </a>
-    </main>
-  );
+        <form id="login-form" onSubmit={handleSubmit} className="mt-8 space-y-5" aria-busy={loading}>
+          {error ? <div className="flex items-start gap-3 rounded-xl border border-red-400/25 bg-red-400/[0.07] p-3" role="alert"><AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-red-400" aria-hidden="true" /><p className="text-sm text-red-200">{error}</p></div> : null}
+          <div><label htmlFor="email" className="mb-2 block text-sm font-semibold">{copy("البريد الإلكتروني", "Email address")}</label><input ref={emailInputRef} id="email" type="email" name="email" autoComplete="email" required value={email} onChange={(event) => setEmail(event.target.value)} disabled={loading} placeholder="name@salora.cafe" className="min-h-12 w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] px-4 text-sm outline-none transition placeholder:text-[var(--muted)] focus:border-[var(--border-gold)] disabled:opacity-50" /></div>
+          <div><label htmlFor="password" className="mb-2 block text-sm font-semibold">{copy("كلمة المرور", "Password")}</label><input id="password" type="password" name="password" autoComplete="current-password" required value={password} onChange={(event) => setPassword(event.target.value)} disabled={loading} placeholder="••••••••" className="min-h-12 w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] px-4 text-sm outline-none transition placeholder:text-[var(--muted)] focus:border-[var(--border-gold)] disabled:opacity-50" /></div>
+          <button type="submit" disabled={loading} className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[var(--cream)] px-4 text-sm font-semibold text-[var(--background)] transition hover:opacity-90 disabled:opacity-50"><span>{loading ? copy("جارٍ التحقق…", "Checking…") : copy("دخول آمن", "Secure sign in")}</span><Arrow className="h-4 w-4" aria-hidden="true" /></button>
+        </form>
+        <p className="mt-6 text-center text-xs leading-5 text-[var(--muted)]">{copy("تُدار الجلسة عبر ملفات ارتباط آمنة ومقيّدة.", "Your session is handled with secure, restricted cookies.")}</p>
+      </div></div>
+    </section>
+  </main>;
 }
