@@ -13,7 +13,7 @@
     "prebuild": "node scripts/toolchain-doctor.mjs --enforce",
     "build": "pnpm build:web",
     "lint": "pnpm lint:web",
-    "pretest": "node scripts/toolchain-doctor.mjs --enforce && node scripts/p25-theme-icon-infrastructure.test.mjs && node scripts/p25-control-tower-experience-studio.test.mjs && node scripts/p26-security-hardening.test.mjs",
+    "pretest": "node scripts/toolchain-doctor.mjs --enforce && node scripts/p25-theme-icon-infrastructure.test.mjs && node scripts/p25-control-tower-experience-studio.test.mjs && node scripts/p26-security-hardening.test.mjs && node scripts/p30-control-tower-unification.test.mjs",
     "test": "pnpm typecheck && node scripts/p28-resilient-experience.test.mjs && node scripts/prisma-transaction-concurrency.test.mjs && node --experimental-strip-types scripts/runtime-security-controls.test.mjs && node scripts/rate-limit.test.mjs && node scripts/content-platform.test.mjs && node scripts/unified-experience.test.mjs && node scripts/p25-experience-foundation.test.mjs && node --experimental-strip-types scripts/order-integrity.test.mjs && node scripts/verify-salora-menu.mjs && node --experimental-strip-types scripts/menu-collections-domain.test.mjs && node scripts/menu-collections-hardening.test.mjs && node scripts/p22c3a-production-schema-only.test.mjs && node scripts/menu-authority-integration.test.mjs && node scripts/menu-operator-workflow.test.mjs && node scripts/verify-data.mjs && node --experimental-strip-types scripts/auth-foundation.test.mjs && node scripts/infrastructure-foundation.test.mjs && node scripts/business-domain.test.mjs && node scripts/ai-gateway.test.mjs && node scripts/ai-runtime.test.mjs && node scripts/omnichannel-platform.test.mjs && node scripts/production-activation.test.mjs && node scripts/go-live-validation.mjs && node scripts/revenue-platform.test.mjs && node scripts/operations-intelligence.test.mjs && node scripts/p22c3c-production-ddl-gate.test.mjs && node --experimental-strip-types scripts/p22c3c-gate-retirement.test.mjs",
     "bootstrap:admin": "node --experimental-strip-types scripts/bootstrap-admin.mjs",
     "seed:salora-menu": "node --experimental-strip-types prisma/seed.salora-menu.ts",
@@ -42,7 +42,8 @@
     "test:p25-theme-icons": "node scripts/p25-theme-icon-infrastructure.test.mjs",
     "test:p25-control-tower": "node scripts/p25-control-tower-experience-studio.test.mjs",
     "test:p26-security-hardening": "node scripts/p26-security-hardening.test.mjs",
-    "test:p28-resilience": "node scripts/p28-resilient-experience.test.mjs"
+    "test:p28-resilience": "node scripts/p28-resilient-experience.test.mjs",
+    "test:p30-control-tower": "node scripts/p30-control-tower-unification.test.mjs"
   },
   "packageManager": "pnpm@11.7.0",
   "engines": {
