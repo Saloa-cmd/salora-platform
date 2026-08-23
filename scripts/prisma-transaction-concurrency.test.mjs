@@ -137,6 +137,39 @@ assert.match(
   "The Prisma adapter workaround must remain documented."
 );
 
+const legacyCatalogRead = between(
+  menuAuthority,
+  "async function readLegacyCatalog()",
+  "async function loadAuthority()",
+  "legacy catalog read"
+);
+assert.doesNotMatch(
+  legacyCatalogRead,
+  /\binclude\s*:/,
+  "Legacy catalog relations must use explicit bulk reads rather than concurrent include branches."
+);
+assert.doesNotMatch(
+  legacyCatalogRead,
+  /Promise\.all\s*\(/,
+  "Legacy catalog relation reads must remain sequential on one transaction client."
+);
+for (const modelRead of [
+  "database.catalogProduct.findMany",
+  "database.productCategory.findMany",
+  "database.productImage.findMany",
+  "database.productVariant.findMany",
+  "database.productAddon.findMany",
+  "database.productModifier.findMany",
+  "database.pricingRule.findMany",
+  "database.availabilityRule.findMany"
+]) {
+  assert.match(
+    legacyCatalogRead,
+    new RegExp(`await ${modelRead.replaceAll(".", "\\.")}`),
+    `Legacy menu authority must await ${modelRead}.`
+  );
+}
+
 const rlsContext = read("packages/backend/src/database/rls-context.ts");
 assert.match(
   rlsContext,
