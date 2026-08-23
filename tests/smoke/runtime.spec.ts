@@ -74,7 +74,7 @@ test("login distinguishes invalid credentials from service outages", async ({ pa
   const response = await loginResponse;
   expect([401, 503]).toContain(response.status());
 
-  const alert = page.getByRole("alert");
+  const alert = page.getByRole("alert").filter({ hasText: /\S/ });
   await expect(alert).toBeVisible();
 
   if (response.status() === 401) {
