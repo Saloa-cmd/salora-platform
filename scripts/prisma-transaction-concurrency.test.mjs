@@ -103,6 +103,26 @@ assert.doesNotMatch(
   "Media summary reads must be sequential inside cms.run."
 );
 
+const homePage = read("apps/web/app/page.tsx");
+const menuPage = read("apps/web/app/menu/page.tsx");
+for (const [label, source] of [
+  ["homepage database reads", homePage],
+  ["menu-page database reads", menuPage]
+]) {
+  assert.doesNotMatch(
+    source,
+    /Promise\.all\s*\(/,
+    `${label} must not overlap RLS-scoped Prisma transactions.`
+  );
+}
+
+const readyRoute = read("apps/web/app/api/ready/route.ts");
+assert.doesNotMatch(
+  readyRoute,
+  /Promise\.all\s*\(\s*\[\s*Promise\.all/,
+  "Readiness must not overlap database health and menu-authority Prisma reads."
+);
+
 const rlsContext = read("packages/backend/src/database/rls-context.ts");
 assert.match(
   rlsContext,
@@ -114,4 +134,5 @@ console.log("Prisma transaction concurrency regression passed:");
 console.log("- overlapping single-client calls reproduced without a database");
 console.log("- menu publication and rollback reads are sequential");
 console.log("- WhatsApp and media transaction reads are sequential");
+console.log("- public web and readiness database reads do not overlap");
 console.log("- no Production database connection or write was attempted");

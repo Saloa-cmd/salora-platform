@@ -9,14 +9,14 @@ import {
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const [infrastructure, menuSnapshot] = await Promise.all([
-    Promise.all([
-      databaseHealth(),
-      redisHealth(),
-      queueHealth()
-    ]),
-    getPublicMenuSnapshot()
+  const infrastructure = await Promise.all([
+    databaseHealth(),
+    redisHealth(),
+    queueHealth()
   ]);
+  // databaseHealth and the menu authority both use Prisma. Do not overlap
+  // their database work on the shared runtime client.
+  const menuSnapshot = await getPublicMenuSnapshot();
   const infrastructureStatus = aggregateStatus(infrastructure);
   const checks = {
     catalogLoaded: menuSnapshot.products.length > 0,
