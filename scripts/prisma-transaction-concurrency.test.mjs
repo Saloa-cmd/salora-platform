@@ -103,6 +103,73 @@ assert.doesNotMatch(
   "Media summary reads must be sequential inside cms.run."
 );
 
+const menuAuthority = read("apps/web/lib/server/menuAuthority.ts");
+const publishedRevisionRead = between(
+  menuAuthority,
+  "async function readPublishedRevision()",
+  "async function readLegacyCatalog()",
+  "published menu revision read"
+);
+assert.doesNotMatch(
+  publishedRevisionRead,
+  /\binclude\s*:/,
+  "Published menu relations must not use concurrent Prisma include branches on one transaction client."
+);
+assert.doesNotMatch(
+  publishedRevisionRead,
+  /Promise\.all\s*\(/,
+  "Published menu relation reads must remain sequential on one transaction client."
+);
+for (const modelRead of [
+  "database.menuCollection.findFirst",
+  "database.menuCollectionRevision.findUnique",
+  "database.menuPublication.findFirst"
+]) {
+  assert.match(
+    publishedRevisionRead,
+    new RegExp(`await ${modelRead.replaceAll(".", "\\.")}`),
+    `Published menu authority must await ${modelRead}.`
+  );
+}
+assert.match(
+  publishedRevisionRead,
+  /upstream adapter serializes transaction queries/,
+  "The Prisma adapter workaround must remain documented."
+);
+
+const legacyCatalogRead = between(
+  menuAuthority,
+  "async function readLegacyCatalog()",
+  "async function loadAuthority()",
+  "legacy catalog read"
+);
+assert.doesNotMatch(
+  legacyCatalogRead,
+  /\binclude\s*:/,
+  "Legacy catalog relations must use explicit bulk reads rather than concurrent include branches."
+);
+assert.doesNotMatch(
+  legacyCatalogRead,
+  /Promise\.all\s*\(/,
+  "Legacy catalog relation reads must remain sequential on one transaction client."
+);
+for (const modelRead of [
+  "database.catalogProduct.findMany",
+  "database.productCategory.findMany",
+  "database.productImage.findMany",
+  "database.productVariant.findMany",
+  "database.productAddon.findMany",
+  "database.productModifier.findMany",
+  "database.pricingRule.findMany",
+  "database.availabilityRule.findMany"
+]) {
+  assert.match(
+    legacyCatalogRead,
+    new RegExp(`await ${modelRead.replaceAll(".", "\\.")}`),
+    `Legacy menu authority must await ${modelRead}.`
+  );
+}
+
 const rlsContext = read("packages/backend/src/database/rls-context.ts");
 assert.match(
   rlsContext,
@@ -114,4 +181,5 @@ console.log("Prisma transaction concurrency regression passed:");
 console.log("- overlapping single-client calls reproduced without a database");
 console.log("- menu publication and rollback reads are sequential");
 console.log("- WhatsApp and media transaction reads are sequential");
+console.log("- published menu relation reads are explicitly serialized");
 console.log("- no Production database connection or write was attempted");

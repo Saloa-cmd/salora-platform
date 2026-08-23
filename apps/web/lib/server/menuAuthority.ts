@@ -47,6 +47,16 @@ function publicImage(value: unknown): string | undefined {
   return typeof candidate === "string" && /^https:\/\//i.test(candidate) ? candidate : undefined;
 }
 
+function groupByProductId<T extends { productId: string }>(rows: T[]): Map<string, T[]> {
+  const grouped = new Map<string, T[]>();
+  for (const row of rows) {
+    const values = grouped.get(row.productId) ?? [];
+    values.push(row);
+    grouped.set(row.productId, values);
+  }
+  return grouped;
+}
+
 function nutritionSummary(value: any): ProductNutritionSummary | undefined {
   if (!value || value.verificationStatus !== "VERIFIED") return undefined;
   return {
@@ -198,39 +208,90 @@ async function readPublishedRevision(): Promise<MenuAuthoritySnapshot | null> {
         status: "PUBLISHED",
         archivedAt: null,
         activeRevisionId: { not: null }
-      },
-      include: {
-        activeRevision: true,
-        publications: {
-          where: { status: "PUBLISHED" },
-          orderBy: { publishedAt: "desc" },
-          take: 1
-        }
       }
     });
-    return revisionAuthority(collection);
+    if (!collection?.activeRevisionId) return null;
+
+    // Prisma 7's query compiler may resolve multiple include branches in
+    // parallel on one transaction-bound pg client. Read each relation in
+    // sequence until the upstream adapter serializes transaction queries.
+    const activeRevision = await database.menuCollectionRevision.findUnique({
+      where: { id: collection.activeRevisionId }
+    });
+    const latestPublication = await database.menuPublication.findFirst({
+      where: { collectionId: collection.id, status: "PUBLISHED" },
+      orderBy: { publishedAt: "desc" }
+    });
+
+    return revisionAuthority({
+      ...collection,
+      activeRevision,
+      publications: latestPublication ? [latestPublication] : []
+    });
   });
 }
 
 async function readLegacyCatalog(): Promise<MenuAuthoritySnapshot> {
   return withPrismaAuthContext(SYSTEM_AUTH_CONTEXT, async (database) => {
     const now = new Date();
-    const rows = await database.catalogProduct.findMany({
+    const rawProducts = await database.catalogProduct.findMany({
       where: { brandKey: "SALORA", status: "ACTIVE" },
-      include: {
-        category: true,
-        images: {
-          where: { archivedAt: null, deletedAt: null },
-          orderBy: [{ isPrimary: "desc" }, { sortOrder: "asc" }, { createdAt: "asc" }]
-        },
-        variants: { orderBy: { name: "asc" } },
-        addons: { orderBy: { name: "asc" } },
-        modifiers: { orderBy: { name: "asc" } },
-        pricingRules: true,
-        availabilityRules: true
-      },
-      orderBy: [{ category: { sortOrder: "asc" } }, { name: "asc" }]
+      orderBy: { name: "asc" }
     });
+    const productIds = rawProducts.map((product) => product.id);
+    const categoryIds = [...new Set(rawProducts.map((product) => product.categoryId))];
+
+    // Keep relation reads in bulk and explicitly awaited. Prisma 7 may execute
+    // multiple include branches concurrently on the transaction's pg client.
+    const categoryRows = await database.productCategory.findMany({
+      where: { id: { in: categoryIds } },
+      orderBy: { sortOrder: "asc" }
+    });
+    const imageRows = await database.productImage.findMany({
+      where: { productId: { in: productIds }, archivedAt: null, deletedAt: null },
+      orderBy: [{ isPrimary: "desc" }, { sortOrder: "asc" }, { createdAt: "asc" }]
+    });
+    const variantRows = await database.productVariant.findMany({
+      where: { productId: { in: productIds } },
+      orderBy: { name: "asc" }
+    });
+    const addonRows = await database.productAddon.findMany({
+      where: { productId: { in: productIds } },
+      orderBy: { name: "asc" }
+    });
+    const modifierRows = await database.productModifier.findMany({
+      where: { productId: { in: productIds } },
+      orderBy: { name: "asc" }
+    });
+    const pricingRuleRows = await database.pricingRule.findMany({
+      where: { productId: { in: productIds } }
+    });
+    const availabilityRuleRows = await database.availabilityRule.findMany({
+      where: { productId: { in: productIds } }
+    });
+
+    const categoryById = new Map(categoryRows.map((category) => [category.id, category]));
+    const imagesByProduct = groupByProductId(imageRows);
+    const variantsByProduct = groupByProductId(variantRows);
+    const addonsByProduct = groupByProductId(addonRows);
+    const modifiersByProduct = groupByProductId(modifierRows);
+    const pricingRulesByProduct = groupByProductId(pricingRuleRows);
+    const availabilityRulesByProduct = groupByProductId(availabilityRuleRows);
+    const rows = rawProducts
+      .map((product) => ({
+        ...product,
+        category: categoryById.get(product.categoryId),
+        images: imagesByProduct.get(product.id) ?? [],
+        variants: variantsByProduct.get(product.id) ?? [],
+        addons: addonsByProduct.get(product.id) ?? [],
+        modifiers: modifiersByProduct.get(product.id) ?? [],
+        pricingRules: pricingRulesByProduct.get(product.id) ?? [],
+        availabilityRules: availabilityRulesByProduct.get(product.id) ?? []
+      }))
+      .sort((left, right) =>
+        (left.category?.sortOrder ?? 0) - (right.category?.sortOrder ?? 0)
+        || left.name.localeCompare(right.name)
+      );
 
     const categories = new Map<string, MenuAuthoritySection>();
     for (const row of rows) {
