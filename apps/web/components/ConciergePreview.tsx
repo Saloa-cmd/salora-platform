@@ -1,7 +1,7 @@
 "use client";
 
 import { Bot, Send, Sparkles } from "lucide-react";
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useMemo, useState, type FormEvent } from "react";
 
 type Language = "ar" | "en";
 type ConciergeResponse = {
@@ -53,13 +53,6 @@ export function ConciergePreview({ language = "ar" }: { language?: Language }) {
   const [provider, setProvider] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    setInput(t.prompts[0]);
-    setAnswer(t.intro);
-    setProvider(null);
-    setMessage(null);
-  }, [language, t.intro, t.prompts]);
 
   const canSubmit = useMemo(() => input.trim().length > 0 && !loading, [input, loading]);
 
