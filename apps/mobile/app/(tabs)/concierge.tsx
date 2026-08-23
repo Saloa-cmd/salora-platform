@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
   composer: { flexDirection: "row", gap: spacing.sm, alignItems: "center" },
   input: { flex: 1, minHeight: 52, borderRadius: radii.pill, backgroundColor: "rgba(245,239,227,0.045)", borderWidth: 1, borderColor: "rgba(245,239,227,0.1)", paddingHorizontal: spacing.md, color: colors.cream },
   sendButton: { minHeight: 48, minWidth: 64, borderRadius: radii.pill, alignItems: "center", justifyContent: "center", paddingHorizontal: spacing.md, backgroundColor: colors.gold },
-  sendText: { color: colors.black, fontWeight: "700" },
+  sendText: { color: "#0B0B0C", fontWeight: "700" },
   disclaimer: { marginTop: spacing.md, fontSize: 11, lineHeight: 17 },
   pressed: { opacity: 0.8 },
   disabled: { opacity: 0.45 }
