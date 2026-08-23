@@ -30,7 +30,7 @@ export function GlobalAiConcierge() {
               <button type="button" onClick={() => setOpen(false)} className="grid size-9 place-items-center rounded-full border border-white/10 text-[var(--muted)] transition hover:border-[var(--border-gold)] hover:text-[var(--cream)]" aria-label={rtl ? "إغلاق مساعد سالورا" : "Close SALORA Concierge"}><X className="size-4" /></button>
             </div>
           </div>
-          <ConciergePreview language={language} />
+          <ConciergePreview key={language} language={language} />
         </div>
       ) : null}
 
