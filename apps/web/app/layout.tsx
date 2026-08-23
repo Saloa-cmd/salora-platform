@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { cookies, headers } from "next/headers";
 import { saloraRuntime } from "@salora/config";
 import type { ThemePreference } from "@salora/ui";
+import { GlobalAiConcierge } from "@/components/GlobalAiConcierge";
 import { isThemePreference, themeBootstrapScript } from "@/lib/theme";
 import "./globals.css";
 
@@ -41,7 +42,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   return (
     <html lang="ar" dir="rtl" data-theme={initialTheme} data-theme-preference={preference} suppressHydrationWarning>
       <head><script nonce={nonce} dangerouslySetInnerHTML={{ __html: themeBootstrapScript }} /></head>
-      <body>{children}</body>
+      <body>{children}<GlobalAiConcierge /></body>
     </html>
   );
 }
