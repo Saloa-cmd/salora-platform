@@ -26,6 +26,7 @@ type DatabaseIntelligenceRow = {
   pointsReversed: number;
   queuedNotifications: number;
   ingredientCount: number;
+  stockMovementCount: number;
   inventoryRiskCount: number;
   reorderRiskIngredients: string[] | null;
   aiRequestCount: number;
@@ -41,6 +42,7 @@ export type DatabaseIntelligenceSnapshot = KpiSnapshot & {
   observed: {
     aiRecommendationCount: number;
     ingredientCount: number;
+    stockMovementCount: number;
   };
 };
 
@@ -99,6 +101,7 @@ export async function loadDatabaseIntelligence(
         (select abs(coalesce(sum(case when points < 0 then points else 0 end), 0))::int from public.loyalty_ledger_entries) as "pointsReversed",
         (select count(*)::int from public.notifications where status::text = 'QUEUED') as "queuedNotifications",
         (select count(*)::int from public.ingredients) as "ingredientCount",
+        (select count(*)::int from public.stock_movements) as "stockMovementCount",
         (select count(*)::int from public.ingredients where current_stock <= reorder_threshold) as "inventoryRiskCount",
         (select coalesce(array_agg(name order by name), array[]::text[])
           from (
@@ -144,6 +147,7 @@ export async function loadDatabaseIntelligence(
       pointsReversed: 0,
       queuedNotifications: 0,
       ingredientCount: 0,
+      stockMovementCount: 0,
       inventoryRiskCount: 0,
       reorderRiskIngredients: [],
       aiRequestCount: 0,
@@ -210,6 +214,7 @@ export async function loadDatabaseIntelligence(
         : 0
     };
 
+    const inventoryDataObserved = row.ingredientCount > 0 || row.stockMovementCount > 0;
     const operations: OperationsAnalytics = {
       ordersTotal: row.ordersTotal,
       paymentsTotal: row.paymentsTotal,
@@ -217,7 +222,7 @@ export async function loadDatabaseIntelligence(
       queuedNotifications: row.queuedNotifications,
       ordersDashboardReady: true,
       paymentsDashboardReady: true,
-      inventoryDashboardReady: row.ingredientCount > 0,
+      inventoryDashboardReady: inventoryDataObserved,
       customerDashboardReady: true,
       aiDashboardReady: true,
       whatsappDashboardReady: row.whatsappEnabled === true,
@@ -225,10 +230,14 @@ export async function loadDatabaseIntelligence(
     };
 
     const inventory: InventoryAnalytics = {
-      movementCount: 0,
+      movementCount: row.stockMovementCount,
       inventoryRiskCount: row.inventoryRiskCount,
       reorderRiskIngredients: row.reorderRiskIngredients ?? [],
-      inventoryForecastingReadiness: row.ingredientCount > 0 ? "stock-level-observed; movement-history-not-yet-persisted" : "awaiting-inventory-data",
+      inventoryForecastingReadiness: !inventoryDataObserved
+        ? "awaiting-inventory-data"
+        : row.stockMovementCount > 0
+          ? "stock-and-movement-history-observed"
+          : "stock-level-observed; awaiting-movement-history",
       inventoryHealthScore: row.ingredientCount > 0 ? clampScore(100 - row.inventoryRiskCount * 15) : 0
     };
 
@@ -255,7 +264,8 @@ export async function loadDatabaseIntelligence(
       inventory,
       observed: {
         aiRecommendationCount: row.aiRecommendationCount,
-        ingredientCount: row.ingredientCount
+        ingredientCount: row.ingredientCount,
+        stockMovementCount: row.stockMovementCount
       }
     };
   });
@@ -292,12 +302,12 @@ export function databaseOperationsEnvelope(snapshot: DatabaseIntelligenceSnapsho
       createdAt
     });
   }
-  if (snapshot.observed.ingredientCount === 0) {
+  if (snapshot.observed.ingredientCount === 0 && snapshot.observed.stockMovementCount === 0) {
     alerts.push({
       id: "inventory-data-empty",
       severity: "info",
       type: "INVENTORY_DATA_EMPTY",
-      message: "No persisted ingredient stock data is available for inventory scoring.",
+      message: "No persisted ingredient stock or movement data is available for inventory scoring.",
       createdAt
     });
   }
@@ -308,12 +318,20 @@ export function databaseOperationsEnvelope(snapshot: DatabaseIntelligenceSnapsho
     alerts,
     forecasting: {
       salesForecasting: snapshot.operations.ordersTotal >= 20 ? "history-available" : "needs-more-order-history",
-      inventoryForecasting: snapshot.observed.ingredientCount > 0 ? "stock-level-ready; movement-history-needed" : "needs-inventory-data",
+      inventoryForecasting: snapshot.observed.stockMovementCount > 0
+        ? "movement-history-available"
+        : snapshot.observed.ingredientCount > 0
+          ? "stock-level-ready; movement-history-needed"
+          : "needs-inventory-data",
       loyaltyForecasting: snapshot.loyalty.activeLoyaltyAccounts > 0 ? "loyalty-history-available" : "needs-loyalty-history",
       aiDemandForecasting: snapshot.ai.requestCount >= 20 ? "evaluation-history-available" : "needs-more-ai-history",
       requiredNextData: [
         ...(snapshot.operations.ordersTotal < 20 ? ["more order history"] : []),
-        ...(snapshot.observed.ingredientCount === 0 ? ["ingredient stock records"] : ["inventory movement history"]),
+        ...(snapshot.observed.ingredientCount === 0 && snapshot.observed.stockMovementCount === 0
+          ? ["ingredient stock and movement records"]
+          : snapshot.observed.stockMovementCount === 0
+            ? ["inventory movement history"]
+            : []),
         ...(snapshot.loyalty.activeLoyaltyAccounts === 0 ? ["loyalty account activity"] : []),
         ...(snapshot.ai.requestCount < 20 ? ["more AI evaluation records"] : [])
       ]
