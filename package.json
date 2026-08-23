@@ -24,6 +24,7 @@
     "typecheck": "pnpm --filter @salora/web typecheck && pnpm --filter @salora/mobile typecheck",
     "audit:catalog": "node scripts/catalog-authority-audit.mjs",
     "audit:catalog:database": "node scripts/catalog-authority-audit.mjs --database",
+    "audit:staging:migrations": "node scripts/audit-staging-migration-drift.mjs",
     "test:menu-collections-domain": "node --experimental-strip-types scripts/menu-collections-domain.test.mjs",
     "test:prisma-concurrency": "node scripts/prisma-transaction-concurrency.test.mjs",
     "test:runtime-security": "node --experimental-strip-types scripts/runtime-security-controls.test.mjs",
