@@ -2,14 +2,14 @@
 
 import { useState } from "react";
 import { DashboardView } from "@/components/dashboard/DashboardView";
-import { SaloraIcon } from "@/components/ui/SaloraIcon";
+import { SaloraIcon, type SaloraIconName } from "@/components/ui/SaloraIcon";
 import { useControlTowerLocale } from "./ControlTowerLocale";
 
 type IntelligenceKind = "revenue" | "customers" | "operations" | "ai";
 
 type IntelligenceTab = {
   id: IntelligenceKind;
-  icon: "wallet" | "users" | "activity" | "sparkles";
+  icon: SaloraIconName;
   ar: string;
   en: string;
   detailAr: string;
@@ -17,10 +17,10 @@ type IntelligenceTab = {
 };
 
 const tabs: IntelligenceTab[] = [
-  { id: "revenue", icon: "wallet", ar: "الإيرادات", en: "Revenue", detailAr: "الدفع، الاسترداد، القنوات وصافي الإيراد", detailEn: "Payments, refunds, channels and net revenue" },
-  { id: "customers", icon: "users", ar: "العملاء", en: "Customers", detailAr: "الصحة، التكرار، القيمة والاحتفاظ", detailEn: "Health, repeat rate, value and retention" },
-  { id: "operations", icon: "activity", ar: "التشغيل", en: "Operations", detailAr: "الطلبات، الطوابير، المخزون والتنبيهات", detailEn: "Orders, queues, inventory and alerts" },
-  { id: "ai", icon: "sparkles", ar: "الذكاء الاصطناعي", en: "AI", detailAr: "الاستخدام، الجودة، التكلفة والسلامة", detailEn: "Usage, quality, cost and safety" }
+  { id: "revenue", icon: "analytics", ar: "الإيرادات", en: "Revenue", detailAr: "الدفع، الاسترداد، القنوات وصافي الإيراد", detailEn: "Payments, refunds, channels and net revenue" },
+  { id: "customers", icon: "user", ar: "العملاء", en: "Customers", detailAr: "الصحة، التكرار، القيمة والاحتفاظ", detailEn: "Health, repeat rate, value and retention" },
+  { id: "operations", icon: "orders", ar: "التشغيل", en: "Operations", detailAr: "الطلبات، الطوابير، المخزون والتنبيهات", detailEn: "Orders, queues, inventory and alerts" },
+  { id: "ai", icon: "ai", ar: "الذكاء الاصطناعي", en: "AI", detailAr: "الاستخدام، الجودة، التكلفة والسلامة", detailEn: "Usage, quality, cost and safety" }
 ];
 
 export function ControlTowerIntelligenceWorkspace({ initial = "revenue" }: { initial?: IntelligenceKind }) {
