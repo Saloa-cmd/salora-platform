@@ -3,6 +3,7 @@ import { withPrismaAuthContext, type PrismaAuthContext } from "@salora/backend/d
 type PulseRow = {
   productsTotal: number;
   productsActive: number;
+  productsWithLiveImage: number;
   productImagesLive: number;
   mediaDrafts: number;
   ordersTotal: number;
@@ -25,7 +26,7 @@ type ActivityRow = {
   id: string;
   action: string;
   entityType: string;
-  createdAt: Date;
+  createdAt: Date | string;
 };
 
 export type ControlTowerDataPulse = {
@@ -34,6 +35,7 @@ export type ControlTowerDataPulse = {
   commerce: {
     productsTotal: number;
     productsActive: number;
+    productsWithLiveImage: number;
     productImagesLive: number;
     imageCoveragePercent: number;
     mediaDrafts: number;
@@ -90,7 +92,20 @@ export async function loadControlTowerDataPulse(authContext: PrismaAuthContext):
       select
         (select count(*)::int from public.catalog_products where brand_key = 'SALORA') as "productsTotal",
         (select count(*)::int from public.catalog_products where brand_key = 'SALORA' and status::text = 'ACTIVE') as "productsActive",
-        (select count(*)::int from public.product_images where archived_at is null and deleted_at is null) as "productImagesLive",
+        (select count(distinct pi.product_id)::int
+          from public.product_images pi
+          join public.catalog_products cp on cp.id = pi.product_id
+          where cp.brand_key = 'SALORA'
+            and cp.status::text = 'ACTIVE'
+            and pi.archived_at is null
+            and pi.deleted_at is null) as "productsWithLiveImage",
+        (select count(*)::int
+          from public.product_images pi
+          join public.catalog_products cp on cp.id = pi.product_id
+          where cp.brand_key = 'SALORA'
+            and cp.status::text = 'ACTIVE'
+            and pi.archived_at is null
+            and pi.deleted_at is null) as "productImagesLive",
         (select count(*)::int from public.product_media_drafts where archived_at is null) as "mediaDrafts",
         (select count(*)::int from public.cafe_orders) as "ordersTotal",
         (select count(*)::int from public.cafe_orders where status::text in ('PLACED', 'PENDING_CONFIRMATION', 'ACCEPTED', 'PREPARING', 'READY')) as "ordersActive",
@@ -122,6 +137,7 @@ export async function loadControlTowerDataPulse(authContext: PrismaAuthContext):
     const row = rows[0] ?? {
       productsTotal: 0,
       productsActive: 0,
+      productsWithLiveImage: 0,
       productImagesLive: 0,
       mediaDrafts: 0,
       ordersTotal: 0,
@@ -146,8 +162,9 @@ export async function loadControlTowerDataPulse(authContext: PrismaAuthContext):
       commerce: {
         productsTotal: row.productsTotal,
         productsActive: row.productsActive,
+        productsWithLiveImage: row.productsWithLiveImage,
         productImagesLive: row.productImagesLive,
-        imageCoveragePercent: percentage(row.productImagesLive, row.productsActive),
+        imageCoveragePercent: percentage(row.productsWithLiveImage, row.productsActive),
         mediaDrafts: row.mediaDrafts,
         ordersTotal: row.ordersTotal,
         ordersActive: row.ordersActive,
@@ -177,7 +194,7 @@ export async function loadControlTowerDataPulse(authContext: PrismaAuthContext):
         id: item.id,
         action: item.action,
         entityType: item.entityType,
-        createdAt: item.createdAt.toISOString()
+        createdAt: new Date(item.createdAt).toISOString()
       }))
     };
   });
