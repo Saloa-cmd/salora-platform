@@ -25,32 +25,83 @@
   box-shadow: 0 30px 90px rgb(0 0 0 / 0.22);
 }
 
-.salora-showcase-media {
+.salora-showcase-media,
+.premium-product-visual,
+.premium-hero-product {
   background: radial-gradient(circle at 50% 26%, rgb(190 151 86 / 0.18), transparent 38%), #15120f;
 }
 
 .salora-showcase-media img,
-.premium-menu-card img {
+.premium-menu-card img,
+.premium-product-visual img,
+.premium-hero-product img {
   filter: saturate(1.03) contrast(1.025);
 }
 
-.salora-showcase-fallback {
+.salora-showcase-fallback,
+.premium-product-fallback {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
   background:
-    radial-gradient(circle at 70% 18%, rgb(203 164 94 / 0.26), transparent 25%),
-    radial-gradient(circle at 25% 76%, rgb(83 119 104 / 0.18), transparent 30%),
+    radial-gradient(circle at 72% 16%, rgb(203 164 94 / 0.28), transparent 26%),
+    radial-gradient(circle at 24% 78%, rgb(83 119 104 / 0.18), transparent 30%),
     linear-gradient(145deg, #201713, #0e0d0c 62%, #18130f);
 }
 
-.salora-showcase-fallback::before {
+.salora-showcase-fallback::before,
+.premium-product-fallback::before {
   content: "S";
   position: absolute;
-  inset-inline-end: 1.25rem;
-  top: 0.4rem;
+  inset-inline-end: 1rem;
+  top: 0.25rem;
   font-family: Georgia, "Times New Roman", serif;
   font-size: clamp(7rem, 13vw, 11rem);
   line-height: 1;
-  color: rgb(211 174 105 / 0.09);
+  color: rgb(211 174 105 / 0.085);
   pointer-events: none;
+}
+
+.premium-product-fallback {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: flex-start;
+  gap: 0.45rem;
+  padding: clamp(1.2rem, 3vw, 2rem);
+  color: #fff;
+  text-align: start;
+}
+
+.premium-product-fallback::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgb(0 0 0 / 0.58), transparent 58%);
+  pointer-events: none;
+}
+
+.premium-product-fallback > * {
+  position: relative;
+  z-index: 1;
+}
+
+.premium-product-fallback span {
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  color: rgb(255 255 255 / 0.64);
+}
+
+.premium-product-fallback strong {
+  max-width: 16rem;
+  font-size: clamp(1.15rem, 2vw, 1.65rem);
+  line-height: 1.2;
+  font-weight: 650;
+}
+
+.premium-product-card {
+  content-visibility: auto;
+  contain-intrinsic-size: 650px;
 }
 
 @media (max-width: 639px) {
@@ -58,13 +109,19 @@
   .premium-menu-card {
     contain-intrinsic-size: 440px;
   }
+
+  .premium-product-card {
+    contain-intrinsic-size: 560px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .salora-showcase-card,
   .premium-menu-card,
   .salora-showcase-card img,
-  .premium-menu-card img {
+  .premium-menu-card img,
+  .premium-product-card,
+  .premium-product-card img {
     transition: none !important;
     transform: none !important;
   }
