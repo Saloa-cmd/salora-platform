@@ -105,17 +105,14 @@ export async function withPrismaAuthContextTx<T>(
 }
 
 /**
- * Verifies RLS context is set in the current session.
- * Used for testing/validation purposes. This intentionally forces the
- * authenticated transaction path even when the supplied context is privileged.
+ * Verifies RLS context is set in the current transaction-bound session.
+ * This deliberately uses the explicit transaction helper so verification keeps
+ * the exact dbRole supplied by the caller, including service_role.
  */
 export async function verifyRLSContext(context: PrismaAuthContext): Promise<boolean> {
-  const verificationContext: PrismaAuthContext = {
-    ...context,
-    dbRole: context.dbRole === "service_role" ? "authenticated" : context.dbRole
-  };
+  const authContext = assertAuthContext(context);
 
-  return withPrismaAuthContextTx(verificationContext, async (prisma) => {
+  return withPrismaAuthContextTx(authContext, async (prisma) => {
     const result = await prisma.$queryRaw<Array<{ user_id: string; user_roles: string; jwt_claims: Prisma.JsonValue }>>`
       SELECT current_setting('app.current_user_id', true) as user_id,
              current_setting('app.user_roles', true) as user_roles,
@@ -123,6 +120,6 @@ export async function verifyRLSContext(context: PrismaAuthContext): Promise<bool
     `;
 
     const row = result[0];
-    return row?.user_id === verificationContext.userId && row?.user_roles === JSON.stringify(verificationContext.roles);
+    return row?.user_id === authContext.userId && row?.user_roles === JSON.stringify(authContext.roles);
   });
 }
