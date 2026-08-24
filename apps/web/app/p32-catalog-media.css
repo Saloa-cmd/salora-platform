@@ -1,0 +1,71 @@
+/* P32 — catalog media + premium public experience refinement */
+
+.salora-showcase-card,
+.premium-menu-card {
+  border: 1px solid color-mix(in srgb, var(--gold) 18%, transparent);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--surface) 94%, transparent), color-mix(in srgb, var(--surface) 82%, black));
+  box-shadow: 0 22px 70px rgb(0 0 0 / 0.16);
+  overflow: clip;
+  content-visibility: auto;
+  contain-intrinsic-size: 520px;
+  transition: transform 240ms ease, border-color 240ms ease, box-shadow 240ms ease;
+}
+
+.salora-showcase-card {
+  border-radius: clamp(20px, 2vw, 30px);
+}
+
+.salora-showcase-card:hover,
+.premium-menu-card:hover,
+.salora-showcase-card:focus-within,
+.premium-menu-card:focus-within {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--gold) 42%, transparent);
+  box-shadow: 0 30px 90px rgb(0 0 0 / 0.22);
+}
+
+.salora-showcase-media {
+  background: radial-gradient(circle at 50% 26%, rgb(190 151 86 / 0.18), transparent 38%), #15120f;
+}
+
+.salora-showcase-media img,
+.premium-menu-card img {
+  filter: saturate(1.03) contrast(1.025);
+}
+
+.salora-showcase-fallback {
+  background:
+    radial-gradient(circle at 70% 18%, rgb(203 164 94 / 0.26), transparent 25%),
+    radial-gradient(circle at 25% 76%, rgb(83 119 104 / 0.18), transparent 30%),
+    linear-gradient(145deg, #201713, #0e0d0c 62%, #18130f);
+}
+
+.salora-showcase-fallback::before {
+  content: "S";
+  position: absolute;
+  inset-inline-end: 1.25rem;
+  top: 0.4rem;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(7rem, 13vw, 11rem);
+  line-height: 1;
+  color: rgb(211 174 105 / 0.09);
+  pointer-events: none;
+}
+
+@media (max-width: 639px) {
+  .salora-showcase-card,
+  .premium-menu-card {
+    contain-intrinsic-size: 440px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .salora-showcase-card,
+  .premium-menu-card,
+  .salora-showcase-card img,
+  .premium-menu-card img {
+    transition: none !important;
+    transform: none !important;
+  }
+}
