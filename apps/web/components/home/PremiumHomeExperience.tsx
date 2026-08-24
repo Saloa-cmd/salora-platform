@@ -25,6 +25,7 @@ const copy = {
     menuIntro: "نكهات مألوفة بلمسة سالورا الخاصة — طازجة، متوازنة ومُعدّة عند الطلب.",
     customize: "افتح وخصص",
     from: "يبدأ من",
+    priceSoon: "السعر قريبًا",
     live: "متصل بمنيو سالورا",
     fallback: "يتم العرض مؤقتاً من القائمة المتوافقة",
     storyLabel: "روح المكان",
@@ -52,6 +53,7 @@ const copy = {
     menuIntro: "Familiar flavours with the SALORA touch — fresh, balanced and made to order.",
     customize: "Open & customize",
     from: "From",
+    priceSoon: "Price coming soon",
     live: "Connected to the SALORA menu",
     fallback: "Temporarily displaying the compatibility catalogue",
     storyLabel: "The spirit of SALORA",
@@ -83,6 +85,20 @@ function displayCategory(product: Product, language: Language) {
 
 function publicImage(product?: Product) {
   return product && /^https:\/\//i.test(product.visual) ? product.visual : undefined;
+}
+
+function displayPrice(product: Product, language: Language) {
+  if (product.price <= 0) return copy[language].priceSoon;
+  return language === "ar" ? `${product.price.toFixed(3)} ر.ع` : `${product.price.toFixed(3)} OMR`;
+}
+
+function ProductFallback({ product, language }: { product: Product; language: Language }) {
+  return (
+    <div className="premium-product-fallback" aria-label={language === "ar" ? "صورة المنتج قيد التجهيز" : "Product image in preparation"}>
+      <span>{displayCategory(product, language)}</span>
+      <strong>{displayName(product, language)}</strong>
+    </div>
+  );
 }
 
 export function PremiumHomeExperience({
@@ -157,12 +173,12 @@ export function PremiumHomeExperience({
           <div className="premium-orbit premium-orbit-two" />
           <div className="premium-hero-halo" />
           <div className="premium-hero-product">
-            {heroImage ? <Image src={heroImage} alt={heroAlt} fill priority sizes="(min-width: 1024px) 38vw, 72vw" /> : <Image src="/brand/salora-logo-dark.jpeg" alt="SALORA" fill priority sizes="320px" />}
+            {heroProduct && heroImage ? <Image src={heroImage} alt={heroAlt} fill priority sizes="(min-width: 1024px) 38vw, 72vw" /> : heroProduct ? <ProductFallback product={heroProduct} language={language} /> : null}
           </div>
           {heroProduct ? (
             <>
               <div className="premium-floating-card premium-card-name"><small>01</small><b>{displayCategory(heroProduct, language)}</b><span>{displayName(heroProduct, language)}</span></div>
-              <div className="premium-floating-card premium-card-price"><small>OMR</small><b>{heroProduct.price.toFixed(3)}</b></div>
+              <div className="premium-floating-card premium-card-price"><small>{heroProduct.price > 0 ? (rtl ? "ر.ع" : "OMR") : ""}</small><b>{displayPrice(heroProduct, language)}</b></div>
             </>
           ) : null}
         </div>
@@ -180,13 +196,13 @@ export function PremiumHomeExperience({
             return (
               <article className="premium-product-card" key={product.id}>
                 <Link href="/menu" className="premium-product-visual" aria-label={`${t.customize}: ${displayName(product, language)}`}>
-                  {image ? <Image src={image} alt={displayName(product, language)} fill sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw" /> : <Image src="/brand/salora-logo-dark.jpeg" alt="" fill sizes="360px" />}
+                  {image ? <Image src={image} alt={displayName(product, language)} fill sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw" /> : <ProductFallback product={product} language={language} />}
                   {product.featured ? <span>{rtl ? "اختيار سالورا" : "SALORA pick"}</span> : null}
                   <small>0{index + 1}</small>
                 </Link>
                 <div className="premium-product-body">
                   <div><p>{displayCategory(product, language)}</p><h3>{displayName(product, language)}</h3><span>{displayDescription(product, language)}</span></div>
-                  <div className="premium-product-footer"><strong><small>{t.from}</small>{product.price.toFixed(3)} <em>OMR</em></strong><Link href="/menu">{t.customize}<ArrowUpLeft aria-hidden="true" /></Link></div>
+                  <div className="premium-product-footer"><strong><small>{product.price > 0 ? t.from : ""}</small>{displayPrice(product, language)}</strong><Link href="/menu">{t.customize}<ArrowUpLeft aria-hidden="true" /></Link></div>
                 </div>
               </article>
             );
