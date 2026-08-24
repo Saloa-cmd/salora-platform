@@ -79,7 +79,7 @@ export async function routeAiRequest(request: AiGatewayRequest): Promise<AiGatew
           score: Math.min(legacyEvaluation.score, groundedEvaluation.overall),
           notes: [...legacyEvaluation.notes, ...groundedEvaluation.notes]
         };
-        persistEvaluationMetadata({
+        await persistEvaluationMetadata({
           correlationId,
           provider: result.metadata.provider,
           model: result.metadata.model,

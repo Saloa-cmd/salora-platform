@@ -57,14 +57,22 @@ async function persistEvaluationMetadataToPrisma(record: EvaluationRecord): Prom
   }).catch(() => undefined);
 }
 
-export function persistEvaluationMetadata(record: Omit<EvaluationRecord, "id" | "createdAt">): EvaluationRecord {
+/**
+ * Persist an evaluation before the serverless request lifecycle is allowed to
+ * finish. Database/telemetry failure remains non-fatal to the AI response, but
+ * the write is no longer fire-and-forget and therefore cannot be silently
+ * abandoned when the runtime freezes or terminates after sending the response.
+ */
+export async function persistEvaluationMetadata(
+  record: Omit<EvaluationRecord, "id" | "createdAt">
+): Promise<EvaluationRecord> {
   const stored = {
     ...record,
     id: crypto.randomUUID(),
     createdAt: new Date().toISOString()
   };
   records.push(stored);
-  void persistEvaluationMetadataToPrisma(stored);
+  await persistEvaluationMetadataToPrisma(stored);
   return stored;
 }
 
