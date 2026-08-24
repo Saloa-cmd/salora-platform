@@ -1,0 +1,137 @@
+/* P31 — customer experience refinement.
+   This layer intentionally keeps infrastructure state out of customer-facing UI. */
+
+.premium-home,
+.premium-menu-shell {
+  background:
+    radial-gradient(circle at 50% -8%, color-mix(in srgb, var(--gold) 10%, transparent), transparent 34rem),
+    radial-gradient(circle at 90% 18%, color-mix(in srgb, var(--matcha) 6%, transparent), transparent 28rem),
+    var(--background);
+}
+
+.premium-header,
+.premium-menu-header {
+  border-color: color-mix(in srgb, var(--cream) 7%, transparent);
+  background: color-mix(in srgb, var(--background) 84%, transparent);
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--cream) 3%, transparent);
+  backdrop-filter: blur(24px) saturate(120%);
+}
+
+.premium-hero {
+  min-height: min(82svh, 56rem);
+  padding-block: clamp(4rem, 8vw, 8rem);
+}
+
+.premium-hero-copy > p:not(.premium-kicker),
+.premium-story-copy > p:not(.premium-kicker),
+.premium-section-heading > div > p {
+  max-width: 42rem;
+  font-size: clamp(1rem, 1.35vw, 1.125rem);
+  line-height: 1.9;
+}
+
+.premium-hero h1,
+.premium-story h2,
+.premium-section-heading h2,
+.salora-menu-display {
+  text-wrap: balance;
+}
+
+.premium-button {
+  min-height: 3rem;
+  border-radius: 999px;
+  padding-inline: 1.25rem;
+  transition:
+    transform var(--duration-normal) var(--ease-standard),
+    background-color var(--duration-normal) var(--ease-standard),
+    border-color var(--duration-normal) var(--ease-standard),
+    color var(--duration-normal) var(--ease-standard),
+    filter var(--duration-normal) var(--ease-standard);
+}
+
+.premium-button:hover {
+  transform: translateY(-1px);
+}
+
+.premium-product-card,
+.premium-menu-card {
+  border-color: color-mix(in srgb, var(--cream) 8%, transparent);
+  box-shadow: 0 24px 72px rgba(0, 0, 0, 0.16);
+  transition:
+    transform var(--duration-slow) var(--ease-emphasized),
+    border-color var(--duration-normal) var(--ease-standard),
+    box-shadow var(--duration-slow) var(--ease-standard);
+}
+
+.premium-product-card:hover,
+.premium-menu-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--border-gold);
+  box-shadow: 0 30px 88px rgba(0, 0, 0, 0.22);
+}
+
+.premium-product-body,
+.premium-menu-card > div:last-child {
+  padding: clamp(1rem, 2vw, 1.4rem);
+}
+
+.salora-experience-status[data-tone="stale"],
+.salora-experience-status[data-tone="unavailable"] {
+  color: var(--gold-soft);
+  border-color: color-mix(in srgb, var(--gold) 24%, transparent);
+  background: color-mix(in srgb, var(--gold) 6%, var(--surface));
+  box-shadow: none;
+}
+
+.salora-experience-status[data-compact="true"] {
+  margin-top: 1.5rem;
+}
+
+.premium-menu-hero {
+  padding-block: clamp(2rem, 5vw, 4.5rem);
+}
+
+.premium-menu-shell input,
+.premium-menu-shell textarea,
+.premium-menu-shell select {
+  font-size: max(16px, 1rem);
+}
+
+@media (max-width: 767px) {
+  .premium-hero {
+    min-height: auto;
+    padding-block: 3.75rem 2.5rem;
+  }
+
+  .premium-hero-actions {
+    gap: 0.75rem;
+  }
+
+  .premium-hero-actions .premium-button {
+    flex: 1 1 10rem;
+  }
+
+  .premium-menu-preview,
+  .premium-story,
+  .premium-visit {
+    padding-block: clamp(3.5rem, 12vw, 5rem);
+  }
+
+  .premium-product-grid {
+    gap: 1rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .premium-product-card,
+  .premium-menu-card,
+  .premium-button {
+    transition: none !important;
+  }
+
+  .premium-product-card:hover,
+  .premium-menu-card:hover,
+  .premium-button:hover {
+    transform: none;
+  }
+}

@@ -1,12 +1,14 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "phase": "P22C-3A",
   "mode": "REPOSITORY_ONLY_SCHEMA_BUILD",
   "branch": "agent/p22c-3a-production-authority-schema-only",
   "baseCommit": "56ce7cfacf3a6c65e4792296498785d4c9985269",
-  "productionProjectRef": "grcycqdtjjfklibutfos",
+  "historicalProjectRefAtCertification": "grcycqdtjjfklibutfos",
+  "environmentIdentity": "HISTORICAL_ONLY_DO_NOT_ROUTE",
+  "currentEnvironmentMustBeResolvedFromProvider": true,
   "migration": {
-    "path": "prisma/migrations/202608050001_p22c3a_production_authority_schema_only/migration.sql",
+    "path": "prisma/baselines/p22c3a-production-authority-schema-only.sql",
     "sha256": "9dc141be031edc4956b59c0a89c8de10fadadfff0cac57168a150ff80e4b97c4",
     "createsTables": 8,
     "createsEnums": 6,

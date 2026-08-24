@@ -5,6 +5,13 @@ const color = z.string().regex(/^#[0-9a-f]{6}$/i);
 const safeUrl = z.union([z.literal(""), z.string().url().refine((value) => value.startsWith("https://"), "HTTPS is required")]);
 const safeLink = z.union([z.literal(""), z.string().regex(/^\/(?!\/)[^\s]*$/), safeUrl]);
 
+const CUSTOMER_HERO_SUBTITLE_AR = "قهوة مختصة، ماتشا، مشروبات منعشة وحلويات تُحضّر بعناية للحظات تستحق أن تُعاش.";
+const CUSTOMER_HERO_SUBTITLE_EN = "Specialty coffee, matcha, refreshing drinks and desserts, prepared with care for moments worth enjoying.";
+const LEGACY_TECHNICAL_SUBTITLES = new Set([
+  "منيو متصل مباشرة بمنصة SALORA، قابل للتخصيص والاستلام من الكاونتر أو أمام البحر.",
+  "A customizable menu connected to SALORA, ready for counter or beachfront pickup."
+]);
+
 export const experienceConfigurationSchema: z.ZodType<ExperienceConfiguration> = z.object({
   schemaVersion: z.literal(1),
   brandKey: z.literal("SALORA"),
@@ -65,8 +72,8 @@ export const defaultExperienceConfiguration: ExperienceConfiguration = {
     logoUrl: "",
     heroTitleAr: "اختر لحظتك، ونحن نحضّر الانسجام.",
     heroTitleEn: "Choose your moment. We prepare the harmony.",
-    heroSubtitleAr: "منيو متصل مباشرة بمنصة SALORA، قابل للتخصيص والاستلام من الكاونتر أو أمام البحر.",
-    heroSubtitleEn: "A customizable menu connected to SALORA, ready for counter or beachfront pickup.",
+    heroSubtitleAr: CUSTOMER_HERO_SUBTITLE_AR,
+    heroSubtitleEn: CUSTOMER_HERO_SUBTITLE_EN,
     announcementAr: "أهلًا بكم في سالورا",
     announcementEn: "Welcome to SALORA",
     showAnnouncement: false
@@ -75,9 +82,31 @@ export const defaultExperienceConfiguration: ExperienceConfiguration = {
   banners: []
 };
 
+function customerFacingConfiguration(configuration: ExperienceConfiguration): ExperienceConfiguration {
+  const heroSubtitleAr = LEGACY_TECHNICAL_SUBTITLES.has(configuration.site.heroSubtitleAr)
+    ? CUSTOMER_HERO_SUBTITLE_AR
+    : configuration.site.heroSubtitleAr;
+  const heroSubtitleEn = LEGACY_TECHNICAL_SUBTITLES.has(configuration.site.heroSubtitleEn)
+    ? CUSTOMER_HERO_SUBTITLE_EN
+    : configuration.site.heroSubtitleEn;
+
+  if (heroSubtitleAr === configuration.site.heroSubtitleAr && heroSubtitleEn === configuration.site.heroSubtitleEn) {
+    return configuration;
+  }
+
+  return {
+    ...configuration,
+    site: {
+      ...configuration.site,
+      heroSubtitleAr,
+      heroSubtitleEn
+    }
+  };
+}
+
 export function parseExperienceConfiguration(value: unknown): ExperienceConfiguration {
   const parsed = experienceConfigurationSchema.safeParse(value);
-  return parsed.success ? parsed.data : defaultExperienceConfiguration;
+  return customerFacingConfiguration(parsed.success ? parsed.data : defaultExperienceConfiguration);
 }
 
 export const EXPERIENCE_DRAFT_KEY = "salora_experience_draft";

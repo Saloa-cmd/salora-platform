@@ -3,17 +3,24 @@ import { readdirSync } from "node:fs";
 import { PrismaPg } from "../packages/backend/node_modules/@prisma/adapter-pg/dist/index.mjs";
 import { PrismaClient } from "../packages/backend/src/database/generated/client.ts";
 
+const NON_PRODUCTION_REFS = new Set([
+  "grcycqdtjjfklibutfos", // current salora-staging
+  "errmouqcepkljncoefdd" // salora-pos-test
+]);
+
 const required = (name) => {
   const value = process.env[name]?.trim();
   if (!value) throw new Error(`${name} is required.`);
   return value;
 };
 
-assert.equal(process.env.SALORA_ENVIRONMENT, "staging", "Migration drift audit is restricted to staging.");
+assert.equal(process.env.SALORA_ENVIRONMENT, "production", "Production preflight is restricted to SALORA_ENVIRONMENT=production.");
 const expectedRef = required("SALORA_EXPECTED_SUPABASE_PROJECT_REF");
+assert.ok(!NON_PRODUCTION_REFS.has(expectedRef), "A known Staging/Test Supabase project cannot be certified as Production.");
+
 const connectionString = process.env.DIRECT_URL || process.env.DATABASE_URL;
 if (!connectionString) throw new Error("DIRECT_URL or DATABASE_URL is required.");
-assert.ok(connectionString.includes(expectedRef), "Database connection does not match the expected staging project.");
+assert.ok(connectionString.includes(expectedRef), "Database connection does not match SALORA_EXPECTED_SUPABASE_PROJECT_REF.");
 
 const repositoryMigrations = readdirSync(new URL("../prisma/migrations/", import.meta.url), { withFileTypes: true })
   .filter((entry) => entry.isDirectory())
@@ -35,14 +42,17 @@ try {
 
   const [authorityState] = await prisma.$queryRawUnsafe(`
     select
+      to_regclass('public.catalog_products') is not null as "catalogProducts",
+      to_regclass('public.product_categories') is not null as "productCategories",
       to_regclass('public.menu_collections') is not null as "menuCollections",
       to_regclass('public.menu_collection_revisions') is not null as "menuRevisions",
       to_regclass('public.menu_publications') is not null as "menuPublications"
   `);
 
-  console.log("SALORA Staging Prisma migration drift audit:");
+  console.log("SALORA Production Data preflight (READ ONLY):");
   console.log(JSON.stringify({
     expectedProjectRef: expectedRef,
+    environment: "production",
     repositoryMigrationCount: repositoryMigrations.length,
     appliedMigrationCount: applied.size,
     pending,
@@ -50,10 +60,13 @@ try {
   }, null, 2));
 
   if (pending.length > 0) {
-    console.error("STAGING_MIGRATION_DRIFT_DETECTED");
+    console.error("PRODUCTION_MIGRATION_DRIFT_DETECTED");
     process.exitCode = 2;
+  } else if (!authorityState?.catalogProducts || !authorityState?.productCategories || !authorityState?.menuCollections || !authorityState?.menuRevisions || !authorityState?.menuPublications) {
+    console.error("PRODUCTION_SCHEMA_INCOMPLETE");
+    process.exitCode = 3;
   } else {
-    console.log("STAGING_PRISMA_MIGRATIONS_ALIGNED");
+    console.log("PRODUCTION_SCHEMA_PREFLIGHT_PASS");
   }
 } finally {
   await prisma.$disconnect();

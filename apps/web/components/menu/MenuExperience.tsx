@@ -42,9 +42,9 @@ type PersistedOrder = {
 const copy = {
   ar: {
     direction: "rtl" as const,
-    eyebrow: "مينيو سالورا الرقمي",
+    eyebrow: "اختيارات سالورا",
     title: "اختر لحظتك، ونحن نحضّر الانسجام.",
-    intro: "منيو متصل مباشرة بمنصة SALORA، قابل للتخصيص والاستلام من الكاونتر أو أمام البحر.",
+    intro: "قهوة مختصة، ماتشا، مشروبات منعشة وحلويات تُحضّر بعناية للحظات تستحق أن تُعاش.",
     search: "ابحث عن مشروب أو حلوى",
     all: "الكل",
     add: "خصص وأضف",
@@ -65,10 +65,8 @@ const copy = {
     less: "قليل",
     light: "خفيف",
     confirm: "أضف إلى الطلب",
-    live: "بيانات مباشرة",
-    fallback: "وضع توافق مؤقت",
     orderSaved: "تم حفظ الطلب. سيتم فتح واتساب للتأكيد.",
-    orderFailed: "تعذر التحقق من السعر أو التوفر. راجع الطلب وحاول مرة أخرى.",
+    orderFailed: "تعذر تأكيد الطلب الآن. راجع اختياراتك وحاول مرة أخرى.",
     customerName: "الاسم",
     phone: "رقم الهاتف",
     carDetails: "نوع السيارة ولونها",
@@ -76,9 +74,9 @@ const copy = {
     required: "أدخل الاسم ورقم الهاتف قبل التأكيد.",
     service: "طريقة الاستلام",
     standard: "كما هو من سالورا",
-    results: "صنف متاح",
+    results: "صنف",
     noResults: "لا توجد نتائج مطابقة. جرّب بحثًا أو تصنيفًا آخر.",
-    browse: "تصفّح المنيو",
+    browse: "تصفّح الاختيارات",
     changeService: "تغيير طريقة الاستلام",
     signature: "اختيار سالورا",
     clearFilters: "مسح التصفية",
@@ -86,15 +84,15 @@ const copy = {
     decrease: "تقليل الكمية",
     increase: "زيادة الكمية",
     from: "يبدأ من",
-    orderingUnavailable: "تأكيد الطلب غير متاح الآن",
-    unavailableTitle: "المنيو المباشر قيد الاستعادة",
-    unavailableBody: "لن نعرض أصنافًا أو أسعارًا غير موثّقة. يمكنك العودة لاحقًا دون أن تفقد أي طلب."
+    orderingUnavailable: "الطلب غير متاح للحظات",
+    unavailableTitle: "نرتّب اختيارات اليوم",
+    unavailableBody: "نعمل على تحديث القائمة بعناية. يسعدنا خدمتك مباشرة عبر واتساب خلال ذلك."
   },
   en: {
     direction: "ltr" as const,
-    eyebrow: "SALORA digital menu",
+    eyebrow: "SALORA selections",
     title: "Choose your moment. We prepare the harmony.",
-    intro: "A customizable menu connected to SALORA, ready for counter or beachfront pickup.",
+    intro: "Specialty coffee, matcha, refreshing drinks and desserts, prepared with care for moments worth enjoying.",
     search: "Search drinks or desserts",
     all: "All",
     add: "Customize & add",
@@ -115,10 +113,8 @@ const copy = {
     less: "Less",
     light: "Light",
     confirm: "Add to order",
-    live: "Live data",
-    fallback: "Compatibility mode",
     orderSaved: "Order saved. WhatsApp will open for confirmation.",
-    orderFailed: "Price or availability could not be verified. Review the order and try again.",
+    orderFailed: "We couldn’t confirm the order just now. Review your choices and try again.",
     customerName: "Name",
     phone: "Phone number",
     carDetails: "Car model and color",
@@ -126,9 +122,9 @@ const copy = {
     required: "Enter your name and phone number before checkout.",
     service: "Pickup method",
     standard: "SALORA standard",
-    results: "items available",
+    results: "items",
     noResults: "No matching items. Try another search or category.",
-    browse: "Browse menu",
+    browse: "Browse selections",
     changeService: "Change pickup method",
     signature: "SALORA pick",
     clearFilters: "Clear filters",
@@ -136,9 +132,9 @@ const copy = {
     decrease: "Decrease quantity",
     increase: "Increase quantity",
     from: "From",
-    orderingUnavailable: "Order confirmation is unavailable",
-    unavailableTitle: "The live menu is being restored",
-    unavailableBody: "We will not show unverified items or prices. You can return later without losing an order."
+    orderingUnavailable: "Ordering is briefly unavailable",
+    unavailableTitle: "Today’s selections are being prepared",
+    unavailableBody: "We’re refreshing the menu with care. We’re happy to help directly on WhatsApp in the meantime."
   }
 };
 
@@ -148,7 +144,6 @@ const serviceModes = [
   { id: "dine-in" as const, ar: "داخل سالورا", en: "Dine in", icon: UtensilsCrossed },
   { id: "gift" as const, ar: "أرسل لحظة سالورا", en: "Send a SALORA moment", icon: Gift }
 ];
-
 
 function optionLabel(language: Language, value: string) {
   const labels = copy[language] as Record<string, string>;
@@ -414,51 +409,52 @@ export function MenuExperience({
 
       <section className="premium-menu-hero relative overflow-hidden border-b border-white/10 px-4 py-5 sm:px-6 sm:py-8">
         <div className="hero-depth" />
-        <div className={`mx-auto grid max-w-7xl gap-5 lg:items-end ${language === "ar" ? "lg:grid-cols-[minmax(0,1.15fr)_minmax(20rem,0.85fr)]" : "lg:grid-cols-[minmax(0,1.1fr)_minmax(20rem,0.9fr)]"}`}>
+        <div className={`mx-auto grid max-w-7xl gap-5 lg:items-end ${catalogUnavailable ? "lg:grid-cols-1" : language === "ar" ? "lg:grid-cols-[minmax(0,1.15fr)_minmax(20rem,0.85fr)]" : "lg:grid-cols-[minmax(0,1.1fr)_minmax(20rem,0.9fr)]"}`}>
           <div className="min-w-0">
             <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.3em] text-[var(--gold-soft)]"><Sparkles className="h-4 w-4" />{t.eyebrow}</p>
             <h1 className="salora-display salora-menu-display mt-2 font-semibold">{language === "ar" ? experience.site.heroTitleAr : experience.site.heroTitleEn}</h1>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--muted)] sm:mt-3 sm:text-base sm:leading-7">{language === "ar" ? experience.site.heroSubtitleAr : experience.site.heroSubtitleEn}</p>
             <div className="mt-4 flex flex-wrap items-center gap-3">
-            <a href="#menu-products" className="inline-flex min-h-11 items-center justify-center rounded-full bg-[var(--gold)] px-5 text-sm font-semibold text-black transition hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--gold)]">{t.browse}</a>
-            <ExperienceStatus language={language} source={menuSource} stale={menuStale} databaseHealth={menuDatabaseHealth} />
+              <a href="#menu-products" className="inline-flex min-h-11 items-center justify-center rounded-full bg-[var(--gold)] px-5 text-sm font-semibold text-black transition hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--gold)]">{t.browse}</a>
+              <ExperienceStatus language={language} source={menuSource} stale={menuStale} databaseHealth={menuDatabaseHealth} />
             </div>
           </div>
-          <fieldset className="min-w-0 rounded-2xl border border-white/10 bg-white/[0.035] p-2 sm:rounded-3xl sm:p-3">
+          {!catalogUnavailable ? <fieldset className="min-w-0 rounded-2xl border border-white/10 bg-white/[0.035] p-2 sm:rounded-3xl sm:p-3">
             <legend className="px-2 text-xs font-semibold text-[var(--muted)]">{t.service}</legend>
             <div className="salora-scroll-strip min-w-0 sm:grid sm:grid-cols-2 sm:gap-2">
-            {serviceModes.map(({ id, ar, en, icon: Icon }) => (
-              <button key={id} type="button" aria-pressed={serviceMode === id} onClick={() => setServiceMode(id)} className={`flex min-h-11 min-w-[10.5rem] shrink-0 items-center gap-2 rounded-xl border px-3 py-2 text-start transition sm:min-h-12 sm:min-w-0 sm:rounded-2xl sm:p-3 ${serviceMode === id ? "border-[var(--gold)] bg-[var(--gold)]/15 text-[var(--gold-soft)]" : "border-white/10 bg-black/20 text-[var(--muted)] hover:border-white/20"}`}>
-                <Icon className="h-5 w-5 shrink-0" /><span className="text-sm font-semibold">{language === "ar" ? ar : en}</span>{serviceMode === id ? <Check className="ms-auto h-4 w-4" /> : null}
-              </button>
-            ))}
+              {serviceModes.map(({ id, ar, en, icon: Icon }) => (
+                <button key={id} type="button" aria-pressed={serviceMode === id} onClick={() => setServiceMode(id)} className={`flex min-h-11 min-w-[10.5rem] shrink-0 items-center gap-2 rounded-xl border px-3 py-2 text-start transition sm:min-h-12 sm:min-w-0 sm:rounded-2xl sm:p-3 ${serviceMode === id ? "border-[var(--gold)] bg-[var(--gold)]/15 text-[var(--gold-soft)]" : "border-white/10 bg-black/20 text-[var(--muted)] hover:border-white/20"}`}>
+                  <Icon className="h-5 w-5 shrink-0" /><span className="text-sm font-semibold">{language === "ar" ? ar : en}</span>{serviceMode === id ? <Check className="ms-auto h-4 w-4" /> : null}
+                </button>
+              ))}
             </div>
-          </fieldset>
+          </fieldset> : null}
         </div>
       </section>
 
       {menuBanners.length ? <section className="mx-auto grid max-w-7xl gap-4 px-4 pt-8 sm:grid-cols-2 sm:px-6">{menuBanners.map((banner) => <Link key={banner.id} href={banner.linkUrl || "/menu"} className="relative min-h-40 overflow-hidden border border-white/10 bg-white/[0.04] p-6" style={{ borderRadius: `${experience.theme.borderRadius}px`, backgroundImage: banner.imageUrl ? `linear-gradient(90deg, rgba(0,0,0,.86), rgba(0,0,0,.18)), url(${banner.imageUrl})` : undefined, backgroundPosition: "center", backgroundSize: "cover" }}><h2 className="max-w-sm text-2xl font-semibold">{language === "ar" ? banner.titleAr : banner.titleEn}</h2><p className="mt-2 max-w-sm text-sm text-[var(--muted)]">{language === "ar" ? banner.subtitleAr : banner.subtitleEn}</p></Link>)}</section> : null}
 
       <section id="menu-products" className="mx-auto max-w-7xl scroll-mt-16 px-4 py-5 sm:scroll-mt-[4.5rem] sm:px-6 sm:py-8">
-        <div className="sticky top-16 z-30 -mx-4 border-y border-white/10 bg-black/90 px-4 py-3 backdrop-blur-xl sm:top-[4.5rem] sm:-mx-6 sm:px-6">
-        <div className="mx-auto flex max-w-7xl flex-col gap-3 lg:flex-row lg:items-center">
-          {experience.menu.showSearch ? <label className="flex min-w-0 flex-1 items-center gap-3 rounded-xl border border-white/10 bg-white/[0.045] px-4 py-2 lg:max-w-xl">
-            <span className="sr-only">{t.search}</span><Search className="h-5 w-5 text-[var(--muted)]" aria-hidden="true" /><input type="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder={t.search} className="w-full bg-transparent text-sm outline-none placeholder:text-white/30" />
-          </label> : null}
-          {experience.menu.showCategories ? <div className="salora-scroll-strip lg:flex-1" role="tablist" aria-label={language === "ar" ? "تصنيفات المنيو" : "Menu categories"}>
-            {categories.map((item) => {
-              const authoritySection = sections.find((section) => section.key === item);
-              const label = item === "All" ? t.all : language === "ar" ? authoritySection?.nameAr ?? item : authoritySection?.nameEn ?? item;
-              const count = item === "All" ? initialProducts.length : initialProducts.filter((product) => product.sectionKey === item).length;
-              return <button key={item} type="button" role="tab" aria-selected={category === item} onClick={() => setCategory(item)} className={`min-h-11 shrink-0 rounded-full border px-4 py-2 text-xs font-semibold transition ${category === item ? "border-[var(--gold)] bg-[var(--gold)] text-black" : "border-white/10 bg-white/[0.04] text-[var(--muted)] hover:border-white/25 hover:text-[var(--cream)]"}`}>{label}<span className="ms-2 opacity-65">{count}</span></button>;
-            })}
-          </div> : null}
-        </div></div>
+        {!catalogUnavailable ? <div className="sticky top-16 z-30 -mx-4 border-y border-white/10 bg-black/90 px-4 py-3 backdrop-blur-xl sm:top-[4.5rem] sm:-mx-6 sm:px-6">
+          <div className="mx-auto flex max-w-7xl flex-col gap-3 lg:flex-row lg:items-center">
+            {experience.menu.showSearch ? <label className="flex min-w-0 flex-1 items-center gap-3 rounded-xl border border-white/10 bg-white/[0.045] px-4 py-2 lg:max-w-xl">
+              <span className="sr-only">{t.search}</span><Search className="h-5 w-5 text-[var(--muted)]" aria-hidden="true" /><input type="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder={t.search} className="w-full bg-transparent text-sm outline-none placeholder:text-white/30" />
+            </label> : null}
+            {experience.menu.showCategories ? <div className="salora-scroll-strip lg:flex-1" role="tablist" aria-label={language === "ar" ? "تصنيفات القائمة" : "Menu categories"}>
+              {categories.map((item) => {
+                const authoritySection = sections.find((section) => section.key === item);
+                const label = item === "All" ? t.all : language === "ar" ? authoritySection?.nameAr ?? item : authoritySection?.nameEn ?? item;
+                const count = item === "All" ? initialProducts.length : initialProducts.filter((product) => product.sectionKey === item).length;
+                return <button key={item} type="button" role="tab" aria-selected={category === item} onClick={() => setCategory(item)} className={`min-h-11 shrink-0 rounded-full border px-4 py-2 text-xs font-semibold transition ${category === item ? "border-[var(--gold)] bg-[var(--gold)] text-black" : "border-white/10 bg-white/[0.04] text-[var(--muted)] hover:border-white/25 hover:text-[var(--cream)]"}`}>{label}<span className="ms-2 opacity-65">{count}</span></button>;
+              })}
+            </div> : null}
+          </div>
+        </div> : null}
 
-        <div className="mt-5 flex items-center justify-between gap-4 border-b border-white/10 pb-4 text-sm text-[var(--muted)]" aria-live="polite">
+        {!catalogUnavailable ? <div className="mt-5 flex items-center justify-between gap-4 border-b border-white/10 pb-4 text-sm text-[var(--muted)]" aria-live="polite">
           <span><strong className="text-[var(--cream)]">{filteredProducts.length}</strong> {t.results}</span>
           {search || category !== "All" ? <button type="button" onClick={() => { setSearch(""); setCategory("All"); }} className="min-h-11 text-xs font-semibold text-[var(--gold-soft)] hover:underline">{t.clearFilters}</button> : null}
-        </div>
+        </div> : null}
 
         <div className={`mt-5 grid gap-4 sm:mt-7 sm:gap-5 ${gridClass}`}>
           {filteredProducts.map((product) => (
