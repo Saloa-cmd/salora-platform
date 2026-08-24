@@ -38,12 +38,12 @@ assert.match(publicMenu, /return quarantineSyntheticTestData\(await getMenuAutho
 assert.match(globalConcierge, /fetch\("\/api\/products"/);
 assert.match(globalConcierge, /payload\.runtime\?\.databaseHealth === "available"/);
 assert.match(globalConcierge, /payload\.runtime\?\.stale === false/);
-assert.match(globalConcierge, /AI Concierge returns when the live menu is connected/);
-assert.match(globalConcierge, /المساعد الذكي يعود عند اتصال المنيو المباشر/);
+assert.match(globalConcierge, /if \(availability !== "ready"\) return null/);
+assert.doesNotMatch(globalConcierge, /live menu is connected|اتصال المنيو المباشر/);
 
 console.log("SALORA P30 Control Tower unification verified:");
 console.log("- DB-backed intelligence is embedded in Control Tower workspaces");
 console.log("- Marketing has a focused promotions, coupons, and governed content workspace");
 console.log("- legacy dashboard redirects are no longer the primary analytics workflow");
 console.log("- synthetic POS test data is quarantined from public menu surfaces");
-console.log("- public AI availability is gated by authoritative live-menu readiness");
+console.log("- public AI availability remains gated without exposing infrastructure state to customers");

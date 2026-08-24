@@ -1,10 +1,12 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "phase": "P22C-3C",
   "mode": "PREPARATION_ONLY",
   "branch": "agent/p22c-3c-production-ddl-gate",
   "baseContainsMergeCommit": "8710c409dbd6ebd8f3fee280b2846379bb21f9f9",
-  "productionProjectRef": "grcycqdtjjfklibutfos",
+  "historicalProjectRefAtCertification": "grcycqdtjjfklibutfos",
+  "environmentIdentity": "HISTORICAL_ONLY_DO_NOT_ROUTE",
+  "currentEnvironmentMustBeResolvedFromProvider": true,
   "productionExecutionAllowed": false,
   "finalApprovalIssued": false,
   "compatibilityModeRequired": true,
@@ -16,7 +18,7 @@
     "categories": 16
   },
   "migration": {
-    "path": "prisma/migrations/202608050001_p22c3a_production_authority_schema_only/migration.sql",
+    "path": "prisma/baselines/p22c3a-production-authority-schema-only.sql",
     "sha256": "9dc141be031edc4956b59c0a89c8de10fadadfff0cac57168a150ff80e4b97c4",
     "hashCanonicalization": "UTF8_LF",
     "createsTables": 8,
@@ -79,7 +81,7 @@
   },
   "correction": {
     "phase": "P22C-3C-A",
-    "reason": "Production contains catalog rows outside the SALORA authority baseline.",
+    "reason": "The historical certification environment contained catalog rows outside the SALORA authority baseline.",
     "productionConnectionUsed": false,
     "productionWritePerformed": false,
     "migrationChanged": false

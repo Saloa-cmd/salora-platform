@@ -5,6 +5,7 @@ import type { ThemePreference } from "@salora/ui";
 import { GlobalAiConcierge } from "@/components/GlobalAiConcierge";
 import { isThemePreference, themeBootstrapScript } from "@/lib/theme";
 import "./globals.css";
+import "./p31-experience.css";
 
 // A request-specific CSP nonce is applied by proxy.ts. Nonces require dynamic
 // rendering so Next.js can attach the same value to framework scripts/styles.
@@ -16,7 +17,7 @@ export const metadata: Metadata = {
     default: "SALORA.CAFE | Taste the Harmony",
     template: "%s | SALORA.CAFE"
   },
-  description: "اكتشف منيو سالورا في واجهة شاطئ الدهاريز: قهوة مختصة، ماتشا، مشروبات وحلويات تُحضّر بعناية في صلالة.",
+  description: "اكتشف تجربة سالورا في واجهة شاطئ الدهاريز: قهوة مختصة، ماتشا، مشروبات وحلويات تُحضّر بعناية في صلالة.",
   alternates: {
     canonical: saloraRuntime.siteUrl
   },
