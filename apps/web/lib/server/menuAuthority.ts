@@ -30,6 +30,15 @@ export class MenuAuthorityUnavailableError extends Error {
 
 type AuthorityMode = "required" | "compat";
 
+type LiveProductOverlay = {
+  status?: string;
+  images?: Array<{
+    productId: string;
+    publicUrl?: string | null;
+    isPrimary?: boolean;
+  }>;
+};
+
 function authorityMode(): AuthorityMode {
   return process.env.SALORA_MENU_AUTHORITY_MODE === "required" ? "required" : "compat";
 }
@@ -45,6 +54,12 @@ function publicImage(value: unknown): string | undefined {
   const record = value as Record<string, unknown>;
   const candidate = record.publicUrl ?? record.url ?? record.src;
   return typeof candidate === "string" && /^https:\/\//i.test(candidate) ? candidate : undefined;
+}
+
+function firstPublicImage(images: Array<{ publicUrl?: string | null; isPrimary?: boolean }>): string | undefined {
+  return images.find((image) => image.isPrimary && image.publicUrl)?.publicUrl
+    ?? images.find((image) => image.publicUrl)?.publicUrl
+    ?? undefined;
 }
 
 function groupByProductId<T extends { productId: string }>(rows: T[]): Map<string, T[]> {
@@ -80,10 +95,17 @@ function allergenSummary(value: any): ProductAllergenSummary | undefined {
   };
 }
 
-function mapRevisionProduct(row: any, revisionId: string, sectionById: Map<string, MenuAuthoritySection>, now: Date): Product | null {
+function mapRevisionProduct(
+  row: any,
+  revisionId: string,
+  sectionById: Map<string, MenuAuthoritySection>,
+  now: Date,
+  liveProduct?: LiveProductOverlay
+): Product | null {
   const membership = row?.membership;
   const product = row?.product;
-  if (!membership || !product || product.status !== "ACTIVE") return null;
+  const liveStatus = liveProduct?.status ?? product?.status;
+  if (!membership || !product || liveStatus !== "ACTIVE") return null;
 
   const availabilityRules = Array.isArray(product.availabilityRules) ? product.availabilityRules : [];
   if (!catalogProductIsAvailable(availabilityRules, now)) return null;
@@ -93,9 +115,9 @@ function mapRevisionProduct(row: any, revisionId: string, sectionById: Map<strin
     startsAt: dateOrNull(rule.startsAt),
     endsAt: dateOrNull(rule.endsAt)
   }));
-  const images = Array.isArray(product.images) ? product.images : [];
-  const primaryImage = images.find((image: any) => image.isPrimary && image.publicUrl)?.publicUrl
-    ?? images.find((image: any) => image.publicUrl)?.publicUrl;
+  const snapshotImages = Array.isArray(product.images) ? product.images : [];
+  const liveImages = liveProduct?.images ?? [];
+  const primaryImage = firstPublicImage(liveImages) ?? firstPublicImage(snapshotImages);
   const section = membership.sectionId ? sectionById.get(membership.sectionId) : undefined;
 
   return {
@@ -117,7 +139,7 @@ function mapRevisionProduct(row: any, revisionId: string, sectionById: Map<strin
     tags: Array.from(new Set([...(product.tags ?? []), ...(membership.badges ?? [])])),
     badges: membership.badges ?? [],
     pairing: product.pairingHint ?? undefined,
-    visual: publicImage(membership.presentationImage) ?? primaryImage ?? product.slug,
+    visual: primaryImage ?? publicImage(membership.presentationImage) ?? product.slug,
     featured: Boolean(membership.isFeatured),
     variants: (product.variants ?? []).map((variant: any) => ({
       id: variant.id,
@@ -164,9 +186,24 @@ function revisionAuthority(collection: any): MenuAuthoritySnapshot | null {
     .sort((left: MenuAuthoritySection, right: MenuAuthoritySection) => left.sortOrder - right.sortOrder);
 
   const sectionById = new Map(sections.map((section) => [section.id, section]));
+  const liveProductsById = new Map<string, LiveProductOverlay>(
+    (collection.liveProducts ?? []).map((product: any) => [
+      product.id,
+      {
+        status: product.status,
+        images: collection.liveImagesByProduct?.get(product.id) ?? []
+      }
+    ])
+  );
   const now = new Date();
   const products = contract.products
-    .map((row: any) => mapRevisionProduct(row, revision.id, sectionById, now))
+    .map((row: any) => mapRevisionProduct(
+      row,
+      revision.id,
+      sectionById,
+      now,
+      liveProductsById.get(row?.product?.id)
+    ))
     .filter((product: Product | null): product is Product => Boolean(product));
 
   const latestPublication = collection.publications?.[0];
@@ -212,9 +249,6 @@ async function readPublishedRevision(): Promise<MenuAuthoritySnapshot | null> {
     });
     if (!collection?.activeRevisionId) return null;
 
-    // Prisma 7's query compiler may resolve multiple include branches in
-    // parallel on one transaction-bound pg client. Read each relation in
-    // sequence until the upstream adapter serializes transaction queries.
     const activeRevision = await database.menuCollectionRevision.findUnique({
       where: { id: collection.activeRevisionId }
     });
@@ -222,10 +256,31 @@ async function readPublishedRevision(): Promise<MenuAuthoritySnapshot | null> {
       where: { collectionId: collection.id, status: "PUBLISHED" },
       orderBy: { publishedAt: "desc" }
     });
+    if (!activeRevision || !isMenuRevisionContractV2(activeRevision.snapshot)) return null;
+
+    const productIds = (activeRevision.snapshot.products as any[])
+      .map((row: any) => row?.product?.id)
+      .filter((id: unknown): id is string => typeof id === "string" && id.length > 0);
+
+    const liveProducts = productIds.length
+      ? await database.catalogProduct.findMany({
+        where: { id: { in: productIds }, brandKey: "SALORA" },
+        select: { id: true, status: true }
+      })
+      : [];
+    const liveImages = productIds.length
+      ? await database.productImage.findMany({
+        where: { productId: { in: productIds }, archivedAt: null, deletedAt: null },
+        orderBy: [{ isPrimary: "desc" }, { sortOrder: "asc" }, { createdAt: "asc" }]
+      })
+      : [];
+    const liveImagesByProduct = groupByProductId(liveImages);
 
     return revisionAuthority({
       ...collection,
       activeRevision,
+      liveProducts,
+      liveImagesByProduct,
       publications: latestPublication ? [latestPublication] : []
     });
   });
@@ -241,8 +296,6 @@ async function readLegacyCatalog(): Promise<MenuAuthoritySnapshot> {
     const productIds = rawProducts.map((product) => product.id);
     const categoryIds = [...new Set(rawProducts.map((product) => product.categoryId))];
 
-    // Keep relation reads in bulk and explicitly awaited. Prisma 7 may execute
-    // multiple include branches concurrently on the transaction's pg client.
     const categoryRows = await database.productCategory.findMany({
       where: { id: { in: categoryIds } },
       orderBy: { sortOrder: "asc" }
@@ -324,7 +377,7 @@ async function readLegacyCatalog(): Promise<MenuAuthoritySnapshot> {
         price: currentCatalogPrice(row.basePrice, row.pricingRules, now),
         tags: row.tags,
         pairing: row.pairingHint ?? undefined,
-        visual: row.images.find((image) => image.publicUrl)?.publicUrl ?? row.slug,
+        visual: firstPublicImage(row.images) ?? row.slug,
         variants: row.variants.map((variant) => ({
           id: variant.id,
           name: variant.name,
@@ -381,7 +434,7 @@ async function loadAuthority(): Promise<MenuAuthoritySnapshot> {
 
 const cachedAuthority = unstable_cache(
   loadAuthority,
-  ["salora-menu-authority-v2"],
+  ["salora-menu-authority-v3"],
   { revalidate: MENU_AUTHORITY_REVALIDATE_SECONDS, tags: [MENU_AUTHORITY_CACHE_TAG] }
 );
 
