@@ -10,8 +10,7 @@ SALORA is a production-oriented hospitality platform for **Salora.Cafe**: premiu
 salora-platform/
 ├── apps/
 │   ├── web/        # Next.js customer experience + Control Tower + APIs
-│   ├── mobile/     # Expo / React Native customer experience
-│   └── admin/      # reserved legacy workspace; admin UX lives in web Control Tower
+│   └── mobile/     # Expo / React Native customer experience
 ├── packages/
 │   ├── backend/    # database, domains, AI gateway, analytics, jobs, integrations
 │   ├── config/     # runtime configuration
@@ -29,6 +28,7 @@ salora-platform/
 
 - **Web:** Next.js App Router, React, TypeScript
 - **Mobile:** Expo / React Native
+- **Control Tower:** protected administrative experience inside `apps/web`
 - **Data:** PostgreSQL / Supabase through server-side repositories and Prisma
 - **Security:** authenticated APIs/server actions, RBAC, RLS context, typed validation, audited mutations
 - **AI:** governed AI gateway with menu-grounded public concierge and permission-scoped Control Tower Copilot
