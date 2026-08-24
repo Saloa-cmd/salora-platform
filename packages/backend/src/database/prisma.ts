@@ -22,7 +22,18 @@ export function getPrismaClient(): SaloraPrismaClient {
     throw new Error("DATABASE_URL is required for Prisma runtime.");
   }
 
-  const adapter = new PrismaPg({ connectionString: env.DATABASE_URL });
+  // Let node-postgres enforce timeouts at the connection/query layer so timed
+  // out work is actually cancelled. A Promise.race around Prisma only rejects
+  // the caller while the underlying query keeps occupying a pooled connection,
+  // which can create cascading pool starvation in serverless runtimes.
+  const adapter = new PrismaPg({
+    connectionString: env.DATABASE_URL,
+    connectionTimeoutMillis: env.DATABASE_QUERY_TIMEOUT_MS,
+    query_timeout: env.DATABASE_QUERY_TIMEOUT_MS,
+    statement_timeout: env.DATABASE_QUERY_TIMEOUT_MS,
+    idleTimeoutMillis: 10_000,
+    max: 5
+  });
   globalPrisma.saloraPrisma = new PrismaClient({ adapter });
   setGauge("salora_database_client_singleton", 1);
   return globalPrisma.saloraPrisma;
@@ -66,10 +77,7 @@ export async function withQueryProtection<T>(operation: string, run: () => Promi
 
   return withSpan("database.query", { "db.operation": operation }, async (span) => {
     try {
-      const timeout = new Promise<never>((_, reject) => {
-        setTimeout(() => reject(new Error(`Database query timed out: ${operation}`)), env.DATABASE_QUERY_TIMEOUT_MS);
-      });
-      const result = await Promise.race([run(), timeout]);
+      const result = await run();
       const duration = Date.now() - started;
       recordDuration("salora_database_query_duration_ms", duration);
       if (duration >= env.DATABASE_SLOW_QUERY_MS) {
