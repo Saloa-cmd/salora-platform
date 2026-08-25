@@ -48,7 +48,10 @@ export function ProductReadinessWorkspace() {
     setLoading(false);
   }, []);
 
-  useEffect(() => { void refresh(); }, [refresh]);
+  useEffect(() => {
+    const timer = window.setTimeout(() => void refresh(), 0);
+    return () => window.clearTimeout(timer);
+  }, [refresh]);
 
   const activationCandidates = useMemo(() => products.filter((product) => product.status === "DRAFT" && product.readiness?.priceReady && product.readiness?.mediaReady && product.readiness?.categoryReady && product.readiness?.optionsReady), [products]);
   const metrics = useMemo(() => ({
