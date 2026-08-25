@@ -9,6 +9,7 @@ import { CapabilityCard } from "./CapabilityCard";
 import { ExperienceDesignStudio } from "./ExperienceDesignStudio";
 import { MenuAuthorityStudio } from "./MenuAuthorityStudio";
 import { ProductMediaManager } from "./ProductMediaManager";
+import { ProductReadinessWorkspace } from "./ProductReadinessWorkspace";
 import { MediaGovernanceAudit } from "./MediaGovernanceAudit";
 import { ProductActionPanel, LoyaltyActionPanel, RuntimeConfigActionPanel } from "./NoCodeActionPanel";
 import { MarketingOperationsWorkspace } from "./MarketingOperationsWorkspace";
@@ -31,7 +32,7 @@ function Overview() {
 function DomainWorkspace({ sectionId }: { sectionId: ControlTowerSectionId }) {
   if (sectionId === "overview") return <Overview />;
   if (sectionId === "experience") return <ExperienceDesignStudio />;
-  if (sectionId === "menu") return <><MenuAuthorityStudio /><div className="mt-6 grid gap-6"><ProductActionPanel /><MediaGovernanceAudit /><ProductMediaManager /></div></>;
+  if (sectionId === "menu") return <><MenuAuthorityStudio /><div className="mt-6 grid gap-6"><ProductReadinessWorkspace /><ProductActionPanel /><MediaGovernanceAudit /><ProductMediaManager /></div></>;
   if (sectionId === "orders") return <div className="space-y-6"><DashboardView kind="operations" /><SupremacyCommandCenter /></div>;
   if (sectionId === "customers") return <div className="space-y-6"><DashboardView kind="customers" /><LoyaltyActionPanel /></div>;
   if (sectionId === "marketing") return <MarketingOperationsWorkspace />;
