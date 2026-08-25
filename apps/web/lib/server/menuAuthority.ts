@@ -249,6 +249,9 @@ async function readPublishedRevision(): Promise<MenuAuthoritySnapshot | null> {
     });
     if (!collection?.activeRevisionId) return null;
 
+    // Keep transaction-bound Prisma relation reads explicitly sequential until the
+    // upstream adapter serializes transaction queries. node-postgres does not
+    // support overlapping queries on the same interactive transaction client.
     const activeRevision = await database.menuCollectionRevision.findUnique({
       where: { id: collection.activeRevisionId }
     });
