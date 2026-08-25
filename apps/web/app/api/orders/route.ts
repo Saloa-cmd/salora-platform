@@ -5,6 +5,7 @@ import { parseJson, requirePermission, responseError, responseJson } from "@/lib
 import { currentAuthPayload } from "@/lib/server/auth/http";
 import { enforceRateLimit, rateLimitResponse } from "@/lib/server/rateLimit";
 import { writeActivity, writeAudit } from "@/lib/server/simpleLaunchControl";
+import { assertCatalogItemsOrderable } from "@/lib/server/orderability";
 import { codOrderSchema, createCodOrder, OrderIntegrityError } from "@/lib/server/supremacyControl";
 
 export const dynamic = "force-dynamic";
@@ -35,6 +36,7 @@ export async function POST(request: NextRequest) {
     await enforceRateLimit(request, "orders");
     const parsed = await parseJson(request, codOrderSchema);
     if (!parsed.success) return responseError("Invalid COD order payload.", requestId);
+    await assertCatalogItemsOrderable(parsed.data.items.map((item) => item.productSlug));
     const order = await createCodOrder({ ...parsed.data, customerId: undefined });
     await notifyWhatsAppOrderEvent({
       event: "ORDER_CREATED",
@@ -52,6 +54,9 @@ export async function POST(request: NextRequest) {
     if (limited) return limited;
     if (error instanceof OrderIntegrityError) {
       return responseError(error.message, requestId, error.status);
+    }
+    if (error instanceof Error && error.name === "ProductOrderabilityError") {
+      return responseError("One or more products are not ready to order.", requestId, 409);
     }
     return responseError("Order could not be created safely.", requestId, 500);
   }
