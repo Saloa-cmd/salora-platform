@@ -27,11 +27,8 @@ const products = [...menuBlock.matchAll(/^\s*\["([^"]+)",\s*"([^"]+)",\s*"([^"]+
   .map((match) => ({ category: match[1], slug: match[2], price: match[5] === "null" ? null : Number(match[5]) }));
 const drafts = products.filter((product) => product.price === null).map((product) => product.slug).sort();
 const expectedDrafts = [
-  "awar-qalb",
-  "bahr",
   "berry-detox",
   "brazilian-lemonade",
-  "khayal",
   "peanut-butter-latte",
   "pina-colada",
   "pistachio-espresso",
@@ -44,8 +41,11 @@ const expectedDrafts = [
 
 assert.equal(products.length, 117, "P22 requires exactly 117 products.");
 assert.equal(new Set(products.map((product) => product.slug)).size, 117, "P22 product slugs must be unique.");
-assert.equal(products.filter((product) => product.price !== null).length, 104, "P22 requires exactly 104 ACTIVE-by-price products.");
-assert.deepEqual(drafts, expectedDrafts, "P22 draft product set does not match the approved reference.");
+assert.equal(products.filter((product) => product.price !== null).length, 107, "SALORA requires exactly 107 ACTIVE-by-price products after the P34 signature trio activation.");
+assert.deepEqual(drafts, expectedDrafts, "SALORA draft product set does not match the current approved reference.");
+for (const slug of ["awar-qalb", "bahr", "khayal"]) {
+  assert.equal(products.find((product) => product.slug === slug)?.price, 2, `${slug} must be 2.000 OMR.`);
+}
 
 assert.match(backendContract, /MENU_REVISION_CONTRACT_VERSION = 2/);
 assert.match(authority, /status: "PUBLISHED"/);
@@ -77,7 +77,8 @@ assert.equal(typeof packageJson.scripts["test:menu-authority"], "string");
 assert.ok(packageJson.scripts.test.includes("menu-authority-integration.test.mjs"));
 
 console.log("SALORA P22 Menu Authority integration verified:");
-console.log("- 117 unique products, 104 ACTIVE-by-price, 13 exact drafts");
+console.log("- 117 unique products, 107 ACTIVE-by-price, 10 exact drafts");
+console.log("- signature trio Awar Qalb, Bahr and Khayal fixed at 2.000 OMR");
 console.log("- published MenuCollectionRevision contract v2 is authoritative");
 console.log("- static web and AI menu fallbacks are removed");
 console.log("- legacy compatibility avoids optional P21 profile tables");
