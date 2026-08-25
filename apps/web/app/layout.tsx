@@ -6,6 +6,7 @@ import { GlobalAiConcierge } from "@/components/GlobalAiConcierge";
 import { isThemePreference, themeBootstrapScript } from "@/lib/theme";
 import "./globals.css";
 import "./p31-experience.css";
+import "./p32-catalog-media.css";
 
 // A request-specific CSP nonce is applied by proxy.ts. Nonces require dynamic
 // rendering so Next.js can attach the same value to framework scripts/styles.
