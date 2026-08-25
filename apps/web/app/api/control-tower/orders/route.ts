@@ -2,6 +2,7 @@ import { notifyWhatsAppOrderEvent, type WhatsAppOrderNotificationEvent } from "@
 import { type NextRequest } from "next/server";
 import { createControlTowerRepository } from "@salora/backend/domains/control-tower/repository";
 import { responseError, responseJson } from "@/lib/server/domainHttp";
+import { assertCatalogItemsOrderable } from "@/lib/server/orderability";
 import { handleError, pagination, parseBody, requireControlPermission, requestId, writeActivity, writeAudit } from "@/lib/server/simpleLaunchControl";
 import { assertOrderTransition, codOrderSchema, createCodOrder, OrderIntegrityError, orderStatusSchema } from "@/lib/server/supremacyControl";
 
@@ -45,6 +46,7 @@ export async function POST(request: NextRequest) {
     const repo = await createControlTowerRepository({ userId: actor.sub, roles: actor.roles });
     const parsed = await parseBody(request, codOrderSchema);
     if (!parsed.success) return responseError("Invalid COD order payload.", id);
+    await assertCatalogItemsOrderable(parsed.data.items.map((item) => item.productSlug), { userId: actor.sub, roles: actor.roles });
     const order = await createCodOrder(parsed.data, { userId: actor.sub, roles: actor.roles });
     await notifyWhatsAppOrderEvent({
       event: "ORDER_CREATED",
@@ -59,6 +61,9 @@ export async function POST(request: NextRequest) {
     return responseJson(order, id, 201);
   } catch (error) {
     if (error instanceof OrderIntegrityError) return responseError(error.message, id, error.status);
+    if (error instanceof Error && error.name === "ProductOrderabilityError") {
+      return responseError("One or more products are not ready to order.", id, 409);
+    }
     return handleError(error, id);
   }
 }
@@ -69,7 +74,7 @@ export async function PATCH(request: NextRequest) {
     const actor = await requireControlPermission(request, "order:update");
     const repo = await createControlTowerRepository({ userId: actor.sub, roles: actor.roles });
     const parsed = await parseBody(request, orderStatusSchema);
-    if (!parsed.success) return responseError("Invalid order status payload.", id);
+    if (!parsed.success) return responseError("Invalid order status payload.", id, 400);
     const input = parsed.data;
     const before = await repo.orders.findUnique({ id: input.orderId }, { include: { items: true, payments: true, timeline: true } });
     if (!before) return responseError("Order not found.", id, 404);
