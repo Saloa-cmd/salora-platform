@@ -25,8 +25,7 @@ const expectedCategoryOrder = [
 const expectedDrafts = [
   "salora-latte", "salora-cappuccino", "pistachio-spanish-latte",
   "peanut-butter-latte", "pistachio-espresso", "brazilian-lemonade",
-  "pina-colada", "bahr", "khayal", "strawberry-milkshake",
-  "awar-qalb", "protein-shake", "berry-detox"
+  "pina-colada", "strawberry-milkshake", "protein-shake", "berry-detox"
 ].sort();
 const actualDrafts = rows.filter((row) => row.price === null).map((row) => row.slug).sort();
 
@@ -35,8 +34,8 @@ if (new Set(rows.map((row) => row.slug)).size !== 117) throw new Error("SALORA p
 if (categories.length !== 16 || new Set(categories.map((row) => row.slug)).size !== 16) {
   throw new Error("SALORA requires exactly 16 unique categories.");
 }
-if (rows.filter((row) => row.price !== null).length !== 104) throw new Error("SALORA requires exactly 104 priced ACTIVE products.");
-if (actualDrafts.length !== 13) throw new Error("SALORA requires exactly 13 missing-price DRAFT products.");
+if (rows.filter((row) => row.price !== null).length !== 107) throw new Error("SALORA requires exactly 107 priced ACTIVE products.");
+if (actualDrafts.length !== 10) throw new Error("SALORA requires exactly 10 missing-price DRAFT products.");
 if (JSON.stringify(actualDrafts) !== JSON.stringify(expectedDrafts)) {
   throw new Error(`Draft set mismatch. Found: ${actualDrafts.join(", ")}.`);
 }
@@ -53,4 +52,9 @@ if (!source.includes('"salora-menu"') || !source.includes('"salora-wellness"') |
   throw new Error("The deterministic collection seed contract is missing.");
 }
 
-console.info("SALORA menu verified: 117 unique bilingual products, 104 ACTIVE, 13 DRAFT, 16 ordered categories.");
+for (const slug of ["awar-qalb", "bahr", "khayal"]) {
+  const product = rows.find((row) => row.slug === slug);
+  if (!product || product.price !== 2) throw new Error(`${slug} must be priced at 2.000 OMR.`);
+}
+
+console.info("SALORA menu verified: 117 unique bilingual products, 107 ACTIVE, 10 DRAFT, 16 ordered categories.");
