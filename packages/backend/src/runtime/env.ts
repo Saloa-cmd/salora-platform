@@ -10,9 +10,15 @@ export const infrastructureEnvSchema = z.object({
   QUEUE_CONCURRENCY: z.coerce.number().int().positive().default(5),
   QUEUE_RETRY_LIMIT: z.coerce.number().int().min(0).default(3),
   QUEUE_BACKOFF_MS: z.coerce.number().int().positive().default(1000),
+  DATABASE_CONNECT_TIMEOUT_MS: z.coerce.number().int().positive().default(2500),
   DATABASE_QUERY_TIMEOUT_MS: z.coerce.number().int().positive().default(5000),
   DATABASE_SLOW_QUERY_MS: z.coerce.number().int().positive().default(750),
   DATABASE_RETRY_LIMIT: z.coerce.number().int().min(0).default(2),
+  DATABASE_POOL_MAX: z.coerce.number().int().min(1).max(10).default(2),
+  DATABASE_POOL_IDLE_TIMEOUT_MS: z.coerce.number().int().positive().default(5000),
+  DATABASE_POOL_MAX_LIFETIME_SECONDS: z.coerce.number().int().positive().default(300),
+  DATABASE_POOL_LIVENESS_INTERVAL_MS: z.coerce.number().int().positive().default(15000),
+  DATABASE_POOL_LIVENESS_TIMEOUT_MS: z.coerce.number().int().positive().default(2000),
   REDIS_CONNECT_TIMEOUT_MS: z.coerce.number().int().positive().default(5000),
   REDIS_MAX_RETRIES_PER_REQUEST: z.coerce.number().int().min(0).default(3)
 });
