@@ -11,7 +11,7 @@ assert.match(authority, /database\.productImage\.findMany/);
 assert.match(authority, /liveImagesByProduct/);
 assert.match(authority, /liveProduct\?\.status \?\? product\?\.status/);
 assert.match(authority, /firstPublicImage\(liveImages\) \?\? firstPublicImage\(snapshotImages\)/);
-assert.match(authority, /salora-menu-authority-v3/);
+assert.match(authority, /salora-menu-authority-v4/);
 
 assert.match(renderer, /import Image from "next\/image"/);
 assert.match(renderer, /ProductShowcaseCard/);

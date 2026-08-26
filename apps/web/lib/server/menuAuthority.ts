@@ -9,7 +9,9 @@ import type {
 } from "@salora/types";
 import {
   SYSTEM_AUTH_CONTEXT,
+  isRetryableDatabaseConnectivityError,
   isMenuRevisionContractV2,
+  withDatabaseReadRecovery,
   withPrismaAuthContext
 } from "@salora/backend";
 import {
@@ -19,7 +21,7 @@ import {
 } from "./commerceIntegrity";
 
 export const MENU_AUTHORITY_CACHE_TAG = "salora-menu-authority";
-export const MENU_AUTHORITY_REVALIDATE_SECONDS = 60;
+export const MENU_AUTHORITY_REVALIDATE_SECONDS = 300;
 
 export class MenuAuthorityUnavailableError extends Error {
   constructor(message = "A published SALORA MenuCollectionRevision is required.") {
@@ -37,6 +39,11 @@ type LiveProductOverlay = {
     publicUrl?: string | null;
     isPrimary?: boolean;
   }>;
+};
+
+const globalMenuAuthority = globalThis as typeof globalThis & {
+  saloraMenuAuthorityLastKnownGood?: MenuAuthoritySnapshot;
+  saloraMenuAuthorityRefresh?: Promise<MenuAuthoritySnapshot>;
 };
 
 function authorityMode(): AuthorityMode {
@@ -430,19 +437,50 @@ async function loadAuthority(): Promise<MenuAuthoritySnapshot> {
     if (authorityMode() === "required") throw new MenuAuthorityUnavailableError();
     return readLegacyCatalog();
   } catch (error) {
+    // Connectivity failures must be recovered at the pool boundary before any
+    // compatibility query is attempted. Immediately issuing a second catalog
+    // read on the same stale socket amplifies pool starvation.
+    if (isRetryableDatabaseConnectivityError(error)) throw error;
     if (error instanceof MenuAuthorityUnavailableError || authorityMode() === "required") throw error;
     return readLegacyCatalog();
   }
 }
 
+async function refreshAuthority(): Promise<MenuAuthoritySnapshot> {
+  if (!globalMenuAuthority.saloraMenuAuthorityRefresh) {
+    globalMenuAuthority.saloraMenuAuthorityRefresh = withDatabaseReadRecovery(
+      "menu-authority.refresh",
+      loadAuthority
+    ).finally(() => {
+      globalMenuAuthority.saloraMenuAuthorityRefresh = undefined;
+    });
+  }
+
+  return globalMenuAuthority.saloraMenuAuthorityRefresh;
+}
+
 const cachedAuthority = unstable_cache(
-  loadAuthority,
-  ["salora-menu-authority-v3"],
+  refreshAuthority,
+  ["salora-menu-authority-v4"],
   { revalidate: MENU_AUTHORITY_REVALIDATE_SECONDS, tags: [MENU_AUTHORITY_CACHE_TAG] }
 );
 
 export async function getMenuAuthoritySnapshot() {
-  return cachedAuthority();
+  try {
+    const snapshot = await cachedAuthority();
+    globalMenuAuthority.saloraMenuAuthorityLastKnownGood = snapshot;
+    return snapshot;
+  } catch (error) {
+    const lastKnownGood = globalMenuAuthority.saloraMenuAuthorityLastKnownGood;
+    if (!lastKnownGood) throw error;
+
+    return {
+      ...lastKnownGood,
+      stale: true,
+      runtimeMode: "offline-cache" as const,
+      databaseHealth: "unavailable" as const
+    };
+  }
 }
 
 export function invalidateMenuAuthorityCache() {
