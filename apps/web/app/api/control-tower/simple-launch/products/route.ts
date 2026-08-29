@@ -2,6 +2,7 @@ import { type NextRequest } from "next/server";
 import { createControlTowerRepository } from "@salora/backend/domains/control-tower/repository";
 import { responseError, responseJson } from "@/lib/server/domainHttp";
 import { catalogOrderabilitySnapshot } from "@/lib/server/orderability";
+import { p36ActivationCandidates } from "@/lib/control-tower/p36ActivationManifest";
 import {
   handleError,
   pagination,
@@ -84,6 +85,11 @@ async function mutate(request: NextRequest) {
 
     const activating = input.action === "restore" || (input.action === "status" && input.status === "ACTIVE") || (input.action === "update" && input.status === "ACTIVE");
     if (activating) {
+      const isP36Candidate = p36ActivationCandidates.some((candidate) => candidate.slug === input.slug);
+      if (isP36Candidate && process.env.SALORA_ACTIVATE117_APPROVED !== "true") {
+        return responseError("P36 activation requires the explicit ACTIVATE117 production gate.", id, 409);
+      }
+      if (isP36Candidate && !actor.roles.includes("ADMIN")) return responseError("Forbidden.", id, 403);
       const readiness = (await catalogOrderabilitySnapshot(authContext)).find((item) => item.productSlug === input.slug);
       const candidatePrice = input.action === "update" && input.basePrice != null ? input.basePrice : Number(before.basePrice);
       const activationReady = candidatePrice > 0 && Boolean(readiness?.mediaReady) && Boolean(readiness?.categoryReady) && Boolean(readiness?.optionsReady);

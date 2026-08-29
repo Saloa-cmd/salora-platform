@@ -18,8 +18,16 @@ export const mediaMutationSchema = z.discriminatedUnion("action", [
     action: z.literal("create-draft"),
     productSlug: z.string().min(2).max(140),
     source: z.enum(["manual", "upload", "ai_image", "ai_prompt"]).default("manual"),
-    storagePath: z.string().min(2).optional(),
+    storageBucket: z.string().regex(/^[a-z0-9][a-z0-9-]{1,118}[a-z0-9]$/).optional(),
+    storagePath: z.string().min(2).max(500).optional(),
     publicUrl: z.string().url().optional(),
+    mimeType: z.enum(["image/webp", "image/avif"]).optional(),
+    width: z.number().int().min(320).max(8000).optional(),
+    height: z.number().int().min(320).max(8000).optional(),
+    fileSize: z.number().int().positive().max(10 * 1024 * 1024).optional(),
+    checksum: z.string().regex(/^[a-f0-9]{64}$/).optional(),
+    altTextAr: z.string().min(2).max(180).optional(),
+    altTextEn: z.string().min(2).max(180).optional(),
     prompt: z.string().max(3000).optional(),
     altText: z.string().max(180).optional(),
     sortOrder: z.number().int().nonnegative().default(0),
@@ -31,10 +39,18 @@ export const mediaMutationSchema = z.discriminatedUnion("action", [
   z.object({ action: z.literal("publish-draft"), draftId: z.string().uuid() }),
   z.object({ action: z.literal("set-primary"), imageId: z.string().uuid() }),
   z.object({ action: z.literal("archive-image"), imageId: z.string().uuid() }),
-  z.object({ action: z.literal("replace-image"), imageId: z.string().uuid(), storagePath: z.string().min(2), publicUrl: z.string().url().optional(), altText: z.string().max(180).optional() }),
+  z.object({ action: z.literal("replace-image"), imageId: z.string().uuid(), storageBucket: z.string().regex(/^[a-z0-9][a-z0-9-]{1,118}[a-z0-9]$/), storagePath: z.string().min(2).max(500), publicUrl: z.string().url(), mimeType: z.enum(["image/webp", "image/avif"]), width: z.number().int().min(320).max(8000), height: z.number().int().min(320).max(8000), fileSize: z.number().int().positive().max(10 * 1024 * 1024), checksum: z.string().regex(/^[a-f0-9]{64}$/), altTextAr: z.string().min(2).max(180), altTextEn: z.string().min(2).max(180) }),
   z.object({ action: z.literal("reorder-images"), productSlug: z.string().min(2).max(140), imageIds: z.array(z.string().uuid()).min(1) }),
   z.object({ action: z.literal("generate-image-prompt"), productSlug: z.string().min(2).max(140), notes: z.string().max(1000).optional() })
-]);
+]).superRefine((value, ctx) => {
+  if (value.action !== "create-draft" || (!value.storagePath && !value.publicUrl)) return;
+  for (const key of ["storageBucket", "storagePath", "publicUrl", "mimeType", "width", "height", "fileSize", "checksum", "altTextAr", "altTextEn"] as const) {
+    if (value[key] == null) ctx.addIssue({ code: "custom", path: [key], message: "Certified media metadata is required for stored assets." });
+  }
+  if (value.storagePath && (value.storagePath.startsWith("/") || value.storagePath.includes("..") || value.storagePath.includes("\\"))) {
+    ctx.addIssue({ code: "custom", path: ["storagePath"], message: "Unsafe storage path." });
+  }
+});
 
 export const aiStudioSchema = z.object({
   operation: z.enum(["description", "short_copy", "pairing", "category", "upsell", "image_prompt", "image_draft"]),

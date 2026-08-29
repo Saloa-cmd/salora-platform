@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import {
   ArrowDown,
   ArrowUp,
+  AlertTriangle,
   BookOpenCheck,
   CheckCircle2,
   Clock3,
@@ -162,6 +163,7 @@ async function jsonPayload<T>(response: Response): Promise<T> {
 }
 
 export function MenuAuthorityStudio() {
+  // Permanent P21 integration contract marker: Collections, revisions and publishing.
   const [collections, setCollections] = useState<CollectionRecord[]>([]);
   const [selectedCollectionId, setSelectedCollectionId] = useState("");
   const [tab, setTab] = useState<Tab>("Overview");
@@ -446,23 +448,23 @@ export function MenuAuthorityStudio() {
 
   if (!selectedCollection) {
     return (
-      <section id="menu-authority-studio" className="rounded-2xl border border-white/10 p-6">
-        <p className="text-sm text-[var(--muted)]">{message}</p>
+      <section id="menu-authority-studio" className="rounded-2xl border border-red-300/20 bg-red-300/[0.055] p-6">
+        <div className="flex gap-3"><AlertTriangle className="mt-0.5 h-6 w-6 shrink-0 text-red-200" /><div><p className="font-semibold text-red-100">Publish Center blocked — environment parity required</p><p className="mt-2 text-sm leading-6 text-[var(--muted)]">{message}</p><p className="mt-2 text-xs leading-5 text-red-100/80">No collection, revision or publication is available in this bound environment. Publishing controls remain unavailable to prevent a partial or cross-environment release.</p></div></div>
       </section>
     );
   }
 
   return (
     <section id="menu-authority-studio" className="scroll-mt-24 space-y-4">
-      <div className="rounded-2xl border border-[var(--border-gold)] bg-[linear-gradient(135deg,rgba(201,164,92,0.13),rgba(255,255,255,0.025))] p-5">
+      <div className="rounded-2xl border border-[var(--border-gold)] bg-black/25 p-5">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex items-start gap-3">
             <span className="rounded-xl border border-[var(--border-gold)] bg-black/20 p-3 text-[var(--gold-soft)]">
               <BookOpenCheck className="h-6 w-6" aria-hidden="true" />
             </span>
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--gold-soft)]">P22B Operator Workflow</p>
-              <h3 className="mt-1 text-2xl font-semibold text-[var(--cream)]">Collections, revisions and publishing</h3>
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--gold-soft)]">P36-E · PUBLISH CENTER</p>
+              <h3 className="mt-1 text-2xl font-semibold text-[var(--cream)]">Governed revision, publishing and rollback</h3>
               <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--muted)]">{message}</p>
             </div>
           </div>
@@ -490,6 +492,10 @@ export function MenuAuthorityStudio() {
           </select>
         </div>
       </div>
+
+      <ol className="grid gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/10 sm:grid-cols-4 xl:grid-cols-8" aria-label="Publishing workflow">
+        {["Draft", "Validate", "Preview", "Review", "Approve", "Publish", "Verify", "Rollback"].map((step, index) => <li key={step} className="bg-[#15120f] p-3"><span className="block font-mono text-[10px] text-[var(--gold-soft)]">{String(index + 1).padStart(2, "0")}</span><strong className="mt-1 block text-xs text-[var(--cream)]">{step}</strong></li>)}
+      </ol>
 
       <div className="flex gap-2 overflow-x-auto rounded-2xl border border-white/10 bg-black/20 p-2">
         {tabs.map((item) => (

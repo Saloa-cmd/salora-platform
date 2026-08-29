@@ -1,6 +1,7 @@
 import { type NextRequest } from "next/server";
 import { createControlTowerRepository } from "@salora/backend/domains/control-tower/repository";
 import { responseError, responseJson } from "@/lib/server/domainHttp";
+import { verifyProductMedia } from "@/lib/server/mediaIntegrity";
 import { handleError, parseBody, productImageMutationSchema, requireControlPermission, requestId, writeActivity, writeAudit } from "@/lib/server/simpleLaunchControl";
 
 export const dynamic = "force-dynamic";
@@ -32,13 +33,17 @@ async function mutate(request: NextRequest) {
     if (input.action === "add") {
       const product = await repo.products.findUnique({ slug: input.productSlug });
       if (!product) return responseError("Product not found.", id, 404);
+      const verified = await verifyProductMedia(input);
       if (input.isPrimary) await repo.productImages.updateMany({ productId: product.id }, { isPrimary: false });
       const image = await repo.productImages.create({
         productId: product.id,
-        storagePath: input.storagePath ?? `external/${input.productSlug}`,
+        storageBucket: input.storageBucket,
+        storagePath: input.storagePath,
         publicUrl: input.publicUrl,
-        altText: input.altText,
-        isPrimary: input.isPrimary
+        altText: input.altTextEn,
+        sortOrder: input.sortOrder,
+        isPrimary: input.isPrimary,
+        metadata: { mimeType: input.mimeType, width: input.width, height: input.height, fileSize: input.fileSize, checksum: input.checksum, altTextAr: input.altTextAr, altTextEn: input.altTextEn, ...verified }
       });
       await writeActivity({ actorId: actor.sub, action: "productImage.add", entityType: "ProductImage", entityId: image.id, requestId: id, metadata: { productSlug: input.productSlug } }, repo);
       await writeAudit({ actorId: actor.sub, action: "CREATE", entityType: "ProductImage", entityId: image.id, after: image, requestId: id }, repo);
@@ -55,7 +60,7 @@ async function mutate(request: NextRequest) {
       return responseJson(image, id);
     }
 
-    const image = await repo.productImages.update({ id: input.imageId }, { archivedAt: new Date(), deletedAt: new Date(), isPrimary: false });
+    const image = await repo.productImages.update({ id: input.imageId }, { archivedAt: new Date(), isPrimary: false });
     await writeActivity({ actorId: actor.sub, action: "productImage.archive", entityType: "ProductImage", entityId: image.id, requestId: id }, repo);
     await writeAudit({ actorId: actor.sub, action: "ARCHIVE", entityType: "ProductImage", entityId: image.id, before, after: image, requestId: id }, repo);
     return responseJson(image, id);
