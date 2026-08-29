@@ -3,7 +3,9 @@ import { createControlTowerRepository } from "@salora/backend/domains/control-to
 import { z } from "zod";
 import { responseError, responseJson } from "@/lib/server/domainHttp";
 import { defaultExperiencePageV2, EXPERIENCE_PAGE_V2_DRAFT_KEY } from "@/lib/experience/default-page-v2";
+import { adaptExperienceConfigurationV1 } from "@/lib/experience/compatibility";
 import { experiencePageV2Schema, parseExperiencePageV2 } from "@/lib/experience/schema-v2";
+import { getPublishedExperienceConfiguration } from "@/lib/server/experienceConfig";
 import { handleError, parseBody, requireControlPermission, requestId, writeActivity, writeAudit } from "@/lib/server/simpleLaunchControl";
 
 export const dynamic = "force-dynamic";
@@ -16,8 +18,12 @@ export async function GET(request: NextRequest) {
   try {
     const actor = await requireControlPermission(request, "content:read");
     const repo = await createControlTowerRepository({ userId: actor.sub, roles: actor.roles });
-    const draft = await repo.runtimeConfig.findUnique({ scope_key: { scope: "HOMEPAGE", key: EXPERIENCE_PAGE_V2_DRAFT_KEY } });
-    return responseJson({ page: draft ? parseExperiencePageV2(draft.value) : defaultExperiencePageV2, draftVersion: draft?.version ?? 0, publicationAuthority: "NONE_PR3", legacyPublicationPath: "DEPRECATED_NOT_EXPANDED" }, id);
+    const [draft, publishedConfiguration] = await Promise.all([
+      repo.runtimeConfig.findUnique({ scope_key: { scope: "HOMEPAGE", key: EXPERIENCE_PAGE_V2_DRAFT_KEY } }),
+      getPublishedExperienceConfiguration()
+    ]);
+    const publishedPage = adaptExperienceConfigurationV1(publishedConfiguration, "published-experience-v1");
+    return responseJson({ page: draft ? parseExperiencePageV2(draft.value) : defaultExperiencePageV2, publishedPage, draftVersion: draft?.version ?? 0, publicationAuthority: "NONE_PR3", legacyPublicationPath: "READ_ONLY_COMPARISON" }, id);
   } catch (error) { return handleError(error, id); }
 }
 

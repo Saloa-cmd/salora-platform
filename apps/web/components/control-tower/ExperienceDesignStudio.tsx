@@ -9,8 +9,9 @@ import { SALORA_COMPONENT_REGISTRY, type ExperienceComponentId } from "@/lib/exp
 import { defaultExperiencePageV2 } from "@/lib/experience/default-page-v2";
 import { useControlTowerLocale } from "./ControlTowerLocale";
 
-type Payload = { page: ExperiencePageV2; draftVersion: number; publicationAuthority: "NONE_PR3" };
+type Payload = { page: ExperiencePageV2; publishedPage?: ExperiencePageV2; draftVersion: number; publicationAuthority: "NONE_PR3" };
 type Device = "mobile" | "tablet" | "desktop" | "wide";
+type CompareMode = "draft" | "published" | "split";
 const field = "min-h-11 w-full rounded-xl border border-white/10 bg-black/20 px-3 text-sm text-[var(--cream)] outline-none focus:border-[var(--border-gold)]";
 const deviceWidths: Record<Device, string> = { mobile: "390px", tablet: "768px", desktop: "1180px", wide: "1440px" };
 const labels: Record<ExperienceComponentId, { ar: string; en: string }> = Object.fromEntries(Object.entries(SALORA_COMPONENT_REGISTRY).map(([id, item]) => [id, item.displayName])) as never;
@@ -35,10 +36,12 @@ function localizedFields(section: ExperienceSectionV2): Array<{ key: string; lab
 export function ExperienceDesignStudio() {
   const { isArabic } = useControlTowerLocale();
   const [page, setPage] = useState(defaultExperiencePageV2);
+  const [publishedPage, setPublishedPage] = useState(defaultExperiencePageV2);
   const [selectedId, setSelectedId] = useState(defaultExperiencePageV2.sections[0]?.id ?? "");
   const [device, setDevice] = useState<Device>("desktop");
   const [previewLocale, setPreviewLocale] = useState<"ar" | "en">("ar");
   const [theme, setTheme] = useState<"dark" | "light" | "system">("dark");
+  const [compareMode, setCompareMode] = useState<CompareMode>("draft");
   const [past, setPast] = useState<ExperiencePageV2[]>([]);
   const [future, setFuture] = useState<ExperiencePageV2[]>([]);
   const [dirty, setDirty] = useState(false);
@@ -47,7 +50,7 @@ export function ExperienceDesignStudio() {
   const [draftVersion, setDraftVersion] = useState(0);
   const selected = page.sections.find((section) => section.id === selectedId) ?? page.sections[0];
 
-  useEffect(() => { void (async () => { const result = await controlTowerGet<Payload>("/api/control-tower/experience"); if (result.status === "success" && result.data) { setPage(result.data.page); setSelectedId(result.data.page.sections[0]?.id ?? ""); setDraftVersion(result.data.draftVersion); setStatus("idle"); } else { setStatus(result.status === "forbidden" ? "forbidden" : "error"); setMessage(result.message ?? "Unable to load the draft."); } })(); }, []);
+  useEffect(() => { void (async () => { const result = await controlTowerGet<Payload>("/api/control-tower/experience"); if (result.status === "success" && result.data) { setPage(result.data.page); setPublishedPage(result.data.publishedPage ?? defaultExperiencePageV2); setSelectedId(result.data.page.sections[0]?.id ?? ""); setDraftVersion(result.data.draftVersion); setStatus("idle"); } else { setStatus(result.status === "forbidden" ? "forbidden" : "error"); setMessage(result.message ?? "Unable to load the draft."); } })(); }, []);
   useEffect(() => { const guard = (event: BeforeUnloadEvent) => { if (dirty) event.preventDefault(); }; window.addEventListener("beforeunload", guard); return () => window.removeEventListener("beforeunload", guard); }, [dirty]);
 
   function commit(next: ExperiencePageV2) { setPast((items) => [...items.slice(-19), page]); setFuture([]); setPage({ ...next, status: "DRAFT" }); setDirty(true); }
@@ -59,13 +62,18 @@ export function ExperienceDesignStudio() {
 
   const platform = device === "mobile" ? "mobile" : "web";
   const library = useMemo(() => Object.values(SALORA_COMPONENT_REGISTRY), []);
+  const changedSections = useMemo(() => {
+    const publishedById = new Map(publishedPage.sections.map((section) => [section.id, section]));
+    return page.sections.filter((section) => JSON.stringify(section) !== JSON.stringify(publishedById.get(section.id))).length + publishedPage.sections.filter((section) => !page.sections.some((draft) => draft.id === section.id)).length;
+  }, [page, publishedPage]);
   return (
     <section className="overflow-hidden rounded-3xl border border-white/[0.08] bg-[var(--surface)] shadow-2xl" aria-label={isArabic ? "استوديو التجربة" : "Experience Studio"}>
       <header className="flex flex-wrap items-center gap-2 border-b border-white/[0.08] px-4 py-3">
-        <div className="me-auto"><p className="text-xs font-semibold text-[var(--cream)]">{isArabic ? "الصفحة الرئيسية" : "Homepage"}</p><p className="text-[10px] uppercase tracking-[0.18em] text-amber-300">DRAFT ONLY · PR3</p></div>
+        <div className="me-auto"><p className="text-xs font-semibold text-[var(--cream)]">{isArabic ? "الصفحة الرئيسية" : "Homepage"}</p><p className="text-[10px] uppercase tracking-[0.18em] text-amber-300">DRAFT ONLY · PR3 · {changedSections} {isArabic ? "قسم متغير · النشر محجوب" : "changed sections · publish blocked"}</p></div>
         {(["mobile", "tablet", "desktop", "wide"] as Device[]).map((item) => <button key={item} type="button" aria-pressed={device === item} onClick={() => setDevice(item)} className={`min-h-10 rounded-xl px-3 text-xs ${device === item ? "bg-[var(--gold)] text-black" : "border border-white/10 text-[var(--muted)]"}`}>{item}</button>)}
         <select aria-label="Preview theme" value={theme} onChange={(event) => setTheme(event.target.value as never)} className={`${field} !w-auto`}><option value="dark">Dark</option><option value="light">Light</option><option value="system">System</option></select>
         <select aria-label="Preview language" value={previewLocale} onChange={(event) => setPreviewLocale(event.target.value as never)} className={`${field} !w-auto`}><option value="ar">AR · RTL</option><option value="en">EN · LTR</option></select>
+        <div className="flex rounded-xl border border-white/10 p-1" aria-label={isArabic ? "وضع المقارنة" : "Comparison mode"}>{(["draft", "published", "split"] as CompareMode[]).map((item) => <button key={item} type="button" aria-pressed={compareMode === item} onClick={() => setCompareMode(item)} className={`min-h-9 rounded-lg px-3 text-[11px] font-semibold ${compareMode === item ? "bg-[var(--gold)] text-black" : "text-[var(--muted)]"}`}>{item === "draft" ? (isArabic ? "مسودة" : "Draft") : item === "published" ? (isArabic ? "منشور" : "Published") : (isArabic ? "مقارنة" : "Split")}</button>)}</div>
         <button type="button" onClick={undo} disabled={!past.length} className="grid h-10 w-10 place-items-center rounded-xl border border-white/10 disabled:opacity-30" aria-label="Undo"><SaloraIcon name="back" className="h-4 w-4" /></button>
         <button type="button" onClick={redo} disabled={!future.length} className="grid h-10 w-10 place-items-center rounded-xl border border-white/10 disabled:opacity-30" aria-label="Redo"><SaloraIcon name="forward" className="h-4 w-4" /></button>
         <button type="button" onClick={() => void save()} disabled={!dirty || status === "saving"} className="min-h-10 rounded-xl bg-[var(--gold)] px-4 text-xs font-bold text-black disabled:opacity-40">{status === "saving" ? (isArabic ? "جارٍ الحفظ…" : "Saving…") : (isArabic ? "حفظ المسودة" : "Save draft")}</button>
@@ -80,8 +88,9 @@ export function ExperienceDesignStudio() {
           <div className="grid gap-2">{library.map((component) => <button key={component.id} type="button" onClick={() => { const section = makeSection(component.id); commit({ ...page, sections: [...page.sections, section] }); setSelectedId(section.id); }} className="flex min-h-11 items-center gap-2 rounded-xl border border-white/[0.08] px-3 text-start text-xs text-[var(--muted)] hover:border-[var(--border-gold)] hover:text-[var(--cream)]"><SaloraIcon name={component.category === "menu" ? "menu" : component.category === "location" ? "location" : component.category === "action" ? "sparkles" : "pages"} className="h-4 w-4" />{component.displayName[previewLocale]}</button>)}</div>
         </aside>
         <div className="overflow-auto bg-black/20 p-4 sm:p-6" aria-label="Live canvas">
-          <div className="mx-auto min-h-[640px] overflow-hidden rounded-2xl border border-white/10 bg-[var(--background)] shadow-2xl transition-[width]" style={{ width: `min(100%, ${deviceWidths[device]})` }} data-theme={theme}>
-            <ExperienceRenderer page={page} locale={previewLocale} platform={platform} />
+          <div className={compareMode === "split" ? "grid min-w-[720px] gap-4 lg:grid-cols-2" : "mx-auto"} style={compareMode === "split" ? undefined : { width: `min(100%, ${deviceWidths[device]})` }}>
+            {(compareMode === "draft" || compareMode === "split") ? <div><p className="mb-2 text-[10px] font-semibold uppercase tracking-[.18em] text-amber-200">DRAFT</p><div className="min-h-[640px] overflow-hidden rounded-2xl border border-amber-300/15 bg-[var(--background)] shadow-2xl" data-theme={theme}><ExperienceRenderer page={page} locale={previewLocale} platform={platform} /></div></div> : null}
+            {(compareMode === "published" || compareMode === "split") ? <div><p className="mb-2 text-[10px] font-semibold uppercase tracking-[.18em] text-emerald-200">PUBLISHED · READ ONLY</p><div className="min-h-[640px] overflow-hidden rounded-2xl border border-emerald-300/15 bg-[var(--background)] shadow-2xl" data-theme={theme}><ExperienceRenderer page={publishedPage} locale={previewLocale} platform={platform} /></div></div> : null}
           </div>
         </div>
         <aside className="border-t border-white/[0.08] p-4 xl:border-s xl:border-t-0" aria-label="Properties inspector">

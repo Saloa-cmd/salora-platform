@@ -28,6 +28,11 @@ export async function requireControlPermission(request: NextRequest, permission:
   if (!hasPermission(payload.roles as RoleName[], permission)) {
     throw new Error("Forbidden");
   }
+  const mutation = !["GET", "HEAD", "OPTIONS"].includes(request.method);
+  const isolatedPreview = process.env.SALORA_PREVIEW_DATA_ISOLATED === "true";
+  if (mutation && process.env.VERCEL_ENV === "preview" && !isolatedPreview) {
+    throw new Error("Preview mutations are disabled until an isolated test data binding is certified.");
+  }
   return payload as { sub: string; email: string; roles: RoleName[] };
 }
 
@@ -200,7 +205,7 @@ export const runtimeConfigMutationSchema = z.object({
 });
 
 export const aiProductToolSchema = z.object({
-  operation: z.enum(["description", "short_copy", "pairing", "category", "upsell", "image_prompt"]),
+  operation: z.enum(["description", "short_copy", "pairing", "category", "upsell", "image_prompt", "translation", "alt_text", "readiness"]),
   productSlug: z.string().min(2).max(140).optional(),
   productName: z.string().min(2).max(160),
   category: z.string().max(120).optional(),
@@ -223,7 +228,10 @@ export async function runAiDraft(input: z.infer<typeof aiProductToolSchema>) {
     pairing: "Suggest one pairing from a cafe menu perspective. Do not publish it.",
     category: "Suggest the best product category. Do not publish it.",
     upsell: "Suggest a modest upsell. Do not publish it.",
-    image_prompt: "Generate an image prompt only. Do not generate an image or URL."
+    image_prompt: "Generate an image prompt only. Do not generate an image or URL.",
+    translation: "Suggest a reviewable Arabic and English translation. Do not save or publish it.",
+    alt_text: "Suggest concise accessible Arabic and English alt text. Do not save or approve media.",
+    readiness: "Identify likely missing catalog fields from the supplied product context. Do not mutate, activate, approve, or publish."
   }[input.operation];
 
   return routeAiRequest({

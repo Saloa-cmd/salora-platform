@@ -23,47 +23,45 @@ function ResultNotice({ state }: { state: MutationState }) {
 export function ProductActionPanel() {
   const { isArabic } = useControlTowerLocale();
   const [state, setState] = useState(initialState);
-  const [form, setForm] = useState({ slug: "", name: "", category: "", description: "", basePrice: "2.500", tags: "", pairingHint: "" });
+  const [form, setForm] = useState({ slug: "", nameAr: "", nameEn: "", category: "", descriptionAr: "", descriptionEn: "", basePrice: "", tags: "" });
 
   async function submit() {
     setState({ status: "submitting", message: isArabic ? "جارٍ إنشاء الصنف..." : "Creating product..." });
     setState(await controlTowerPost("/api/control-tower/simple-launch/products", {
       action: "create",
       slug: form.slug,
-      name: form.name,
+      name: form.nameEn,
+      nameAr: form.nameAr,
+      nameEn: form.nameEn,
       categoryName: form.category,
-      description: form.description,
+      description: form.descriptionEn,
+      descriptionAr: form.descriptionAr,
+      descriptionEn: form.descriptionEn,
       basePrice: Number(form.basePrice),
       tags: form.tags.split(",").map((tag) => tag.trim()).filter(Boolean),
-      pairingHint: form.pairingHint || undefined,
-      status: "ACTIVE"
+      status: "DRAFT"
     }));
   }
 
   return (
-    <DashboardCard title={isArabic ? "إنشاء صنف" : "Create Product"} eyebrow={isArabic ? "عملية مباشرة دون برمجة" : "Live no-code action"}>
+    <DashboardCard title={isArabic ? "إنشاء صنف جديد" : "Create new product"} eyebrow={isArabic ? "مسودة أولًا" : "Draft-first workflow"}>
+      <p className="mb-4 text-sm leading-6 text-[var(--muted)]">{isArabic ? "يُنشأ المنتج كمسودة دائمًا، ثم يمر عبر السعر والصورة والفئة والخيارات قبل التفعيل." : "Products are always created as drafts, then pass price, media, category and options gates before activation."}</p>
       <div className="grid gap-3 sm:grid-cols-2">
-        {(["slug", "name", "category", "basePrice"] as const).map((field) => (
+        {(["slug", "nameAr", "nameEn", "category", "basePrice"] as const).map((field) => (
           <label key={field} className="grid gap-2 text-sm text-[var(--muted)]">
-            {{ slug: isArabic ? "المعرّف الإنجليزي" : "Slug", name: isArabic ? "اسم الصنف" : "Name", category: isArabic ? "الفئة" : "Category", basePrice: isArabic ? "السعر الأساسي (ر.ع)" : "Base price (OMR)" }[field]}
-            <input value={form[field]} onChange={(event) => setForm({ ...form, [field]: event.target.value })} className="rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-[var(--cream)]" />
+            {{ slug: isArabic ? "المعرّف الإنجليزي" : "Slug", nameAr: isArabic ? "الاسم العربي" : "Arabic name", nameEn: isArabic ? "الاسم الإنجليزي" : "English name", category: isArabic ? "الفئة" : "Category", basePrice: isArabic ? "السعر (ر.ع) — اختياري للمسودة" : "Price (OMR) — optional for draft" }[field]}
+            <input value={form[field]} inputMode={field === "basePrice" ? "decimal" : undefined} onChange={(event) => setForm({ ...form, [field]: event.target.value })} className="min-h-11 rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-[var(--cream)]" />
           </label>
         ))}
-        <label className="grid gap-2 text-sm text-[var(--muted)] sm:col-span-2">
-          {isArabic ? "الوصف" : "Description"}
-          <textarea value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} className="min-h-24 rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-[var(--cream)]" />
-        </label>
+        <label className="grid gap-2 text-sm text-[var(--muted)]">{isArabic ? "الوصف العربي" : "Arabic description"}<textarea value={form.descriptionAr} onChange={(event) => setForm({ ...form, descriptionAr: event.target.value })} className="min-h-24 rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-[var(--cream)]" /></label>
+        <label className="grid gap-2 text-sm text-[var(--muted)]">{isArabic ? "الوصف الإنجليزي" : "English description"}<textarea value={form.descriptionEn} onChange={(event) => setForm({ ...form, descriptionEn: event.target.value })} className="min-h-24 rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-[var(--cream)]" /></label>
         <label className="grid gap-2 text-sm text-[var(--muted)]">
           {isArabic ? "الوسوم" : "Tags"}
           <input value={form.tags} onChange={(event) => setForm({ ...form, tags: event.target.value })} placeholder="matcha, iced, signature" className="rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-[var(--cream)]" />
         </label>
-        <label className="grid gap-2 text-sm text-[var(--muted)]">
-          {isArabic ? "اقتراح التقديم معه" : "Pairing hint"}
-          <input value={form.pairingHint} onChange={(event) => setForm({ ...form, pairingHint: event.target.value })} className="rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-[var(--cream)]" />
-        </label>
       </div>
       <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <button type="button" onClick={submit} disabled={state.status === "submitting"} className="rounded-lg bg-[var(--gold)] px-4 py-2 text-sm font-semibold text-black disabled:opacity-50">{isArabic ? "إنشاء الصنف" : "Create product"}</button>
+        <button type="button" onClick={submit} disabled={state.status === "submitting" || !form.slug || !form.nameAr || !form.nameEn || !form.category} className="min-h-11 rounded-lg bg-[var(--gold)] px-4 py-2 text-sm font-semibold text-black disabled:opacity-50">{isArabic ? "حفظ كمسودة" : "Save as draft"}</button>
         <ResultNotice state={state} />
       </div>
     </DashboardCard>
