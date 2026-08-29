@@ -48,7 +48,8 @@ assert.equal(candidates.length, 13, "P36 activation manifest must contain exactl
 assert.equal((manifestSource.match(/approvedPrice:/g) ?? []).length, 14, "P36 manifest must contain 13 approved prices plus its type definition.");
 assert.ok(manifestSource.includes('source: "SALORA owner-approved 13-item pricing table"'), "Price authority source must be explicit.");
 assert.ok(manifestSource.includes("productionBaselinePrice: 0"), "The 0.000 → approved price baseline must remain explicit.");
-assert.ok(manifestSource.includes('status: "CANDIDATE"') && manifestSource.includes('mimeType: "image/webp"'), "Candidate media metadata must be explicit.");
+assert.ok(manifestSource.includes('status: "APPROVED"') && manifestSource.includes('mimeType: "image/webp"'), "Approved media metadata must be explicit.");
+assert.ok(manifestSource.includes('token: "APPROVE13MEDIA"') && manifestSource.includes("productionUploadAuthorized: false"), "Media approval evidence must not become Production write authority.");
 assert.ok(manifestSource.includes('"awar-qalb": "244d1e2f-e205-4e80-97d1-a9c7cae43c9e"'), "The manifest must use the read-only Production Product IDs.");
 assert.ok(!manifestSource.includes("40618f76-dfb7-4576-9386-f973346b6a92"), "A staging Product ID leaked into the Production activation evidence.");
 for (const neutralAsset of ["awar-qalb-v2.webp", "khayal-v2.webp", "protein-shake-v2.webp"]) {

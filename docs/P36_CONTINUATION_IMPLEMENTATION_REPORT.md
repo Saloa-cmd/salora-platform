@@ -47,7 +47,7 @@ Thirteen existing candidate images were visually inspected and normalized to 120
 
 Production product descriptions did not prove specific ingredients for Awar Qalb, Khayal, or Protein Shake. Their first candidates showed identifiable fruit, flowers, banana, or nuts, so they were not selected. Neutral `-v2` candidates were generated without identifiable ingredients or garnish; the original files remain preserved as superseded review history. The generic SALORA Latte asset remains selected instead of a caramel variant because caramel is not certified by the product data.
 
-These files are Preview review candidates only. They have not been uploaded to Production Storage and no ProductImage row has been created or published. The downloadable `P36_MEDIA_CONTACT_SHEET.png` review artifact and the Contact Sheet inside Control Tower are the evidence surfaces for the `APPROVE13MEDIA` gate. The standalone sheet SHA-256 is `d12bf97d2aa0cb2075a85c636aaa30843ef5e073a1a706c2828cf60ec96e58bc`.
+The owner approved the exact 13-file review set with `APPROVE13MEDIA` at `2026-08-29T11:49:10Z`. This approves the reviewed bytes only and does not authorize Production upload, DML, activation, or publishing. The files have not been uploaded to Production Storage and no ProductImage row has been created or published. The downloadable `P36_MEDIA_CONTACT_SHEET.png` artifact and the Contact Sheet inside Control Tower are the approval evidence surfaces. The standalone sheet SHA-256 is `d12bf97d2aa0cb2075a85c636aaa30843ef5e073a1a706c2828cf60ec96e58bc`.
 
 ## P36 implementation
 
@@ -82,7 +82,7 @@ The separate `salora-staging` project contains 117 ACTIVE products and live imag
 
 ## Approval sequence
 
-1. Review the 13-candidate Contact Sheet and provide `APPROVE13MEDIA`.
+1. `APPROVE13MEDIA` — completed on 2026-08-29 for the exact checksummed 13-file set.
 2. Review Preview, CI, security evidence, and provide `MERGE-P36-CONTINUATION`.
 3. After media records, prices, and readiness are proven in the certified Production binding, provide `ACTIVATE117`.
 

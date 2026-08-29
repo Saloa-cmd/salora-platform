@@ -60,11 +60,22 @@ export const p36PriceApproval = {
 } as const;
 
 export const p36MediaSpecification = {
-  status: "CANDIDATE",
+  status: "APPROVED",
   mimeType: "image/webp",
   width: 1200,
   height: 1200,
   aspectRatio: "1:1",
   colorSpace: "sRGB",
+  productionPublished: false
+} as const;
+
+/** Owner approval evidence. This approves the reviewed bytes only; it is not Production write authority. */
+export const p36MediaApproval = {
+  token: "APPROVE13MEDIA",
+  approvedAt: "2026-08-29T11:49:10Z",
+  approvedBy: "SALORA Owner",
+  source: "Owner approval in the P36 continuation conversation",
+  approvedAssetCount: 13,
+  productionUploadAuthorized: false,
   productionPublished: false
 } as const;
