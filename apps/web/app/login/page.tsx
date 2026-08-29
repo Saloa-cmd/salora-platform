@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AlertCircle, ArrowLeft, ArrowRight, LockKeyhole } from "lucide-react";
 import { ThemeControl } from "@/components/ui/ThemeControl";
@@ -78,6 +79,7 @@ export default function LoginPage() {
           <div><label htmlFor="password" className="mb-2 block text-sm font-semibold">{copy("كلمة المرور", "Password")}</label><input id="password" type="password" name="password" autoComplete="current-password" required value={password} onChange={(event) => setPassword(event.target.value)} disabled={loading} placeholder="••••••••" className="min-h-12 w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] px-4 text-sm outline-none transition placeholder:text-[var(--muted)] focus:border-[var(--border-gold)] disabled:opacity-50" /></div>
           <button type="submit" disabled={loading} className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[var(--cream)] px-4 text-sm font-semibold text-[var(--background)] transition hover:opacity-90 disabled:opacity-50"><span>{loading ? copy("جارٍ التحقق…", "Checking…") : copy("دخول آمن", "Secure sign in")}</span><Arrow className="h-4 w-4" aria-hidden="true" /></button>
         </form>
+        <p className="mt-4 text-center text-xs"><Link href="/recover-owner-access" className="text-[var(--gold-soft)] underline-offset-4 hover:underline">{copy("نسيت كلمة المرور أو لا يوجد حساب Admin؟", "Forgot the password or no Admin exists?")}</Link></p>
         <p className="mt-6 text-center text-xs leading-5 text-[var(--muted)]">{copy("تُدار الجلسة عبر ملفات ارتباط آمنة ومقيّدة.", "Your session is handled with secure, restricted cookies.")}</p>
       </div></div>
     </section>
