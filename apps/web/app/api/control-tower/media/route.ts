@@ -3,6 +3,7 @@ import { createControlTowerRepository } from "@salora/backend/domains/control-to
 import { responseError, responseJson } from "@/lib/server/domainHttp";
 import { handleError, pagination, parseBody, requireControlPermission, requestId, writeActivity, writeAudit } from "@/lib/server/simpleLaunchControl";
 import { mediaMutationSchema, runProductAiDraft } from "@/lib/server/supremacyControl";
+import { verifyProductMedia } from "@/lib/server/mediaIntegrity";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -113,13 +114,14 @@ async function mutate(request: NextRequest) {
       const draft = await repo.mediaDrafts.create({
         productId: product.id,
         source: input.source,
+        storageBucket: input.storageBucket,
         storagePath: input.storagePath,
         publicUrl: input.publicUrl,
         prompt: input.prompt,
         altText: input.altText,
         sortOrder: input.sortOrder,
         isPrimaryCandidate: input.isPrimaryCandidate,
-        metadata: { draftOnly: true, requestId: id }
+        metadata: { draftOnly: true, requestId: id, mimeType: input.mimeType, width: input.width, height: input.height, fileSize: input.fileSize, checksum: input.checksum, altTextAr: input.altTextAr, altTextEn: input.altTextEn }
       });
       await writeActivity({ actorId: actor.sub, action: "media.draftCreate", entityType: "ProductMediaDraft", entityId: draft.id, requestId: id, metadata: { productSlug: product.slug } }, repo);
       await writeAudit({ actorId: actor.sub, action: "CREATE", entityType: "ProductMediaDraft", entityId: draft.id, after: draft, requestId: id }, repo);
@@ -131,17 +133,22 @@ async function mutate(request: NextRequest) {
       if (!before) return responseError("Media draft not found.", id, 404);
       if (input.action === "publish-draft") {
         if (before.status !== "APPROVED") return responseError("Only approved media drafts can be published.", id, 409);
-        if (!before.storagePath && !before.publicUrl) return responseError("Approved draft has no real storage path or URL.", id, 409);
+        if (!before.storagePath || !before.publicUrl) return responseError("Approved draft has no certified storage path and URL.", id, 409);
+        const metadata = before.metadata as Record<string, unknown> | null;
+        if (!metadata || typeof metadata.mimeType !== "string" || typeof metadata.width !== "number" || typeof metadata.height !== "number" || typeof metadata.fileSize !== "number" || typeof metadata.checksum !== "string" || typeof metadata.altTextAr !== "string" || typeof metadata.altTextEn !== "string") {
+          return responseError("Approved draft is missing certified media integrity metadata.", id, 409);
+        }
+        const verified = await verifyProductMedia({ storageBucket: before.storageBucket, storagePath: before.storagePath, publicUrl: before.publicUrl, mimeType: metadata.mimeType as "image/webp" | "image/avif", width: metadata.width, height: metadata.height, fileSize: metadata.fileSize, checksum: metadata.checksum });
         if (before.isPrimaryCandidate) await repo.productImages.updateMany({ productId: before.productId }, { isPrimary: false });
         const image = await repo.productImages.create({
           productId: before.productId,
           storageBucket: before.storageBucket,
-          storagePath: before.storagePath ?? `external/${before.product.slug}/${before.id}`,
+          storagePath: before.storagePath,
           publicUrl: before.publicUrl,
           altText: before.altText,
           sortOrder: before.sortOrder,
           isPrimary: before.isPrimaryCandidate,
-          metadata: { sourceDraftId: before.id, source: before.source }
+          metadata: { sourceDraftId: before.id, source: before.source, ...metadata, ...verified }
         });
         const after = await repo.mediaDrafts.update({ id: before.id }, { status: "PUBLISHED", publishedAt: new Date(), reviewedBy: actor.sub });
         await writeActivity({ actorId: actor.sub, action: "media.publish", entityType: "ProductImage", entityId: image.id, requestId: id, metadata: { draftId: before.id } }, repo);
@@ -167,7 +174,7 @@ async function mutate(request: NextRequest) {
       return responseJson({ reordered: input.imageIds.length }, id);
     }
 
-    const imageInput = input as { action: "set-primary" | "archive-image" | "replace-image"; imageId: string; storagePath?: string; publicUrl?: string; altText?: string };
+    const imageInput = input;
     const before = await repo.productImages.findUnique({ id: imageInput.imageId });
     if (!before) return responseError("Product image not found.", id, 404);
     if (imageInput.action === "set-primary") {
@@ -178,12 +185,13 @@ async function mutate(request: NextRequest) {
       return responseJson(after, id);
     }
     if (imageInput.action === "replace-image") {
-      const after = await repo.productImages.update({ id: before.id }, { storagePath: imageInput.storagePath, publicUrl: imageInput.publicUrl, altText: imageInput.altText });
+      const verified = await verifyProductMedia(imageInput);
+      const after = await repo.productImages.update({ id: before.id }, { storageBucket: imageInput.storageBucket, storagePath: imageInput.storagePath, publicUrl: imageInput.publicUrl, altText: imageInput.altTextEn, metadata: { mimeType: imageInput.mimeType, width: imageInput.width, height: imageInput.height, fileSize: imageInput.fileSize, checksum: imageInput.checksum, altTextAr: imageInput.altTextAr, altTextEn: imageInput.altTextEn, ...verified } });
       await writeActivity({ actorId: actor.sub, action: "media.replace", entityType: "ProductImage", entityId: after.id, requestId: id }, repo);
       await writeAudit({ actorId: actor.sub, action: "UPDATE", entityType: "ProductImage", entityId: after.id, before, after, requestId: id }, repo);
       return responseJson(after, id);
     }
-    const after = await repo.productImages.update({ id: before.id }, { archivedAt: new Date(), deletedAt: new Date(), isPrimary: false });
+    const after = await repo.productImages.update({ id: before.id }, { archivedAt: new Date(), isPrimary: false });
     await writeActivity({ actorId: actor.sub, action: "media.archive", entityType: "ProductImage", entityId: after.id, requestId: id }, repo);
     await writeAudit({ actorId: actor.sub, action: "ARCHIVE", entityType: "ProductImage", entityId: after.id, before, after, requestId: id }, repo);
     return responseJson(after, id);

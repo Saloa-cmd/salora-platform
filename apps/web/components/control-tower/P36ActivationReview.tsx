@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { CheckCircle2, DatabaseZap, ImageIcon, ShieldAlert } from "lucide-react";
-import { p36ActivationCandidates, p36CandidateProductIds, p36PriceApproval } from "@/lib/control-tower/p36ActivationManifest";
+import { p36ActivationCandidates, p36CandidateProductIds, p36MediaSpecification, p36PriceApproval } from "@/lib/control-tower/p36ActivationManifest";
 import { useControlTowerLocale } from "./ControlTowerLocale";
 
 export function P36ActivationReview() {
@@ -38,6 +38,7 @@ export function P36ActivationReview() {
               <p className="font-mono text-xs"><span className="text-red-200 line-through">{p36PriceApproval.productionBaselinePrice.toFixed(3)}</span><span className="mx-2 text-[var(--muted)]">→</span><strong className="text-emerald-200">{candidate.approvedPrice.toFixed(3)} OMR</strong></p>
               <p className="truncate font-mono text-[10px] text-[var(--muted)]" title={p36CandidateProductIds[candidate.slug]}>ID · {p36CandidateProductIds[candidate.slug]}</p>
               <p className="truncate font-mono text-[10px] text-[var(--muted)]" title={candidate.imageSha256}>SHA-256 · {candidate.imageSha256.slice(0, 12)}…</p>
+              <p className="font-mono text-[10px] text-[var(--muted)]">{p36MediaSpecification.width}×{p36MediaSpecification.height} · {(candidate.imageBytes / 1024).toFixed(1)} KB · {p36MediaSpecification.status}</p>
             </div>
           </article>
         ))}

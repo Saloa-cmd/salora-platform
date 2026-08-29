@@ -13,12 +13,15 @@ Scope: Preview/Test application implementation only. No merge, Production DML, m
 | PR #63 | Merged; plan document only |
 | Current Vercel Production deployment | `dpl_Grwuunh3HqMrAB2J3uVnzYvLRtNK` — READY |
 | Current Vercel Production Git SHA | `c1551cf237e2806d697b3b8bdbeabab5cee851b7` |
+| Certified Production Supabase project | `salora-production` — `ACTIVE_HEALTHY` |
+| Production catalog snapshot | 117 total · 104 ACTIVE · 13 DRAFT · 13 zero prices · 13 missing live images |
+| Production Menu Authority | 3 collections · 1 revision · 1 publication · `salora-menu` PUBLISHED |
 
 The commits between the historical Production SHA and current `main` are documentation-only. No application, runtime configuration, database/schema, or security-sensitive change was found in that range. Vercel automatically deployed the merged documentation commit, so the older deployment is a rollback reference rather than the current deployment.
 
 ## Price authority
 
-The owner message dated 2026-08-29 is the approval source. The implementation records currency `OMR`, precision three decimals, and the explicit Production review baseline `0.000`.
+The manifest records the latest available owner-approved 13-item pricing table dated 2026-08-27 as the approval source. The implementation records currency `OMR`, precision three decimals, and the explicit Production review baseline `0.000`; it does not infer any price from category averages or staging data.
 
 | Slug | Product | Approved price |
 |---|---|---:|
@@ -36,13 +39,15 @@ The owner message dated 2026-08-29 is the approval source. The implementation re
 | `salora-cappuccino` | SALORA Cappuccino | 1.500 OMR |
 | `salora-latte` | SALORA Latte — Hot or Iced | 1.600 OMR |
 
-The machine-readable Price and Media Manifest is in `apps/web/lib/control-tower/p36ActivationManifest.ts` and contains the resolved Product IDs, bilingual names, approved price, candidate path, bilingual alt text, and SHA-256 for each asset.
+The machine-readable Price and Media Manifest is in `apps/web/lib/control-tower/p36ActivationManifest.ts` and contains the Production Product IDs, bilingual names, approved price, candidate path, byte size, bilingual alt text, and SHA-256 for each asset. The 13 IDs were re-resolved from `salora-production`; the earlier staging IDs were removed.
 
 ## Media review state
 
-Thirteen existing Library images were selected and visually inspected. They were normalized to 1200 × 1200 WebP candidates and stored under `apps/web/public/products/p36-media-candidates/`. Every candidate has a SHA-256 checksum in the manifest. The generic SALORA Latte asset was selected instead of the caramel variant because caramel is not certified by the product data.
+Thirteen existing candidate images were visually inspected and normalized to 1200 × 1200 sRGB WebP under `apps/web/public/products/p36-media-candidates/`. Every selected candidate has its byte size and SHA-256 checksum in the manifest. Library search returned no indexed image files in this session, so provenance is recorded as repository candidate evidence rather than an independently re-resolved Library reference.
 
-These files are Preview review candidates only. They have not been uploaded to Production Storage and no ProductImage row has been created or published. The Contact Sheet inside Control Tower is the required evidence surface for the `APPROVE13MEDIA` gate.
+Production product descriptions did not prove specific ingredients for Awar Qalb, Khayal, or Protein Shake. Their first candidates showed identifiable fruit, flowers, banana, or nuts, so they were not selected. Neutral `-v2` candidates were generated without identifiable ingredients or garnish; the original files remain preserved as superseded review history. The generic SALORA Latte asset remains selected instead of a caramel variant because caramel is not certified by the product data.
+
+These files are Preview review candidates only. They have not been uploaded to Production Storage and no ProductImage row has been created or published. The downloadable `P36_MEDIA_CONTACT_SHEET.png` review artifact and the Contact Sheet inside Control Tower are the evidence surfaces for the `APPROVE13MEDIA` gate. The standalone sheet SHA-256 is `d12bf97d2aa0cb2075a85c636aaa30843ef5e073a1a706c2828cf60ec96e58bc`.
 
 ## P36 implementation
 
@@ -52,29 +57,33 @@ These files are Preview review candidates only. They have not been uploaded to P
 - P36-D: Draft/Published/Split Experience preview using the existing renderer, with device, locale, direction, and theme controls.
 - P36-E: unified Publish Center workflow with validation, diff, preview, approval, publication, verification, and rollback surfaces. It fails closed when Menu Authority records are absent.
 - Product creation is Draft-first; server permissions, validation, readiness gates, activity logs, and audit logs remain authoritative.
+- ProductImage creation and replacement now reject arbitrary external URLs, unsafe paths, redirects, mismatched Supabase origins, MIME types, dimensions, byte sizes, and SHA-256 checksums. Archival preserves records and does not set `deletedAt`.
+- The sequential bulk activation write was removed from the client. The 13 P36 slugs fail closed server-side unless `SALORA_ACTIVATE117_APPROVED=true`, the actor is an Admin, and readiness passes.
 - Vercel Preview mutations fail closed unless `SALORA_PREVIEW_DATA_ISOLATED=true` certifies an isolated non-Production data binding.
 
-## Environment parity blocker
+## Environment parity result
 
-Read-only inspection of connected Supabase project `grcycqdtjjfklibutfos` returned 117 ACTIVE products, the 13 approved prices, and live image records, but no MenuCollection, MenuCollectionRevision, or MenuPublication records. Vercel Production simultaneously returns Menu Authority revision v1 with 104 visible products and `catalogStale=false`.
+Read-only inspection proved that `salora-production` contains the expected authoritative baseline: 117 products, 104 ACTIVE, 13 DRAFT, 13 prices at `0.000`, 104 live ProductImage records, one MenuCollectionRevision and one MenuPublication. The 13 blocked Production Product IDs are now recorded in the manifest.
 
-This proves that the Supabase connector and Vercel Production are not observing the same authoritative data state. Production ProductImage creation, price writes, activation, and Revision v2 publication must remain blocked until the exact Vercel database project/ref and the authority records are reconciled read-only.
+The separate `salora-staging` project contains 117 ACTIVE products and live images but no Menu Authority records. It remains unsuitable as Production evidence or as a Revision v2 source. Vercel Production and `salora-production` now have matching catalog/revision counts, but Production ProductImage creation, price writes, activation, and Revision v2 publication remain blocked by the explicit approval gates.
 
 ## Verification
 
-- Node `22.23.1` and pnpm `11.7.0`: compliant.
-- Full repository test command: passed.
-- P36 continuation guard: passed.
-- Web and mobile typecheck: passed.
-- Production build: passed.
-- No schema or migration impact.
+- Required toolchain: Node `22.23.1`, pnpm `11.7.0`. The local runner exposes Node `24.19.0`, so the repository toolchain doctor correctly fails closed; CI must certify the pinned runtime.
+- Web TypeScript: passed locally.
+- Web ESLint: passed locally.
+- Next.js production build: passed locally (35 static pages generated; all dynamic routes compiled).
+- P25/P26/P30/P31/P32/P33/P35/P36 regression contracts: passed when run individually; the aggregate command stops only at the Node toolchain doctor in this runner.
+- P36 continuation guard: passed with 13 price records and 13 verified media checksums.
+- Secret scan of the P36 diff: no database URL, service-role key, private key, or provider secret pattern found.
+- `pnpm audit --prod`: 0 critical, 25 high, 23 moderate, and 3 low transitive dependency findings. They predate this P36 diff and include Expo/CLI, Prisma tooling, Hono, Sharp and related trees; no dependency or lockfile change is included here. They must be triaged before merge rather than silently waived.
+- No Prisma schema or migration impact.
 - No Production data impact.
 
 ## Approval sequence
 
-1. Reconcile and certify Vercel/Supabase binding parity.
-2. Review the 13-candidate Contact Sheet and provide `APPROVE13MEDIA`.
-3. Review Preview, CI, security evidence, and provide `MERGE-P36-CONTINUATION`.
-4. After media records, prices, and readiness are proven in the certified Production binding, provide `ACTIVATE117`.
+1. Review the 13-candidate Contact Sheet and provide `APPROVE13MEDIA`.
+2. Review Preview, CI, security evidence, and provide `MERGE-P36-CONTINUATION`.
+3. After media records, prices, and readiness are proven in the certified Production binding, provide `ACTIVATE117`.
 
 Rollback remains Revision v1, the last verified Production deployment, Draft status restoration, previous price restoration, and archival—not deletion—of new image records.

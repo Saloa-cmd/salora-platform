@@ -171,7 +171,22 @@ export const categoryMutationSchema = z.discriminatedUnion("action", [
 ]);
 
 export const productImageMutationSchema = z.discriminatedUnion("action", [
-  z.object({ action: z.literal("add"), productSlug: z.string().min(2), publicUrl: z.string().url(), storagePath: z.string().min(2).optional(), altText: z.string().max(180).optional(), isPrimary: z.boolean().default(false) }),
+  z.object({
+    action: z.literal("add"),
+    productSlug: z.string().min(2),
+    storageBucket: z.string().regex(/^[a-z0-9][a-z0-9-]{1,118}[a-z0-9]$/),
+    storagePath: z.string().min(2).max(500).refine((value) => !value.startsWith("/") && !value.includes("..") && !value.includes("\\") && !/[\u0000-\u001f]/.test(value), "Unsafe storage path."),
+    publicUrl: z.string().url(),
+    mimeType: z.enum(["image/webp", "image/avif"]),
+    width: z.number().int().min(320).max(8000),
+    height: z.number().int().min(320).max(8000),
+    fileSize: z.number().int().positive().max(10 * 1024 * 1024),
+    checksum: z.string().regex(/^[a-f0-9]{64}$/),
+    altTextAr: z.string().min(2).max(180),
+    altTextEn: z.string().min(2).max(180),
+    sortOrder: z.number().int().nonnegative().default(0),
+    isPrimary: z.boolean().default(false)
+  }),
   z.object({ action: z.literal("primary"), imageId: z.string().uuid() }),
   z.object({ action: z.literal("archive"), imageId: z.string().uuid() })
 ]);
@@ -217,6 +232,7 @@ export async function handleError(error: unknown, id: string) {
   if (limited) return limited;
   if (error instanceof Error && error.message === "Missing bearer token.") return responseError("Unauthorized.", id, 401);
   if (error instanceof Error && error.message === "Forbidden") return responseError("Forbidden.", id, 403);
+  if (error instanceof Error && error.message.startsWith("Preview mutations are disabled")) return responseError(error.message, id, 409);
   if (error instanceof Error && error.message.includes("Secret-like")) return responseError(error.message, id, 400);
   return responseError("Control Tower request failed safely.", id, 500);
 }

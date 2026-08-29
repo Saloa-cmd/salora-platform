@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
-import { Archive, CheckCircle2, CircleAlert, Eye, Grid2X2, ImageIcon, List, RefreshCw, Search, ShieldCheck, SlidersHorizontal, Sparkles, Tag, X, Zap } from "lucide-react";
+import { Archive, CheckCircle2, CircleAlert, Eye, Grid2X2, ImageIcon, List, RefreshCw, Search, ShieldCheck, SlidersHorizontal, Sparkles, Tag, X } from "lucide-react";
 import { DashboardCard } from "@/components/dashboard/DashboardCard";
 import { controlTowerGet, controlTowerPatch, controlTowerPost } from "@/lib/control-tower/client";
 import type { MutationState } from "@/lib/control-tower/types";
@@ -46,6 +46,7 @@ function QuickAction({ label, icon, onClick, danger }: { label: string; icon: Re
 
 export function ProductReadinessWorkspace() {
   // Permanent P33/P34 contract marker: Product readiness & orderability.
+  // "Activate ready" remains a discovery contract only; the legacy `action: "status", status: "ACTIVE"` contract is now enforced exclusively by the gated server route.
   const { isArabic } = useControlTowerLocale();
   const t = useCallback((ar: string, en: string) => isArabic ? ar : en, [isArabic]);
   const [products, setProducts] = useState<ProductRow[]>([]);
@@ -161,17 +162,6 @@ export function ProductReadinessWorkspace() {
     setAiLoading(false);
   }
 
-  async function activateReadyDrafts() {
-    if (!activationCandidates.length) return;
-    setMutation({ status: "submitting", message: t("جارٍ التفعيل الآمن…", "Safely activating…") });
-    for (const product of activationCandidates) {
-      const result = await controlTowerPatch("/api/control-tower/simple-launch/products", { action: "status", slug: product.slug, status: "ACTIVE" });
-      if (result.status !== "success") { setMutation(result); await refresh(); return; }
-    }
-    setMutation({ status: "success", message: t(`تم تفعيل ${activationCandidates.length} صنفًا بعد فحص الخادم.`, `${activationCandidates.length} products activated after server verification.`) });
-    await refresh();
-  }
-
   const filters: Array<{ id: FilterMode; ar: string; en: string }> = [
     { id: "all", ar: "كل الأصناف", en: "All products" }, { id: "active", ar: "النشطة", en: "Active" }, { id: "draft", ar: "المسودات", en: "Drafts" },
     { id: "missing-price", ar: "سعر مفقود", en: "Missing price" }, { id: "missing-media", ar: "صورة مفقودة", en: "Missing media" }, { id: "unavailable", ar: "غير متاح", en: "Unavailable" },
@@ -184,7 +174,7 @@ export function ProductReadinessWorkspace() {
     <div className="space-y-5">
       <div className={`flex flex-col gap-4 border p-4 lg:flex-row lg:items-center lg:justify-between ${catalogReady ? "border-emerald-300/20 bg-emerald-300/[0.06]" : "border-amber-300/20 bg-amber-300/[0.045]"}`}>
         <div className="flex gap-3">{catalogReady ? <ShieldCheck className="mt-0.5 h-6 w-6 shrink-0 text-emerald-200" /> : <CircleAlert className="mt-0.5 h-6 w-6 shrink-0 text-amber-200" />}<div><strong className="block text-base text-[var(--cream)]">{catalogReady ? t("الكتالوج جاهز بالكامل", "Catalog Fully Ready") : t("الكتالوج يحتاج استكمالًا", "Catalog needs attention")}</strong><p className="mt-1 text-sm leading-6 text-[var(--muted)]">{catalogReady ? t("كل الأصناف نشطة وقابلة للطلب.", "Every product is active and order ready.") : t("السعر والصورة والتوفر والخيارات بوابات خادمية ملزمة.", "Price, media, availability and options remain mandatory server-side gates.")}</p></div></div>
-        <div className="flex flex-wrap gap-2"><button type="button" onClick={() => void refresh()} disabled={loading} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/10 px-4 text-xs font-semibold disabled:opacity-50"><RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />{t("تحديث", "Refresh")}</button>{activationCandidates.length ? <button type="button" onClick={() => void activateReadyDrafts()} disabled={mutation.status === "submitting"} className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[var(--gold)] px-4 text-xs font-bold text-black disabled:opacity-50"><Zap className="h-4 w-4" />{t(`تفعيل الجاهز (${activationCandidates.length})`, `Activate ready (${activationCandidates.length})`)}</button> : null}</div>
+        <div className="flex flex-wrap gap-2"><button type="button" onClick={() => void refresh()} disabled={loading} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/10 px-4 text-xs font-semibold disabled:opacity-50"><RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />{t("تحديث", "Refresh")}</button>{activationCandidates.length ? <a href="#p36-activation-review" className="inline-flex min-h-11 items-center rounded-xl border border-[var(--border-gold)] px-4 text-xs font-bold text-[var(--gold-soft)]">{t(`مراجعة بوابة التفعيل (${activationCandidates.length})`, `Review activation gate (${activationCandidates.length})`)}</a> : null}</div>
       </div>
 
       <div className="grid sm:grid-cols-2 xl:grid-cols-4"><Metric value={metrics.active} total={metrics.total} label={t("نشط", "Active")} /><Metric value={metrics.orderReady} total={metrics.total} label={t("جاهز للطلب", "Order ready")} /><Metric value={metrics.missingPrice} label={t("سعر مفقود", "Missing price")} warning={metrics.missingPrice > 0} /><Metric value={metrics.missingMedia} label={t("صورة مفقودة", "Missing media")} warning={metrics.missingMedia > 0} /></div>
