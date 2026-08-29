@@ -87,3 +87,9 @@ The separate `salora-staging` project contains 117 ACTIVE products and live imag
 3. After media records, prices, and readiness are proven in the certified Production binding, provide `ACTIVATE117`.
 
 Rollback remains Revision v1, the last verified Production deployment, Draft status restoration, previous price restoration, and archival—not deletion—of new image records.
+
+## Secure media-upload follow-up
+
+After PR #64 was merged manually, the owner granted the separate `AUTHORIZE-P36-PRODUCTION-DATA-PREP` authorization. The follow-up implementation adds a POST-only, Admin-only server route for the approved 13-file set. It pins the Production Supabase project, fetches candidates only from the certified Vercel Production asset origin, verifies MIME/size/dimensions/SHA-256 before and after upload, uses immutable checksum-addressed paths without overwrite, and applies ProductImage/media-draft/price/audit changes in one advisory-locked database transaction.
+
+The path is retry-safe and explicitly returns `activationPerformed: false` and `revisionPublished: false`. It does not activate any product, create Revision v2, publish the menu, change schema/RLS/indexes, or execute automatically when deployed. Operational details and rollback are recorded in `docs/P36_PRODUCTION_DATA_PREP_RUNBOOK.md`.

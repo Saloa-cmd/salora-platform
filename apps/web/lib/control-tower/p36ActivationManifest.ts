@@ -76,6 +76,17 @@ export const p36MediaApproval = {
   approvedBy: "SALORA Owner",
   source: "Owner approval in the P36 continuation conversation",
   approvedAssetCount: 13,
-  productionUploadAuthorized: false,
+  productionUploadAuthorized: true,
+  productionUploadApprovedAt: "2026-08-29T12:15:05Z",
   productionPublished: false
+} as const;
+
+export const p36ProductionDataPrepApproval = {
+  token: "AUTHORIZE-P36-PRODUCTION-DATA-PREP",
+  approvedAt: "2026-08-29T12:15:05Z",
+  approvedBy: "SALORA Owner",
+  source: "Owner approval in the P36 continuation conversation",
+  scope: ["UPLOAD_APPROVED_MEDIA", "CREATE_PRODUCT_IMAGES", "APPLY_APPROVED_PRICES"],
+  activationAuthorized: false,
+  revisionPublishAuthorized: false
 } as const;
