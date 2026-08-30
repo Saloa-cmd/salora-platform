@@ -47,7 +47,7 @@ for (const marker of [
   "لا تُرسل كلمة المرور أو رمز الاستعادة عبر المحادثات",
   'href="/login?next=/control-tower/overview"'
 ]) assert.ok(page.includes(marker), `Owner recovery UI marker missing: ${marker}`);
-assert.ok(login.includes('href="/recover-owner-access"'), "The sign-in page must expose the recovery entry point.");
+assert.ok(login.includes('href="/forgot-password"'), "The sign-in page must expose the current password recovery entry point.");
 
 for (const file of [service, route, page, login]) {
   assert.ok(!/sb_secret_|service_role\s*[:=]\s*["'][A-Za-z0-9]/.test(file), "A server secret value leaked into owner recovery code.");
