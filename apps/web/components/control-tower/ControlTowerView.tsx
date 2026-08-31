@@ -18,6 +18,8 @@ import { findControlTowerSection } from "@/lib/control-tower/registry";
 import type { ControlTowerSectionId } from "@/lib/control-tower/types";
 import { useControlTowerLocale } from "./ControlTowerLocale";
 
+// CatalogWorkspace composes ProductReadinessWorkspace and the governed media,
+// review, publishing, and product-settings tools behind progressive disclosure.
 function DomainWorkspace({ sectionId }: { sectionId: ControlTowerSectionId }) {
   if (sectionId === "overview") return <ControlTowerHome />;
   if (sectionId === "experience") return <ExperienceDesignStudio />;
