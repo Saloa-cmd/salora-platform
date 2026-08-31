@@ -3,37 +3,25 @@
 import { SaloraIcon } from "@/components/ui/SaloraIcon";
 import { DashboardCard } from "@/components/dashboard/DashboardCard";
 import { DashboardGrid } from "@/components/dashboard/DashboardGrid";
-import { DashboardSection } from "@/components/dashboard/DashboardSection";
 import { DashboardView } from "@/components/dashboard/DashboardView";
-import { CapabilityCard } from "./CapabilityCard";
 import { ExperienceDesignStudio } from "./ExperienceDesignStudio";
-import { MenuAuthorityStudio } from "./MenuAuthorityStudio";
-import { ProductMediaManager } from "./ProductMediaManager";
-import { ProductReadinessWorkspace } from "./ProductReadinessWorkspace";
-import { P36ActivationReview } from "./P36ActivationReview";
-import { MediaGovernanceAudit } from "./MediaGovernanceAudit";
-import { ProductActionPanel, LoyaltyActionPanel, RuntimeConfigActionPanel } from "./NoCodeActionPanel";
+import { LoyaltyActionPanel, RuntimeConfigActionPanel } from "./NoCodeActionPanel";
 import { MarketingOperationsWorkspace } from "./MarketingOperationsWorkspace";
 import { SimpleLaunchOperationsCenter } from "./SimpleLaunchOperationsCenter";
 import { SupremacyCommandCenter } from "./SupremacyCommandCenter";
 import { WhatsAppCommandCenter } from "./WhatsAppCommandCenter";
 import { OperationalGovernanceCenter } from "./OperationalGovernanceCenter";
-import { ControlTowerOverview } from "./ControlTowerOverview";
-import { ControlTowerDataPulse } from "./ControlTowerDataPulse";
-import { ControlTowerCopilot } from "./ControlTowerCopilot";
 import { ControlTowerIntelligenceWorkspace } from "./ControlTowerIntelligenceWorkspace";
+import { ControlTowerHome } from "./ControlTowerHome";
+import { CatalogWorkspace } from "./CatalogWorkspace";
 import { findControlTowerSection } from "@/lib/control-tower/registry";
 import type { ControlTowerSectionId } from "@/lib/control-tower/types";
 import { useControlTowerLocale } from "./ControlTowerLocale";
 
-function Overview() {
-  return <div className="space-y-6"><ControlTowerDataPulse /><ControlTowerOverview /></div>;
-}
-
 function DomainWorkspace({ sectionId }: { sectionId: ControlTowerSectionId }) {
-  if (sectionId === "overview") return <Overview />;
+  if (sectionId === "overview") return <ControlTowerHome />;
   if (sectionId === "experience") return <ExperienceDesignStudio />;
-  if (sectionId === "menu") return <><ProductReadinessWorkspace /><div className="mt-6 grid gap-6"><P36ActivationReview /><ProductActionPanel /><ProductMediaManager /><MenuAuthorityStudio /><MediaGovernanceAudit /></div></>;
+  if (sectionId === "menu") return <CatalogWorkspace />;
   if (sectionId === "orders") return <div className="space-y-6"><DashboardView kind="operations" /><SupremacyCommandCenter /></div>;
   if (sectionId === "customers") return <div className="space-y-6"><DashboardView kind="customers" /><LoyaltyActionPanel /></div>;
   if (sectionId === "marketing") return <MarketingOperationsWorkspace />;
@@ -47,13 +35,12 @@ export function ControlTowerView({ sectionId }: { sectionId?: string }) {
   const { tr } = useControlTowerLocale();
   const section = findControlTowerSection(sectionId);
   const isOverview = section.id === "overview";
-  return <div className="space-y-8">
-    <header className="flex flex-col gap-4 border-b border-white/[0.08] pb-6 lg:flex-row lg:items-end lg:justify-between">
-      <div className="flex items-start gap-4"><span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl border border-[var(--border-gold)] bg-[var(--gold)]/10 text-[var(--gold-soft)]"><SaloraIcon name={section.icon} className="h-6 w-6" /></span><div><p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[var(--gold-soft)]">SALORA · CONTROL TOWER</p><h1 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">{isOverview ? tr("Good morning, this is SALORA today") : tr(section.label)}</h1><p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--muted)]">{tr(section.description)}</p></div></div>
-      <span className="inline-flex w-fit items-center gap-2 rounded-full border border-emerald-300/15 bg-emerald-300/10 px-3 py-2 text-xs font-semibold text-emerald-200"><span className="h-1.5 w-1.5 rounded-full bg-emerald-300" />{tr("Permission-scoped workspace")}</span>
+
+  return <div className="space-y-6">
+    <header className="flex items-start gap-3 sm:gap-4">
+      <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-[var(--border-gold)] bg-[var(--gold)]/10 text-[var(--gold-soft)]"><SaloraIcon name={section.icon} className="h-5 w-5" /></span>
+      <div className="min-w-0"><p className="text-xs font-semibold text-[var(--gold-soft)]">SALORA</p><h1 className="mt-1 text-2xl font-semibold tracking-tight sm:text-3xl">{isOverview ? tr("Today at SALORA") : tr(section.label)}</h1><p className="mt-1 max-w-2xl text-sm leading-6 text-[var(--muted)]">{tr(section.description)}</p></div>
     </header>
-    {!isOverview ? <DashboardSection title={tr("Workspace scope")} description={tr("Only current, permission-backed capabilities are available here.")}><DashboardGrid columns="two">{section.capabilities.map((item) => <CapabilityCard key={item.title} capability={item} />)}</DashboardGrid></DashboardSection> : null}
-    {isOverview ? <DomainWorkspace sectionId={section.id} /> : <DashboardSection title={tr(section.commandLabel)} description={tr("Actions are authenticated, validated, authorized and audited by the existing services.")}><DomainWorkspace sectionId={section.id} /></DashboardSection>}
-    <ControlTowerCopilot key={section.id} sectionId={section.id} />
+    <DomainWorkspace sectionId={section.id} />
   </div>;
 }
