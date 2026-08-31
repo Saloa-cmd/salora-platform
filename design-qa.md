@@ -20,6 +20,8 @@ BLOCKED — authenticated visual review required
 - Primary routes keep permission filtering and authenticated server/API boundaries.
 - The overview uses the live data-pulse endpoint rather than placeholder metrics.
 - Product, media, review/publish, and product-settings tools are grouped behind progressive-disclosure tabs.
+- Orders, customers, AI, operations, and settings now use the same progressive-disclosure pattern instead of stacking long workspaces.
+- All workspace tabs expose tab/tabpanel relationships, roving focus, and Arrow/Home/End keyboard navigation.
 - Technical PostgreSQL/RLS language, capability-card noise, the non-functional notification control, and the global copilot are removed from the primary workflow.
 - RTL metric direction is explicitly stabilized.
 - TypeScript, lint, production build, accessibility contracts, responsive contracts, security contracts, and the full repository test sequence pass.
