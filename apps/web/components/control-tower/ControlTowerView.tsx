@@ -22,12 +22,18 @@ import { useControlTowerLocale } from "./ControlTowerLocale";
 function SectionTabs({ label, tabs }: { label: string; tabs: { id: string; label: string; content: ReactNode }[] }) {
   const [selected, setSelected] = useState(tabs[0]?.id ?? "");
   const active = tabs.some((tab) => tab.id === selected) ? selected : tabs[0]?.id;
+  const moveFocus = (current: number, key: string, container: HTMLElement) => {
+    if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(key)) return;
+    const next = key === "Home" ? 0 : key === "End" ? tabs.length - 1 : (current + (key === "ArrowRight" ? 1 : -1) + tabs.length) % tabs.length;
+    setSelected(tabs[next]?.id ?? "");
+    (container.parentElement?.querySelectorAll<HTMLElement>('[role="tab"]')[next])?.focus();
+  };
 
   return <div className="grid gap-5">
     <div className="salora-scroll-strip rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface)] p-1.5" role="tablist" aria-label={label}>
-      {tabs.map((tab) => <button key={tab.id} type="button" role="tab" aria-selected={active === tab.id} onClick={() => setSelected(tab.id)} className={`inline-flex min-h-11 shrink-0 items-center rounded-xl px-4 text-sm font-semibold transition ${active === tab.id ? "bg-[var(--gold)] text-[#17120a]" : "text-[var(--muted)] hover:bg-white/[0.04] hover:text-[var(--cream)]"}`}>{tab.label}</button>)}
+      {tabs.map((tab, index) => <button key={tab.id} id={`section-tab-${tab.id}`} type="button" role="tab" aria-controls={`section-panel-${tab.id}`} aria-selected={active === tab.id} tabIndex={active === tab.id ? 0 : -1} onClick={() => setSelected(tab.id)} onKeyDown={(event) => { if (["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) event.preventDefault(); moveFocus(index, event.key, event.currentTarget); }} className={`inline-flex min-h-11 shrink-0 items-center rounded-xl px-4 text-sm font-semibold transition ${active === tab.id ? "bg-[var(--gold)] text-[#17120a]" : "text-[var(--muted)] hover:bg-white/[0.04] hover:text-[var(--cream)]"}`}>{tab.label}</button>)}
     </div>
-    {tabs.map((tab) => active === tab.id ? <div key={tab.id} role="tabpanel">{tab.content}</div> : null)}
+    {tabs.map((tab) => active === tab.id ? <div key={tab.id} id={`section-panel-${tab.id}`} role="tabpanel" aria-labelledby={`section-tab-${tab.id}`} tabIndex={0}>{tab.content}</div> : null)}
   </div>;
 }
 
