@@ -1,8 +1,7 @@
 "use client";
 
+import { useState, type ReactNode } from "react";
 import { SaloraIcon } from "@/components/ui/SaloraIcon";
-import { DashboardCard } from "@/components/dashboard/DashboardCard";
-import { DashboardGrid } from "@/components/dashboard/DashboardGrid";
 import { DashboardView } from "@/components/dashboard/DashboardView";
 import { ExperienceDesignStudio } from "./ExperienceDesignStudio";
 import { LoyaltyActionPanel, RuntimeConfigActionPanel } from "./NoCodeActionPanel";
@@ -20,17 +19,49 @@ import { useControlTowerLocale } from "./ControlTowerLocale";
 
 // CatalogWorkspace composes ProductReadinessWorkspace and the governed media,
 // review, publishing, and product-settings tools behind progressive disclosure.
+function SectionTabs({ label, tabs }: { label: string; tabs: { id: string; label: string; content: ReactNode }[] }) {
+  const [selected, setSelected] = useState(tabs[0]?.id ?? "");
+  const active = tabs.some((tab) => tab.id === selected) ? selected : tabs[0]?.id;
+
+  return <div className="grid gap-5">
+    <div className="salora-scroll-strip rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface)] p-1.5" role="tablist" aria-label={label}>
+      {tabs.map((tab) => <button key={tab.id} type="button" role="tab" aria-selected={active === tab.id} onClick={() => setSelected(tab.id)} className={`inline-flex min-h-11 shrink-0 items-center rounded-xl px-4 text-sm font-semibold transition ${active === tab.id ? "bg-[var(--gold)] text-[#17120a]" : "text-[var(--muted)] hover:bg-white/[0.04] hover:text-[var(--cream)]"}`}>{tab.label}</button>)}
+    </div>
+    {tabs.map((tab) => active === tab.id ? <div key={tab.id} role="tabpanel">{tab.content}</div> : null)}
+  </div>;
+}
+
 function DomainWorkspace({ sectionId }: { sectionId: ControlTowerSectionId }) {
+  const { isArabic } = useControlTowerLocale();
+  const t = (ar: string, en: string) => isArabic ? ar : en;
+
   if (sectionId === "overview") return <ControlTowerHome />;
   if (sectionId === "experience") return <ExperienceDesignStudio />;
   if (sectionId === "menu") return <CatalogWorkspace />;
-  if (sectionId === "orders") return <div className="space-y-6"><DashboardView kind="operations" /><SupremacyCommandCenter /></div>;
-  if (sectionId === "customers") return <div className="space-y-6"><DashboardView kind="customers" /><LoyaltyActionPanel /></div>;
+  if (sectionId === "orders") return <SectionTabs label={t("أدوات الطلبات", "Order tools")} tabs={[
+    { id: "queue", label: t("الطلبات", "Orders"), content: <DashboardView kind="operations" /> },
+    { id: "command", label: t("مركز المتابعة", "Command center"), content: <SupremacyCommandCenter /> }
+  ]} />;
+  if (sectionId === "customers") return <SectionTabs label={t("أدوات العملاء", "Customer tools")} tabs={[
+    { id: "customers", label: t("العملاء", "Customers"), content: <DashboardView kind="customers" /> },
+    { id: "loyalty", label: t("الولاء", "Loyalty"), content: <LoyaltyActionPanel /> }
+  ]} />;
   if (sectionId === "marketing") return <MarketingOperationsWorkspace />;
-  if (sectionId === "ai") return <div className="space-y-6"><DashboardView kind="ai" /><SimpleLaunchOperationsCenter /><SupremacyCommandCenter /></div>;
+  if (sectionId === "ai") return <SectionTabs label={t("أدوات سالورا الذكية", "SALORA AI tools")} tabs={[
+    { id: "assistant", label: t("أدوات المساعد", "Assistant tools"), content: <SimpleLaunchOperationsCenter /> },
+    { id: "insights", label: t("الرؤى", "Insights"), content: <DashboardView kind="ai" /> },
+    { id: "governance", label: t("المراجعة", "Review"), content: <SupremacyCommandCenter /> }
+  ]} />;
   if (sectionId === "analytics") return <ControlTowerIntelligenceWorkspace />;
-  if (sectionId === "operations") return <div className="space-y-6"><DashboardView kind="operations" /><WhatsAppCommandCenter /><OperationalGovernanceCenter /></div>;
-  return <><DashboardGrid columns="two"><RuntimeConfigActionPanel /><DashboardCard title="Governed settings" eyebrow="Server controlled"><p className="text-sm leading-6 text-[var(--muted)]">Configuration writes remain typed, non-secret, permission checked and audited. No arbitrary table or SQL surface exists.</p></DashboardCard></DashboardGrid><div className="mt-6"><OperationalGovernanceCenter /></div></>;
+  if (sectionId === "operations") return <SectionTabs label={t("أدوات التشغيل", "Operations tools")} tabs={[
+    { id: "status", label: t("الحالة", "Status"), content: <DashboardView kind="operations" /> },
+    { id: "whatsapp", label: t("واتساب", "WhatsApp"), content: <WhatsAppCommandCenter /> },
+    { id: "health", label: t("صحة النظام", "System health"), content: <OperationalGovernanceCenter /> }
+  ]} />;
+  return <SectionTabs label={t("أدوات الإعدادات", "Settings tools")} tabs={[
+    { id: "configuration", label: t("الإعدادات", "Configuration"), content: <RuntimeConfigActionPanel /> },
+    { id: "health", label: t("الصحة والتدقيق", "Health & audit"), content: <OperationalGovernanceCenter /> }
+  ]} />;
 }
 
 export function ControlTowerView({ sectionId }: { sectionId?: string }) {
