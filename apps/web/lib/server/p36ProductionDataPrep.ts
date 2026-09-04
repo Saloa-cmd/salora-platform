@@ -26,7 +26,7 @@ type StorageResult = {
 function storageConfig() {
   const rawUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
   const secretKey = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!rawUrl || !secretKey) throw new Error("Production Supabase Storage credentials are not configured.");
+  if (!rawUrl) throw new Error("Production Supabase Storage URL is not configured.");
   const url = new URL(rawUrl);
   if (url.protocol !== "https:" || url.hostname !== `${EXPECTED_PRODUCTION_PROJECT_REF}.supabase.co`) {
     throw new Error("Production Supabase binding does not match the certified P36 project.");
@@ -86,13 +86,15 @@ async function ensureStoredMedia(sourceOrigin: string): Promise<StorageResult[]>
     let action: StorageResult["action"] = "reused";
     const existing = await fetch(publicUrl, { redirect: "error", signal: AbortSignal.timeout(10_000), cache: "no-store" });
 
-    if (existing.status === 404) {
+    if (existing.status === 404 || existing.status === 400) {
+      const uploadKey = secretKey;
+      if (!uploadKey) throw new Error(`Approved P36 media is missing for ${candidate.slug}; server-only upload credentials are required.`);
       const uploadUrl = `${baseUrl}/storage/v1/object/${MEDIA_BUCKET}/${encodedObjectPath(storagePath)}`;
       const upload = await fetch(uploadUrl, {
         method: "POST",
         headers: {
-          apikey: secretKey,
-          authorization: `Bearer ${secretKey}`,
+          apikey: uploadKey,
+          authorization: `Bearer ${uploadKey}`,
           "content-type": p36MediaSpecification.mimeType,
           "cache-control": "31536000, immutable",
           "x-upsert": "false"
