@@ -97,7 +97,7 @@ async function ensureStoredMedia(sourceOrigin: string): Promise<StorageResult[]>
           "cache-control": "31536000, immutable",
           "x-upsert": "false"
         },
-        body: bytes,
+        body: new Uint8Array(bytes),
         redirect: "error",
         signal: AbortSignal.timeout(15_000)
       });

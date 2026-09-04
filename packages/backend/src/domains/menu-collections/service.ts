@@ -30,7 +30,7 @@ function stableJson(value: unknown): string {
   return JSON.stringify(value);
 }
 
-function checksumSnapshot(snapshot: unknown): string {
+export function checksumSnapshot(snapshot: unknown): string {
   return createHash("sha256").update(stableJson(snapshot)).digest("hex");
 }
 

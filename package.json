@@ -33,6 +33,7 @@
     "test:p35": "node scripts/p35-production-runtime-resilience.test.mjs",
     "test:p36": "node scripts/p36-control-tower-continuation.test.mjs",
     "test:p36-upload": "node scripts/p36-secure-media-upload-followup.test.mjs",
+    "test:p36-activate117": "node scripts/p36-activate117-atomic.test.mjs",
     "test:control-tower-ux": "node scripts/control-tower-unified-ux.test.mjs",
     "test:owner-recovery": "node scripts/owner-admin-recovery.test.mjs",
     "test:password-reset": "node scripts/admin-email-password-reset.test.mjs",
