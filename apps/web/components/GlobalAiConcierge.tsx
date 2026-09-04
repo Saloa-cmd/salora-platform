@@ -24,7 +24,7 @@ export function GlobalAiConcierge() {
   const [availability, setAvailability] = useState<Availability>("checking");
 
   useEffect(() => {
-    if (internalPrefixes.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`))) return;
+    if (!pathname || internalPrefixes.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`))) return;
     const controller = new AbortController();
     void fetch("/api/products", { signal: controller.signal, headers: { accept: "application/json" } })
       .then(async (response) => {
@@ -43,7 +43,7 @@ export function GlobalAiConcierge() {
     return () => controller.abort();
   }, [pathname]);
 
-  if (internalPrefixes.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`))) return null;
+  if (!pathname || internalPrefixes.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`))) return null;
   if (availability !== "ready") return null;
 
   const rtl = language === "ar";
