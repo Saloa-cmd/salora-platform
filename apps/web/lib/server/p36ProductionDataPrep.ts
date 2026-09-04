@@ -86,13 +86,15 @@ async function ensureStoredMedia(sourceOrigin: string): Promise<StorageResult[]>
     let action: StorageResult["action"] = "reused";
     const existing = await fetch(publicUrl, { redirect: "error", signal: AbortSignal.timeout(10_000), cache: "no-store" });
 
-    if (existing.status === 404) {
+    if (existing.status === 404 || existing.status === 400) {
+      const uploadKey = secretKey;
+      if (!uploadKey) throw new Error(`Approved P36 media is missing for ${candidate.slug}; server-only upload credentials are required.`);
       const uploadUrl = `${baseUrl}/storage/v1/object/${MEDIA_BUCKET}/${encodedObjectPath(storagePath)}`;
       const upload = await fetch(uploadUrl, {
         method: "POST",
         headers: {
-          apikey: secretKey,
-          authorization: `Bearer ${secretKey}`,
+          apikey: uploadKey,
+          authorization: `Bearer ${uploadKey}`,
           "content-type": p36MediaSpecification.mimeType,
           "cache-control": "31536000, immutable",
           "x-upsert": "false"
