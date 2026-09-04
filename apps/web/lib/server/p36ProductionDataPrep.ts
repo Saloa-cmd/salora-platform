@@ -11,6 +11,7 @@ import {
 import { verifyProductMedia, verifyProductMediaBytes } from "@/lib/server/mediaIntegrity";
 
 const EXPECTED_PRODUCTION_PROJECT_REF = "xikqnzvfnquiqyybkyvw";
+const CERTIFIED_PRODUCTION_HOST = "salora-platform.vercel.app";
 const MEDIA_BUCKET = "salora-product-media";
 const MEDIA_SOURCE = "p36_owner_approved";
 const ADVISORY_LOCK_KEY = "salora:p36:production-data-prep";
@@ -47,10 +48,14 @@ function productionAssetOrigin(requestOrigin: string) {
   const request = new URL(requestOrigin);
   if (request.protocol !== "https:") throw new Error("P36 Production request origin must use HTTPS.");
   const configuredHost = process.env.VERCEL_PROJECT_PRODUCTION_URL;
-  if (!configuredHost || configuredHost.includes("/") || configuredHost.includes("\\")) {
+  if (configuredHost) {
+    if (configuredHost.includes("/") || configuredHost.includes("\\")) throw new Error("Certified Vercel Production asset origin is invalid.");
+    return `https://${configuredHost}`;
+  }
+  if (request.hostname !== CERTIFIED_PRODUCTION_HOST || request.port) {
     throw new Error("Certified Vercel Production asset origin is not configured.");
   }
-  return `https://${configuredHost}`;
+  return request.origin;
 }
 
 async function candidateBytes(sourceOrigin: string, candidate: (typeof p36ActivationCandidates)[number]) {
