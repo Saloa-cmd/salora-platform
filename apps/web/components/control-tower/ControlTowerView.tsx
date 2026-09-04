@@ -1,59 +1,85 @@
 "use client";
 
+import { useState, type ReactNode } from "react";
 import { SaloraIcon } from "@/components/ui/SaloraIcon";
-import { DashboardCard } from "@/components/dashboard/DashboardCard";
-import { DashboardGrid } from "@/components/dashboard/DashboardGrid";
-import { DashboardSection } from "@/components/dashboard/DashboardSection";
 import { DashboardView } from "@/components/dashboard/DashboardView";
-import { CapabilityCard } from "./CapabilityCard";
 import { ExperienceDesignStudio } from "./ExperienceDesignStudio";
-import { MenuAuthorityStudio } from "./MenuAuthorityStudio";
-import { ProductMediaManager } from "./ProductMediaManager";
-import { ProductReadinessWorkspace } from "./ProductReadinessWorkspace";
-import { P36ActivationReview } from "./P36ActivationReview";
-import { MediaGovernanceAudit } from "./MediaGovernanceAudit";
-import { ProductActionPanel, LoyaltyActionPanel, RuntimeConfigActionPanel } from "./NoCodeActionPanel";
+import { LoyaltyActionPanel, RuntimeConfigActionPanel } from "./NoCodeActionPanel";
 import { MarketingOperationsWorkspace } from "./MarketingOperationsWorkspace";
 import { SimpleLaunchOperationsCenter } from "./SimpleLaunchOperationsCenter";
 import { SupremacyCommandCenter } from "./SupremacyCommandCenter";
 import { WhatsAppCommandCenter } from "./WhatsAppCommandCenter";
 import { OperationalGovernanceCenter } from "./OperationalGovernanceCenter";
-import { ControlTowerOverview } from "./ControlTowerOverview";
-import { ControlTowerDataPulse } from "./ControlTowerDataPulse";
-import { ControlTowerCopilot } from "./ControlTowerCopilot";
 import { ControlTowerIntelligenceWorkspace } from "./ControlTowerIntelligenceWorkspace";
+import { ControlTowerHome } from "./ControlTowerHome";
+import { CatalogWorkspace } from "./CatalogWorkspace";
 import { findControlTowerSection } from "@/lib/control-tower/registry";
 import type { ControlTowerSectionId } from "@/lib/control-tower/types";
 import { useControlTowerLocale } from "./ControlTowerLocale";
 
-function Overview() {
-  return <div className="space-y-6"><ControlTowerDataPulse /><ControlTowerOverview /></div>;
+// CatalogWorkspace composes ProductReadinessWorkspace and the governed media,
+// review, publishing, and product-settings tools behind progressive disclosure.
+function SectionTabs({ label, tabs }: { label: string; tabs: { id: string; label: string; content: ReactNode }[] }) {
+  const [selected, setSelected] = useState(tabs[0]?.id ?? "");
+  const active = tabs.some((tab) => tab.id === selected) ? selected : tabs[0]?.id;
+  const moveFocus = (current: number, key: string, container: HTMLElement) => {
+    if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(key)) return;
+    const next = key === "Home" ? 0 : key === "End" ? tabs.length - 1 : (current + (key === "ArrowRight" ? 1 : -1) + tabs.length) % tabs.length;
+    setSelected(tabs[next]?.id ?? "");
+    (container.parentElement?.querySelectorAll<HTMLElement>('[role="tab"]')[next])?.focus();
+  };
+
+  return <div className="grid gap-5">
+    <div className="salora-scroll-strip rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface)] p-1.5" role="tablist" aria-label={label}>
+      {tabs.map((tab, index) => <button key={tab.id} id={`section-tab-${tab.id}`} type="button" role="tab" aria-controls={`section-panel-${tab.id}`} aria-selected={active === tab.id} tabIndex={active === tab.id ? 0 : -1} onClick={() => setSelected(tab.id)} onKeyDown={(event) => { if (["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) event.preventDefault(); moveFocus(index, event.key, event.currentTarget); }} className={`inline-flex min-h-11 shrink-0 items-center rounded-xl px-4 text-sm font-semibold transition ${active === tab.id ? "bg-[var(--gold)] text-[#17120a]" : "text-[var(--muted)] hover:bg-white/[0.04] hover:text-[var(--cream)]"}`}>{tab.label}</button>)}
+    </div>
+    {tabs.map((tab) => active === tab.id ? <div key={tab.id} id={`section-panel-${tab.id}`} role="tabpanel" aria-labelledby={`section-tab-${tab.id}`} tabIndex={0}>{tab.content}</div> : null)}
+  </div>;
 }
 
 function DomainWorkspace({ sectionId }: { sectionId: ControlTowerSectionId }) {
-  if (sectionId === "overview") return <Overview />;
+  const { isArabic } = useControlTowerLocale();
+  const t = (ar: string, en: string) => isArabic ? ar : en;
+
+  if (sectionId === "overview") return <ControlTowerHome />;
   if (sectionId === "experience") return <ExperienceDesignStudio />;
-  if (sectionId === "menu") return <><ProductReadinessWorkspace /><div className="mt-6 grid gap-6"><P36ActivationReview /><ProductActionPanel /><ProductMediaManager /><MenuAuthorityStudio /><MediaGovernanceAudit /></div></>;
-  if (sectionId === "orders") return <div className="space-y-6"><DashboardView kind="operations" /><SupremacyCommandCenter /></div>;
-  if (sectionId === "customers") return <div className="space-y-6"><DashboardView kind="customers" /><LoyaltyActionPanel /></div>;
+  if (sectionId === "menu") return <CatalogWorkspace />;
+  if (sectionId === "orders") return <SectionTabs label={t("أدوات الطلبات", "Order tools")} tabs={[
+    { id: "queue", label: t("الطلبات", "Orders"), content: <DashboardView kind="operations" /> },
+    { id: "command", label: t("مركز المتابعة", "Command center"), content: <SupremacyCommandCenter /> }
+  ]} />;
+  if (sectionId === "customers") return <SectionTabs label={t("أدوات العملاء", "Customer tools")} tabs={[
+    { id: "customers", label: t("العملاء", "Customers"), content: <DashboardView kind="customers" /> },
+    { id: "loyalty", label: t("الولاء", "Loyalty"), content: <LoyaltyActionPanel /> }
+  ]} />;
   if (sectionId === "marketing") return <MarketingOperationsWorkspace />;
-  if (sectionId === "ai") return <div className="space-y-6"><DashboardView kind="ai" /><SimpleLaunchOperationsCenter /><SupremacyCommandCenter /></div>;
+  if (sectionId === "ai") return <SectionTabs label={t("أدوات سالورا الذكية", "SALORA AI tools")} tabs={[
+    { id: "assistant", label: t("أدوات المساعد", "Assistant tools"), content: <SimpleLaunchOperationsCenter /> },
+    { id: "insights", label: t("الرؤى", "Insights"), content: <DashboardView kind="ai" /> },
+    { id: "governance", label: t("المراجعة", "Review"), content: <SupremacyCommandCenter /> }
+  ]} />;
   if (sectionId === "analytics") return <ControlTowerIntelligenceWorkspace />;
-  if (sectionId === "operations") return <div className="space-y-6"><DashboardView kind="operations" /><WhatsAppCommandCenter /><OperationalGovernanceCenter /></div>;
-  return <><DashboardGrid columns="two"><RuntimeConfigActionPanel /><DashboardCard title="Governed settings" eyebrow="Server controlled"><p className="text-sm leading-6 text-[var(--muted)]">Configuration writes remain typed, non-secret, permission checked and audited. No arbitrary table or SQL surface exists.</p></DashboardCard></DashboardGrid><div className="mt-6"><OperationalGovernanceCenter /></div></>;
+  if (sectionId === "operations") return <SectionTabs label={t("أدوات التشغيل", "Operations tools")} tabs={[
+    { id: "status", label: t("الحالة", "Status"), content: <DashboardView kind="operations" /> },
+    { id: "whatsapp", label: t("واتساب", "WhatsApp"), content: <WhatsAppCommandCenter /> },
+    { id: "health", label: t("صحة النظام", "System health"), content: <OperationalGovernanceCenter /> }
+  ]} />;
+  return <SectionTabs label={t("أدوات الإعدادات", "Settings tools")} tabs={[
+    { id: "configuration", label: t("الإعدادات", "Configuration"), content: <RuntimeConfigActionPanel /> },
+    { id: "health", label: t("الصحة والتدقيق", "Health & audit"), content: <OperationalGovernanceCenter /> }
+  ]} />;
 }
 
 export function ControlTowerView({ sectionId }: { sectionId?: string }) {
   const { tr } = useControlTowerLocale();
   const section = findControlTowerSection(sectionId);
   const isOverview = section.id === "overview";
-  return <div className="space-y-8">
-    <header className="flex flex-col gap-4 border-b border-white/[0.08] pb-6 lg:flex-row lg:items-end lg:justify-between">
-      <div className="flex items-start gap-4"><span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl border border-[var(--border-gold)] bg-[var(--gold)]/10 text-[var(--gold-soft)]"><SaloraIcon name={section.icon} className="h-6 w-6" /></span><div><p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[var(--gold-soft)]">SALORA · CONTROL TOWER</p><h1 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">{isOverview ? tr("Good morning, this is SALORA today") : tr(section.label)}</h1><p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--muted)]">{tr(section.description)}</p></div></div>
-      <span className="inline-flex w-fit items-center gap-2 rounded-full border border-emerald-300/15 bg-emerald-300/10 px-3 py-2 text-xs font-semibold text-emerald-200"><span className="h-1.5 w-1.5 rounded-full bg-emerald-300" />{tr("Permission-scoped workspace")}</span>
+
+  return <div className="space-y-6">
+    <header className="flex items-start gap-3 sm:gap-4">
+      <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-[var(--border-gold)] bg-[var(--gold)]/10 text-[var(--gold-soft)]"><SaloraIcon name={section.icon} className="h-5 w-5" /></span>
+      <div className="min-w-0"><p className="text-xs font-semibold text-[var(--gold-soft)]">SALORA</p><h1 className="mt-1 text-2xl font-semibold tracking-tight sm:text-3xl">{isOverview ? tr("Today at SALORA") : tr(section.label)}</h1><p className="mt-1 max-w-2xl text-sm leading-6 text-[var(--muted)]">{tr(section.description)}</p></div>
     </header>
-    {!isOverview ? <DashboardSection title={tr("Workspace scope")} description={tr("Only current, permission-backed capabilities are available here.")}><DashboardGrid columns="two">{section.capabilities.map((item) => <CapabilityCard key={item.title} capability={item} />)}</DashboardGrid></DashboardSection> : null}
-    {isOverview ? <DomainWorkspace sectionId={section.id} /> : <DashboardSection title={tr(section.commandLabel)} description={tr("Actions are authenticated, validated, authorized and audited by the existing services.")}><DomainWorkspace sectionId={section.id} /></DashboardSection>}
-    <ControlTowerCopilot key={section.id} sectionId={section.id} />
+    <DomainWorkspace sectionId={section.id} />
   </div>;
 }

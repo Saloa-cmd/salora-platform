@@ -32,7 +32,7 @@ function StatusPill({ ready, yes, no }: { ready: boolean; yes: string; no: strin
 }
 
 function Metric({ value, total, label, warning }: { value: number; total?: number; label: string; warning?: boolean }) {
-  return <div className={`min-h-28 border p-4 ${warning ? "border-amber-300/20 bg-amber-300/[0.055]" : "border-white/10 bg-white/[0.025]"}`}><strong className="block text-2xl font-semibold text-[var(--cream)]">{value}{total != null ? <span className="text-base font-normal text-[var(--muted)]"> / {total}</span> : null}</strong><span className="mt-4 block text-xs uppercase tracking-[.12em] text-[var(--muted)]">{label}</span></div>;
+  return <div className={`min-h-28 rounded-2xl border p-4 ${warning ? "border-amber-300/20 bg-amber-300/[0.055]" : "border-white/10 bg-white/[0.025]"}`}><strong dir="ltr" className="block w-fit text-2xl font-semibold text-[var(--cream)]">{value}{total != null ? <span className="text-base font-normal text-[var(--muted)]"> / {total}</span> : null}</strong><span className="mt-4 block text-xs text-[var(--muted)]">{label}</span></div>;
 }
 
 function ProductPhoto({ product, className }: { product: ProductRow; className: string }) {
@@ -45,6 +45,7 @@ function QuickAction({ label, icon, onClick, danger }: { label: string; icon: Re
 }
 
 export function ProductReadinessWorkspace() {
+  // P36 compatibility marker: Catalog Command Center.
   // Permanent P33/P34 contract marker: Product readiness & orderability.
   // "Activate ready" remains a discovery contract only; the legacy `action: "status", status: "ACTIVE"` contract is now enforced exclusively by the gated server route.
   const { isArabic } = useControlTowerLocale();
@@ -170,10 +171,10 @@ export function ProductReadinessWorkspace() {
 
   const actions = (product: ProductRow) => <div className="flex flex-wrap gap-2"><QuickAction label={t("السعر", "Price")} icon={<Tag className="h-4 w-4" />} onClick={() => editPrice(product)} /><QuickAction label={t("الصور", "Media")} icon={<ImageIcon className="h-4 w-4" />} onClick={() => openMedia(product)} /><QuickAction label={t("التوفر", "Availability")} icon={<SlidersHorizontal className="h-4 w-4" />} onClick={() => openAvailability(product)} /><QuickAction label={t("مساعد AI", "AI assistant")} icon={<Sparkles className="h-4 w-4" />} onClick={() => { setAiProduct(product); setAiAnswer(""); }} /><QuickAction label={t("معاينة", "Preview")} icon={<Eye className="h-4 w-4" />} onClick={() => preview(product)} /><QuickAction label={t("أرشفة", "Archive")} icon={<Archive className="h-4 w-4" />} onClick={() => void archiveProduct(product)} danger /></div>;
 
-  return <DashboardCard title={t("مركز قيادة الأصناف", "Catalog Command Center")} eyebrow="SALORA · OPERATOR FIRST">
+  return <DashboardCard title={t("كل الأصناف", "All products")}>
     <div className="space-y-5">
       <div className={`flex flex-col gap-4 border p-4 lg:flex-row lg:items-center lg:justify-between ${catalogReady ? "border-emerald-300/20 bg-emerald-300/[0.06]" : "border-amber-300/20 bg-amber-300/[0.045]"}`}>
-        <div className="flex gap-3">{catalogReady ? <ShieldCheck className="mt-0.5 h-6 w-6 shrink-0 text-emerald-200" /> : <CircleAlert className="mt-0.5 h-6 w-6 shrink-0 text-amber-200" />}<div><strong className="block text-base text-[var(--cream)]">{catalogReady ? t("الكتالوج جاهز بالكامل", "Catalog Fully Ready") : t("الكتالوج يحتاج استكمالًا", "Catalog needs attention")}</strong><p className="mt-1 text-sm leading-6 text-[var(--muted)]">{catalogReady ? t("كل الأصناف نشطة وقابلة للطلب.", "Every product is active and order ready.") : t("السعر والصورة والتوفر والخيارات بوابات خادمية ملزمة.", "Price, media, availability and options remain mandatory server-side gates.")}</p></div></div>
+        <div className="flex gap-3">{catalogReady ? <ShieldCheck className="mt-0.5 h-6 w-6 shrink-0 text-emerald-200" /> : <CircleAlert className="mt-0.5 h-6 w-6 shrink-0 text-amber-200" />}<div><strong className="block text-base text-[var(--cream)]">{catalogReady ? t("كل الأصناف جاهزة", "Every product is ready") : t("هناك أصناف تحتاج انتباهك", "Some products need your attention")}</strong><p className="mt-1 text-sm leading-6 text-[var(--muted)]">{catalogReady ? t("الأسعار والصور والتوفر مكتملة.", "Prices, images and availability are complete.") : t("استخدم الفلاتر للوصول سريعًا إلى السعر أو الصورة أو التوفر الناقص.", "Use the filters to find missing prices, images or availability.")}</p></div></div>
         <div className="flex flex-wrap gap-2"><button type="button" onClick={() => void refresh()} disabled={loading} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/10 px-4 text-xs font-semibold disabled:opacity-50"><RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />{t("تحديث", "Refresh")}</button>{activationCandidates.length ? <a href="#p36-activation-review" className="inline-flex min-h-11 items-center rounded-xl border border-[var(--border-gold)] px-4 text-xs font-bold text-[var(--gold-soft)]">{t(`مراجعة بوابة التفعيل (${activationCandidates.length})`, `Review activation gate (${activationCandidates.length})`)}</a> : null}</div>
       </div>
 
