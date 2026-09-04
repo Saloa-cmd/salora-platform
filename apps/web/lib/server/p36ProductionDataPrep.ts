@@ -26,7 +26,7 @@ type StorageResult = {
 function storageConfig() {
   const rawUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
   const secretKey = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!rawUrl || !secretKey) throw new Error("Production Supabase Storage credentials are not configured.");
+  if (!rawUrl) throw new Error("Production Supabase Storage URL is not configured.");
   const url = new URL(rawUrl);
   if (url.protocol !== "https:" || url.hostname !== `${EXPECTED_PRODUCTION_PROJECT_REF}.supabase.co`) {
     throw new Error("Production Supabase binding does not match the certified P36 project.");
