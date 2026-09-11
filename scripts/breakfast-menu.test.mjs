@@ -54,6 +54,9 @@ assert.match(experience, /ريوق سالورا/);
 assert.match(experience, /SALORA Breakfast/);
 assert.match(experience, /src="\/products\/breakfast\/breakfast-hero\.webp"/);
 
+const homeExperience = readFileSync("apps/web/components/home/PremiumHomeExperience.tsx", "utf8");
+assert.match(homeExperience, /breakfastMediaBySlug\[product\.id\]/);
+
 const seeder = readFileSync("scripts/seed-salora-breakfast.ts", "utf8");
 assert.match(seeder, /SALORA_BREAKFAST_STATUS \?\? "DRAFT"/);
 assert.match(seeder, /Menu Authority revision/);

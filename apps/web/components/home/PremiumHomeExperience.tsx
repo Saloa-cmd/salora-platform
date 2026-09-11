@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowDown, ArrowUpLeft, Instagram, Languages, MapPin, Menu, MessageCircle, ShoppingBag } from "lucide-react";
 import { useState } from "react";
 import type { ExperienceConfiguration, MenuAuthoritySnapshot, MenuAuthoritySource, Product } from "@salora/types";
+import { breakfastMediaBySlug } from "@salora/data";
 import { ThemeControl } from "@/components/ui/ThemeControl";
 import { ExperienceStatus } from "@/components/public/ExperienceStatus";
 
@@ -84,7 +85,9 @@ function displayCategory(product: Product, language: Language) {
 }
 
 function publicImage(product?: Product) {
-  return product && /^https:\/\//i.test(product.visual) ? product.visual : undefined;
+  if (!product) return undefined;
+  return breakfastMediaBySlug[product.id]
+    ?? (/^(https:\/\/|\/)/i.test(product.visual) ? product.visual : undefined);
 }
 
 function displayPrice(product: Product, language: Language) {
