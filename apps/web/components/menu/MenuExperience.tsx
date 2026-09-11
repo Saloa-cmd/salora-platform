@@ -7,20 +7,26 @@ import {
   Car,
   Check,
   ChevronDown,
+  Clock3,
   CloudOff,
   Coffee,
   Gift,
+  GlassWater,
   Languages,
+  Leaf,
   Minus,
   Plus,
   Search,
+  Sandwich,
   ShoppingBag,
   Sparkles,
   Store,
+  Sunrise,
   UtensilsCrossed,
   X
 } from "lucide-react";
 import type { ExperienceConfiguration, MenuAuthoritySection, MenuAuthoritySnapshot, MenuAuthoritySource, Product, ProductChoice, ProductModifierGroup, SelectedModifier } from "@salora/types";
+import { breakfastGroups, breakfastMediaBySlug, isBreakfastProduct } from "@salora/data";
 import { SaloraButton, SaloraEmptyState } from "@/components/ui/SaloraPrimitives";
 import { ThemeControl } from "@/components/ui/ThemeControl";
 import { ExperienceStatus } from "@/components/public/ExperienceStatus";
@@ -45,7 +51,7 @@ const copy = {
     eyebrow: "اختيارات سالورا",
     title: "اختر لحظتك، ونحن نحضّر الانسجام.",
     intro: "قهوة مختصة، ماتشا، مشروبات منعشة وحلويات تُحضّر بعناية للحظات تستحق أن تُعاش.",
-    search: "ابحث عن مشروب أو حلوى",
+    search: "ابحث عن فطور، مشروب أو حلوى",
     all: "الكل",
     add: "خصص وأضف",
     cart: "طلبك",
@@ -93,7 +99,7 @@ const copy = {
     eyebrow: "SALORA selections",
     title: "Choose your moment. We prepare the harmony.",
     intro: "Specialty coffee, matcha, refreshing drinks and desserts, prepared with care for moments worth enjoying.",
-    search: "Search drinks or desserts",
+    search: "Search breakfast, drinks or desserts",
     all: "All",
     add: "Customize & add",
     cart: "Your order",
@@ -169,7 +175,8 @@ function displayDescription(product: Product, language: Language) {
 }
 
 function productImage(product: Product) {
-  return /^https:\/\//i.test(product.visual) ? product.visual : undefined;
+  return breakfastMediaBySlug[product.id]
+    ?? (/^(https:\/\/|\/)/i.test(product.visual) ? product.visual : undefined);
 }
 
 function formatOmr(value: number, language: Language) {
@@ -178,6 +185,7 @@ function formatOmr(value: number, language: Language) {
 
 function productAccent(product: Product) {
   const text = `${product.category} ${product.tags.join(" ")}`.toLowerCase();
+  if (text.includes("breakfast")) return "from-[#c9a45c]/30 via-[#261b13] to-black";
   if (text.includes("matcha")) return "from-[#8fa47c]/35 via-[#1b2017] to-black";
   if (text.includes("dessert") || text.includes("cake")) return "from-[#c9a45c]/30 via-[#2a1d17] to-black";
   if (text.includes("juice") || text.includes("cold")) return "from-[#729f9b]/30 via-[#142120] to-black";
@@ -228,6 +236,10 @@ export function MenuExperience({
   const [submitting, setSubmitting] = useState(false);
   const t = copy[language];
   const catalogUnavailable = menuDatabaseHealth === "unavailable";
+  const breakfastProducts = useMemo(
+    () => initialProducts.filter((product) => isBreakfastProduct(product.tags)),
+    [initialProducts]
+  );
 
   const categories = useMemo(
     () => ["All", ...sections.filter((section) => initialProducts.some((product) => product.sectionKey === section.key)).map((section) => section.key)],
@@ -284,6 +296,12 @@ export function MenuExperience({
     setSelectedProduct(product);
     const groups = productGroups(product, language);
     setSelections(groups.reduce<Record<string, ProductChoice>>((initial, group) => { const option = group.options[0]; if (group.required && option) initial[group.id] = option; return initial; }, {}));
+  }
+
+  function exploreBreakfast() {
+    setSearch("");
+    setCategory("breakfast");
+    requestAnimationFrame(() => document.getElementById("menu-products")?.scrollIntoView({ behavior: "smooth", block: "start" }));
   }
 
   function addSelectedProduct() {
@@ -434,6 +452,16 @@ export function MenuExperience({
 
       {menuBanners.length ? <section className="mx-auto grid max-w-7xl gap-4 px-4 pt-8 sm:grid-cols-2 sm:px-6">{menuBanners.map((banner) => <Link key={banner.id} href={banner.linkUrl || "/menu"} className="relative min-h-40 overflow-hidden border border-white/10 bg-white/[0.04] p-6" style={{ borderRadius: `${experience.theme.borderRadius}px`, backgroundImage: banner.imageUrl ? `linear-gradient(90deg, rgba(0,0,0,.86), rgba(0,0,0,.18)), url(${banner.imageUrl})` : undefined, backgroundPosition: "center", backgroundSize: "cover" }}><h2 className="max-w-sm text-2xl font-semibold">{language === "ar" ? banner.titleAr : banner.titleEn}</h2><p className="mt-2 max-w-sm text-sm text-[var(--muted)]">{language === "ar" ? banner.subtitleAr : banner.subtitleEn}</p></Link>)}</section> : null}
 
+      {breakfastProducts.length ? (
+        <BreakfastShowcase
+          products={breakfastProducts}
+          language={language}
+          radius={experience.theme.borderRadius}
+          onExplore={exploreBreakfast}
+          onSelect={openProduct}
+        />
+      ) : null}
+
       <section id="menu-products" className="mx-auto max-w-7xl scroll-mt-16 px-4 py-5 sm:scroll-mt-[4.5rem] sm:px-6 sm:py-8">
         {!catalogUnavailable ? <div className="sticky top-16 z-30 -mx-4 border-y border-white/10 bg-black/90 px-4 py-3 backdrop-blur-xl sm:top-[4.5rem] sm:-mx-6 sm:px-6">
           <div className="mx-auto flex max-w-7xl flex-col gap-3 lg:flex-row lg:items-center">
@@ -492,6 +520,96 @@ export function MenuExperience({
       ) : null}
       {itemCount > 0 && !cartOpen ? <button type="button" onClick={() => setCartOpen(true)} className="fixed inset-x-4 bottom-4 z-40 flex min-h-14 items-center justify-between rounded-2xl bg-[var(--gold)] px-5 font-semibold text-black shadow-[0_18px_50px_rgba(0,0,0,.45)] sm:hidden"><span>{t.cart} · {itemCount}</span><span>{formatOmr(subtotal, language)}</span></button> : null}
     </main>
+  );
+}
+
+const breakfastGroupIcons = {
+  platters: UtensilsCrossed,
+  sandwiches: Sandwich,
+  juices: GlassWater,
+  tea: Leaf
+} as const;
+
+function BreakfastShowcase({
+  products,
+  language,
+  radius,
+  onExplore,
+  onSelect
+}: {
+  products: Product[];
+  language: Language;
+  radius: number;
+  onExplore: () => void;
+  onSelect: (product: Product) => void;
+}) {
+  const platters = products.filter((product) => product.tags.includes("breakfast-platters"));
+
+  return (
+    <section id="breakfast-menu" className="mx-auto max-w-7xl scroll-mt-20 px-4 pt-8 sm:px-6 sm:pt-10" aria-labelledby="breakfast-title">
+      <div className="relative isolate overflow-hidden border border-[var(--border-gold)] bg-[#15110d] shadow-[0_28px_90px_rgba(0,0,0,.32)]" style={{ borderRadius: `${radius}px` }}>
+        <Image
+          src="/products/breakfast/breakfast-hero.webp"
+          alt=""
+          fill
+          sizes="(min-width: 1280px) 1216px, 100vw"
+          className="-z-20 object-cover object-center opacity-55"
+          aria-hidden="true"
+        />
+        <span className="absolute inset-0 -z-10 bg-gradient-to-r from-black via-black/80 to-black/15 rtl:bg-gradient-to-l" aria-hidden="true" />
+        <div className="grid min-h-[25rem] content-end gap-7 p-5 sm:p-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end lg:p-10">
+          <div className="max-w-2xl">
+            <div className="flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--gold-soft)]">
+              <span className="inline-flex items-center gap-2 rounded-full border border-[var(--border-gold)] bg-black/55 px-3 py-2"><Sunrise className="h-4 w-4" />{language === "ar" ? "صباح سالورا" : "SALORA mornings"}</span>
+              <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-black/55 px-3 py-2 text-white/75"><Clock3 className="h-4 w-4" />{language === "ar" ? "يُحضّر طازجًا" : "Prepared fresh"}</span>
+            </div>
+            <h2 id="breakfast-title" className="salora-display mt-5 text-4xl font-semibold leading-tight text-white sm:text-5xl lg:text-6xl">
+              {language === "ar" ? "ريوق سالورا" : "SALORA Breakfast"}
+            </h2>
+            <p className="mt-4 max-w-xl text-sm leading-7 text-white/75 sm:text-base">
+              {language === "ar"
+                ? "ثلاث تجارب فطور، سندويشات سريعة، عصائر طازجة وتشكيلة شاي دافئة — نكهات الصباح من كل مكان في مكان واحد."
+                : "Three breakfast traditions, quick sandwiches, fresh juices and a warm tea selection — morning flavors from everywhere in one place."}
+            </p>
+          </div>
+          <button type="button" onClick={onExplore} className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[var(--gold)] px-6 py-3 text-sm font-semibold text-black transition hover:brightness-110 lg:w-auto">
+            {language === "ar" ? "عرض جميع خيارات الإفطار" : "Explore all breakfast options"}
+            <ChevronDown className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+
+      <div className="salora-scroll-strip mt-4" aria-label={language === "ar" ? "مجموعات قائمة الإفطار" : "Breakfast menu groups"}>
+        {breakfastGroups.map((group) => {
+          const Icon = breakfastGroupIcons[group.key];
+          const liveCount = products.filter((product) => product.tags.includes(`breakfast-${group.key}`)).length;
+          return (
+            <button key={group.key} type="button" onClick={onExplore} className="flex min-h-14 min-w-[12rem] shrink-0 items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.04] px-4 text-start transition hover:border-[var(--border-gold)] hover:bg-[var(--gold)]/10">
+              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[var(--gold)]/15 text-[var(--gold-soft)]"><Icon className="h-4 w-4" /></span>
+              <span><strong className="block text-sm text-[var(--cream)]">{language === "ar" ? group.nameAr : group.nameEn}</strong><small className="text-[var(--muted)]">{liveCount || group.count} {language === "ar" ? "اختيارات" : "selections"}</small></span>
+            </button>
+          );
+        })}
+      </div>
+
+      {platters.length ? (
+        <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {platters.map((product) => (
+            <MenuProductCard
+              key={`breakfast-feature-${product.id}`}
+              product={product}
+              language={language}
+              showImages
+              showDescriptions
+              ratioClass="aspect-[16/10]"
+              list={false}
+              radius={radius}
+              onSelect={onSelect}
+            />
+          ))}
+        </div>
+      ) : null}
+    </section>
   );
 }
 

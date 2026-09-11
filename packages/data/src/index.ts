@@ -1,6 +1,15 @@
 import { saloraRuntime } from "@salora/config";
 import type { CartItem, CheckoutCustomer, ConciergeReply, OrderDraft, Product } from "@salora/types";
 
+export {
+  breakfastCategory,
+  breakfastGroups,
+  breakfastMediaBySlug,
+  breakfastMenu,
+  isBreakfastProduct
+} from "./breakfast";
+export type { BreakfastAddonDefinition, BreakfastGroupKey, BreakfastMenuItemDefinition } from "./breakfast";
+
 export const products: Product[] = [
   {
     id: "iced-matcha-vanilla",
