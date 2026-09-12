@@ -5,7 +5,7 @@ import Link from "next/link";
 import { ArrowDown, ArrowUpLeft, Instagram, Languages, MapPin, Menu, MessageCircle, ShoppingBag } from "lucide-react";
 import { useState } from "react";
 import type { ExperienceConfiguration, MenuAuthoritySnapshot, MenuAuthoritySource, Product } from "@salora/types";
-import { breakfastMediaBySlug } from "@salora/data";
+import { breakfastMediaBySlug, isBreakfastProduct } from "@salora/data";
 import { ThemeControl } from "@/components/ui/ThemeControl";
 import { ExperienceStatus } from "@/components/public/ExperienceStatus";
 
@@ -122,6 +122,7 @@ export function PremiumHomeExperience({
   const [language, setLanguage] = useState<Language>("ar");
   const t = copy[language];
   const rtl = language === "ar";
+  const hasBreakfast = featuredProducts.some((product) => isBreakfastProduct(product.tags));
   const heroProduct = featuredProducts[0];
   const heroImage = publicImage(heroProduct);
   const heroAlt = heroProduct ? displayName(heroProduct, language) : "SALORA";
@@ -130,9 +131,11 @@ export function PremiumHomeExperience({
   const title = language === "ar"
     ? experience.site.heroTitleAr || t.defaultTitle
     : experience.site.heroTitleEn || t.defaultTitle;
-  const intro = language === "ar"
-    ? experience.site.heroSubtitleAr || t.defaultIntro
-    : experience.site.heroSubtitleEn || t.defaultIntro;
+  const intro = hasBreakfast
+    ? t.defaultIntro
+    : language === "ar"
+      ? experience.site.heroSubtitleAr || t.defaultIntro
+      : experience.site.heroSubtitleEn || t.defaultIntro;
   return (
     <main id="main-content" lang={language} dir={t.direction} className="premium-home">
       <a href="#featured-menu" className="skip-link">{t.explore}</a>
