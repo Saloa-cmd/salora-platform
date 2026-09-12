@@ -53,9 +53,14 @@ assert.match(experience, /breakfastMediaBySlug\[product\.id\]/);
 assert.match(experience, /ريوق سالورا/);
 assert.match(experience, /SALORA Breakfast/);
 assert.match(experience, /src="\/products\/breakfast\/breakfast-hero\.webp"/);
+assert.match(experience, /tag !== "breakfast"/);
+assert.match(experience, /!tag\.startsWith\("breakfast-"\)/);
+assert.match(experience, /ريوق صباحي/);
 
 const homeExperience = readFileSync("apps/web/components/home/PremiumHomeExperience.tsx", "utf8");
 assert.match(homeExperience, /breakfastMediaBySlug\[product\.id\]/);
+assert.match(homeExperience, /يومياً · 8 صباحاً — 12:30 بعد منتصف الليل/);
+assert.match(homeExperience, /Daily · 8 AM — 12:30 AM/);
 
 const seeder = readFileSync("scripts/seed-salora-breakfast.ts", "utf8");
 assert.match(seeder, /SALORA_BREAKFAST_STATUS \?\? "DRAFT"/);
