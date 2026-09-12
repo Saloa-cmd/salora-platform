@@ -27,7 +27,7 @@ import {
 } from "lucide-react";
 import type { ExperienceConfiguration, MenuAuthoritySection, MenuAuthoritySnapshot, MenuAuthoritySource, Product, ProductChoice, ProductModifierGroup, SelectedModifier } from "@salora/types";
 import type { BreakfastGroupKey } from "@salora/data";
-import { breakfastGroups, breakfastMediaBySlug, isBreakfastProduct, isBreakfastProductInGroup } from "@salora/data";
+import { breakfastGroups, breakfastMediaBySlug, breakfastService, isBreakfastProduct, isBreakfastProductInGroup } from "@salora/data";
 import { SaloraButton, SaloraEmptyState } from "@/components/ui/SaloraPrimitives";
 import { ThemeControl } from "@/components/ui/ThemeControl";
 import { ExperienceStatus } from "@/components/public/ExperienceStatus";
@@ -578,7 +578,8 @@ function BreakfastShowcase({
           <div className="max-w-2xl">
             <div className="flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--gold-soft)]">
               <span className="inline-flex items-center gap-2 rounded-full border border-[var(--border-gold)] bg-black/55 px-3 py-2"><Sunrise className="h-4 w-4" />{language === "ar" ? "صباح سالورا" : "SALORA mornings"}</span>
-              <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-black/55 px-3 py-2 text-white/75"><Clock3 className="h-4 w-4" />{language === "ar" ? "يُحضّر طازجًا" : "Prepared fresh"}</span>
+              <span className="inline-flex items-center gap-2 rounded-full border border-[var(--border-gold)] bg-[var(--gold)]/15 px-3 py-2"><Check className="h-4 w-4" aria-hidden="true" />{language === "ar" ? breakfastService.availabilityAr : breakfastService.availabilityEn}</span>
+              <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-black/55 px-3 py-2 text-white/75"><Clock3 className="h-4 w-4" aria-hidden="true" />{language === "ar" ? breakfastService.hoursAr : breakfastService.hoursEn}</span>
             </div>
             <h2 id="breakfast-title" className="salora-display mt-5 text-4xl font-semibold leading-tight text-white sm:text-5xl lg:text-6xl">
               {language === "ar" ? "ريوق سالورا" : "SALORA Breakfast"}

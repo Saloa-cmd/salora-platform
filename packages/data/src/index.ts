@@ -6,6 +6,7 @@ export {
   breakfastGroups,
   breakfastMediaBySlug,
   breakfastMenu,
+  breakfastService,
   isBreakfastProduct,
   isBreakfastProductInGroup
 } from "./breakfast";
