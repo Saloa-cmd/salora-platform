@@ -7,6 +7,8 @@ const safeLink = z.union([z.literal(""), z.string().regex(/^\/(?!\/)[^\s]*$/), s
 
 const CUSTOMER_HERO_SUBTITLE_AR = "قهوة مختصة، ماتشا، مشروبات منعشة وحلويات تُحضّر بعناية للحظات تستحق أن تُعاش.";
 const CUSTOMER_HERO_SUBTITLE_EN = "Specialty coffee, matcha, refreshing drinks and desserts, prepared with care for moments worth enjoying.";
+const CUSTOMER_HERO_TITLE_AR = "اختر لحظتك، ودَع لنا الانسجام.";
+const CUSTOMER_HERO_TITLE_EN = "Choose the moment. We’ll create the harmony.";
 const LEGACY_TECHNICAL_SUBTITLES = new Set([
   "منيو متصل مباشرة بمنصة SALORA، قابل للتخصيص والاستلام من الكاونتر أو أمام البحر.",
   "A customizable menu connected to SALORA, ready for counter or beachfront pickup."
@@ -70,8 +72,8 @@ export const defaultExperienceConfiguration: ExperienceConfiguration = {
   menu: { layout: "grid", columns: 3, cardRatio: "landscape", showImages: true, showDescriptions: true, showSearch: true, showCategories: true },
   site: {
     logoUrl: "",
-    heroTitleAr: "اختر لحظتك، ونحن نحضّر الانسجام.",
-    heroTitleEn: "Choose your moment. We prepare the harmony.",
+    heroTitleAr: CUSTOMER_HERO_TITLE_AR,
+    heroTitleEn: CUSTOMER_HERO_TITLE_EN,
     heroSubtitleAr: CUSTOMER_HERO_SUBTITLE_AR,
     heroSubtitleEn: CUSTOMER_HERO_SUBTITLE_EN,
     announcementAr: "أهلًا بكم في سالورا",
@@ -83,6 +85,12 @@ export const defaultExperienceConfiguration: ExperienceConfiguration = {
 };
 
 function customerFacingConfiguration(configuration: ExperienceConfiguration): ExperienceConfiguration {
+  const heroTitleAr = configuration.site.heroTitleAr === "اختر لحظتك، ونحن نحضّر الانسجام."
+    ? CUSTOMER_HERO_TITLE_AR
+    : configuration.site.heroTitleAr;
+  const heroTitleEn = configuration.site.heroTitleEn === "Choose your moment. We prepare the harmony."
+    ? CUSTOMER_HERO_TITLE_EN
+    : configuration.site.heroTitleEn;
   const heroSubtitleAr = LEGACY_TECHNICAL_SUBTITLES.has(configuration.site.heroSubtitleAr)
     ? CUSTOMER_HERO_SUBTITLE_AR
     : configuration.site.heroSubtitleAr;
@@ -90,7 +98,12 @@ function customerFacingConfiguration(configuration: ExperienceConfiguration): Ex
     ? CUSTOMER_HERO_SUBTITLE_EN
     : configuration.site.heroSubtitleEn;
 
-  if (heroSubtitleAr === configuration.site.heroSubtitleAr && heroSubtitleEn === configuration.site.heroSubtitleEn) {
+  if (
+    heroTitleAr === configuration.site.heroTitleAr
+    && heroTitleEn === configuration.site.heroTitleEn
+    && heroSubtitleAr === configuration.site.heroSubtitleAr
+    && heroSubtitleEn === configuration.site.heroSubtitleEn
+  ) {
     return configuration;
   }
 
@@ -98,6 +111,8 @@ function customerFacingConfiguration(configuration: ExperienceConfiguration): Ex
     ...configuration,
     site: {
       ...configuration.site,
+      heroTitleAr,
+      heroTitleEn,
       heroSubtitleAr,
       heroSubtitleEn
     }
