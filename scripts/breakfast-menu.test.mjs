@@ -74,7 +74,7 @@ assert.match(experience, /SALORA Breakfast/);
 assert.match(experience, /src="\/products\/breakfast\/breakfast-hero\.webp"/);
 assert.match(experience, /tag !== "breakfast"/);
 assert.match(experience, /!tag\.startsWith\("breakfast-"\)/);
-assert.match(experience, /ريوق صباحي/);
+assert.match(experience, /ريوق الصباح/);
 assert.match(experience, /const heroSubtitle = breakfastProducts\.length/);
 assert.match(experience, /isBreakfastProductInGroup\(product\.tags, activeBreakfastGroup\)/);
 assert.match(experience, /aria-pressed=\{activeGroup === group\.key\}/);
@@ -83,6 +83,11 @@ assert.match(experience, /value\.split\("\|"\)/);
 assert.match(experience, /line\.modifiers\.map\(\(modifier\) => optionLabel\(language, modifier\.optionName\)\)/);
 assert.match(experience, /breakfastService\.availabilityAr/);
 assert.match(experience, /breakfastService\.hoursEn/);
+assert.match(experience, /priority/);
+assert.match(experience, /salora-media-frame/);
+assert.match(experience, /const mediaRatioClass = !list && breakfastImage \? "aspect-\[4\/5\]"/);
+assert.match(experience, /نكهات صباحية من ثلاث مطابخ/);
+assert.match(experience, /استكشف منيو الإفطار/);
 
 const homeExperience = readFileSync("apps/web/components/home/PremiumHomeExperience.tsx", "utf8");
 assert.match(homeExperience, /breakfastMediaBySlug\[product\.id\]/);
@@ -91,6 +96,7 @@ assert.match(homeExperience, /Daily · 8 AM — 12:30 AM/);
 assert.match(homeExperience, /const hasBreakfast = featuredProducts\.some/);
 assert.match(homeExperience, /breakfastService\.availabilityEn/);
 assert.match(homeExperience, /breakfastService\.hoursAr/);
+assert.match(homeExperience, /كل اختيار يحكي حكاية/);
 
 const seeder = readFileSync("scripts/seed-salora-breakfast.ts", "utf8");
 assert.match(seeder, /SALORA_BREAKFAST_STATUS \?\? "DRAFT"/);
