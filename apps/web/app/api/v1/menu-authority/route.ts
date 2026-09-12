@@ -4,6 +4,7 @@ import { getMenuAuthoritySnapshot, MenuAuthorityUnavailableError } from "@/lib/s
 export const dynamic = "force-dynamic";
 
 function positiveInteger(value: string | null, fallback: number, maximum: number) {
+  if (value === null || value.trim() === "") return fallback;
   const parsed = Number(value);
   return Number.isInteger(parsed) && parsed >= 0 ? Math.min(parsed, maximum) : fallback;
 }
@@ -20,7 +21,7 @@ export async function GET(request: NextRequest) {
     const tag = params.get("tag")?.trim().toLocaleLowerCase("ar") ?? "";
     const featured = params.get("featured");
     const offset = positiveInteger(params.get("offset"), 0, 10000);
-    const limit = positiveInteger(params.get("limit"), 117, 117);
+    const limit = positiveInteger(params.get("limit"), snapshot.products.length, 500);
 
     const filtered = snapshot.products.filter((product) => {
       if (section && product.sectionKey !== section) return false;

@@ -65,6 +65,8 @@ assert.match(mobileAuthority, /AsyncStorage/);
 assert.match(mobileAuthority, /offline-cache/);
 assert.doesNotMatch(mobileHome, /\["ماتشا", "قهوة مختصة", "حلويات", "مشروبات باردة"\]/);
 assert.match(authorityApi, /x-salora-menu-revision/);
+assert.match(authorityApi, /value === null \|\| value\.trim\(\) === ""/);
+assert.match(authorityApi, /params\.get\("limit"\), snapshot\.products\.length, 500/);
 assert.match(readyRoute, /published-revision/);
 assert.doesNotMatch(readyRoute, /menuSnapshot\.source === "database"/);
 assert.match(controlTowerApi, /MenuCollectionDomainService/);
