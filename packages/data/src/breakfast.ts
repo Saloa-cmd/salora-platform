@@ -27,6 +27,17 @@ export const breakfastCategory = {
   sortOrder: 5
 } as const;
 
+export const breakfastService = {
+  status: "AVAILABLE",
+  timeZone: "Asia/Muscat",
+  dailyStart: "08:00",
+  dailyEnd: "12:00",
+  availabilityAr: "متاح الآن",
+  availabilityEn: "Available now",
+  hoursAr: "يوميًا · 8 صباحًا — 12 ظهرًا",
+  hoursEn: "Daily · 8 AM — 12 PM"
+} as const;
+
 export const breakfastGroups = [
   { key: "platters", nameAr: "أطباق الإفطار", nameEn: "Breakfast platters", count: 3 },
   { key: "sandwiches", nameAr: "السندويشات", nameEn: "Sandwiches", count: 6 },
