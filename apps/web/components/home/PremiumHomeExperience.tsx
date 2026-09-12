@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowDown, ArrowUpLeft, Instagram, Languages, MapPin, Menu, MessageCircle, ShoppingBag } from "lucide-react";
 import { useState } from "react";
 import type { ExperienceConfiguration, MenuAuthoritySnapshot, MenuAuthoritySource, Product } from "@salora/types";
+import { breakfastMediaBySlug, isBreakfastProduct } from "@salora/data";
 import { ThemeControl } from "@/components/ui/ThemeControl";
 import { ExperienceStatus } from "@/components/public/ExperienceStatus";
 
@@ -16,13 +17,13 @@ const copy = {
     nav: { story: "القصة", menu: "المنيو", visit: "الموقع" },
     harmony: "تجربة قهوة منسجمة",
     defaultTitle: "مذاقٌ يوقظ الحواس.",
-    defaultIntro: "مشروبات مصممة بعناية، أجواء هادئة، وتفاصيل تحوّل كل زيارة إلى لحظة تستحق التذكّر.",
+    defaultIntro: "ريوق صباحي ومشروبات مصممة بعناية، أجواء هادئة، وتفاصيل تحوّل كل زيارة إلى لحظة تستحق التذكّر.",
     explore: "اكتشف المنيو",
     location: "اعرف موقعنا",
     scroll: "مرّر للاكتشاف",
     selection: "مختاراتنا",
     menuTitle: "منيو تُروى تفاصيله",
-    menuIntro: "نكهات مألوفة بلمسة سالورا الخاصة — طازجة، متوازنة ومُعدّة عند الطلب.",
+    menuIntro: "من ريوق الصباح إلى القهوة والحلوى — نكهات مألوفة بلمسة سالورا الخاصة، طازجة ومتوازنة ومُعدّة عند الطلب.",
     customize: "افتح وخصص",
     from: "يبدأ من",
     priceSoon: "السعر قريبًا",
@@ -34,7 +35,7 @@ const copy = {
     visitLabel: "زوروا سالورا",
     visit: "واجهة شاطئ الدهاريز",
     city: "صلالة، سلطنة عُمان",
-    hours: "يومياً · 4 مساءً — 2 صباحاً",
+    hours: "يومياً · 8 صباحاً — 12:30 بعد منتصف الليل",
     directions: "الاتجاهات",
     whatsapp: "واتساب",
     footer: "تذوّق الانسجام"
@@ -44,13 +45,13 @@ const copy = {
     nav: { story: "Story", menu: "Menu", visit: "Visit" },
     harmony: "Coffee in perfect harmony",
     defaultTitle: "A taste that awakens.",
-    defaultIntro: "Thoughtful drinks, a quiet atmosphere, and details that turn every visit into a moment worth remembering.",
+    defaultIntro: "Morning breakfast, thoughtful drinks, a quiet atmosphere, and details that turn every visit into a moment worth remembering.",
     explore: "Explore the menu",
     location: "Find SALORA",
     scroll: "Scroll to discover",
     selection: "Our selection",
     menuTitle: "A menu with a story",
-    menuIntro: "Familiar flavours with the SALORA touch — fresh, balanced and made to order.",
+    menuIntro: "From breakfast mornings to coffee and dessert — familiar flavours with the SALORA touch, fresh, balanced and made to order.",
     customize: "Open & customize",
     from: "From",
     priceSoon: "Price coming soon",
@@ -62,7 +63,7 @@ const copy = {
     visitLabel: "Visit SALORA",
     visit: "Dahariz Beachfront",
     city: "Salalah, Sultanate of Oman",
-    hours: "Daily · 4 PM — 2 AM",
+    hours: "Daily · 8 AM — 12:30 AM",
     directions: "Directions",
     whatsapp: "WhatsApp",
     footer: "Taste the Harmony"
@@ -84,7 +85,9 @@ function displayCategory(product: Product, language: Language) {
 }
 
 function publicImage(product?: Product) {
-  return product && /^https:\/\//i.test(product.visual) ? product.visual : undefined;
+  if (!product) return undefined;
+  return breakfastMediaBySlug[product.id]
+    ?? (/^(https:\/\/|\/)/i.test(product.visual) ? product.visual : undefined);
 }
 
 function displayPrice(product: Product, language: Language) {
@@ -119,6 +122,7 @@ export function PremiumHomeExperience({
   const [language, setLanguage] = useState<Language>("ar");
   const t = copy[language];
   const rtl = language === "ar";
+  const hasBreakfast = featuredProducts.some((product) => isBreakfastProduct(product.tags));
   const heroProduct = featuredProducts[0];
   const heroImage = publicImage(heroProduct);
   const heroAlt = heroProduct ? displayName(heroProduct, language) : "SALORA";
@@ -127,9 +131,11 @@ export function PremiumHomeExperience({
   const title = language === "ar"
     ? experience.site.heroTitleAr || t.defaultTitle
     : experience.site.heroTitleEn || t.defaultTitle;
-  const intro = language === "ar"
-    ? experience.site.heroSubtitleAr || t.defaultIntro
-    : experience.site.heroSubtitleEn || t.defaultIntro;
+  const intro = hasBreakfast
+    ? t.defaultIntro
+    : language === "ar"
+      ? experience.site.heroSubtitleAr || t.defaultIntro
+      : experience.site.heroSubtitleEn || t.defaultIntro;
   return (
     <main id="main-content" lang={language} dir={t.direction} className="premium-home">
       <a href="#featured-menu" className="skip-link">{t.explore}</a>
