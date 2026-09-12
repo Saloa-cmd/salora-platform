@@ -6,7 +6,8 @@ export {
   breakfastGroups,
   breakfastMediaBySlug,
   breakfastMenu,
-  isBreakfastProduct
+  isBreakfastProduct,
+  isBreakfastProductInGroup
 } from "./breakfast";
 export type { BreakfastAddonDefinition, BreakfastGroupKey, BreakfastMenuItemDefinition } from "./breakfast";
 
