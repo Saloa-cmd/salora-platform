@@ -92,6 +92,11 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+.premium-menu-shell :lang(en),
+.premium-home-shell :lang(en) {
+  font-family: var(--font-sans);
+}
+
 .salora-theme-control { display:inline-flex; min-height:44px; min-width:44px; align-items:center; justify-content:center; gap:.5rem; border:1px solid var(--border); border-radius:var(--radius-control); background:var(--surface); color:var(--foreground); transition:background-color var(--duration-normal),border-color var(--duration-normal),color var(--duration-normal); }
 .salora-theme-control:hover { border-color:var(--border-strong); background:var(--surface-raised); }
 .salora-icon-directional:dir(rtl) { transform:scaleX(-1); }
