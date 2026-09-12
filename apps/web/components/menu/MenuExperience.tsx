@@ -49,10 +49,10 @@ type PersistedOrder = {
 const copy = {
   ar: {
     direction: "rtl" as const,
-    eyebrow: "اختيارات سالورا",
-    title: "اختر لحظتك، ونحن نحضّر الانسجام.",
-    intro: "ريوق صباحي، قهوة مختصة، ماتشا، مشروبات منعشة وحلويات تُحضّر بعناية للحظات تستحق أن تُعاش.",
-    search: "ابحث عن فطور، مشروب أو حلوى",
+    eyebrow: "لحظات سالورا",
+    title: "اختر لحظتك، ودَع لنا الانسجام.",
+    intro: "من ريوق الصباح إلى القهوة والماتشا والحلوى — اختيارات طازجة تُحضّر بعناية.",
+    search: "ابحث في منيو سالورا",
     all: "الكل",
     add: "خصص وأضف",
     cart: "طلبك",
@@ -83,7 +83,7 @@ const copy = {
     standard: "كما هو من سالورا",
     results: "صنف",
     noResults: "لا توجد نتائج مطابقة. جرّب بحثًا أو تصنيفًا آخر.",
-    browse: "تصفّح الاختيارات",
+    browse: "استكشف المنيو",
     changeService: "تغيير طريقة الاستلام",
     signature: "اختيار سالورا",
     clearFilters: "مسح التصفية",
@@ -97,10 +97,10 @@ const copy = {
   },
   en: {
     direction: "ltr" as const,
-    eyebrow: "SALORA selections",
-    title: "Choose your moment. We prepare the harmony.",
-    intro: "Morning breakfast, specialty coffee, matcha, refreshing drinks and desserts, prepared with care for moments worth enjoying.",
-    search: "Search breakfast, drinks or desserts",
+    eyebrow: "SALORA moments",
+    title: "Choose the moment. We’ll create the harmony.",
+    intro: "From breakfast to coffee, matcha and dessert — fresh selections, prepared with care.",
+    search: "Search the SALORA menu",
     all: "All",
     add: "Customize & add",
     cart: "Your order",
@@ -131,7 +131,7 @@ const copy = {
     standard: "SALORA standard",
     results: "items",
     noResults: "No matching items. Try another search or category.",
-    browse: "Browse selections",
+    browse: "Explore the menu",
     changeService: "Change pickup method",
     signature: "SALORA pick",
     clearFilters: "Clear filters",
@@ -443,7 +443,7 @@ export function MenuExperience({
         <div className="hero-depth" />
         <div className={`mx-auto grid max-w-7xl gap-5 lg:items-end ${catalogUnavailable ? "lg:grid-cols-1" : language === "ar" ? "lg:grid-cols-[minmax(0,1.15fr)_minmax(20rem,0.85fr)]" : "lg:grid-cols-[minmax(0,1.1fr)_minmax(20rem,0.9fr)]"}`}>
           <div className="min-w-0">
-            <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.3em] text-[var(--gold-soft)]"><Sparkles className="h-4 w-4" />{t.eyebrow}</p>
+            <p className="salora-eyebrow flex items-center gap-2 text-xs font-semibold uppercase text-[var(--gold-soft)]"><Sparkles className="h-4 w-4" aria-hidden="true" />{t.eyebrow}</p>
             <h1 className="salora-display salora-menu-display mt-2 font-semibold">{language === "ar" ? experience.site.heroTitleAr : experience.site.heroTitleEn}</h1>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--muted)] sm:mt-3 sm:text-base sm:leading-7">{heroSubtitle}</p>
             <div className="mt-4 flex flex-wrap items-center gap-3">
@@ -571,13 +571,15 @@ function BreakfastShowcase({
           fill
           sizes="(min-width: 1280px) 1216px, 100vw"
           className="-z-20 object-cover object-center opacity-55"
+          priority
+          quality={88}
           aria-hidden="true"
         />
-        <span className="absolute inset-0 -z-10 bg-gradient-to-r from-black via-black/80 to-black/15 rtl:bg-gradient-to-l" aria-hidden="true" />
-        <div className="grid min-h-[25rem] content-end gap-7 p-5 sm:p-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end lg:p-10">
+        <span className="absolute inset-0 -z-10 bg-gradient-to-r from-black via-black/75 to-black/20 rtl:bg-gradient-to-l" aria-hidden="true" />
+        <div className="grid min-h-[24rem] content-end gap-7 p-5 sm:min-h-[26rem] sm:p-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end lg:p-10">
           <div className="max-w-2xl">
-            <div className="flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--gold-soft)]">
-              <span className="inline-flex items-center gap-2 rounded-full border border-[var(--border-gold)] bg-black/55 px-3 py-2"><Sunrise className="h-4 w-4" />{language === "ar" ? "صباح سالورا" : "SALORA mornings"}</span>
+            <div className="salora-breakfast-badges flex flex-wrap items-center gap-2.5 text-xs font-semibold uppercase text-[var(--gold-soft)]">
+              <span className="inline-flex items-center gap-2 rounded-full border border-[var(--border-gold)] bg-black/55 px-3 py-2"><Sunrise className="h-4 w-4" aria-hidden="true" />{language === "ar" ? "صباح سالورا" : "SALORA mornings"}</span>
               <span className="inline-flex items-center gap-2 rounded-full border border-[var(--border-gold)] bg-[var(--gold)]/15 px-3 py-2"><Check className="h-4 w-4" aria-hidden="true" />{language === "ar" ? breakfastService.availabilityAr : breakfastService.availabilityEn}</span>
               <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-black/55 px-3 py-2 text-white/75"><Clock3 className="h-4 w-4" aria-hidden="true" />{language === "ar" ? breakfastService.hoursAr : breakfastService.hoursEn}</span>
             </div>
@@ -586,13 +588,13 @@ function BreakfastShowcase({
             </h2>
             <p className="mt-4 max-w-xl text-sm leading-7 text-white/75 sm:text-base">
               {language === "ar"
-                ? "ثلاث تجارب فطور، سندويشات سريعة، عصائر طازجة وتشكيلة شاي دافئة — نكهات الصباح من كل مكان في مكان واحد."
-                : "Three breakfast traditions, quick sandwiches, fresh juices and a warm tea selection — morning flavors from everywhere in one place."}
+                ? "نكهات صباحية من ثلاث مطابخ، مع سندويشات سريعة وعصائر طازجة وشاي مختار."
+                : "Three breakfast traditions, quick sandwiches, fresh juices and a curated tea selection."}
             </p>
           </div>
           <button type="button" onClick={() => onExplore()} className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[var(--gold)] px-6 py-3 text-sm font-semibold text-black transition hover:brightness-110 lg:w-auto">
-            {language === "ar" ? "عرض جميع خيارات الإفطار" : "Explore all breakfast options"}
-            <ChevronDown className="h-4 w-4" />
+            {language === "ar" ? "استكشف منيو الإفطار" : "Explore breakfast"}
+            <ChevronDown className="h-4 w-4" aria-hidden="true" />
           </button>
         </div>
       </div>
@@ -603,7 +605,7 @@ function BreakfastShowcase({
           const liveCount = products.filter((product) => product.tags.includes(`breakfast-${group.key}`)).length;
           return (
             <button key={group.key} type="button" aria-pressed={activeGroup === group.key} onClick={() => onExplore(group.key)} className={`flex min-h-14 min-w-[12rem] shrink-0 items-center gap-3 rounded-2xl border px-4 text-start transition ${activeGroup === group.key ? "border-[var(--gold)] bg-[var(--gold)]/15" : "border-white/10 bg-white/[0.04] hover:border-[var(--border-gold)] hover:bg-[var(--gold)]/10"}`}>
-              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[var(--gold)]/15 text-[var(--gold-soft)]"><Icon className="h-4 w-4" /></span>
+              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[var(--gold)]/15 text-[var(--gold-soft)]"><Icon className="h-4 w-4" aria-hidden="true" /></span>
               <span><strong className="block text-sm text-[var(--cream)]">{language === "ar" ? group.nameAr : group.nameEn}</strong><small className="text-[var(--muted)]">{liveCount || group.count} {language === "ar" ? "اختيارات" : "selections"}</small></span>
             </button>
           );
@@ -619,7 +621,7 @@ function BreakfastShowcase({
               language={language}
               showImages
               showDescriptions
-              ratioClass="aspect-[16/10]"
+              ratioClass="aspect-[4/5]"
               list={false}
               radius={radius}
               onSelect={onSelect}
@@ -639,6 +641,8 @@ function MenuProductCard({ product, language, showImages, showDescriptions, rati
   const [imageFailed, setImageFailed] = useState(false);
   const t = copy[language];
   const image = productImage(product);
+  const breakfastImage = isBreakfastProduct(product.tags);
+  const mediaRatioClass = !list && breakfastImage ? "aspect-[4/5]" : ratioClass;
   const tags = product.tags
     .filter((tag) => tag !== "breakfast" && !tag.startsWith("breakfast-") && tag !== "signature")
     .slice(0, 2);
@@ -646,8 +650,8 @@ function MenuProductCard({ product, language, showImages, showDescriptions, rati
   return (
     <article className={`premium-menu-card group overflow-hidden border border-white/10 bg-white/[0.04] shadow-[0_18px_50px_rgba(0,0,0,.16)] transition duration-200 hover:-translate-y-0.5 hover:border-[var(--border-gold)] ${list ? "sm:grid sm:grid-cols-[240px_1fr]" : ""}`} style={{ borderRadius: `${radius}px` }}>
       {showImages ? (
-        <button type="button" onClick={() => onSelect(product)} aria-label={`${t.customize}: ${displayName(product, language)}`} className={`relative block w-full overflow-hidden ${list ? "min-h-48 sm:aspect-auto" : ratioClass} bg-gradient-to-br ${productAccent(product)}`}>
-          {image && !imageFailed ? <Image src={image} alt={displayName(product, language)} fill sizes={list ? "(min-width: 640px) 240px, 100vw" : "(min-width: 1280px) 31vw, (min-width: 640px) 48vw, 100vw"} className="object-cover transition duration-500 group-hover:scale-[1.025]" onError={() => setImageFailed(true)} /> : <span className="absolute inset-0 grid place-items-center"><Coffee className="h-16 w-16 text-white/20" strokeWidth={1} /><span className="sr-only">{language === "ar" ? "صورة بديلة للمنتج" : "Product image fallback"}</span></span>}
+        <button type="button" onClick={() => onSelect(product)} aria-label={`${t.customize}: ${displayName(product, language)}`} className={`salora-media-frame relative block w-full overflow-hidden ${list ? "min-h-48 sm:aspect-auto" : mediaRatioClass} bg-gradient-to-br ${productAccent(product)}`}>
+          {image && !imageFailed ? <Image src={image} alt={displayName(product, language)} fill sizes={list ? "(min-width: 640px) 240px, 100vw" : "(min-width: 1280px) 31vw, (min-width: 640px) 48vw, 100vw"} className="object-cover" onError={() => setImageFailed(true)} /> : <span className="absolute inset-0 grid place-items-center"><Coffee className="h-16 w-16 text-white/20" strokeWidth={1} aria-hidden="true" /><span className="sr-only">{language === "ar" ? "صورة بديلة للمنتج" : "Product image fallback"}</span></span>}
           <span className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/70 to-transparent" aria-hidden="true" />
           {product.featured ? <span className="absolute start-3 top-3 rounded-full border border-[var(--border-gold)] bg-black/70 px-3 py-1 text-xs text-[var(--gold-soft)]">{t.signature}</span> : null}
           <span className="absolute end-3 top-3 rounded-full bg-black/70 px-3 py-1 text-xs text-white/80">{displayCategory(product, language)}</span>
@@ -655,12 +659,12 @@ function MenuProductCard({ product, language, showImages, showDescriptions, rati
       ) : null}
       <div className="p-4 sm:p-5">
         <div className="flex items-start justify-between gap-4">
-          <div className="min-w-0"><h2 className="text-lg font-semibold sm:text-xl">{displayName(product, language)}</h2>{language === "ar" ? <p className="mt-1 truncate text-xs text-[var(--muted)]">{product.name}</p> : null}</div>
+          <div className="min-w-0"><h2 className="salora-card-title text-lg font-semibold sm:text-xl">{displayName(product, language)}</h2>{language === "ar" ? <p className="mt-1 truncate text-xs text-[var(--muted)]" lang="en" dir="ltr">{product.name}</p> : null}</div>
           <div className="shrink-0 text-end"><small className="block text-[0.65rem] text-[var(--muted)]">{t.from}</small><strong className="whitespace-nowrap text-[var(--gold-soft)]">{formatOmr(product.price, language)}</strong></div>
         </div>
         {showDescriptions ? <p className="mt-3 line-clamp-2 min-h-12 text-sm leading-6 text-[var(--muted)]">{displayDescription(product, language)}</p> : null}
         {tags.length ? <div className="mt-3 flex flex-wrap gap-2">{tags.map((tag) => <span key={tag} className="rounded-full border border-white/10 px-2.5 py-1 text-[0.65rem] text-[var(--muted)]">{tag}</span>)}</div> : null}
-        <button type="button" onClick={() => onSelect(product)} className="mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-[var(--border-gold)] bg-[var(--gold)]/10 px-4 py-3 text-sm font-semibold text-[var(--gold-soft)] transition hover:bg-[var(--gold)] hover:text-black">{t.add}<ChevronDown className="h-4 w-4" /></button>
+        <button type="button" onClick={() => onSelect(product)} className="mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-[var(--border-gold)] bg-[var(--gold)]/10 px-4 py-3 text-sm font-semibold text-[var(--gold-soft)] transition hover:bg-[var(--gold)] hover:text-black">{t.add}<ChevronDown className="h-4 w-4" aria-hidden="true" /></button>
       </div>
     </article>
   );

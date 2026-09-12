@@ -13,6 +13,9 @@ const packageJson = JSON.parse(read("package.json"));
 
 assert.match(experienceConfig, /heroSubtitleAr: CUSTOMER_HERO_SUBTITLE_AR/);
 assert.match(experienceConfig, /heroSubtitleEn: CUSTOMER_HERO_SUBTITLE_EN/);
+assert.match(experienceConfig, /heroTitleAr: CUSTOMER_HERO_TITLE_AR/);
+assert.match(experienceConfig, /heroTitleEn: CUSTOMER_HERO_TITLE_EN/);
+assert.match(experienceConfig, /اختر لحظتك، ودَع لنا الانسجام/);
 assert.match(experienceConfig, /customerFacingConfiguration/);
 
 for (const customerSurface of [experienceStatus, globalConcierge, menuExperience]) {
@@ -37,6 +40,8 @@ assert.match(menuExperience, /Today’s selections are being prepared/);
 assert.match(menuExperience, /نرتّب اختيارات اليوم/);
 assert.match(menuExperience, /!catalogUnavailable \? <fieldset/);
 assert.match(rootLayout, /import "\.\/p31-experience\.css"/);
+assert.match(rootLayout, /Manrope/);
+assert.match(rootLayout, /Noto_Sans_Arabic/);
 assert.match(p31Css, /prefers-reduced-motion/);
 assert.match(p31Css, /premium-menu-card/);
 

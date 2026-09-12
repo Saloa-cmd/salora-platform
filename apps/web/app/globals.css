@@ -18,8 +18,8 @@
   --border-subtle: rgba(245, 239, 227, 0.10);
   --border-strong: rgba(245, 239, 227, 0.18);
   --border-gold: rgba(201, 164, 92, 0.30);
-  --font-sans: "Inter", "SF Pro Display", ui-sans-serif, system-ui, sans-serif;
-  --font-arabic: "Noto Sans Arabic", "DIN Next Arabic", "Segoe UI", Tahoma, Arial, sans-serif;
+  --font-sans: var(--font-salora-latin), "SF Pro Display", ui-sans-serif, system-ui, sans-serif;
+  --font-arabic: var(--font-salora-arabic), "Segoe UI", Tahoma, Arial, sans-serif;
   --font-serif: "Georgia", "Times New Roman", serif;
   --focus-ring: #f3d88f;
   --success: #6ee7b7;
@@ -87,6 +87,14 @@ body {
     linear-gradient(180deg, var(--background) 0%, var(--surface-soft) 44%, var(--background) 100%);
   color: var(--cream);
   font-family: var(--font-sans);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+.premium-menu-shell :lang(en),
+.premium-home-shell :lang(en) {
+  font-family: var(--font-sans);
 }
 
 .salora-theme-control { display:inline-flex; min-height:44px; min-width:44px; align-items:center; justify-content:center; gap:.5rem; border:1px solid var(--border); border-radius:var(--radius-control); background:var(--surface); color:var(--foreground); transition:background-color var(--duration-normal),border-color var(--duration-normal),color var(--duration-normal); }
@@ -96,6 +104,7 @@ body {
 :lang(ar) {
   font-family: var(--font-arabic);
   font-kerning: normal;
+  letter-spacing: 0;
 }
 
 .salora-display {
@@ -107,18 +116,61 @@ body {
 }
 
 .salora-menu-display {
-  max-inline-size: 17ch;
-  font-size: clamp(2rem, 4.25vw, 4.5rem);
-  line-height: 1.02;
-  letter-spacing: -0.04em;
+  max-inline-size: 18ch;
+  font-size: clamp(2rem, 3.75vw, 3.85rem);
+  line-height: 1.05;
+  letter-spacing: -0.035em;
   text-wrap: balance;
 }
 
 :lang(ar) .salora-menu-display {
-  max-inline-size: 20ch;
-  font-size: clamp(1.9rem, 3.8vw, 4rem);
-  line-height: 1.18;
-  letter-spacing: -0.02em;
+  max-inline-size: 18ch;
+  font-size: clamp(2rem, 3.35vw, 3.55rem);
+  line-height: 1.24;
+  letter-spacing: -0.012em;
+}
+
+.salora-eyebrow,
+.salora-breakfast-badges {
+  letter-spacing: 0.2em;
+}
+
+:lang(ar) .salora-eyebrow,
+:lang(ar) .salora-breakfast-badges {
+  letter-spacing: 0.035em;
+  text-transform: none;
+}
+
+.salora-media-frame {
+  isolation: isolate;
+  border-bottom: 1px solid var(--border-subtle);
+  background:
+    radial-gradient(circle at 50% 35%, color-mix(in srgb, var(--gold) 16%, transparent), transparent 60%),
+    #0d0b09;
+}
+
+.salora-media-frame::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  border: 1px solid color-mix(in srgb, var(--foreground) 9%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--gold) 8%, transparent);
+}
+
+.salora-media-frame img {
+  transition: transform 650ms var(--ease-emphasized), filter 650ms var(--ease-emphasized);
+}
+
+.premium-menu-card:hover .salora-media-frame img {
+  transform: scale(1.025);
+  filter: saturate(1.035) contrast(1.025);
+}
+
+.salora-card-title {
+  text-wrap: balance;
+  line-height: 1.35;
 }
 
 :lang(ar) .salora-display {
@@ -1150,8 +1202,9 @@ button:disabled {
 }
 
 .premium-menu-card {
-  background: linear-gradient(160deg, color-mix(in srgb, var(--foreground) 5.5%, transparent), color-mix(in srgb, var(--foreground) 2.5%, transparent));
-  box-shadow: var(--shadow-raised);
+  border-color: color-mix(in srgb, var(--foreground) 12%, transparent);
+  background: linear-gradient(160deg, color-mix(in srgb, var(--foreground) 6.5%, transparent), color-mix(in srgb, var(--foreground) 2.5%, transparent));
+  box-shadow: 0 22px 60px color-mix(in srgb, var(--background) 24%, transparent);
 }
 
 [data-theme="light"] .premium-footer-word { color: #E8DED0; }
