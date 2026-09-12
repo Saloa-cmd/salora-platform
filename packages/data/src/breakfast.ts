@@ -289,3 +289,10 @@ export const breakfastMediaBySlug = Object.fromEntries(
 export function isBreakfastProduct(tags: readonly string[] | undefined): boolean {
   return Boolean(tags?.includes("breakfast"));
 }
+
+export function isBreakfastProductInGroup(
+  tags: readonly string[] | undefined,
+  group: BreakfastGroupKey | null | undefined
+): boolean {
+  return !group || Boolean(tags?.includes(`breakfast-${group}`));
+}

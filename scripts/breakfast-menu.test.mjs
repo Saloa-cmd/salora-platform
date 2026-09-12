@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { breakfastCategory, breakfastGroups, breakfastMenu } from "../packages/data/src/breakfast.ts";
+import { breakfastCategory, breakfastGroups, breakfastMenu, isBreakfastProductInGroup } from "../packages/data/src/breakfast.ts";
 
 assert.equal(breakfastCategory.slug, "breakfast");
 assert.equal(breakfastMenu.length, 22, "Breakfast launch must contain exactly 22 approved items.");
@@ -12,6 +12,14 @@ assert.deepEqual(
 
 const slugs = breakfastMenu.map((item) => item.slug);
 assert.equal(new Set(slugs).size, slugs.length, "Breakfast slugs must be unique.");
+
+for (const group of breakfastGroups) {
+  const matchingItems = breakfastMenu.filter((item) =>
+    isBreakfastProductInGroup(["breakfast", `breakfast-${item.group}`], group.key)
+  );
+  assert.equal(matchingItems.length, group.count, `${group.key} filter count must match the menu group contract.`);
+}
+assert.ok(isBreakfastProductInGroup(["breakfast"], null), "The all-breakfast view must not require a subgroup tag.");
 
 const expectedPrices = {
   "english-breakfast": 3.9,
@@ -57,6 +65,11 @@ assert.match(experience, /tag !== "breakfast"/);
 assert.match(experience, /!tag\.startsWith\("breakfast-"\)/);
 assert.match(experience, /ريوق صباحي/);
 assert.match(experience, /const heroSubtitle = breakfastProducts\.length/);
+assert.match(experience, /isBreakfastProductInGroup\(product\.tags, activeBreakfastGroup\)/);
+assert.match(experience, /aria-pressed=\{activeGroup === group\.key\}/);
+assert.match(experience, /onExplore\(group\.key\)/);
+assert.match(experience, /value\.split\("\|"\)/);
+assert.match(experience, /line\.modifiers\.map\(\(modifier\) => optionLabel\(language, modifier\.optionName\)\)/);
 
 const homeExperience = readFileSync("apps/web/components/home/PremiumHomeExperience.tsx", "utf8");
 assert.match(homeExperience, /breakfastMediaBySlug\[product\.id\]/);

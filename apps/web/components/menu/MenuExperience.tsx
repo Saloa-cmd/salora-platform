@@ -26,7 +26,8 @@ import {
   X
 } from "lucide-react";
 import type { ExperienceConfiguration, MenuAuthoritySection, MenuAuthoritySnapshot, MenuAuthoritySource, Product, ProductChoice, ProductModifierGroup, SelectedModifier } from "@salora/types";
-import { breakfastGroups, breakfastMediaBySlug, isBreakfastProduct } from "@salora/data";
+import type { BreakfastGroupKey } from "@salora/data";
+import { breakfastGroups, breakfastMediaBySlug, isBreakfastProduct, isBreakfastProductInGroup } from "@salora/data";
 import { SaloraButton, SaloraEmptyState } from "@/components/ui/SaloraPrimitives";
 import { ThemeControl } from "@/components/ui/ThemeControl";
 import { ExperienceStatus } from "@/components/public/ExperienceStatus";
@@ -153,7 +154,11 @@ const serviceModes = [
 
 function optionLabel(language: Language, value: string) {
   const labels = copy[language] as Record<string, string>;
-  return labels[value] ?? value;
+  const translated = labels[value];
+  if (translated) return translated;
+  const [arabic, english] = value.split("|").map((part) => part.trim());
+  if (arabic && english) return language === "ar" ? arabic : english;
+  return value;
 }
 
 function displayName(product: Product, language: Language) {
@@ -223,6 +228,7 @@ export function MenuExperience({
   const [language, setLanguage] = useState<Language>("ar");
   const [serviceMode, setServiceMode] = useState<ServiceMode>("counter");
   const [category, setCategory] = useState("All");
+  const [activeBreakfastGroup, setActiveBreakfastGroup] = useState<BreakfastGroupKey | null>(null);
   const [search, setSearch] = useState("");
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [selections, setSelections] = useState<Record<string, ProductChoice>>({});
@@ -252,10 +258,14 @@ export function MenuExperience({
     const query = search.trim().toLowerCase();
     return initialProducts.filter((product) => {
       const categoryMatch = category === "All" || product.sectionKey === category;
+      const breakfastGroupMatch = isBreakfastProductInGroup(product.tags, activeBreakfastGroup);
       const searchMatch = !query || `${product.name} ${product.nameAr ?? ""} ${product.nameEn ?? ""} ${product.category} ${product.categoryAr ?? ""} ${product.categoryEn ?? ""} ${product.tags.join(" ")} ${(product.badges ?? []).join(" ")}`.toLocaleLowerCase("ar").includes(query.toLocaleLowerCase("ar"));
-      return categoryMatch && searchMatch;
+      return categoryMatch && breakfastGroupMatch && searchMatch;
     });
-  }, [category, initialProducts, search]);
+  }, [activeBreakfastGroup, category, initialProducts, search]);
+  const activeBreakfastGroupLabel = activeBreakfastGroup
+    ? breakfastGroups.find((group) => group.key === activeBreakfastGroup)
+    : undefined;
   const subtotal = cart.reduce((sum, line) => sum + line.unitPrice * line.quantity, 0);
   const itemCount = cart.reduce((sum, line) => sum + line.quantity, 0);
   const selectedGroups = selectedProduct ? productGroups(selectedProduct, language) : [];
@@ -301,9 +311,10 @@ export function MenuExperience({
     setSelections(groups.reduce<Record<string, ProductChoice>>((initial, group) => { const option = group.options[0]; if (group.required && option) initial[group.id] = option; return initial; }, {}));
   }
 
-  function exploreBreakfast() {
+  function exploreBreakfast(group?: BreakfastGroupKey) {
     setSearch("");
     setCategory("breakfast");
+    setActiveBreakfastGroup(group ?? null);
     requestAnimationFrame(() => document.getElementById("menu-products")?.scrollIntoView({ behavior: "smooth", block: "start" }));
   }
 
@@ -330,11 +341,11 @@ export function MenuExperience({
     const service = serviceModes.find((mode) => mode.id === serviceMode);
     const lines = order
       ? order.items.map((item) => {
-          const detail = item.modifiers?.map((modifier) => modifier.optionName).filter(Boolean).join(" · ") || t.standard;
+          const detail = item.modifiers?.map((modifier) => modifier.optionName ? optionLabel(language, modifier.optionName) : "").filter(Boolean).join(" · ") || t.standard;
           return `${item.quantity}× ${item.productName} — ${detail} — ${formatOmr(Number(item.unitPrice) * item.quantity, language)}`;
         })
       : cart.map((line) => {
-          const detail = line.modifiers.length ? line.modifiers.map((modifier) => modifier.optionName).join(" · ") : t.standard;
+          const detail = line.modifiers.length ? line.modifiers.map((modifier) => optionLabel(language, modifier.optionName)).join(" · ") : t.standard;
           return `${line.quantity}× ${displayName(line.product, language)} — ${detail} — ${formatOmr(line.unitPrice * line.quantity, language)}`;
         });
     const confirmedTotal = order ? Number(order.total) : subtotal;
@@ -460,6 +471,7 @@ export function MenuExperience({
           products={breakfastProducts}
           language={language}
           radius={experience.theme.borderRadius}
+          activeGroup={activeBreakfastGroup}
           onExplore={exploreBreakfast}
           onSelect={openProduct}
         />
@@ -469,22 +481,22 @@ export function MenuExperience({
         {!catalogUnavailable ? <div className="sticky top-16 z-30 -mx-4 border-y border-white/10 bg-black/90 px-4 py-3 backdrop-blur-xl sm:top-[4.5rem] sm:-mx-6 sm:px-6">
           <div className="mx-auto flex max-w-7xl flex-col gap-3 lg:flex-row lg:items-center">
             {experience.menu.showSearch ? <label className="flex min-w-0 flex-1 items-center gap-3 rounded-xl border border-white/10 bg-white/[0.045] px-4 py-2 lg:max-w-xl">
-              <span className="sr-only">{t.search}</span><Search className="h-5 w-5 text-[var(--muted)]" aria-hidden="true" /><input type="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder={t.search} className="w-full bg-transparent text-sm outline-none placeholder:text-white/30" />
+              <span className="sr-only">{t.search}</span><Search className="h-5 w-5 text-[var(--muted)]" aria-hidden="true" /><input type="search" value={search} onChange={(event) => { setSearch(event.target.value); setActiveBreakfastGroup(null); }} placeholder={t.search} className="w-full bg-transparent text-sm outline-none placeholder:text-white/30" />
             </label> : null}
             {experience.menu.showCategories ? <div className="salora-scroll-strip lg:flex-1" role="tablist" aria-label={language === "ar" ? "تصنيفات القائمة" : "Menu categories"}>
               {categories.map((item) => {
                 const authoritySection = sections.find((section) => section.key === item);
                 const label = item === "All" ? t.all : language === "ar" ? authoritySection?.nameAr ?? item : authoritySection?.nameEn ?? item;
                 const count = item === "All" ? initialProducts.length : initialProducts.filter((product) => product.sectionKey === item).length;
-                return <button key={item} type="button" role="tab" aria-selected={category === item} onClick={() => setCategory(item)} className={`min-h-11 shrink-0 rounded-full border px-4 py-2 text-xs font-semibold transition ${category === item ? "border-[var(--gold)] bg-[var(--gold)] text-black" : "border-white/10 bg-white/[0.04] text-[var(--muted)] hover:border-white/25 hover:text-[var(--cream)]"}`}>{label}<span className="ms-2 opacity-65">{count}</span></button>;
+                return <button key={item} type="button" role="tab" aria-selected={category === item} onClick={() => { setCategory(item); setActiveBreakfastGroup(null); }} className={`min-h-11 shrink-0 rounded-full border px-4 py-2 text-xs font-semibold transition ${category === item ? "border-[var(--gold)] bg-[var(--gold)] text-black" : "border-white/10 bg-white/[0.04] text-[var(--muted)] hover:border-white/25 hover:text-[var(--cream)]"}`}>{label}<span className="ms-2 opacity-65">{count}</span></button>;
               })}
             </div> : null}
           </div>
         </div> : null}
 
         {!catalogUnavailable ? <div className="mt-5 flex items-center justify-between gap-4 border-b border-white/10 pb-4 text-sm text-[var(--muted)]" aria-live="polite">
-          <span><strong className="text-[var(--cream)]">{filteredProducts.length}</strong> {t.results}</span>
-          {search || category !== "All" ? <button type="button" onClick={() => { setSearch(""); setCategory("All"); }} className="min-h-11 text-xs font-semibold text-[var(--gold-soft)] hover:underline">{t.clearFilters}</button> : null}
+          <span className="flex flex-wrap items-center gap-2"><span><strong className="text-[var(--cream)]">{filteredProducts.length}</strong> {t.results}</span>{activeBreakfastGroupLabel ? <span className="rounded-full border border-[var(--border-gold)] bg-[var(--gold)]/10 px-3 py-1 text-xs font-semibold text-[var(--gold-soft)]">{language === "ar" ? activeBreakfastGroupLabel.nameAr : activeBreakfastGroupLabel.nameEn}</span> : null}</span>
+          {search || category !== "All" || activeBreakfastGroup ? <button type="button" onClick={() => { setSearch(""); setCategory("All"); setActiveBreakfastGroup(null); }} className="min-h-11 text-xs font-semibold text-[var(--gold-soft)] hover:underline">{t.clearFilters}</button> : null}
         </div> : null}
 
         <div className={`mt-5 grid gap-4 sm:mt-7 sm:gap-5 ${gridClass}`}>
@@ -492,7 +504,7 @@ export function MenuExperience({
             <MenuProductCard key={product.id} product={product} language={language} showImages={experience.menu.showImages} showDescriptions={experience.menu.showDescriptions} ratioClass={ratioClass} list={experience.menu.layout === "list"} radius={experience.theme.borderRadius} onSelect={openProduct} />
           ))}
         </div>
-        {filteredProducts.length === 0 ? <div className="mt-8"><SaloraEmptyState icon={catalogUnavailable ? <CloudOff className="h-6 w-6" aria-hidden="true" /> : <Search className="h-6 w-6" aria-hidden="true" />} title={catalogUnavailable ? t.unavailableTitle : language === "ar" ? "لا توجد أصناف مطابقة" : "No matching items"} description={catalogUnavailable ? t.unavailableBody : t.noResults} action={catalogUnavailable ? undefined : <SaloraButton tone="gold" onClick={() => { setSearch(""); setCategory("All"); }}>{language === "ar" ? "عرض جميع الأصناف" : "Show all items"}</SaloraButton>} /></div> : null}
+        {filteredProducts.length === 0 ? <div className="mt-8"><SaloraEmptyState icon={catalogUnavailable ? <CloudOff className="h-6 w-6" aria-hidden="true" /> : <Search className="h-6 w-6" aria-hidden="true" />} title={catalogUnavailable ? t.unavailableTitle : language === "ar" ? "لا توجد أصناف مطابقة" : "No matching items"} description={catalogUnavailable ? t.unavailableBody : t.noResults} action={catalogUnavailable ? undefined : <SaloraButton tone="gold" onClick={() => { setSearch(""); setCategory("All"); setActiveBreakfastGroup(null); }}>{language === "ar" ? "عرض جميع الأصناف" : "Show all items"}</SaloraButton>} /></div> : null}
       </section>
 
       {selectedProduct ? (
@@ -516,7 +528,7 @@ export function MenuExperience({
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label={t.cart}>
           <aside className={`absolute inset-y-0 w-full max-w-md overflow-y-auto border-white/10 bg-[#0d0d0d] p-5 shadow-2xl ${language === "ar" ? "left-0 border-r" : "right-0 border-l"}`}>
             <div className="flex items-center justify-between"><h2 className="text-2xl font-semibold">{t.cart}</h2><button type="button" aria-label={t.close} onClick={() => setCartOpen(false)} className="grid min-h-11 min-w-11 place-items-center rounded-full border border-white/10"><X className="h-5 w-5" /></button></div>
-            {cart.length ? <div className="mt-6 grid gap-4">{cart.map((line) => <div key={line.key} className="rounded-2xl border border-white/10 bg-white/[0.04] p-4"><div className="flex items-start justify-between gap-3"><div><h3 className="font-semibold">{displayName(line.product, language)}</h3><p className="mt-1 text-xs text-[var(--muted)]">{line.modifiers.length ? line.modifiers.map((modifier) => modifier.optionName).join(" · ") : t.standard}</p></div><span className="text-sm text-[var(--gold-soft)]">{formatOmr(line.unitPrice * line.quantity, language)}</span></div><div className="mt-4 flex items-center gap-3"><button type="button" aria-label={`${t.decrease}: ${displayName(line.product, language)}`} onClick={() => changeQuantity(line.key, -1)} className="grid min-h-11 min-w-11 place-items-center rounded-full border border-white/10"><Minus className="h-4 w-4" /></button><span className="min-w-6 text-center font-semibold">{line.quantity}</span><button type="button" aria-label={`${t.increase}: ${displayName(line.product, language)}`} onClick={() => changeQuantity(line.key, 1)} className="grid min-h-11 min-w-11 place-items-center rounded-full border border-white/10"><Plus className="h-4 w-4" /></button></div></div>)}</div> : <p className="mt-10 text-center text-sm text-[var(--muted)]">{t.empty}</p>}
+            {cart.length ? <div className="mt-6 grid gap-4">{cart.map((line) => <div key={line.key} className="rounded-2xl border border-white/10 bg-white/[0.04] p-4"><div className="flex items-start justify-between gap-3"><div><h3 className="font-semibold">{displayName(line.product, language)}</h3><p className="mt-1 text-xs text-[var(--muted)]">{line.modifiers.length ? line.modifiers.map((modifier) => optionLabel(language, modifier.optionName)).join(" · ") : t.standard}</p></div><span className="text-sm text-[var(--gold-soft)]">{formatOmr(line.unitPrice * line.quantity, language)}</span></div><div className="mt-4 flex items-center gap-3"><button type="button" aria-label={`${t.decrease}: ${displayName(line.product, language)}`} onClick={() => changeQuantity(line.key, -1)} className="grid min-h-11 min-w-11 place-items-center rounded-full border border-white/10"><Minus className="h-4 w-4" /></button><span className="min-w-6 text-center font-semibold">{line.quantity}</span><button type="button" aria-label={`${t.increase}: ${displayName(line.product, language)}`} onClick={() => changeQuantity(line.key, 1)} className="grid min-h-11 min-w-11 place-items-center rounded-full border border-white/10"><Plus className="h-4 w-4" /></button></div></div>)}</div> : <p className="mt-10 text-center text-sm text-[var(--muted)]">{t.empty}</p>}
             {cart.length ? <div className="mt-7 grid gap-3 border-t border-white/10 pt-6"><input value={name} onChange={(event) => setName(event.target.value)} placeholder={t.customerName} className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 outline-none" /><input value={phone} onChange={(event) => setPhone(event.target.value)} placeholder={t.phone} inputMode="tel" className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 outline-none" />{serviceMode === "car" ? <input value={carDetails} onChange={(event) => setCarDetails(event.target.value)} placeholder={t.carDetails} className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 outline-none" /> : null}<textarea value={notes} onChange={(event) => setNotes(event.target.value)} placeholder={t.notes} rows={3} className="resize-none rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 outline-none" /><div className="flex items-center justify-between py-2"><span className="text-[var(--muted)]">{t.subtotal}</span><strong className="text-xl text-[var(--gold-soft)]">{formatOmr(subtotal, language)}</strong></div>{notice ? <p className="rounded-xl border border-white/10 bg-white/[0.04] p-3 text-sm leading-6 text-[var(--muted)]">{notice}</p> : null}<button type="button" disabled={submitting || catalogUnavailable} onClick={checkout} className="rounded-2xl bg-[var(--gold)] px-5 py-4 font-semibold text-black disabled:opacity-50">{catalogUnavailable ? t.orderingUnavailable : submitting ? "…" : t.checkout}</button></div> : null}
           </aside>
         </div>
@@ -537,13 +549,15 @@ function BreakfastShowcase({
   products,
   language,
   radius,
+  activeGroup,
   onExplore,
   onSelect
 }: {
   products: Product[];
   language: Language;
   radius: number;
-  onExplore: () => void;
+  activeGroup: BreakfastGroupKey | null;
+  onExplore: (group?: BreakfastGroupKey) => void;
   onSelect: (product: Product) => void;
 }) {
   const platters = products.filter((product) => product.tags.includes("breakfast-platters"));
@@ -575,7 +589,7 @@ function BreakfastShowcase({
                 : "Three breakfast traditions, quick sandwiches, fresh juices and a warm tea selection — morning flavors from everywhere in one place."}
             </p>
           </div>
-          <button type="button" onClick={onExplore} className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[var(--gold)] px-6 py-3 text-sm font-semibold text-black transition hover:brightness-110 lg:w-auto">
+          <button type="button" onClick={() => onExplore()} className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[var(--gold)] px-6 py-3 text-sm font-semibold text-black transition hover:brightness-110 lg:w-auto">
             {language === "ar" ? "عرض جميع خيارات الإفطار" : "Explore all breakfast options"}
             <ChevronDown className="h-4 w-4" />
           </button>
@@ -587,7 +601,7 @@ function BreakfastShowcase({
           const Icon = breakfastGroupIcons[group.key];
           const liveCount = products.filter((product) => product.tags.includes(`breakfast-${group.key}`)).length;
           return (
-            <button key={group.key} type="button" onClick={onExplore} className="flex min-h-14 min-w-[12rem] shrink-0 items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.04] px-4 text-start transition hover:border-[var(--border-gold)] hover:bg-[var(--gold)]/10">
+            <button key={group.key} type="button" aria-pressed={activeGroup === group.key} onClick={() => onExplore(group.key)} className={`flex min-h-14 min-w-[12rem] shrink-0 items-center gap-3 rounded-2xl border px-4 text-start transition ${activeGroup === group.key ? "border-[var(--gold)] bg-[var(--gold)]/15" : "border-white/10 bg-white/[0.04] hover:border-[var(--border-gold)] hover:bg-[var(--gold)]/10"}`}>
               <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[var(--gold)]/15 text-[var(--gold-soft)]"><Icon className="h-4 w-4" /></span>
               <span><strong className="block text-sm text-[var(--cream)]">{language === "ar" ? group.nameAr : group.nameEn}</strong><small className="text-[var(--muted)]">{liveCount || group.count} {language === "ar" ? "اختيارات" : "selections"}</small></span>
             </button>
