@@ -68,6 +68,7 @@ assert.match(experience, /const heroSubtitle = breakfastProducts\.length/);
 assert.match(experience, /isBreakfastProductInGroup\(product\.tags, activeBreakfastGroup\)/);
 assert.match(experience, /aria-pressed=\{activeGroup === group\.key\}/);
 assert.match(experience, /onExplore\(group\.key\)/);
+assert.match(experience, /value\.split\("\|"\)/);
 
 const homeExperience = readFileSync("apps/web/components/home/PremiumHomeExperience.tsx", "utf8");
 assert.match(homeExperience, /breakfastMediaBySlug\[product\.id\]/);
