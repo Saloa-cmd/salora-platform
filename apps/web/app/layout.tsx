@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Manrope, Noto_Sans_Arabic } from "next/font/google";
 import { cookies, headers } from "next/headers";
 import { saloraRuntime } from "@salora/config";
 import type { ThemePreference } from "@salora/ui";
@@ -7,6 +8,18 @@ import { isThemePreference, themeBootstrapScript } from "@/lib/theme";
 import "./globals.css";
 import "./p31-experience.css";
 import "./p32-catalog-media.css";
+
+const saloraLatin = Manrope({
+  subsets: ["latin"],
+  variable: "--font-salora-latin",
+  display: "swap"
+});
+
+const saloraArabic = Noto_Sans_Arabic({
+  subsets: ["arabic"],
+  variable: "--font-salora-arabic",
+  display: "swap"
+});
 
 // A request-specific CSP nonce is applied by proxy.ts. Nonces require dynamic
 // rendering so Next.js can attach the same value to framework scripts/styles.
@@ -44,7 +57,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   return (
     <html lang="ar" dir="rtl" data-theme={initialTheme} data-theme-preference={preference} suppressHydrationWarning>
       <head><script nonce={nonce} dangerouslySetInnerHTML={{ __html: themeBootstrapScript }} /></head>
-      <body>{children}<GlobalAiConcierge /></body>
+      <body className={`${saloraLatin.variable} ${saloraArabic.variable}`}>{children}<GlobalAiConcierge /></body>
     </html>
   );
 }
