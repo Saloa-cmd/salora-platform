@@ -240,6 +240,9 @@ export function MenuExperience({
     () => initialProducts.filter((product) => isBreakfastProduct(product.tags)),
     [initialProducts]
   );
+  const heroSubtitle = breakfastProducts.length
+    ? t.intro
+    : language === "ar" ? experience.site.heroSubtitleAr : experience.site.heroSubtitleEn;
 
   const categories = useMemo(
     () => ["All", ...sections.filter((section) => initialProducts.some((product) => product.sectionKey === section.key)).map((section) => section.key)],
@@ -431,7 +434,7 @@ export function MenuExperience({
           <div className="min-w-0">
             <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.3em] text-[var(--gold-soft)]"><Sparkles className="h-4 w-4" />{t.eyebrow}</p>
             <h1 className="salora-display salora-menu-display mt-2 font-semibold">{language === "ar" ? experience.site.heroTitleAr : experience.site.heroTitleEn}</h1>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--muted)] sm:mt-3 sm:text-base sm:leading-7">{language === "ar" ? experience.site.heroSubtitleAr : experience.site.heroSubtitleEn}</p>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--muted)] sm:mt-3 sm:text-base sm:leading-7">{heroSubtitle}</p>
             <div className="mt-4 flex flex-wrap items-center gap-3">
               <a href="#menu-products" className="inline-flex min-h-11 items-center justify-center rounded-full bg-[var(--gold)] px-5 text-sm font-semibold text-black transition hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--gold)]">{t.browse}</a>
               <ExperienceStatus language={language} source={menuSource} stale={menuStale} databaseHealth={menuDatabaseHealth} />
