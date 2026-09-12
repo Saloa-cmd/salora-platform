@@ -154,7 +154,11 @@ const serviceModes = [
 
 function optionLabel(language: Language, value: string) {
   const labels = copy[language] as Record<string, string>;
-  return labels[value] ?? value;
+  const translated = labels[value];
+  if (translated) return translated;
+  const [arabic, english] = value.split("|").map((part) => part.trim());
+  if (arabic && english) return language === "ar" ? arabic : english;
+  return value;
 }
 
 function displayName(product: Product, language: Language) {
