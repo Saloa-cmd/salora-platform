@@ -50,7 +50,7 @@ const copy = {
     direction: "rtl" as const,
     eyebrow: "اختيارات سالورا",
     title: "اختر لحظتك، ونحن نحضّر الانسجام.",
-    intro: "قهوة مختصة، ماتشا، مشروبات منعشة وحلويات تُحضّر بعناية للحظات تستحق أن تُعاش.",
+    intro: "ريوق صباحي، قهوة مختصة، ماتشا، مشروبات منعشة وحلويات تُحضّر بعناية للحظات تستحق أن تُعاش.",
     search: "ابحث عن فطور، مشروب أو حلوى",
     all: "الكل",
     add: "خصص وأضف",
@@ -98,7 +98,7 @@ const copy = {
     direction: "ltr" as const,
     eyebrow: "SALORA selections",
     title: "Choose your moment. We prepare the harmony.",
-    intro: "Specialty coffee, matcha, refreshing drinks and desserts, prepared with care for moments worth enjoying.",
+    intro: "Morning breakfast, specialty coffee, matcha, refreshing drinks and desserts, prepared with care for moments worth enjoying.",
     search: "Search breakfast, drinks or desserts",
     all: "All",
     add: "Customize & add",
@@ -621,7 +621,9 @@ function MenuProductCard({ product, language, showImages, showDescriptions, rati
   const [imageFailed, setImageFailed] = useState(false);
   const t = copy[language];
   const image = productImage(product);
-  const tags = product.tags.slice(0, 2);
+  const tags = product.tags
+    .filter((tag) => tag !== "breakfast" && !tag.startsWith("breakfast-") && tag !== "signature")
+    .slice(0, 2);
 
   return (
     <article className={`premium-menu-card group overflow-hidden border border-white/10 bg-white/[0.04] shadow-[0_18px_50px_rgba(0,0,0,.16)] transition duration-200 hover:-translate-y-0.5 hover:border-[var(--border-gold)] ${list ? "sm:grid sm:grid-cols-[240px_1fr]" : ""}`} style={{ borderRadius: `${radius}px` }}>
