@@ -2,10 +2,10 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowDown, ArrowUpLeft, Instagram, Languages, MapPin, Menu, MessageCircle, ShoppingBag } from "lucide-react";
+import { ArrowDown, ArrowUpLeft, Check, Clock3, Instagram, Languages, MapPin, Menu, MessageCircle, ShoppingBag } from "lucide-react";
 import { useState } from "react";
 import type { ExperienceConfiguration, MenuAuthoritySnapshot, MenuAuthoritySource, Product } from "@salora/types";
-import { breakfastMediaBySlug, isBreakfastProduct } from "@salora/data";
+import { breakfastMediaBySlug, breakfastService, isBreakfastProduct } from "@salora/data";
 import { ThemeControl } from "@/components/ui/ThemeControl";
 import { ExperienceStatus } from "@/components/public/ExperienceStatus";
 
@@ -167,6 +167,12 @@ export function PremiumHomeExperience({
           <p className="premium-kicker"><span />{t.harmony}</p>
           <h1>{title}</h1>
           <p>{intro}</p>
+          {hasBreakfast ? (
+            <div className="flex flex-wrap items-center gap-2 text-xs font-semibold text-[var(--gold-soft)]" aria-label={rtl ? "حالة وساعات تقديم الريوق" : "Breakfast availability and serving hours"}>
+              <span className="inline-flex min-h-10 items-center gap-2 rounded-full border border-[var(--border-gold)] bg-[var(--gold)]/10 px-4"><Check className="h-4 w-4" aria-hidden="true" />{rtl ? breakfastService.availabilityAr : breakfastService.availabilityEn}</span>
+              <span className="inline-flex min-h-10 items-center gap-2 rounded-full border border-white/10 bg-black/25 px-4 text-[var(--cream)]"><Clock3 className="h-4 w-4 text-[var(--gold-soft)]" aria-hidden="true" />{rtl ? breakfastService.hoursAr : breakfastService.hoursEn}</span>
+            </div>
+          ) : null}
           <div className="premium-hero-actions">
             <Link className="premium-button premium-button-gold" href="/menu">{t.explore}<ArrowUpLeft aria-hidden="true" /></Link>
             <a className="premium-button premium-button-ghost" href="#visit">{t.location}</a>
