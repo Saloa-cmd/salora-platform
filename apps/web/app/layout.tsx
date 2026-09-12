@@ -18,20 +18,20 @@ export const metadata: Metadata = {
     default: "SALORA.CAFE | Taste the Harmony",
     template: "%s | SALORA.CAFE"
   },
-  description: "اكتشف تجربة سالورا في واجهة شاطئ الدهاريز: قهوة مختصة، ماتشا، مشروبات وحلويات تُحضّر بعناية في صلالة.",
+  description: "اكتشف تجربة سالورا في واجهة شاطئ الدهاريز: ريوق صباحي، قهوة مختصة، ماتشا، مشروبات وحلويات تُحضّر بعناية في صلالة.",
   alternates: {
     canonical: saloraRuntime.siteUrl
   },
   openGraph: {
     title: "SALORA.CAFE — Taste the Harmony",
-    description: "A premium coffee, matcha and dessert experience at Dahariz Beachfront, Salalah.",
+    description: "A premium breakfast, coffee, matcha and dessert experience at Dahariz Beachfront, Salalah.",
     type: "website",
     url: saloraRuntime.siteUrl
   },
   twitter: {
     card: "summary_large_image",
     title: "SALORA.CAFE — Taste the Harmony",
-    description: "Premium coffee, matcha and desserts in Salalah."
+    description: "Premium breakfast, coffee, matcha and desserts in Salalah."
   }
 };
 
