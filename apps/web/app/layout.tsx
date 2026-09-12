@@ -55,9 +55,16 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   const nonce = headerStore.get("x-nonce") ?? undefined;
   const initialTheme = preference === "light" ? "light" : "dark";
   return (
-    <html lang="ar" dir="rtl" data-theme={initialTheme} data-theme-preference={preference} suppressHydrationWarning>
+    <html
+      lang="ar"
+      dir="rtl"
+      className={`${saloraLatin.variable} ${saloraArabic.variable}`}
+      data-theme={initialTheme}
+      data-theme-preference={preference}
+      suppressHydrationWarning
+    >
       <head><script nonce={nonce} dangerouslySetInnerHTML={{ __html: themeBootstrapScript }} /></head>
-      <body className={`${saloraLatin.variable} ${saloraArabic.variable}`}>{children}<GlobalAiConcierge /></body>
+      <body>{children}<GlobalAiConcierge /></body>
     </html>
   );
 }
