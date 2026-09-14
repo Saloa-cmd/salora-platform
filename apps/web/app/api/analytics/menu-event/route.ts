@@ -1,30 +1,39 @@
-import { z } from "zod";
 import type { NextRequest } from "next/server";
 import { SYSTEM_AUTH_CONTEXT, withPrismaAuthContext } from "@salora/backend";
+import { saloraRuntime } from "@salora/config";
+import { MAX_ANALYTICS_BODY_BYTES, parseMenuAnalyticsEvent } from "@/lib/analytics/privacy";
 import { getMenuAuthoritySnapshot } from "@/lib/server/menuAuthority";
 import { enforceRateLimit, rateLimitResponse } from "@/lib/server/rateLimit";
 import { responseError, responseJson } from "@/lib/server/domainHttp";
 
-const eventSchema = z.object({
-  eventType: z.enum(["view", "click", "search", "favorite", "ai_recommendation"]),
-  revisionId: z.string().uuid(),
-  productSlug: z.string().min(1).max(140).optional(),
-  query: z.string().max(200).optional(),
-  channel: z.enum(["web", "mobile", "qr", "ai"]).default("web"),
-  metadata: z.record(z.string(), z.unknown()).optional()
-});
-
 export async function POST(request: NextRequest) {
-  const requestId = request.headers.get("x-request-id") || crypto.randomUUID();
+  const forwardedRequestId = request.headers.get("x-request-id");
+  const requestId = forwardedRequestId && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(forwardedRequestId)
+    ? forwardedRequestId
+    : crypto.randomUUID();
+
+  if (!saloraRuntime.analyticsEnabled) {
+    return new Response(null, {
+      status: 204,
+      headers: { "cache-control": "no-store", "x-request-id": requestId }
+    });
+  }
 
   try {
     await enforceRateLimit(request, "analytics");
-    const parsed = eventSchema.safeParse(await request.json().catch(() => null));
-    if (!parsed.success) return responseError("Invalid menu analytics event.", requestId, 400);
+    const contentLength = Number(request.headers.get("content-length") ?? "0");
+    if (Number.isFinite(contentLength) && contentLength > MAX_ANALYTICS_BODY_BYTES) {
+      return responseError("Invalid menu analytics event.", requestId, 422);
+    }
+    const parsed = parseMenuAnalyticsEvent(await request.text());
+    if (!parsed.success) return responseError("Invalid menu analytics event.", requestId, 422);
 
     const authority = await getMenuAuthoritySnapshot();
     if (!authority.revision || authority.revision.id !== parsed.data.revisionId) {
       return responseError("The analytics event does not reference the current published revision.", requestId, 409);
+    }
+    if (parsed.data.productSlug && !authority.products.some((product) => product.id === parsed.data.productSlug)) {
+      return responseError("The analytics event does not reference a current product.", requestId, 422);
     }
 
     await withPrismaAuthContext(SYSTEM_AUTH_CONTEXT, (database) =>
@@ -35,8 +44,6 @@ export async function POST(request: NextRequest) {
           entityType: "MenuCollectionRevision",
           entityId: parsed.data.revisionId,
           requestId,
-          ipAddress: request.headers.get("x-forwarded-for")?.split(",")[0]?.trim(),
-          userAgent: request.headers.get("user-agent") ?? undefined,
           metadata: {
             collectionId: authority.collection.id,
             revisionId: parsed.data.revisionId,
@@ -44,7 +51,7 @@ export async function POST(request: NextRequest) {
             productSlug: parsed.data.productSlug,
             query: parsed.data.query,
             channel: parsed.data.channel,
-            ...parsed.data.metadata
+            client: parsed.data.metadata ?? {}
           }
         }
       })

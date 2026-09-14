@@ -4,6 +4,7 @@ import { Bot, Languages, X } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ConciergePreview } from "./ConciergePreview";
+import { useSaloraLocale } from "./SaloraLocaleProvider";
 
 type Language = "ar" | "en";
 type Availability = "checking" | "ready" | "unavailable";
@@ -20,7 +21,7 @@ const internalPrefixes = ["/control-tower", "/dashboard", "/login"];
 export function GlobalAiConcierge() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
-  const [language, setLanguage] = useState<Language>("ar");
+  const { locale: language, setLocale: setLanguage } = useSaloraLocale();
   const [availability, setAvailability] = useState<Availability>("checking");
 
   useEffect(() => {
@@ -59,8 +60,8 @@ export function GlobalAiConcierge() {
               <p className="mt-1 text-[11px] text-[var(--muted)]">{rtl ? "اقتراحات تساعدك تختار لحظتك" : "Thoughtful suggestions for your SALORA moment"}</p>
             </div>
             <div className="flex items-center gap-1">
-              <button type="button" onClick={() => setLanguage(rtl ? "en" : "ar")} className="grid size-9 place-items-center rounded-full border border-white/10 text-[var(--muted)] transition hover:border-[var(--border-gold)] hover:text-[var(--cream)]" aria-label={rtl ? "Switch to English" : "التبديل إلى العربية"}><Languages className="size-4" /></button>
-              <button type="button" onClick={() => setOpen(false)} className="grid size-9 place-items-center rounded-full border border-white/10 text-[var(--muted)] transition hover:border-[var(--border-gold)] hover:text-[var(--cream)]" aria-label={rtl ? "إغلاق مساعد سالورا" : "Close SALORA Concierge"}><X className="size-4" /></button>
+              <button type="button" onClick={() => setLanguage(rtl ? "en" : "ar")} className="grid size-11 place-items-center rounded-full border border-white/10 text-[var(--muted)] transition hover:border-[var(--border-gold)] hover:text-[var(--cream)]" aria-label={rtl ? "Switch to English" : "التبديل إلى العربية"}><Languages className="size-4" /></button>
+              <button type="button" onClick={() => setOpen(false)} className="grid size-11 place-items-center rounded-full border border-white/10 text-[var(--muted)] transition hover:border-[var(--border-gold)] hover:text-[var(--cream)]" aria-label={rtl ? "إغلاق مساعد سالورا" : "Close SALORA Concierge"}><X className="size-4" /></button>
             </div>
           </div>
           <ConciergePreview key={language} language={language} />
