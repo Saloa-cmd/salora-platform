@@ -180,7 +180,7 @@ export function PremiumHomeExperience({
           <ExperienceStatus language={language} source={menuSource} stale={menuStale} databaseHealth={menuDatabaseHealth} compact />
         </div>
 
-        <div className="premium-hero-art" aria-label={heroAlt}>
+        <div className="premium-hero-art">
           <div className="premium-orbit premium-orbit-one" />
           <div className="premium-orbit premium-orbit-two" />
           <div className="premium-hero-halo" />
@@ -234,7 +234,7 @@ export function PremiumHomeExperience({
       </section>
 
       <footer className="premium-footer">
-        <div className="premium-footer-word">SALORA</div>
+        <div className="premium-footer-word" aria-hidden="true">SALORA</div>
         <div><p>{t.footer}</p><p>© 2026 SALORA.CAFE</p><Link href="/privacy">{rtl ? "الخصوصية" : "Privacy"}</Link><a href="https://instagram.com/salora.cafe" target="_blank" rel="noreferrer"><Instagram aria-hidden="true" />@salora.cafe</a></div>
       </footer>
     </main>

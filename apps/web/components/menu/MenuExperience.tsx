@@ -432,7 +432,7 @@ export function MenuExperience({
             <SaloraButton type="button" aria-label={language === "ar" ? "Switch to English" : "التبديل إلى العربية"} onClick={() => setLanguage(language === "ar" ? "en" : "ar")} className="min-h-11 rounded-full px-3 text-xs">
               <Languages className="h-4 w-4" /><span className="hidden sm:inline">{language === "ar" ? "English" : "العربية"}</span>
             </SaloraButton>
-            <SaloraButton type="button" tone="gold" onClick={() => setCartOpen(true)} className="relative min-h-11 rounded-full bg-[var(--gold)] px-3 text-black hover:bg-[var(--gold-soft)] sm:px-4">
+            <SaloraButton type="button" tone="gold" aria-label={t.cart} onClick={() => setCartOpen(true)} className="relative min-h-11 rounded-full bg-[var(--gold)] px-3 text-[var(--brand-foreground)] hover:bg-[var(--gold-soft)] sm:px-4">
               <ShoppingBag className="h-4 w-4" /><span className="hidden sm:inline">{t.cart}</span>
               {itemCount ? <span className="grid h-5 min-w-5 place-items-center rounded-full bg-black px-1 text-[0.65rem] text-white">{itemCount}</span> : null}
             </SaloraButton>
@@ -440,7 +440,7 @@ export function MenuExperience({
         </div>
       </header>
 
-      {experience.site.showAnnouncement ? <div className="bg-[var(--gold)] px-4 py-2 text-center text-sm font-semibold text-black">{language === "ar" ? experience.site.announcementAr : experience.site.announcementEn}</div> : null}
+      {experience.site.showAnnouncement ? <div className="bg-[var(--gold)] px-4 py-2 text-center text-sm font-semibold text-[var(--brand-foreground)]">{language === "ar" ? experience.site.announcementAr : experience.site.announcementEn}</div> : null}
 
       <section className="premium-menu-hero relative overflow-hidden border-b border-white/10 px-4 py-5 sm:px-6 sm:py-8">
         <div className="hero-depth" />
@@ -450,7 +450,7 @@ export function MenuExperience({
             <h1 className="salora-display salora-menu-display mt-2 font-semibold">{language === "ar" ? experience.site.heroTitleAr : experience.site.heroTitleEn}</h1>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--muted)] sm:mt-3 sm:text-base sm:leading-7">{heroSubtitle}</p>
             <div className="mt-4 flex flex-wrap items-center gap-3">
-              <a href="#menu-products" className="inline-flex min-h-11 items-center justify-center rounded-full bg-[var(--gold)] px-5 text-sm font-semibold text-black transition hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--gold)]">{t.browse}</a>
+              <a href="#menu-products" className="inline-flex min-h-11 items-center justify-center rounded-full bg-[var(--gold)] px-5 text-sm font-semibold text-[var(--brand-foreground)] transition hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--gold)]">{t.browse}</a>
               <ExperienceStatus language={language} source={menuSource} stale={menuStale} databaseHealth={menuDatabaseHealth} />
             </div>
           </div>
