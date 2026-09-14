@@ -49,7 +49,7 @@ function QuickAction({ label, icon, onClick, danger }: { label: string; icon: Re
 }
 
 export function ProductReadinessWorkspace() {
-  // Product readiness and orderability are derived from the current catalog.
+  // Product readiness & orderability are derived from the current catalog.
   const router = useRouter();
   const { isArabic } = useControlTowerLocale();
   const t = useCallback((ar: string, en: string) => isArabic ? ar : en, [isArabic]);
