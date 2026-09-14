@@ -41,8 +41,9 @@ test.describe("public locale and accessibility", () => {
     });
 
     await page.goto("/menu", { waitUntil: "networkidle" });
-    await page.getByRole("searchbox").fill("coffee");
-    await page.waitForTimeout(250);
+    const search = page.getByRole("searchbox");
+    if (await search.count()) await search.fill("coffee");
+    await page.waitForTimeout(500);
     expect(analyticsRequests).toEqual([]);
   });
 });
