@@ -22,6 +22,10 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm lint
       - run: pnpm test
+      - name: Verify current published catalog authority
+        env:
+          SALORA_AUTHORITY_BASE_URL: https://salora-platform.vercel.app
+        run: pnpm test:authority:current
       - run: pnpm build
       - name: Install Playwright Chromium
         run: pnpm exec playwright install --with-deps chromium

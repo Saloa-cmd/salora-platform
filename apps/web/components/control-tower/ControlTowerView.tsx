@@ -6,7 +6,6 @@ import { DashboardView } from "@/components/dashboard/DashboardView";
 import { ExperienceDesignStudio } from "./ExperienceDesignStudio";
 import { LoyaltyActionPanel, RuntimeConfigActionPanel } from "./NoCodeActionPanel";
 import { MarketingOperationsWorkspace } from "./MarketingOperationsWorkspace";
-import { SimpleLaunchOperationsCenter } from "./SimpleLaunchOperationsCenter";
 import { SupremacyCommandCenter } from "./SupremacyCommandCenter";
 import { WhatsAppCommandCenter } from "./WhatsAppCommandCenter";
 import { OperationalGovernanceCenter } from "./OperationalGovernanceCenter";
@@ -54,7 +53,6 @@ function DomainWorkspace({ sectionId }: { sectionId: ControlTowerSectionId }) {
   ]} />;
   if (sectionId === "marketing") return <MarketingOperationsWorkspace />;
   if (sectionId === "ai") return <SectionTabs label={t("أدوات سالورا الذكية", "SALORA AI tools")} tabs={[
-    { id: "assistant", label: t("أدوات المساعد", "Assistant tools"), content: <SimpleLaunchOperationsCenter /> },
     { id: "insights", label: t("الرؤى", "Insights"), content: <DashboardView kind="ai" /> },
     { id: "governance", label: t("المراجعة", "Review"), content: <SupremacyCommandCenter /> }
   ]} />;

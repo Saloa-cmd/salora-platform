@@ -297,7 +297,7 @@ export function ProductMediaManager() {
 
       <div className="rounded-xl border border-white/10 bg-black/25 p-3">
         <p className="mb-2 text-xs font-semibold text-[var(--muted)]">
-          {t("مصدر الصور — العرض الافتراضي يعزل المجموعة المطابقة لـ117 صنفًا", "Media source — the default view isolates the set matched to 117 products")}
+          {t("مصدر الصور — العرض الافتراضي يعزل المجموعة الاحترافية الحالية", "Media source — the default view isolates the current professional set")}
         </p>
         <div className="flex flex-wrap gap-2" role="group" aria-label={t("تصفية مصدر الصور", "Filter media source")}>
           {sourceScopes.map((item) => (

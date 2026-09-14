@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { Archive, CheckCircle2, CircleAlert, Eye, Grid2X2, ImageIcon, List, RefreshCw, Search, ShieldCheck, SlidersHorizontal, Sparkles, Tag, X } from "lucide-react";
 import { DashboardCard } from "@/components/dashboard/DashboardCard";
@@ -10,17 +11,15 @@ import { useControlTowerLocale } from "./ControlTowerLocale";
 
 type Readiness = { priceReady: boolean; mediaReady: boolean; categoryReady: boolean; optionsReady: boolean; availabilityReady: boolean; orderReady: boolean; reasons: string[] };
 type ProductImage = { id: string; publicUrl?: string | null; altText?: string | null; isPrimary?: boolean };
-type ProductRow = { id: string; slug: string; name: string; nameAr?: string | null; nameEn?: string | null; status: string; basePrice: string | number; category?: { name: string } | null; images?: ProductImage[]; readiness?: Readiness };
+type ProductRow = { id: string; slug: string; name: string; nameAr?: string | null; nameEn?: string | null; status: string; basePrice: string | number; category?: { name: string; slug?: string | null } | null; images?: ProductImage[]; variants?: Array<{ sku?: string | null }>; readiness?: Readiness };
+type CatalogPage = { items: ProductRow[]; pagination: { total: number; limit: number; offset: number; hasMore: boolean; nextOffset: number | null }; context: { environment: string; generatedAt: string } };
+type CatalogMeta = CatalogPage["pagination"] & CatalogPage["context"] & { pages: number };
 type FilterMode = "all" | "active" | "draft" | "unavailable" | "missing-price" | "missing-media" | "activation-ready" | "needs-work";
 type ViewMode = "table" | "grid";
 type AiOperation = "description" | "translation" | "alt_text" | "readiness";
 type AiDraftResponse = { draft: { answer: string; correlationId: string } };
 
 const idle: MutationState = { status: "idle" };
-
-function mergeProducts(...pages: ProductRow[][]) {
-  return [...new Map(pages.flat().map((product) => [product.id, product])).values()];
-}
 
 function imageUrl(product: ProductRow) {
   return product.images?.find((image) => image.isPrimary)?.publicUrl ?? product.images?.[0]?.publicUrl ?? null;
@@ -36,8 +35,13 @@ function Metric({ value, total, label, warning }: { value: number; total?: numbe
 }
 
 function ProductPhoto({ product, className }: { product: ProductRow; className: string }) {
+  const { isArabic } = useControlTowerLocale();
   const src = imageUrl(product);
-  return <div className={`relative shrink-0 overflow-hidden bg-black/50 ${className}`}>{src ? <Image src={src} alt={product.images?.[0]?.altText || product.name} fill unoptimized sizes="(max-width: 768px) 104px, 64px" className="object-cover" /> : <div className="grid h-full place-items-center text-[var(--gold-soft)]"><ImageIcon className="h-5 w-5" /></div>}</div>;
+  const storedAlt = product.images?.find((image) => image.isPrimary)?.altText ?? product.images?.[0]?.altText;
+  const localizedAlt = isArabic
+    ? (/[؀-ۿ]/u.test(storedAlt ?? "") ? storedAlt : product.nameAr ?? product.name)
+    : storedAlt ?? product.nameEn ?? product.name;
+  return <div className={`relative shrink-0 overflow-hidden bg-black/50 ${className}`}>{src ? <Image src={src} alt={localizedAlt} fill unoptimized sizes="(max-width: 768px) 104px, 64px" className="object-cover" /> : <div className="grid h-full place-items-center text-[var(--gold-soft)]"><ImageIcon className="h-5 w-5" /></div>}</div>;
 }
 
 function QuickAction({ label, icon, onClick, danger }: { label: string; icon: ReactNode; onClick: () => void; danger?: boolean }) {
@@ -45,12 +49,12 @@ function QuickAction({ label, icon, onClick, danger }: { label: string; icon: Re
 }
 
 export function ProductReadinessWorkspace() {
-  // P36 compatibility marker: Catalog Command Center.
-  // Permanent P33/P34 contract marker: Product readiness & orderability.
-  // "Activate ready" remains a discovery contract only; the legacy `action: "status", status: "ACTIVE"` contract is now enforced exclusively by the gated server route.
+  // Product readiness and orderability are derived from the current catalog.
+  const router = useRouter();
   const { isArabic } = useControlTowerLocale();
   const t = useCallback((ar: string, en: string) => isArabic ? ar : en, [isArabic]);
   const [products, setProducts] = useState<ProductRow[]>([]);
+  const [catalogMeta, setCatalogMeta] = useState<CatalogMeta | null>(null);
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<FilterMode>("all");
   const [view, setView] = useState<ViewMode>("table");
@@ -65,13 +69,35 @@ export function ProductReadinessWorkspace() {
 
   const refresh = useCallback(async () => {
     setLoading(true);
-    const [first, second] = await Promise.all([
-      controlTowerGet<ProductRow[]>("/api/control-tower/simple-launch/products?limit=100&offset=0"),
-      controlTowerGet<ProductRow[]>("/api/control-tower/simple-launch/products?limit=100&offset=100")
-    ]);
-    if (first.data || second.data) setProducts(mergeProducts(first.data ?? [], second.data ?? []));
-    if (first.status === "error" || second.status === "error") setMutation({ status: "error", message: first.message ?? second.message ?? t("تعذر تحميل الكتالوج.", "Catalog could not be loaded.") });
-    setLoading(false);
+    const collected = new Map<string, ProductRow>();
+    let offset = 0;
+    let latest: CatalogPage | null = null;
+    let pages = 0;
+
+    try {
+      while (pages < 50) {
+        const result = await controlTowerGet<CatalogPage>(`/api/control-tower/simple-launch/products?limit=100&offset=${offset}`);
+        if (result.status === "error" || !result.data) throw new Error(result.message ?? "Catalog could not be loaded.");
+        latest = result.data;
+        pages += 1;
+        for (const product of latest.items) collected.set(product.id, product);
+        if (!latest.pagination.hasMore) break;
+        const nextOffset = latest.pagination.nextOffset;
+        if (nextOffset == null || nextOffset <= offset) throw new Error("Invalid catalog pagination cursor.");
+        offset = nextOffset;
+      }
+
+      if (!latest) throw new Error("Catalog returned no page.");
+      if (latest.pagination.hasMore) throw new Error("Catalog pagination exceeded the safe page limit.");
+      if (collected.size !== latest.pagination.total) throw new Error("Catalog changed while pages were loading; refresh required.");
+
+      setProducts([...collected.values()]);
+      setCatalogMeta({ ...latest.pagination, ...latest.context, pages });
+    } catch (error) {
+      setMutation({ status: "error", message: error instanceof Error ? error.message : t("تعذر تحميل الكتالوج.", "Catalog could not be loaded.") });
+    } finally {
+      setLoading(false);
+    }
   }, [t]);
 
   useEffect(() => { const timer = window.setTimeout(() => void refresh(), 0); return () => window.clearTimeout(timer); }, [refresh]);
@@ -112,7 +138,7 @@ export function ProductReadinessWorkspace() {
   const filtered = useMemo(() => {
     const needle = query.trim().toLowerCase();
     return products.filter((product) => {
-      if (needle && ![product.name, product.nameAr, product.nameEn, product.slug, product.category?.name, product.basePrice].filter(Boolean).some((value) => String(value).toLowerCase().includes(needle))) return false;
+      if (needle && ![product.name, product.nameAr, product.nameEn, product.slug, product.category?.name, product.category?.slug, product.status, product.basePrice, ...(product.variants ?? []).map((variant) => variant.sku)].filter(Boolean).some((value) => String(value).toLocaleLowerCase("ar").includes(needle.toLocaleLowerCase("ar")))) return false;
       if (filter === "active") return product.status === "ACTIVE";
       if (filter === "draft") return product.status === "DRAFT";
       if (filter === "unavailable") return !product.readiness?.availabilityReady;
@@ -127,7 +153,7 @@ export function ProductReadinessWorkspace() {
   function changeView(next: ViewMode) { setView(next); window.localStorage.setItem("salora.catalog.view", next); }
   function editPrice(product: ProductRow) { setEditing(product); setPriceInput(Number(product.basePrice).toFixed(3)); setMutation(idle); }
   function openMedia(product: ProductRow) { setQuery(product.slug); document.getElementById("product-media-manager")?.scrollIntoView({ behavior: "smooth", block: "start" }); }
-  function openAvailability(product: ProductRow) { window.location.assign(`/control-tower/operations?product=${encodeURIComponent(product.slug)}&focus=availability`); }
+  function openAvailability(product: ProductRow) { router.push(`/control-tower/operations?product=${encodeURIComponent(product.slug)}&focus=availability`); }
   function preview(product: ProductRow) { window.open(`/menu?product=${encodeURIComponent(product.slug)}`, "_blank", "noopener,noreferrer"); }
 
   async function savePrice() {
@@ -175,12 +201,12 @@ export function ProductReadinessWorkspace() {
     <div className="space-y-5">
       <div className={`flex flex-col gap-4 border p-4 lg:flex-row lg:items-center lg:justify-between ${catalogReady ? "border-emerald-300/20 bg-emerald-300/[0.06]" : "border-amber-300/20 bg-amber-300/[0.045]"}`}>
         <div className="flex gap-3">{catalogReady ? <ShieldCheck className="mt-0.5 h-6 w-6 shrink-0 text-emerald-200" /> : <CircleAlert className="mt-0.5 h-6 w-6 shrink-0 text-amber-200" />}<div><strong className="block text-base text-[var(--cream)]">{catalogReady ? t("كل الأصناف جاهزة", "Every product is ready") : t("هناك أصناف تحتاج انتباهك", "Some products need your attention")}</strong><p className="mt-1 text-sm leading-6 text-[var(--muted)]">{catalogReady ? t("الأسعار والصور والتوفر مكتملة.", "Prices, images and availability are complete.") : t("استخدم الفلاتر للوصول سريعًا إلى السعر أو الصورة أو التوفر الناقص.", "Use the filters to find missing prices, images or availability.")}</p></div></div>
-        <div className="flex flex-wrap gap-2"><button type="button" onClick={() => void refresh()} disabled={loading} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/10 px-4 text-xs font-semibold disabled:opacity-50"><RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />{t("تحديث", "Refresh")}</button>{activationCandidates.length ? <a href="#p36-activation-review" className="inline-flex min-h-11 items-center rounded-xl border border-[var(--border-gold)] px-4 text-xs font-bold text-[var(--gold-soft)]">{t(`مراجعة بوابة التفعيل (${activationCandidates.length})`, `Review activation gate (${activationCandidates.length})`)}</a> : null}</div>
+        <div className="flex flex-wrap gap-2"><button type="button" onClick={() => void refresh()} disabled={loading} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/10 px-4 text-xs font-semibold disabled:opacity-50"><RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />{t("تحديث", "Refresh")}</button></div>
       </div>
 
-      <div className="grid sm:grid-cols-2 xl:grid-cols-4"><Metric value={metrics.active} total={metrics.total} label={t("نشط", "Active")} /><Metric value={metrics.orderReady} total={metrics.total} label={t("جاهز للطلب", "Order ready")} /><Metric value={metrics.missingPrice} label={t("سعر مفقود", "Missing price")} warning={metrics.missingPrice > 0} /><Metric value={metrics.missingMedia} label={t("صورة مفقودة", "Missing media")} warning={metrics.missingMedia > 0} /></div>
+      <div className="grid sm:grid-cols-2 xl:grid-cols-4"><Metric value={metrics.active} total={metrics.total} label={t("نشط", "Active")} /><Metric value={metrics.orderReady} total={metrics.total} label={t("جاهز للطلب", "Order ready")} /><Metric value={metrics.missingPrice} label={t("سعر مفقود", "Missing price")} warning={metrics.missingPrice > 0} /><Metric value={metrics.missingMedia} label={t("صورة مفقودة", "Missing media")} warning={metrics.missingMedia > 0} /></div>{catalogMeta ? <p className="text-xs text-[var(--muted)]" dir="ltr">source=Catalog DB · environment={catalogMeta.environment} · total={catalogMeta.total} · pages={catalogMeta.pages} · hasMore={String(catalogMeta.hasMore)} · freshness={catalogMeta.generatedAt}</p> : null}
 
-      <div className="flex flex-col gap-3 xl:flex-row xl:items-center"><label className="relative min-w-0 flex-1"><Search className="pointer-events-none absolute inset-y-0 start-3 my-auto h-4 w-4 text-[var(--muted)]" /><span className="sr-only">{t("بحث المنتجات", "Search products")}</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={t("ابحث بالعربية، الإنجليزية، Slug، الفئة أو السعر…", "Search Arabic, English, slug, category or price…")} className="min-h-12 w-full rounded-xl border border-white/10 bg-black/20 ps-10 pe-3 text-sm outline-none focus:border-[var(--border-gold)]" /></label><select value={filter} onChange={(event) => setFilter(event.target.value as FilterMode)} aria-label={t("العرض المحفوظ", "Saved view")} className="min-h-12 rounded-xl border border-white/10 bg-[#15120f] px-4 text-sm">{filters.map((item) => <option key={item.id} value={item.id}>{isArabic ? item.ar : item.en}</option>)}</select><div className="flex rounded-xl border border-white/10 p-1"><button type="button" onClick={() => changeView("table")} aria-pressed={view === "table"} className={`inline-flex min-h-10 items-center gap-2 rounded-lg px-3 text-xs font-semibold ${view === "table" ? "bg-[var(--gold)] text-black" : "text-[var(--muted)]"}`}><List className="h-4 w-4" />{t("جدول", "Table")}</button><button type="button" onClick={() => changeView("grid")} aria-pressed={view === "grid"} className={`inline-flex min-h-10 items-center gap-2 rounded-lg px-3 text-xs font-semibold ${view === "grid" ? "bg-[var(--gold)] text-black" : "text-[var(--muted)]"}`}><Grid2X2 className="h-4 w-4" />{t("معرض", "Grid")}</button></div></div>
+      <div className="flex flex-col gap-3 xl:flex-row xl:items-center"><label className="relative min-w-0 flex-1"><Search className="pointer-events-none absolute inset-y-0 start-3 my-auto h-4 w-4 text-[var(--muted)]" /><span className="sr-only">{t("بحث المنتجات", "Search products")}</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={t("ابحث بالعربية، الإنجليزية، SKU، Slug، الفئة، الحالة أو السعر…", "Search Arabic, English, SKU, slug, category, status or price…")} className="min-h-12 w-full rounded-xl border border-white/10 bg-black/20 ps-10 pe-3 text-sm outline-none focus:border-[var(--border-gold)]" /></label><select value={filter} onChange={(event) => setFilter(event.target.value as FilterMode)} aria-label={t("العرض المحفوظ", "Saved view")} className="min-h-12 rounded-xl border border-white/10 bg-[#15120f] px-4 text-sm">{filters.map((item) => <option key={item.id} value={item.id}>{isArabic ? item.ar : item.en}</option>)}</select><div className="flex rounded-xl border border-white/10 p-1"><button type="button" onClick={() => changeView("table")} aria-pressed={view === "table"} className={`inline-flex min-h-10 items-center gap-2 rounded-lg px-3 text-xs font-semibold ${view === "table" ? "bg-[var(--gold)] text-black" : "text-[var(--muted)]"}`}><List className="h-4 w-4" />{t("جدول", "Table")}</button><button type="button" onClick={() => changeView("grid")} aria-pressed={view === "grid"} className={`inline-flex min-h-10 items-center gap-2 rounded-lg px-3 text-xs font-semibold ${view === "grid" ? "bg-[var(--gold)] text-black" : "text-[var(--muted)]"}`}><Grid2X2 className="h-4 w-4" />{t("معرض", "Grid")}</button></div></div>
 
       {mutation.status !== "idle" && mutation.status !== "submitting" ? <div role="status" className={`rounded-xl border p-3 text-sm ${mutation.status === "success" ? "border-emerald-300/20 bg-emerald-300/10 text-emerald-100" : "border-red-300/20 bg-red-300/10 text-red-100"}`}>{mutation.message}</div> : null}
 
