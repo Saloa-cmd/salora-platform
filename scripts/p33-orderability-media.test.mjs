@@ -32,7 +32,7 @@ assert.match(readinessWorkspace, /pagination\.hasMore/);
 assert.match(readinessWorkspace, /pagination\.total/);
 assert.doesNotMatch(readinessWorkspace, /offset=100|mergeProducts/);
 assert.match(readinessWorkspace, /activationCandidates/);
-assert.match(readinessWorkspace, /Activate ready/);
+assert.match(readinessWorkspace, /Activation ready/);
 assert.match(readinessWorkspace, /action: "status"/);
 assert.match(readinessWorkspace, /status: "ACTIVE"/);
 assert.match(readinessWorkspace, /Price|السعر/);
