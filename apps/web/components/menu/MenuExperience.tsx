@@ -31,6 +31,7 @@ import { breakfastGroups, breakfastMediaBySlug, breakfastService, isBreakfastPro
 import { SaloraButton, SaloraEmptyState } from "@/components/ui/SaloraPrimitives";
 import { ThemeControl } from "@/components/ui/ThemeControl";
 import { ExperienceStatus } from "@/components/public/ExperienceStatus";
+import { useSaloraLocale } from "@/components/SaloraLocaleProvider";
 
 type Language = "ar" | "en";
 type ServiceMode = "counter" | "car" | "dine-in" | "gift";
@@ -214,6 +215,7 @@ export function MenuExperience({
   menuStale,
   menuDatabaseHealth,
   whatsappNumber,
+  analyticsEnabled,
   experience
 }: {
   initialProducts: Product[];
@@ -223,9 +225,10 @@ export function MenuExperience({
   menuStale: boolean;
   menuDatabaseHealth: MenuAuthoritySnapshot["databaseHealth"];
   whatsappNumber: string;
+  analyticsEnabled: boolean;
   experience: ExperienceConfiguration;
 }) {
-  const [language, setLanguage] = useState<Language>("ar");
+  const { locale: language, setLocale: setLanguage } = useSaloraLocale();
   const [serviceMode, setServiceMode] = useState<ServiceMode>("counter");
   const [category, setCategory] = useState("All");
   const [activeBreakfastGroup, setActiveBreakfastGroup] = useState<BreakfastGroupKey | null>(null);
@@ -277,10 +280,10 @@ export function MenuExperience({
   const requiredSelectionsComplete = selectedGroups.filter((group) => group.required).every((group) => selections[group.id]);
 
   useEffect(() => {
-    if (!revision?.id || typeof navigator === "undefined") return;
+    if (!analyticsEnabled || !revision?.id || typeof navigator === "undefined") return;
     const payload = JSON.stringify({ eventType: "view", revisionId: revision.id, channel: "web" });
     navigator.sendBeacon("/api/analytics/menu-event", new Blob([payload], { type: "application/json" }));
-  }, [revision?.id]);
+  }, [analyticsEnabled, revision?.id]);
 
   useEffect(() => {
     if (!selectedProduct && !cartOpen) return;
@@ -299,7 +302,7 @@ export function MenuExperience({
   }, [cartOpen, selectedProduct]);
 
   function trackAuthorityEvent(eventType: "view" | "click" | "search", productSlug?: string, query?: string) {
-    if (!revision?.id || typeof navigator === "undefined") return;
+    if (!analyticsEnabled || !revision?.id || typeof navigator === "undefined") return;
     const payload = JSON.stringify({ eventType, revisionId: revision.id, productSlug, query, channel: "web" });
     navigator.sendBeacon("/api/analytics/menu-event", new Blob([payload], { type: "application/json" }));
   }
@@ -426,10 +429,10 @@ export function MenuExperience({
           </Link>
           <div className="flex items-center gap-2">
             <ThemeControl locale={language} />
-            <SaloraButton type="button" aria-label={language === "ar" ? "Switch to English" : "التبديل إلى العربية"} onClick={() => setLanguage((value) => value === "ar" ? "en" : "ar")} className="min-h-11 rounded-full px-3 text-xs">
+            <SaloraButton type="button" aria-label={language === "ar" ? "Switch to English" : "التبديل إلى العربية"} onClick={() => setLanguage(language === "ar" ? "en" : "ar")} className="min-h-11 rounded-full px-3 text-xs">
               <Languages className="h-4 w-4" /><span className="hidden sm:inline">{language === "ar" ? "English" : "العربية"}</span>
             </SaloraButton>
-            <SaloraButton type="button" tone="gold" onClick={() => setCartOpen(true)} className="relative min-h-11 rounded-full bg-[var(--gold)] px-3 text-black hover:bg-[var(--gold-soft)] sm:px-4">
+            <SaloraButton type="button" tone="gold" aria-label={t.cart} onClick={() => setCartOpen(true)} className="relative min-h-11 rounded-full bg-[var(--gold)] px-3 text-[var(--brand-foreground)] hover:bg-[var(--gold-soft)] sm:px-4">
               <ShoppingBag className="h-4 w-4" /><span className="hidden sm:inline">{t.cart}</span>
               {itemCount ? <span className="grid h-5 min-w-5 place-items-center rounded-full bg-black px-1 text-[0.65rem] text-white">{itemCount}</span> : null}
             </SaloraButton>
@@ -437,7 +440,7 @@ export function MenuExperience({
         </div>
       </header>
 
-      {experience.site.showAnnouncement ? <div className="bg-[var(--gold)] px-4 py-2 text-center text-sm font-semibold text-black">{language === "ar" ? experience.site.announcementAr : experience.site.announcementEn}</div> : null}
+      {experience.site.showAnnouncement ? <div className="bg-[var(--gold)] px-4 py-2 text-center text-sm font-semibold text-[var(--brand-foreground)]">{language === "ar" ? experience.site.announcementAr : experience.site.announcementEn}</div> : null}
 
       <section className="premium-menu-hero relative overflow-hidden border-b border-white/10 px-4 py-5 sm:px-6 sm:py-8">
         <div className="hero-depth" />
@@ -447,7 +450,7 @@ export function MenuExperience({
             <h1 className="salora-display salora-menu-display mt-2 font-semibold">{language === "ar" ? experience.site.heroTitleAr : experience.site.heroTitleEn}</h1>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--muted)] sm:mt-3 sm:text-base sm:leading-7">{heroSubtitle}</p>
             <div className="mt-4 flex flex-wrap items-center gap-3">
-              <a href="#menu-products" className="inline-flex min-h-11 items-center justify-center rounded-full bg-[var(--gold)] px-5 text-sm font-semibold text-black transition hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--gold)]">{t.browse}</a>
+              <a href="#menu-products" className="inline-flex min-h-11 items-center justify-center rounded-full bg-[var(--gold)] px-5 text-sm font-semibold text-[var(--brand-foreground)] transition hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--gold)]">{t.browse}</a>
               <ExperienceStatus language={language} source={menuSource} stale={menuStale} databaseHealth={menuDatabaseHealth} />
             </div>
           </div>
@@ -480,8 +483,8 @@ export function MenuExperience({
       <section id="menu-products" className="mx-auto max-w-7xl scroll-mt-16 px-4 py-5 sm:scroll-mt-[4.5rem] sm:px-6 sm:py-8">
         {!catalogUnavailable ? <div className="sticky top-16 z-30 -mx-4 border-y border-white/10 bg-black/90 px-4 py-3 backdrop-blur-xl sm:top-[4.5rem] sm:-mx-6 sm:px-6">
           <div className="mx-auto flex max-w-7xl flex-col gap-3 lg:flex-row lg:items-center">
-            {experience.menu.showSearch ? <label className="flex min-w-0 flex-1 items-center gap-3 rounded-xl border border-white/10 bg-white/[0.045] px-4 py-2 lg:max-w-xl">
-              <span className="sr-only">{t.search}</span><Search className="h-5 w-5 text-[var(--muted)]" aria-hidden="true" /><input type="search" value={search} onChange={(event) => { setSearch(event.target.value); setActiveBreakfastGroup(null); }} placeholder={t.search} className="w-full bg-transparent text-sm outline-none placeholder:text-white/30" />
+            {experience.menu.showSearch ? <label htmlFor="salora-menu-search" className="flex min-w-0 flex-1 items-center gap-3 rounded-xl border border-white/10 bg-white/[0.045] px-4 py-2 lg:max-w-xl">
+              <span className="sr-only">{t.search}</span><Search className="h-5 w-5 text-[var(--muted)]" aria-hidden="true" /><input id="salora-menu-search" type="search" value={search} onChange={(event) => { setSearch(event.target.value); setActiveBreakfastGroup(null); }} placeholder={t.search} className="w-full bg-transparent text-sm outline-none placeholder:text-white/30" />
             </label> : null}
             {experience.menu.showCategories ? <div className="salora-scroll-strip lg:flex-1" role="tablist" aria-label={language === "ar" ? "تصنيفات القائمة" : "Menu categories"}>
               {categories.map((item) => {

@@ -4,6 +4,8 @@ import { cookies, headers } from "next/headers";
 import { saloraRuntime } from "@salora/config";
 import type { ThemePreference } from "@salora/ui";
 import { GlobalAiConcierge } from "@/components/GlobalAiConcierge";
+import { SaloraLocaleProvider } from "@/components/SaloraLocaleProvider";
+import { isSaloraLocale, saloraLocaleDirection, SALORA_LOCALE_COOKIE } from "@/lib/locale";
 import { isThemePreference, themeBootstrapScript } from "@/lib/theme";
 import "./globals.css";
 import "./p31-experience.css";
@@ -51,20 +53,22 @@ export const metadata: Metadata = {
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const [cookieStore, headerStore] = await Promise.all([cookies(), headers()]);
   const stored = cookieStore.get("salora_theme")?.value;
+  const storedLocale = cookieStore.get(SALORA_LOCALE_COOKIE)?.value;
+  const locale = isSaloraLocale(storedLocale) ? storedLocale : "ar";
   const preference: ThemePreference = isThemePreference(stored) ? stored : "system";
   const nonce = headerStore.get("x-nonce") ?? undefined;
   const initialTheme = preference === "light" ? "light" : "dark";
   return (
     <html
-      lang="ar"
-      dir="rtl"
+      lang={locale}
+      dir={saloraLocaleDirection(locale)}
       className={`${saloraLatin.variable} ${saloraArabic.variable}`}
       data-theme={initialTheme}
       data-theme-preference={preference}
       suppressHydrationWarning
     >
       <head><script nonce={nonce} dangerouslySetInnerHTML={{ __html: themeBootstrapScript }} /></head>
-      <body>{children}<GlobalAiConcierge /></body>
+      <body><SaloraLocaleProvider initialLocale={locale}>{children}<GlobalAiConcierge /></SaloraLocaleProvider></body>
     </html>
   );
 }

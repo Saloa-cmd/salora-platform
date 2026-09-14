@@ -1,6 +1,7 @@
 "use client";
 
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { createContext, useContext, useMemo, type ReactNode } from "react";
+import { useSaloraLocale } from "@/components/SaloraLocaleProvider";
 
 export type ControlTowerLocale = "ar" | "en";
 
@@ -152,27 +153,14 @@ type LocaleContextValue = {
 const LocaleContext = createContext<LocaleContextValue | null>(null);
 
 export function ControlTowerLocaleProvider({ children }: { children: ReactNode }) {
-  const [locale, setLocale] = useState<ControlTowerLocale>("ar");
-
-  useEffect(() => {
-    const saved = window.localStorage.getItem("salora-control-tower-locale");
-    if (saved === "ar" || saved === "en") {
-      const timer = window.setTimeout(() => setLocale(saved), 0);
-      return () => window.clearTimeout(timer);
-    }
-    return undefined;
-  }, []);
-
-  useEffect(() => {
-    window.localStorage.setItem("salora-control-tower-locale", locale);
-  }, [locale]);
+  const { locale, setLocale } = useSaloraLocale();
 
   const value = useMemo<LocaleContextValue>(() => ({
     locale,
     isArabic: locale === "ar",
     setLocale,
     tr: (text) => locale === "ar" ? (arabic[text] ?? text) : text
-  }), [locale]);
+  }), [locale, setLocale]);
 
   return <LocaleContext.Provider value={value}>{children}</LocaleContext.Provider>;
 }

@@ -10,6 +10,8 @@ const menuExperience = read("apps/web/components/menu/MenuExperience.tsx");
 const rootLayout = read("apps/web/app/layout.tsx");
 const p31Css = read("apps/web/app/p31-experience.css");
 const packageJson = JSON.parse(read("package.json"));
+const localeProvider = read("apps/web/components/SaloraLocaleProvider.tsx");
+const controlTowerLocale = read("apps/web/components/control-tower/ControlTowerLocale.tsx");
 
 assert.match(experienceConfig, /heroSubtitleAr: CUSTOMER_HERO_SUBTITLE_AR/);
 assert.match(experienceConfig, /heroSubtitleEn: CUSTOMER_HERO_SUBTITLE_EN/);
@@ -42,6 +44,16 @@ assert.match(menuExperience, /!catalogUnavailable \? <fieldset/);
 assert.match(rootLayout, /import "\.\/p31-experience\.css"/);
 assert.match(rootLayout, /Manrope/);
 assert.match(rootLayout, /Noto_Sans_Arabic/);
+assert.match(rootLayout, /lang=\{locale\}/);
+assert.match(rootLayout, /dir=\{saloraLocaleDirection\(locale\)\}/);
+assert.match(rootLayout, /SALORA_LOCALE_COOKIE/);
+assert.match(localeProvider, /document\.documentElement\.lang = nextLocale/);
+assert.match(localeProvider, /document\.documentElement\.dir = saloraLocaleDirection\(nextLocale\)/);
+assert.match(localeProvider, /SameSite=Lax/);
+assert.match(controlTowerLocale, /useSaloraLocale\(\)/);
+assert.doesNotMatch(controlTowerLocale, /salora-control-tower-locale/);
+assert.match(menuExperience, /htmlFor="salora-menu-search"/);
+assert.match(menuExperience, /id="salora-menu-search"/);
 assert.match(p31Css, /prefers-reduced-motion/);
 assert.match(p31Css, /premium-menu-card/);
 
