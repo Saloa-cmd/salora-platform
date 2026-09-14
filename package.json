@@ -24,7 +24,7 @@
     "dev:mobile": "pnpm --filter @salora/mobile start",
     "typecheck": "pnpm --filter @salora/web typecheck && pnpm --filter @salora/mobile typecheck",
     "audit:catalog": "node scripts/current-authority-contract.mjs",
-    "audit:catalog:database": "node scripts/catalog-authority-audit.mjs --database",
+    "audit:catalog:database": "node --experimental-strip-types scripts/database-authority-contract.mjs",
     "audit:staging:migrations": "node scripts/audit-staging-migration-drift.mjs",
     "audit:production:preflight": "node scripts/p31-production-data-preflight.mjs",
     "certify:production:data": "node scripts/p31-production-data-certify.mjs",
@@ -42,8 +42,6 @@
     "test:menu-authority": "node scripts/current-authority-contract.mjs",
     "test:menu-operator": "node scripts/menu-operator-workflow.test.mjs",
     "test:breakfast-menu": "node --experimental-strip-types scripts/breakfast-menu.test.mjs",
-    "activate:p22b:staging": "node --experimental-strip-types scripts/p22b-staging-activate-revision.mjs",
-    "certify:p22b:staging": "node --experimental-strip-types scripts/p22b-staging-required-mode.test.mjs",
     "test:p22c3c-gate-retirement": "node --experimental-strip-types scripts/p22c3c-gate-retirement.test.mjs",
     "test:ui-foundation": "node scripts/ui-foundation.test.mjs",
     "test:p25-experience-foundation": "node scripts/p25-experience-foundation.test.mjs",
@@ -60,7 +58,9 @@
     "archive:test:menu-collections-domain": "node --experimental-strip-types scripts/menu-collections-domain.test.mjs",
     "archive:test:menu-authority": "node scripts/menu-authority-integration.test.mjs",
     "archive:test:p22c3a-production-schema": "node scripts/p22c3a-production-schema-only.test.mjs",
-    "archive:test:p22c3c-production-ddl-gate": "node scripts/p22c3c-production-ddl-gate.test.mjs"
+    "archive:test:p22c3c-production-ddl-gate": "node scripts/p22c3c-production-ddl-gate.test.mjs",
+    "archive:activate:p22b:staging": "node --experimental-strip-types scripts/p22b-staging-activate-revision.mjs",
+    "archive:certify:p22b:staging": "node --experimental-strip-types scripts/p22b-staging-required-mode.test.mjs"
   },
   "packageManager": "pnpm@11.7.0",
   "engines": {

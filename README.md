@@ -93,12 +93,7 @@ Production commands require explicit server-side environment identity and the ex
 
 Customer-facing menu data must come from a governed, published authority revision. The lifecycle is intentionally reviewable and auditable. Synthetic/test products are quarantined from public menu surfaces.
 
-Approved catalog baseline used by current Production certification:
-
-- `117` SALORA products total
-- `104` ACTIVE
-- `13` DRAFT
-- `0` synthetic/POS_TEST products in Production
+Current Production certification is revision-driven: run `pnpm test:authority:current` for the public contract and `pnpm audit:catalog:database` with an explicitly bound read-only connection for the database-to-revision contract. Dated product counts belong in audit evidence, never in live release assertions. Synthetic/POS_TEST products remain prohibited in Production.
 
 The customer UI does not expose database health, compatibility mode, source/revision jargon, or deployment state. Operational detail belongs in Control Tower and observability surfaces.
 

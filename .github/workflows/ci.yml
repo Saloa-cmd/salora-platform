@@ -31,6 +31,8 @@ jobs:
         run: pnpm exec playwright install --with-deps chromium
       - name: Run read-only browser smoke tests
         run: pnpm test:smoke
+      - name: Inventory High dependency advisories
+        run: node scripts/dependency-audit-inventory.mjs
       - run: pnpm audit --audit-level critical
 
   mobile:
