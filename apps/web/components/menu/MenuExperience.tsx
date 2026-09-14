@@ -429,7 +429,7 @@ export function MenuExperience({
           </Link>
           <div className="flex items-center gap-2">
             <ThemeControl locale={language} />
-            <SaloraButton type="button" aria-label={language === "ar" ? "Switch to English" : "التبديل إلى العربية"} onClick={() => setLanguage((value) => value === "ar" ? "en" : "ar")} className="min-h-11 rounded-full px-3 text-xs">
+            <SaloraButton type="button" aria-label={language === "ar" ? "Switch to English" : "التبديل إلى العربية"} onClick={() => setLanguage(language === "ar" ? "en" : "ar")} className="min-h-11 rounded-full px-3 text-xs">
               <Languages className="h-4 w-4" /><span className="hidden sm:inline">{language === "ar" ? "English" : "العربية"}</span>
             </SaloraButton>
             <SaloraButton type="button" tone="gold" onClick={() => setCartOpen(true)} className="relative min-h-11 rounded-full bg-[var(--gold)] px-3 text-black hover:bg-[var(--gold-soft)] sm:px-4">
