@@ -7,7 +7,7 @@ const { MAX_ANALYTICS_BODY_BYTES, parseMenuAnalyticsEvent } = await import("../a
 
 const validAnalyticsEvent = {
   eventType: "view",
-  revisionId: "76d26a51-e9df-4787-b577-2655a94d7bc5",
+  revisionId: "00000000-0000-4000-8000-000000000001",
   channel: "web",
   metadata: { locale: "ar", placement: "menu" }
 };
