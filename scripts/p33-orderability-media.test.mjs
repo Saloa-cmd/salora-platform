@@ -27,7 +27,10 @@ assert.match(supremacy, /where: \{ brandKey: "SALORA", status: "ACTIVE"/);
 // P34: readiness must be visible to operators and safe bulk activation must
 // route every product back through the P33 server guard.
 assert.match(readinessWorkspace, /Product readiness & orderability/);
-assert.match(readinessWorkspace, /offset=100/);
+assert.match(readinessWorkspace, /while \(pages < 50\)/);
+assert.match(readinessWorkspace, /pagination\.hasMore/);
+assert.match(readinessWorkspace, /pagination\.total/);
+assert.doesNotMatch(readinessWorkspace, /offset=100|mergeProducts/);
 assert.match(readinessWorkspace, /activationCandidates/);
 assert.match(readinessWorkspace, /Activate ready/);
 assert.match(readinessWorkspace, /action: "status"/);
