@@ -72,8 +72,10 @@ assert.match(activation, /ALLOW_STAGING_MENU_AUTHORITY_WRITE/);
 assert.match(activation, /buildMenuRevisionSnapshot/);
 assert.match(activation, /Not a production publication/);
 assert.equal(typeof packageJson.scripts["test:menu-operator"], "string");
-assert.equal(typeof packageJson.scripts["certify:p22b:staging"], "string");
-assert.equal(typeof packageJson.scripts["activate:p22b:staging"], "string");
+assert.equal(typeof packageJson.scripts["archive:certify:p22b:staging"], "string");
+assert.equal(typeof packageJson.scripts["archive:activate:p22b:staging"], "string");
+assert.equal(packageJson.scripts["certify:p22b:staging"], undefined);
+assert.equal(packageJson.scripts["activate:p22b:staging"], undefined);
 assert.ok(packageJson.scripts.test.includes("menu-operator-workflow.test.mjs"));
 
 console.log("SALORA P22B Control Tower Operator Workflow verified:");

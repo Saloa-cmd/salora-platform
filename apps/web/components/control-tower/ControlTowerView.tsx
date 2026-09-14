@@ -6,7 +6,6 @@ import { DashboardView } from "@/components/dashboard/DashboardView";
 import { ExperienceDesignStudio } from "./ExperienceDesignStudio";
 import { LoyaltyActionPanel, RuntimeConfigActionPanel } from "./NoCodeActionPanel";
 import { MarketingOperationsWorkspace } from "./MarketingOperationsWorkspace";
-import { SimpleLaunchOperationsCenter } from "./SimpleLaunchOperationsCenter";
 import { SupremacyCommandCenter } from "./SupremacyCommandCenter";
 import { WhatsAppCommandCenter } from "./WhatsAppCommandCenter";
 import { OperationalGovernanceCenter } from "./OperationalGovernanceCenter";
@@ -31,7 +30,7 @@ function SectionTabs({ label, tabs }: { label: string; tabs: { id: string; label
 
   return <div className="grid gap-5">
     <div className="salora-scroll-strip rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface)] p-1.5" role="tablist" aria-label={label}>
-      {tabs.map((tab, index) => <button key={tab.id} id={`section-tab-${tab.id}`} type="button" role="tab" aria-controls={`section-panel-${tab.id}`} aria-selected={active === tab.id} tabIndex={active === tab.id ? 0 : -1} onClick={() => setSelected(tab.id)} onKeyDown={(event) => { if (["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) event.preventDefault(); moveFocus(index, event.key, event.currentTarget); }} className={`inline-flex min-h-11 shrink-0 items-center rounded-xl px-4 text-sm font-semibold transition ${active === tab.id ? "bg-[var(--gold)] text-[#17120a]" : "text-[var(--muted)] hover:bg-white/[0.04] hover:text-[var(--cream)]"}`}>{tab.label}</button>)}
+      {tabs.map((tab, index) => <button key={tab.id} id={`section-tab-${tab.id}`} type="button" role="tab" aria-controls={`section-panel-${tab.id}`} aria-selected={active === tab.id} tabIndex={active === tab.id ? 0 : -1} onClick={() => setSelected(tab.id)} onKeyDown={(event) => { if (["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) event.preventDefault(); moveFocus(index, event.key, event.currentTarget); }} className={`inline-flex min-h-11 shrink-0 items-center rounded-xl px-4 text-sm font-semibold transition ${active === tab.id ? "bg-[var(--gold)] text-[var(--brand-foreground)]" : "text-[var(--muted)] hover:bg-white/[0.04] hover:text-[var(--cream)]"}`}>{tab.label}</button>)}
     </div>
     {tabs.map((tab) => active === tab.id ? <div key={tab.id} id={`section-panel-${tab.id}`} role="tabpanel" aria-labelledby={`section-tab-${tab.id}`} tabIndex={0}>{tab.content}</div> : null)}
   </div>;
@@ -54,7 +53,6 @@ function DomainWorkspace({ sectionId }: { sectionId: ControlTowerSectionId }) {
   ]} />;
   if (sectionId === "marketing") return <MarketingOperationsWorkspace />;
   if (sectionId === "ai") return <SectionTabs label={t("أدوات سالورا الذكية", "SALORA AI tools")} tabs={[
-    { id: "assistant", label: t("أدوات المساعد", "Assistant tools"), content: <SimpleLaunchOperationsCenter /> },
     { id: "insights", label: t("الرؤى", "Insights"), content: <DashboardView kind="ai" /> },
     { id: "governance", label: t("المراجعة", "Review"), content: <SupremacyCommandCenter /> }
   ]} />;

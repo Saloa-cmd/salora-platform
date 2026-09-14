@@ -64,7 +64,7 @@ const bulkOperationSchema = z.discriminatedUnion("type", [
 export const menuBulkMembershipSchema = z.object({
   collectionId: uuidSchema,
   expectedUpdatedAt: versionSchema,
-  membershipIds: z.array(uuidSchema).min(1).max(117)
+  membershipIds: z.array(uuidSchema).min(1).max(500)
     .refine((items) => new Set(items).size === items.length, "Membership IDs must be unique."),
   operation: bulkOperationSchema,
   reason: z.string().trim().min(3).max(1000)

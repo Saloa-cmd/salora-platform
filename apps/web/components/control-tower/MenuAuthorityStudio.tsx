@@ -463,7 +463,7 @@ export function MenuAuthorityStudio() {
               <BookOpenCheck className="h-6 w-6" aria-hidden="true" />
             </span>
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--gold-soft)]">P36-E · PUBLISH CENTER</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--gold-soft)]">PUBLISH CENTER</p>
               <h3 className="mt-1 text-2xl font-semibold text-[var(--cream)]">Governed revision, publishing and rollback</h3>
               <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--muted)]">{message}</p>
             </div>

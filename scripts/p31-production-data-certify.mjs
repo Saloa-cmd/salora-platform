@@ -8,13 +8,6 @@ const required = (name) => {
   if (!value) throw new Error(`${name} is required.`);
   return value;
 };
-const expectedInteger = (name, fallback) => {
-  const raw = process.env[name]?.trim();
-  const value = raw ? Number(raw) : fallback;
-  if (!Number.isInteger(value) || value < 0) throw new Error(`${name} must be a non-negative integer.`);
-  return value;
-};
-
 assert.equal(process.env.SALORA_ENVIRONMENT, "production", "Production certification is restricted to SALORA_ENVIRONMENT=production.");
 const expectedRef = required("SALORA_EXPECTED_SUPABASE_PROJECT_REF");
 assert.ok(!NON_PRODUCTION_REFS.has(expectedRef), "Known Staging/Test Supabase projects cannot pass Production certification.");
@@ -22,8 +15,6 @@ const connectionString = process.env.DIRECT_URL || process.env.DATABASE_URL;
 if (!connectionString) throw new Error("DIRECT_URL or DATABASE_URL is required.");
 assert.ok(connectionString.includes(expectedRef), "Database connection does not match the expected Production project ref.");
 
-const expectedTotal = expectedInteger("SALORA_EXPECTED_TOTAL_PRODUCTS", 117);
-const expectedActive = expectedInteger("SALORA_EXPECTED_ACTIVE_PRODUCTS", 104);
 const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString }) });
 
 try {
@@ -45,12 +36,28 @@ try {
     select
       (select count(*)::int from public.menu_collections where brand_key = 'SALORA') as "collections",
       (select count(*)::int from public.menu_collection_revisions where status = 'PUBLISHED') as "publishedRevisions",
-      (select count(*)::int from public.menu_publications where status = 'PUBLISHED') as "publishedPublications"
+      (select count(*)::int from public.menu_publications where status = 'PUBLISHED') as "publishedPublications",
+      r.id::text as "activeRevisionId",
+      r.version::int as "activeRevisionVersion",
+      r.checksum as "activeRevisionChecksum",
+      jsonb_array_length(r.snapshot -> 'products')::int as "publishedProducts",
+      (r.snapshot ->> 'contractVersion')::int as "contractVersion"
+    from public.menu_collections c
+    join public.menu_collection_revisions r on r.id = c.active_revision_id
+    where c.brand_key = 'SALORA'
+      and c.key = 'salora-menu'
+      and c.archived_at is null
   `);
 
   const result = {
     expectedProjectRef: expectedRef,
-    expected: { totalProducts: expectedTotal, activeProducts: expectedActive },
+    authority: {
+      activeRevisionId: authority?.activeRevisionId ?? null,
+      activeRevisionVersion: Number(authority?.activeRevisionVersion ?? 0),
+      activeRevisionChecksum: authority?.activeRevisionChecksum ?? null,
+      contractVersion: Number(authority?.contractVersion ?? 0),
+      publishedProducts: Number(authority?.publishedProducts ?? 0)
+    },
     observed: {
       totalProducts: Number(counts?.total ?? 0),
       activeProducts: Number(counts?.active ?? 0),
@@ -64,8 +71,12 @@ try {
   console.log("SALORA Production Data certification (READ ONLY):");
   console.log(JSON.stringify(result, null, 2));
 
-  assert.equal(result.observed.totalProducts, expectedTotal, "Production SALORA product total does not match the approved baseline.");
-  assert.equal(result.observed.activeProducts, expectedActive, "Production SALORA ACTIVE product count does not match the approved baseline.");
+  assert.ok(result.authority.activeRevisionId, "An active published Menu Authority revision is required.");
+  assert.match(result.authority.activeRevisionChecksum ?? "", /^[a-f0-9]{64}$/u, "The active revision requires a SHA-256 checksum.");
+  assert.ok(result.authority.contractVersion > 0, "The active revision contractVersion is required.");
+  assert.ok(result.authority.publishedProducts > 0, "The active revision must contain products.");
+  assert.equal(result.observed.totalProducts, result.authority.publishedProducts, "Production database total differs from the active published revision.");
+  assert.equal(result.observed.activeProducts, result.authority.publishedProducts, "Production ACTIVE count differs from the active published revision.");
   assert.equal(result.observed.syntheticProducts, 0, "Synthetic/Test products must never exist in the Production SALORA catalog.");
   assert.ok(result.observed.collections > 0, "At least one SALORA Menu Authority collection is required.");
   assert.ok(result.observed.publishedRevisions > 0, "At least one published Menu Authority revision is required.");

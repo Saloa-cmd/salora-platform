@@ -4,6 +4,7 @@ import { incrementMetric } from "../../runtime/metrics";
 export interface ControlTowerRepositoryInterface {
   products: {
     findMany: (filter?: any) => Promise<any[]>;
+    count: (filter?: any) => Promise<number>;
     findUnique: (where: any) => Promise<any>;
     upsert: (where: any, data: any) => Promise<any>;
     update: (where: any, data: any) => Promise<any>;
@@ -89,6 +90,12 @@ export async function createControlTowerRepository(
         withPrismaAuthContext(authContext, (db) => {
           incrementMetric("salora_control_tower_products_find_many");
           return db.catalogProduct.findMany(filter);
+        }),
+
+      count: (filter?: any) =>
+        withPrismaAuthContext(authContext, (db) => {
+          incrementMetric("salora_control_tower_products_count");
+          return db.catalogProduct.count(filter);
         }),
 
       findUnique: (where: any) =>
