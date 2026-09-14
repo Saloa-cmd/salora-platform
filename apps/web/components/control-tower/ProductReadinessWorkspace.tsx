@@ -39,7 +39,7 @@ function ProductPhoto({ product, className }: { product: ProductRow; className: 
   const src = imageUrl(product);
   const storedAlt = product.images?.find((image) => image.isPrimary)?.altText ?? product.images?.[0]?.altText;
   const localizedAlt = isArabic
-    ? (/[؀-ۿ]/u.test(storedAlt ?? "") ? storedAlt : product.nameAr ?? product.name)
+    ? (/[؀-ۿ]/u.test(storedAlt ?? "") ? storedAlt ?? product.nameAr ?? product.name : product.nameAr ?? product.name)
     : storedAlt ?? product.nameEn ?? product.name;
   return <div className={`relative shrink-0 overflow-hidden bg-black/50 ${className}`}>{src ? <Image src={src} alt={localizedAlt} fill unoptimized sizes="(max-width: 768px) 104px, 64px" className="object-cover" /> : <div className="grid h-full place-items-center text-[var(--gold-soft)]"><ImageIcon className="h-5 w-5" /></div>}</div>;
 }
