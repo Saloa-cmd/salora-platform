@@ -1,3 +1,4 @@
+import Image from "next/image";
 import type { CSSProperties } from "react";
 
 export type SaloraProductPreviewProps = {
@@ -15,7 +16,7 @@ export function SaloraProductPreviewComposition({ productName, imageUrl, tagline
   const clamped = Math.max(0, Math.min(1, progress));
   const imageStyle: CSSProperties = { transform: `scale(${1.02 + clamped * 0.06})` };
   return <div className="relative h-full w-full overflow-hidden bg-[#080808] text-[#f6efe3]">
-    {imageUrl ? <img src={imageUrl} alt="" className="absolute inset-0 h-full w-full object-cover opacity-80 transition-transform duration-700" style={imageStyle} /> : null}
+    {imageUrl ? <Image src={imageUrl} alt="" fill unoptimized sizes="100vw" className="object-cover opacity-80 transition-transform duration-700" style={imageStyle} /> : null}
     <div className="absolute inset-0 bg-gradient-to-t from-black via-black/15 to-black/20" />
     <div className="absolute inset-x-[7%] bottom-[8%]">
       <p className="text-[0.62rem] font-semibold uppercase tracking-[0.22em] text-[#d7b36a]">{tagline}</p>
