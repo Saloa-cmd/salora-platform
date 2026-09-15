@@ -1,0 +1,39 @@
+name: P77-C Remotion Preview
+
+on:
+  push:
+    branches: [agent/p77c-remotion-render-engine]
+    paths:
+      - 'tools/remotion-worker/**'
+      - '.github/workflows/p77c-remotion-preview.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  render-preview:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: tools/remotion-worker
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install isolated renderer
+        run: npm install --ignore-scripts
+      - name: Render first SALORA product film
+        run: npm run render:first
+      - name: Verify MP4
+        run: test -s out/salora-pistachio-latte.mp4 && sha256sum out/salora-pistachio-latte.mp4 | tee out/salora-pistachio-latte.sha256
+      - uses: actions/upload-artifact@v4
+        with:
+          name: p77c-salora-pistachio-latte-preview
+          path: |
+            tools/remotion-worker/out/salora-pistachio-latte.mp4
+            tools/remotion-worker/out/salora-pistachio-latte.sha256
+          if-no-files-found: error
+          retention-days: 7
