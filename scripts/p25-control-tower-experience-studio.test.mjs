@@ -9,8 +9,8 @@ const experienceRoute = read("apps/web/app/api/control-tower/experience/route.ts
 const searchRoute = read("apps/web/app/api/control-tower/search/route.ts");
 const navigation = read("apps/web/lib/server/controlTowerNavigation.ts");
 
-for (const id of ["overview", "experience", "menu", "orders", "customers", "marketing", "ai", "analytics", "operations", "settings"]) assert.match(registry, new RegExp(`id: "${id}"`), `Missing canonical IA section ${id}`);
-assert.equal((registry.match(/id: "/g) ?? []).length, 10, "Control Tower must expose exactly ten canonical workspaces");
+for (const id of ["overview", "experience", "menu", "orders", "customers", "marketing", "media", "ai", "analytics", "operations", "settings"]) assert.match(registry, new RegExp(`id: "${id}"`), `Missing canonical IA section ${id}`);
+assert.equal((registry.match(/id: "/g) ?? []).length, 11, "Control Tower must expose exactly eleven canonical workspaces including Media Studio");
 assert.match(navigation, /import "server-only"/);
 assert.match(navigation, /hasPermission/);
 assert.match(shell, /visibleSections/);
