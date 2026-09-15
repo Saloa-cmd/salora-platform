@@ -6,6 +6,7 @@ import { DashboardView } from "@/components/dashboard/DashboardView";
 import { ExperienceDesignStudio } from "./ExperienceDesignStudio";
 import { LoyaltyActionPanel, RuntimeConfigActionPanel } from "./NoCodeActionPanel";
 import { MarketingOperationsWorkspace } from "./MarketingOperationsWorkspace";
+import { MediaStudioWorkspace } from "./MediaStudioWorkspace";
 import { SimpleLaunchOperationsCenter } from "./SimpleLaunchOperationsCenter";
 import { SupremacyCommandCenter } from "./SupremacyCommandCenter";
 import { WhatsAppCommandCenter } from "./WhatsAppCommandCenter";
@@ -17,8 +18,6 @@ import { findControlTowerSection } from "@/lib/control-tower/registry";
 import type { ControlTowerSectionId } from "@/lib/control-tower/types";
 import { useControlTowerLocale } from "./ControlTowerLocale";
 
-// CatalogWorkspace composes ProductReadinessWorkspace and the governed media,
-// review, publishing, and product-settings tools behind progressive disclosure.
 function SectionTabs({ label, tabs }: { label: string; tabs: { id: string; label: string; content: ReactNode }[] }) {
   const [selected, setSelected] = useState(tabs[0]?.id ?? "");
   const active = tabs.some((tab) => tab.id === selected) ? selected : tabs[0]?.id;
@@ -44,6 +43,7 @@ function DomainWorkspace({ sectionId }: { sectionId: ControlTowerSectionId }) {
   if (sectionId === "overview") return <ControlTowerHome />;
   if (sectionId === "experience") return <ExperienceDesignStudio />;
   if (sectionId === "menu") return <CatalogWorkspace />;
+  if (sectionId === "media") return <MediaStudioWorkspace />;
   if (sectionId === "orders") return <SectionTabs label={t("أدوات الطلبات", "Order tools")} tabs={[
     { id: "queue", label: t("الطلبات", "Orders"), content: <DashboardView kind="operations" /> },
     { id: "command", label: t("مركز المتابعة", "Command center"), content: <SupremacyCommandCenter /> }
