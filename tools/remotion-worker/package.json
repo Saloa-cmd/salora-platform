@@ -1,0 +1,15 @@
+{
+  "name": "salora-remotion-worker",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "render:first": "remotion render src/index.jsx SaloraProductPreview out/salora-pistachio-latte.mp4 --props=fixtures/pistachio-latte.json --codec=h264"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.365",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "remotion": "4.0.365"
+  }
+}
