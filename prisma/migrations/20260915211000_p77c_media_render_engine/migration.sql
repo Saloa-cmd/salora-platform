@@ -23,6 +23,8 @@ CREATE TABLE media_render_jobs (
 );
 CREATE INDEX media_render_jobs_product_created_idx ON media_render_jobs(product_id, created_at DESC);
 CREATE INDEX media_render_jobs_state_created_idx ON media_render_jobs(state, created_at DESC);
+CREATE INDEX media_render_jobs_created_by_idx ON media_render_jobs(created_by);
+CREATE INDEX media_render_jobs_approved_by_idx ON media_render_jobs(approved_by) WHERE approved_by IS NOT NULL;
 
 CREATE TABLE creative_reviews (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -34,6 +36,7 @@ CREATE TABLE creative_reviews (
   decided_at timestamptz
 );
 CREATE INDEX creative_reviews_job_created_idx ON creative_reviews(render_job_id, created_at DESC);
+CREATE INDEX creative_reviews_reviewer_idx ON creative_reviews(reviewer_id);
 
 CREATE TABLE media_audit_events (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -46,19 +49,21 @@ CREATE TABLE media_audit_events (
   created_at timestamptz NOT NULL DEFAULT now()
 );
 CREATE INDEX media_audit_events_job_created_idx ON media_audit_events(render_job_id, created_at DESC);
+CREATE INDEX media_audit_events_actor_idx ON media_audit_events(actor_id) WHERE actor_id IS NOT NULL;
 
 ALTER TABLE media_render_jobs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE creative_reviews ENABLE ROW LEVEL SECURITY;
 ALTER TABLE media_audit_events ENABLE ROW LEVEL SECURITY;
 
 -- Application access remains through authenticated server-side transactions with SALORA RLS context.
+-- Wrapping auth.jwt() in SELECT prevents per-row re-evaluation (Supabase RLS initplan guidance).
 CREATE POLICY media_render_jobs_admin_manager ON media_render_jobs FOR ALL TO authenticated
-USING ((auth.jwt()->'app_metadata'->'roles') ?| ARRAY['ADMIN','MANAGER'])
-WITH CHECK ((auth.jwt()->'app_metadata'->'roles') ?| ARRAY['ADMIN','MANAGER']);
+USING ((((select auth.jwt())->'app_metadata'->'roles') ?| ARRAY['ADMIN','MANAGER']))
+WITH CHECK ((((select auth.jwt())->'app_metadata'->'roles') ?| ARRAY['ADMIN','MANAGER']));
 CREATE POLICY creative_reviews_admin_manager ON creative_reviews FOR ALL TO authenticated
-USING ((auth.jwt()->'app_metadata'->'roles') ?| ARRAY['ADMIN','MANAGER'])
-WITH CHECK ((auth.jwt()->'app_metadata'->'roles') ?| ARRAY['ADMIN','MANAGER']);
+USING ((((select auth.jwt())->'app_metadata'->'roles') ?| ARRAY['ADMIN','MANAGER']))
+WITH CHECK ((((select auth.jwt())->'app_metadata'->'roles') ?| ARRAY['ADMIN','MANAGER']));
 CREATE POLICY media_audit_events_read_admin_manager ON media_audit_events FOR SELECT TO authenticated
-USING ((auth.jwt()->'app_metadata'->'roles') ?| ARRAY['ADMIN','MANAGER']);
+USING ((((select auth.jwt())->'app_metadata'->'roles') ?| ARRAY['ADMIN','MANAGER']));
 CREATE POLICY media_audit_events_insert_admin_manager ON media_audit_events FOR INSERT TO authenticated
-WITH CHECK ((auth.jwt()->'app_metadata'->'roles') ?| ARRAY['ADMIN','MANAGER']);
+WITH CHECK ((((select auth.jwt())->'app_metadata'->'roles') ?| ARRAY['ADMIN','MANAGER']));
