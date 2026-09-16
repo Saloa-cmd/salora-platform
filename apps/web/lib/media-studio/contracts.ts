@@ -19,6 +19,14 @@ export const mediaCampaignDraftSchema = z.object({
   scenes: z.array(storyboardSceneSchema).min(1).max(12)
 });
 
+export const mediaAiDirectorSchema = z.object({
+  productSlug: z.string().min(1).max(160),
+  goal: mediaGoalSchema,
+  format: mediaFormatSchema,
+  creativeDirection: z.string().min(8).max(2000),
+  locale: z.enum(["ar", "en"]).default("ar")
+});
+
 export type MediaCampaignDraft = z.infer<typeof mediaCampaignDraftSchema>;
 export type StoryboardScene = z.infer<typeof storyboardSceneSchema>;
 
@@ -31,7 +39,7 @@ export type MediaAssetReference = {
 
 export type RenderJob = {
   id: string;
-  state: "PREVIEW_PLANNED";
+  state: "DRAFT" | "QUEUED" | "RENDERING" | "REVIEW" | "APPROVED" | "REJECTED" | "FAILED" | "FINAL_RENDERED";
   productSlug: string;
   format: z.infer<typeof mediaFormatSchema>;
   sceneCount: number;
