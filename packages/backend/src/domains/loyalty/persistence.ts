@@ -12,6 +12,7 @@ export type PersistentLoyaltyMutation = {
   paymentId?: string;
   refundId?: string;
   metadata?: Record<string, unknown>;
+  audit?: { actorId:string; action:"UPDATE"; entityType:string; entityId?:string; requestId:string; reason:string; before?:Record<string,unknown> };
 };
 
 export type PersistentLoyaltyResult = {
@@ -95,7 +96,9 @@ export async function applyPersistentLoyaltyMutation(input: PersistentLoyaltyMut
       'UPDATE loyalty_accounts SET points=points+$2, updated_at=now() WHERE id=$1::uuid RETURNING id, points',
       account.id, delta
     );
-    return { accountId: account.id, entryId: rows[0].id, balance: updated[0]?.points ?? balance + delta, applied: true };
+    const nextBalance = updated[0]?.points ?? balance + delta;
+    if (input.audit) await tx.auditLog.create({ data: { actorId: input.audit.actorId, action: input.audit.action, entityType: input.audit.entityType, entityId: input.audit.entityId ?? account.id, before: input.audit.before, after: { entryId: rows[0].id, balance: nextBalance, points: delta }, requestId: input.audit.requestId, reason: input.audit.reason } });
+    return { accountId: account.id, entryId: rows[0].id, balance: nextBalance, applied: true };
   })).then((result) => {
     if (result.applied) {
       incrementMetric("salora_loyalty_persistent_mutations_total");
