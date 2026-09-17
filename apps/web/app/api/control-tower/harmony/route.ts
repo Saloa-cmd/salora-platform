@@ -1,4 +1,4 @@
-import { adjustHarmonyPoints,getHarmonyCustomerDetail,reverseHarmonyLedgerEntry } from "@salora/backend";
+import { adjustHarmonyPoints,getHarmonyCustomerDetail,redeemHarmonyReward,reverseHarmonyLedgerEntry } from "@salora/backend";
 import { type NextRequest } from "next/server";
 import { z } from "zod";
 import { currentAuthPayload } from "@/lib/server/auth/http";
@@ -8,7 +8,8 @@ import { enforceRateLimit,rateLimitResponse } from "@/lib/server/rateLimit";
 export const dynamic="force-dynamic";export const runtime="nodejs";
 const mutation=z.discriminatedUnion("action",[
  z.object({action:z.literal("adjust"),customerId:z.string().uuid(),points:z.number().int().min(-10000).max(10000).refine(v=>v!==0),reason:z.string().trim().min(5).max(180)}),
- z.object({action:z.literal("reverse"),customerId:z.string().uuid(),entryId:z.string().uuid(),reason:z.string().trim().min(5).max(180)})
+ z.object({action:z.literal("reverse"),customerId:z.string().uuid(),entryId:z.string().uuid(),reason:z.string().trim().min(5).max(180)}),
+ z.object({action:z.literal("redeem"),customerId:z.string().uuid(),rewardId:z.string().uuid(),reason:z.string().trim().min(5).max(180)})
 ]);
 function manager(roles:RoleName[]){return roles.some(r=>r==="MANAGER"||r==="ADMIN");}
 export async function GET(request:NextRequest){
@@ -29,7 +30,7 @@ export async function POST(request:NextRequest){
  const parsed=await parseJson(request,mutation);if(!parsed.success)return responseError("Invalid Harmony mutation.",requestId,400);
  try{
   const common={customerId:parsed.data.customerId,reason:parsed.data.reason,idempotencyKey:`harmony:${key}`,actorId:actor.sub,actorRoles:roles,requestId};
-  const result=parsed.data.action==="adjust"?await adjustHarmonyPoints({...common,points:parsed.data.points}):await reverseHarmonyLedgerEntry({...common,entryId:parsed.data.entryId});
+  const result=parsed.data.action==="adjust"?await adjustHarmonyPoints({...common,points:parsed.data.points}):parsed.data.action==="reverse"?await reverseHarmonyLedgerEntry({...common,entryId:parsed.data.entryId}):await redeemHarmonyReward({...common,rewardId:parsed.data.rewardId});
   return responseJson(result,requestId,result.applied?201:200);
  }catch(error){return responseError(error instanceof Error?error.message:"Harmony mutation failed.",requestId,409);}
 }
