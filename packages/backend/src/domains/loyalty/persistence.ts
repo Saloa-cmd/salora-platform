@@ -1,4 +1,5 @@
 import { getPrismaClient, withQueryProtection } from "../../database/prisma";
+import { Prisma } from "../../database/generated/client";
 import { incrementMetric } from "../../runtime/metrics";
 import { publishDomainEvent } from "../events";
 
@@ -97,7 +98,7 @@ export async function applyPersistentLoyaltyMutation(input: PersistentLoyaltyMut
       account.id, delta
     );
     const nextBalance = updated[0]?.points ?? balance + delta;
-    if (input.audit) await tx.auditLog.create({ data: { actorId: input.audit.actorId, action: input.audit.action, entityType: input.audit.entityType, entityId: input.audit.entityId ?? account.id, before: input.audit.before, after: { entryId: rows[0].id, balance: nextBalance, points: delta }, requestId: input.audit.requestId, reason: input.audit.reason } });
+    if (input.audit) await tx.auditLog.create({ data: { actorId: input.audit.actorId, action: input.audit.action, entityType: input.audit.entityType, entityId: input.audit.entityId ?? account.id, before: input.audit.before as Prisma.InputJsonValue | undefined, after: { entryId: rows[0].id, balance: nextBalance, points: delta }, requestId: input.audit.requestId, reason: input.audit.reason } });
     return { accountId: account.id, entryId: rows[0].id, balance: nextBalance, applied: true };
   })).then((result) => {
     if (result.applied) {
