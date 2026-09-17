@@ -99,7 +99,7 @@ export async function applyPersistentLoyaltyMutation(input: PersistentLoyaltyMut
     if (result.applied) {
       incrementMetric("salora_loyalty_persistent_mutations_total");
       publishDomainEvent({
-        name: input.type === "REVERSAL" ? "LoyaltyPointsReversed" : "LoyaltyLedgerEntryCreated",
+        name: input.type === "REVERSAL" ? "LoyaltyPointsReversed" : "LoyaltyPointsAwarded",
         aggregateId: result.accountId,
         aggregateType: "LoyaltyAccount",
         payload: { entryId: result.entryId, points: delta, orderId: input.orderId, paymentId: input.paymentId, refundId: input.refundId }
