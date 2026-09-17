@@ -27,6 +27,7 @@ type AccountRow = { id: string; points: number };
 function signedPoints(input: PersistentLoyaltyMutation): number {
   const magnitude = Math.abs(Math.trunc(input.points));
   if (magnitude === 0) throw new Error("Loyalty mutation must change the balance.");
+  if (input.type === "ADJUST") return input.points < 0 ? -magnitude : magnitude;
   return ["REDEEM", "EXPIRE", "REVERSAL"].includes(input.type) ? -magnitude : magnitude;
 }
 
