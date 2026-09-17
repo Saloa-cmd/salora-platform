@@ -36,11 +36,12 @@ export async function redeemHarmonyReward(input:{customerId:string;rewardId:stri
    if(!account) throw new Error("Loyalty account not found.");
    const reward=await tx.reward.findFirst({where:{id:input.rewardId,isActive:true}});
    if(!reward) throw new Error("Active reward not found.");
-   const existing=await tx.loyaltyLedgerEntry.findFirst({where:{idempotencyKey:input.idempotencyKey}});
-   if(existing) return {applied:false,entryId:existing.id,accountId:account.id,balance:account.points};
+   const existing=await tx.$queryRawUnsafe<Array<{id:string;account_id:string}>>('SELECT id, account_id FROM loyalty_ledger_entries WHERE idempotency_key=$1 LIMIT 1',input.idempotencyKey);
+   if(existing[0]) return {applied:false,entryId:existing[0].id,accountId:account.id,balance:account.points};
    if(account.points<reward.pointsCost) throw new Error("Insufficient loyalty points.");
    const redemption=await tx.rewardRedemption.create({data:{accountId:account.id,rewardId:reward.id,points:reward.pointsCost}});
-   const entry=await tx.loyaltyLedgerEntry.create({data:{accountId:account.id,type:"REDEEM",points:-reward.pointsCost,reason:input.reason,idempotencyKey:input.idempotencyKey,metadata:{source:"control_tower_redemption",rewardId:reward.id,redemptionId:redemption.id,actorId:input.actorId,actorRoles:input.actorRoles,requestId:input.requestId}}});
+   const entries=await tx.$queryRawUnsafe<Array<{id:string}>>(`INSERT INTO loyalty_ledger_entries (id,account_id,type,points,reason,idempotency_key,metadata,created_at) VALUES (gen_random_uuid(),$1::uuid,'REDEEM',$2,$3,$4,$5::jsonb,now()) RETURNING id`,account.id,-reward.pointsCost,input.reason,input.idempotencyKey,JSON.stringify({source:"control_tower_redemption",rewardId:reward.id,redemptionId:redemption.id,actorId:input.actorId,actorRoles:input.actorRoles,requestId:input.requestId}));
+   const entry=entries[0]; if(!entry) throw new Error("Unable to create redemption ledger entry.");
    const updated=await tx.loyaltyAccount.update({where:{id:account.id},data:{points:{decrement:reward.pointsCost}}});
    await tx.auditLog.create({data:{actorId:input.actorId,action:"CREATE",entityType:"RewardRedemption",entityId:redemption.id,after:{rewardId:reward.id,points:reward.pointsCost,ledgerEntryId:entry.id,balance:updated.points},requestId:input.requestId,reason:input.reason}});
    return {applied:true,entryId:entry.id,accountId:account.id,redemptionId:redemption.id,balance:updated.points};
