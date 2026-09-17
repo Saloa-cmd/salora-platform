@@ -24,8 +24,8 @@ async function fetchWithSession(path: string, init: RequestInit): Promise<Respon
   return response;
 }
 
-export async function controlTowerPost<T>(path: string, payload: unknown): Promise<MutationState & { data?: T }> {
-  return controlTowerSend("POST", path, payload);
+export async function controlTowerPost<T>(path: string, payload: unknown, extraHeaders?: HeadersInit): Promise<MutationState & { data?: T }> {
+  return controlTowerSend("POST", path, payload, extraHeaders);
 }
 
 export async function controlTowerPatch<T>(path: string, payload: unknown): Promise<MutationState & { data?: T }> {
@@ -50,12 +50,13 @@ export async function controlTowerGet<T>(path: string): Promise<{ status: "succe
   }
 }
 
-async function controlTowerSend<T>(method: "POST" | "PATCH", path: string, payload: unknown): Promise<MutationState & { data?: T }> {
+async function controlTowerSend<T>(method: "POST" | "PATCH", path: string, payload: unknown, extraHeaders?: HeadersInit): Promise<MutationState & { data?: T }> {
   const requestId = crypto.randomUUID();
   const token = getDashboardAccessToken();
   const headers: HeadersInit = {
     "content-type": "application/json",
-    "x-request-id": requestId
+    "x-request-id": requestId,
+    ...extraHeaders
   };
 
   if (token) headers.authorization = `Bearer ${token}`;
