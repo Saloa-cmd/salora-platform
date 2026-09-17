@@ -61,8 +61,7 @@
     "test:p25-control-tower": "node scripts/p25-control-tower-experience-studio.test.mjs",
     "test:p26-security-hardening": "node scripts/p26-security-hardening.test.mjs",
     "test:p28-resilience": "node scripts/p28-resilient-experience.test.mjs",
-    "test:p30-control-tower": "node scripts/p30-control-tower-unification.test.mjs",
-    "postinstall": "prisma generate --schema prisma/schema.prisma"
+    "test:p30-control-tower": "node scripts/p30-control-tower-unification.test.mjs"
   },
   "packageManager": "pnpm@11.7.0",
   "engines": {
