@@ -1,13 +1,13 @@
 import { getPrismaClient, withQueryProtection } from "../../database/prisma";
 import { applyPersistentLoyaltyMutation } from "./persistence";
+import { withPrismaAuthContext, type PrismaAuthContext } from "../../database/rls-context";
 
-export async function getHarmonyCustomerDetail(customerId:string){
- const prisma=getPrismaClient();
- return withQueryProtection("harmony.customer.detail",async()=>{
+export async function getHarmonyCustomerDetail(customerId:string,authContext:PrismaAuthContext){
+ return withQueryProtection("harmony.customer.detail",()=>withPrismaAuthContext(authContext,async(prisma)=>{
   const account=await prisma.loyaltyAccount.findUnique({where:{customerId},include:{ledger:{orderBy:{createdAt:"desc"},take:100},redemptions:{include:{reward:true},orderBy:{createdAt:"desc"},take:50}}});
   const rewards=await prisma.reward.findMany({where:{isActive:true},orderBy:[{pointsCost:"asc"},{name:"asc"}]});
   return {account,rewards};
- });
+ }));
 }
 
 export async function adjustHarmonyPoints(input:{customerId:string;points:number;reason:string;idempotencyKey:string;actorId:string;actorRoles:string[];requestId:string}){
