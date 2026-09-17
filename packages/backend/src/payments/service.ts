@@ -18,6 +18,7 @@ import {
 import type { ConfirmPaymentInput, CreatePaymentIntentInput, RefundPaymentInput } from "../domains/payments/schemas";
 import { recordPaymentFailure, recordPaymentIntent, recordPaymentLatency, recordPaymentProviderLatency, recordPaymentSuccess, recordPaymentWebhookDuplicate, recordPaymentWebhookFailure, recordRefund } from "./metrics";
 import { paymentsEnabled } from "./config";
+import { awardPaidOrderLoyalty, reverseRefundedLoyalty } from "../domains/loyalty/persistence";
 
 export async function createRevenuePaymentIntent(input: CreatePaymentIntentInput) {
   const started = Date.now();
@@ -64,6 +65,9 @@ export async function confirmRevenuePayment(input: ConfirmPaymentInput) {
   if (result.status === "PAID") {
     recordPaymentSuccess();
     const updated = markPaymentSucceeded(payment.id, result.providerPaymentIntentId);
+    if (updated.customerId) {
+      await awardPaidOrderLoyalty({ customerId: updated.customerId, orderId: updated.orderId, paymentId: updated.id, amount: updated.amount });
+    }
     recordRevenueMetric("gross_revenue", updated.amount);
     return updated;
   }
@@ -88,6 +92,9 @@ export async function createRevenueRefund(input: RefundPaymentInput) {
   recordRefund();
   if (refund.status === "SUCCEEDED") {
     synchronizeRefundSuccess(refund);
+    if (payment.customerId) {
+      await reverseRefundedLoyalty({ customerId: payment.customerId, orderId: payment.orderId, paymentId: payment.id, refundId: refund.id, amount: refund.amount });
+    }
     recordRevenueMetric("refund_amount", refund.amount);
   }
   return refund;
@@ -110,7 +117,10 @@ export async function processPaymentWebhook(input: { providerName?: "mock" | "st
       return { duplicate: true, event: stored };
     }
     if (event.eventType === "payment_succeeded" && event.paymentId) {
-      markPaymentSucceeded(event.paymentId, event.providerPaymentIntentId);
+      const updated = markPaymentSucceeded(event.paymentId, event.providerPaymentIntentId);
+      if (updated.customerId) {
+        await awardPaidOrderLoyalty({ customerId: updated.customerId, orderId: updated.orderId, paymentId: updated.id, amount: updated.amount });
+      }
       recordPaymentSuccess();
     } else if (event.eventType === "payment_failed" && event.paymentId) {
       markPaymentFailed(event.paymentId, "Webhook payment failure.");
