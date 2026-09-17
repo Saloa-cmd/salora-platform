@@ -15,6 +15,7 @@ assert.match(migration, /BEFORE UPDATE OR DELETE/);
 assert.match(persistence, /FOR UPDATE/);
 assert.match(persistence, /ON CONFLICT \(idempotency_key\)/);
 assert.match(persistence, /balance \+ delta < 0/);
+assert.match(persistence, /input\.type === "REVERSAL".*input\.points < 0 \? magnitude : -magnitude/s);
 assert.match(persistence, /payment:\$\{input\.paymentId\}:earn/);
 assert.match(persistence, /refund:\$\{input\.refundId\}:reverse/);
 assert.match(payment, /await awardPaidOrderLoyalty/);
