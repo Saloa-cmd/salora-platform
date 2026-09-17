@@ -1095,7 +1095,6 @@ model LoyaltyLedgerEntry {
   @@index([orderId])
   @@index([paymentId])
   @@index([refundId])
-  @@unique([idempotencyKey])
   @@map("loyalty_ledger_entries")
 }
 
