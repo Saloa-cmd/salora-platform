@@ -1,4 +1,4 @@
-import { applyPersistentLoyaltyMutation, getPrismaClient, loyaltyInputSchema } from "@salora/backend";
+import { applyPersistentLoyaltyMutation, loyaltyInputSchema, withPrismaAuthContext } from "@salora/backend";
 import { type NextRequest } from "next/server";
 import { currentAuthPayload } from "@/lib/server/auth/http";
 import type { RoleName } from "@/lib/server/auth/types";
@@ -10,8 +10,8 @@ export const runtime = "nodejs";
 export async function GET(request: NextRequest) {
   const requestId = request.headers.get("x-request-id") || crypto.randomUUID();
   if (!(await requirePermission(request, "staff:read"))) return responseError("Forbidden.", requestId, 403);
-  const prisma = getPrismaClient();
-  const entries = await prisma.$queryRawUnsafe(
+  const actor = await currentAuthPayload(request);
+  const entries = await withPrismaAuthContext({ userId: actor.sub, roles: actor.roles, dbRole: "authenticated" }, (prisma) => prisma.$queryRaw(
     `SELECT le.id, la.customer_id AS "customerId", le.type::text AS type, le.points, le.reason,
             le.order_id AS "orderId", le.payment_id AS "paymentId", le.refund_id AS "refundId",
             le.created_at AS "createdAt"
@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
        JOIN loyalty_accounts la ON la.id=le.account_id
       ORDER BY le.created_at DESC
       LIMIT 250`
-  );
+  ));
   return responseJson(entries, requestId);
 }
 
