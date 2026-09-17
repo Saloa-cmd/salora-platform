@@ -31,7 +31,8 @@ export async function redeemHarmonyReward(input:{customerId:string;rewardId:stri
  const prisma=getPrismaClient();
  return withQueryProtection("harmony.reward.redeem",async()=>{
   return prisma.$transaction(async(tx)=>{
-   const account=await tx.loyaltyAccount.findUnique({where:{customerId:input.customerId}});
+   const accounts=await tx.$queryRawUnsafe<Array<{id:string;points:number}>>('SELECT id, points FROM loyalty_accounts WHERE customer_id=$1::uuid FOR UPDATE',input.customerId);
+   const account=accounts[0];
    if(!account) throw new Error("Loyalty account not found.");
    const reward=await tx.reward.findFirst({where:{id:input.rewardId,isActive:true}});
    if(!reward) throw new Error("Active reward not found.");
