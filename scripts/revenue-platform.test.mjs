@@ -43,8 +43,8 @@ assert.ok(files.stripeProvider.includes("verifyWebhookSignature"), "Stripe webho
 assert.ok(files.paymentSecurity.includes("PCI-sensitive card data"), "security should reject card data");
 assert.ok(files.paymentOrchestrator.includes("markPaymentSucceeded"), "payments should synchronize successful orders");
 assert.ok(files.paymentOrchestrator.includes("recordPaymentEvent"), "webhooks should be idempotent through payment events");
-assert.ok(files.paymentOrchestration.includes("applyLoyaltyMutation") && files.paymentOrchestration.includes('type: "EARN"'), "successful payments should persist loyalty through the governed P78 ledger");
-assert.ok(files.paymentOrchestration.includes("applyLoyaltyMutation") && files.paymentOrchestration.includes('type: "REVERSAL"'), "refunds should reverse loyalty through the governed P78 ledger");
+assert.ok(files.paymentOrchestration.includes("awardPaidOrderLoyalty"), "successful payments should persist loyalty through the governed P78 loyalty service");
+assert.ok(files.paymentOrchestration.includes("reverseRefundedLoyalty"), "refunds should reverse loyalty through the governed P78 loyalty service");
 assert.ok(files.revenueAnalytics.includes("grossRevenue"), "revenue analytics should track gross revenue");
 assert.ok(files.aiRevenueContext.includes("excludes"), "AI revenue context should exclude sensitive payment material");
 assert.ok(files.refundRoute.includes("MANAGER") && files.refundRoute.includes("ADMIN"), "refund API should require elevated role");
