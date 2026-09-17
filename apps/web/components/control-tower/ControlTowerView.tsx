@@ -14,6 +14,7 @@ import { OperationalGovernanceCenter } from "./OperationalGovernanceCenter";
 import { ControlTowerIntelligenceWorkspace } from "./ControlTowerIntelligenceWorkspace";
 import { ControlTowerHome } from "./ControlTowerHome";
 import { CatalogWorkspace } from "./CatalogWorkspace";
+import { HarmonyCustomerWorkspace } from "./HarmonyCustomerWorkspace";
 import { findControlTowerSection } from "@/lib/control-tower/registry";
 import type { ControlTowerSectionId } from "@/lib/control-tower/types";
 import { useControlTowerLocale } from "./ControlTowerLocale";
@@ -39,7 +40,7 @@ function DomainWorkspace({ sectionId }: { sectionId: ControlTowerSectionId }) {
   if (sectionId === "menu") return <CatalogWorkspace />;
   if (sectionId === "media") return <MediaStudioWorkspace />;
   if (sectionId === "orders") return <SectionTabs label={t("أدوات الطلبات", "Order tools")} tabs={[{ id: "queue", label: t("الطلبات", "Orders"), content: <DashboardView kind="operations" /> }, { id: "command", label: t("مركز المتابعة", "Command center"), content: <SupremacyCommandCenter /> }]} />;
-  if (sectionId === "customers") return <SectionTabs label={t("أدوات العملاء", "Customer tools")} tabs={[{ id: "customers", label: t("العملاء", "Customers"), content: <DashboardView kind="customers" /> }, { id: "loyalty", label: t("الولاء", "Loyalty"), content: <LoyaltyActionPanel /> }]} />;
+  if (sectionId === "customers") return <SectionTabs label={t("أدوات العملاء", "Customer tools")} tabs={[{ id: "harmony", label: "Harmony", content: <HarmonyCustomerWorkspace /> }, { id: "customers", label: t("العملاء", "Customers"), content: <DashboardView kind="customers" /> }, { id: "loyalty", label: t("الولاء", "Loyalty"), content: <LoyaltyActionPanel /> }]} />;
   if (sectionId === "marketing") return <MarketingOperationsWorkspace />;
   if (sectionId === "ai") return <SectionTabs label={t("أدوات سالورا الذكية", "SALORA AI tools")} tabs={[{ id: "assistant", label: t("أدوات المساعد", "Assistant tools"), content: <SimpleLaunchOperationsCenter /> }, { id: "insights", label: t("الرؤى", "Insights"), content: <DashboardView kind="ai" /> }, { id: "governance", label: t("المراجعة", "Review"), content: <SupremacyCommandCenter /> }]} />;
   if (sectionId === "analytics") return <ControlTowerIntelligenceWorkspace />;
