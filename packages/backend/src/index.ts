@@ -35,6 +35,7 @@ export * from "./payments/service";
 export * from "./payments/mock/provider";
 export * from "./payments/stripe/provider";
 export * from "./analytics/revenue/metrics";
+export * from "./analytics/customer/intelligence";
 export * from "./analytics";
 export * from "./intelligence/kpi/engine";
 export * from "./intelligence/alerts/engine";
