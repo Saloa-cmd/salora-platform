@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
   const requestId = request.headers.get("x-request-id") || crypto.randomUUID();
   if (!(await requirePermission(request, "staff:read"))) return responseError("Forbidden.", requestId, 403);
   const actor = await currentAuthPayload(request);
-  const entries = await withPrismaAuthContext({ userId: actor.sub, roles: actor.roles, dbRole: "authenticated" }, (prisma) => prisma.$queryRaw(
+  const entries = await withPrismaAuthContext({ userId: actor.sub, roles: actor.roles, dbRole: "authenticated" }, (prisma) => prisma.$queryRawUnsafe(
     `SELECT le.id, la.customer_id AS "customerId", le.type::text AS type, le.points, le.reason,
             le.order_id AS "orderId", le.payment_id AS "paymentId", le.refund_id AS "refundId",
             le.created_at AS "createdAt"
