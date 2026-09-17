@@ -53,13 +53,10 @@ export async function controlTowerGet<T>(path: string): Promise<{ status: "succe
 async function controlTowerSend<T>(method: "POST" | "PATCH", path: string, payload: unknown, extraHeaders?: HeadersInit): Promise<MutationState & { data?: T }> {
   const requestId = crypto.randomUUID();
   const token = getDashboardAccessToken();
-  const headers: HeadersInit = {
-    "content-type": "application/json",
-    "x-request-id": requestId,
-    ...extraHeaders
-  };
-
-  if (token) headers.authorization = `Bearer ${token}`;
+  const headers = new Headers(extraHeaders);
+  headers.set("content-type", "application/json");
+  headers.set("x-request-id", requestId);
+  if (token) headers.set("authorization", `Bearer ${token}`);
 
   try {
     const response = await fetchWithSession(path, {
