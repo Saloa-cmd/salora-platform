@@ -52,8 +52,8 @@ export async function loadCustomerIntelligence(authContext: PrismaAuthContext): 
             row_number() over(partition by co.customer_id order by sum(oi.quantity) desc, pc.name asc) rn
           from public.cafe_orders co
           join public.order_items oi on oi.order_id=co.id
-          join public.catalog_products cp on cp.id=oi.product_id
-          join public.product_categories pc on pc.id=cp.category_id
+          join public.catalog_products product on product.id=oi.product_id
+          join public.product_categories pc on pc.id=product.category_id
           where co.customer_id is not null
           group by co.customer_id, pc.name
         ) ranked where rn=1
