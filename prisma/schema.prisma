@@ -1119,6 +1119,7 @@ model RewardRedemption {
   reward    Reward         @relation(fields: [rewardId], references: [id])
 
   @@index([accountId])
+  @@index([rewardId])
   @@map("reward_redemptions")
 }
 
