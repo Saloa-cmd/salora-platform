@@ -20,8 +20,6 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - name: Generate Prisma client
-        run: pnpm exec prisma generate --schema prisma/schema.prisma
       - run: pnpm lint
       - run: pnpm test
       - run: pnpm build
