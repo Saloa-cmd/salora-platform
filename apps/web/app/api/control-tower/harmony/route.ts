@@ -18,7 +18,8 @@ export async function GET(request:NextRequest){
  if(!(await requirePermission(request,"staff:read"))) return responseError("Forbidden.",requestId,403);
  const customerId=new URL(request.url).searchParams.get("customerId");
  if(!customerId||!z.string().uuid().safeParse(customerId).success)return responseError("Valid customerId is required.",requestId,400);
- return responseJson(await getHarmonyCustomerDetail(customerId),requestId);
+ const actor=await currentAuthPayload(request);
+ return responseJson(await getHarmonyCustomerDetail(customerId,{userId:actor.sub,roles:actor.roles,dbRole:"authenticated"}),requestId);
 }
 export async function POST(request:NextRequest){
  const requestId=request.headers.get("x-request-id")||crypto.randomUUID();
