@@ -1,5 +1,7 @@
 import { applyPersistentLoyaltyMutation, getPrismaClient, loyaltyInputSchema } from "@salora/backend";
 import { type NextRequest } from "next/server";
+import { currentAuthPayload } from "@/lib/server/auth/http";
+import type { RoleName } from "@/lib/server/auth/types";
 import { parseJson, requirePermission, responseError, responseJson } from "@/lib/server/domainHttp";
 
 export const dynamic = "force-dynamic";
@@ -24,6 +26,9 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   const requestId = request.headers.get("x-request-id") || crypto.randomUUID();
   if (!(await requirePermission(request, "user:write"))) return responseError("Forbidden.", requestId, 403);
+  const actor = await currentAuthPayload(request);
+  const roles = actor.roles as RoleName[];
+  if (!roles.some((role) => role === "MANAGER" || role === "ADMIN")) return responseError("Manager approval is required for manual loyalty adjustments.", requestId, 403);
   const parsed = await parseJson(request, loyaltyInputSchema);
   if (!parsed.success) return responseError("Invalid loyalty payload.", requestId);
   const key = request.headers.get("idempotency-key");
@@ -34,7 +39,7 @@ export async function POST(request: NextRequest) {
     type: parsed.data.points < 0 ? "ADJUST" : "BONUS",
     reason: parsed.data.reason,
     idempotencyKey: `api:${key}`,
-    metadata: { source: "loyalty_api", requestId }
+    metadata: { source: "loyalty_api", requestId, actorId: actor.sub, actorRoles: roles }
   });
   return responseJson(result, requestId, result.applied ? 201 : 200);
 }
