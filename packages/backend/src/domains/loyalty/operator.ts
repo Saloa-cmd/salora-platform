@@ -36,7 +36,7 @@ export async function redeemHarmonyReward(input:{customerId:string;rewardId:stri
    if(!account) throw new Error("Loyalty account not found.");
    const reward=await tx.reward.findFirst({where:{id:input.rewardId,isActive:true}});
    if(!reward) throw new Error("Active reward not found.");
-   const existing=await tx.loyaltyLedgerEntry.findUnique({where:{idempotencyKey:input.idempotencyKey}});
+   const existing=await tx.loyaltyLedgerEntry.findFirst({where:{idempotencyKey:input.idempotencyKey}});
    if(existing) return {applied:false,entryId:existing.id,accountId:account.id,balance:account.points};
    if(account.points<reward.pointsCost) throw new Error("Insufficient loyalty points.");
    const redemption=await tx.rewardRedemption.create({data:{accountId:account.id,rewardId:reward.id,points:reward.pointsCost}});
