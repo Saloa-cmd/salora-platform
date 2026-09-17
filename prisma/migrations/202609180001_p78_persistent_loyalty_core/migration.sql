@@ -29,15 +29,9 @@ CREATE INDEX IF NOT EXISTS "loyalty_ledger_entries_refund_id_idx"
   ON "loyalty_ledger_entries" ("refund_id")
   WHERE "refund_id" IS NOT NULL;
 
-ALTER TABLE "loyalty_ledger_entries"
-  ADD CONSTRAINT "loyalty_ledger_entries_order_id_fkey"
-  FOREIGN KEY ("order_id") REFERENCES "cafe_orders"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-ALTER TABLE "loyalty_ledger_entries"
-  ADD CONSTRAINT "loyalty_ledger_entries_payment_id_fkey"
-  FOREIGN KEY ("payment_id") REFERENCES "payments"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-ALTER TABLE "loyalty_ledger_entries"
-  ADD CONSTRAINT "loyalty_ledger_entries_refund_id_fkey"
-  FOREIGN KEY ("refund_id") REFERENCES "refunds"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+-- Correlation IDs intentionally remain non-FK in P78-A because the legacy payment
+-- orchestration still contains an ephemeral compatibility store. P78 does not
+-- create referential coupling to records that are not yet guaranteed persistent.
 
 -- Ledger history is financial-like history: application roles may append through
 -- governed server code, but existing rows must not be mutated/deleted.
