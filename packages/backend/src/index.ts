@@ -20,6 +20,7 @@ export * from "./domains/events";
 export * from "./domains/schemas";
 export * from "./domains/services";
 export * from "./domains/loyalty/persistence";
+export * from "./domains/loyalty/operator";
 export * from "./domains/runtimeConfig";
 export * from "./domains/conversations/schemas";
 export * from "./domains/conversations/service";
