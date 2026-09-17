@@ -1,6 +1,6 @@
 import { incrementMetric } from "../../runtime/metrics";
 import { publishDomainEvent } from "../events";
-import { awardLoyaltyPoints, listOrders, queueNotification } from "../services";
+import { listOrders, queueNotification } from "../services";
 import type { CreatePaymentIntentInput, PaymentStatus, RefundPaymentInput, RefundStatus } from "./schemas";
 
 export type PaymentRecord = {
@@ -97,11 +97,6 @@ export function markPaymentSucceeded(paymentId: string, providerPaymentId?: stri
   incrementMetric("salora_payment_success_total");
   publishDomainEvent({ name: "PaymentSucceeded", aggregateId: payment.id, aggregateType: "Payment", payload: { orderId: payment.orderId, amount: payment.amount } });
 
-  if (payment.customerId) {
-    awardLoyaltyPoints({ customerId: payment.customerId, points: Math.floor(payment.amount), reason: `Paid order ${payment.orderId}` });
-    publishDomainEvent({ name: "LoyaltyPointsAwarded", aggregateId: payment.customerId, aggregateType: "LoyaltyAccount", payload: { paymentId: payment.id } });
-  }
-
   queueNotification({
     recipient: payment.customerId ?? payment.orderId,
     channel: "IN_APP",
@@ -163,12 +158,7 @@ export function synchronizeRefundSuccess(refund: RefundRecord): void {
   payment.updatedAt = now();
   store.orderPaymentStates.set(payment.orderId, payment.status === "REFUNDED" ? "REFUNDED" : "PARTIALLY_REFUNDED");
   incrementMetric("salora_refunds_succeeded_total");
-  publishDomainEvent({ name: "RefundIssued", aggregateId: refund.id, aggregateType: "Refund", payload: { paymentId: payment.id, amount: refund.amount } });
-  if (payment.customerId) {
-    awardLoyaltyPoints({ customerId: payment.customerId, points: -Math.floor(refund.amount), reason: `Refund for order ${payment.orderId}` });
-    publishDomainEvent({ name: "LoyaltyPointsReversed", aggregateId: payment.customerId, aggregateType: "LoyaltyAccount", payload: { paymentId: payment.id, refundId: refund.id } });
-  }
-}
+  publishDomainEvent({ name: "RefundIssued", aggregateId: refund.id, aggregateType: "Refund", payload: { paymentId: payment.id, amount: refund.amount } });}
 
 export function recordPaymentEvent(input: Omit<PaymentEventRecord, "id" | "createdAt">): PaymentEventRecord {
   const existing = store.events.find((event) => event.provider === input.provider && event.providerEventId === input.providerEventId);
