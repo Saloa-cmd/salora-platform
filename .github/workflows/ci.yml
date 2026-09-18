@@ -83,4 +83,4 @@ jobs:
           CREATE TABLE harmony_consents (id uuid PRIMARY KEY, customer_id uuid NOT NULL, consent_type text NOT NULL);
           SQL
       - name: Prove Welcome Bonus application concurrency
-        run: node --experimental-strip-types --experimental-specifier-resolution=node scripts/harmony-welcome-concurrency.integration.mjs
+        run: node --experimental-strip-types --import ./scripts/ts-extension-loader.mjs scripts/harmony-welcome-concurrency.integration.mjs
