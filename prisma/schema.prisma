@@ -294,7 +294,6 @@ model User {
   sessions        Session[]
   roles           UserRole[]
   customerProfile CustomerProfile?
-  harmonyConsents HarmonyConsent[]
 
   @@index([email])
   @@map("users")
@@ -319,7 +318,6 @@ model CustomerProfile {
   reviews           ProductReview[]
   recommendations   AiRecommendationRecord[]
   loyalty           LoyaltyAccount?
-  harmonyConsents   HarmonyConsent[]
   notifications     Notification[]
   conversations     Conversation[]
 
@@ -1069,7 +1067,6 @@ model LoyaltyAccount {
   id          String               @id @default(uuid()) @db.Uuid
   customerId  String               @unique @map("customer_id") @db.Uuid
   points      Int                  @default(0)
-  membershipCode String            @unique @default(dbgenerated("('HMY-'::text || upper(substr(replace((gen_random_uuid())::text, '-'::text, ''::text), 1, 12)))")) @map("membership_code") @db.VarChar(20)
   tier        String               @default("CLASSIC") @db.VarChar(40)
   createdAt   DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt   DateTime             @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
@@ -1099,25 +1096,6 @@ model LoyaltyLedgerEntry {
   @@index([paymentId])
   @@index([refundId])
   @@map("loyalty_ledger_entries")
-}
-
-model HarmonyConsent {
-  id                   String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId               String          @map("user_id") @db.Uuid
-  customerId           String          @map("customer_id") @db.Uuid
-  consentType          String          @map("consent_type") @db.VarChar(80)
-  source               String          @db.VarChar(80)
-  locale               String          @db.VarChar(10)
-  policyCode           String          @map("policy_code") @db.VarChar(80)
-  termsVersion         String          @map("terms_version") @db.VarChar(40)
-  privacyVersion       String          @map("privacy_version") @db.VarChar(40)
-  loyaltyPolicyVersion String          @map("loyalty_policy_version") @db.VarChar(40)
-  consentedAt          DateTime        @default(now()) @map("consented_at") @db.Timestamptz(6)
-  user                 User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  customer             CustomerProfile @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  @@unique([userId, consentType, policyCode, termsVersion, privacyVersion, loyaltyPolicyVersion])
-  @@index([customerId, consentedAt])
-  @@map("harmony_consents")
 }
 
 model HarmonyRewardPolicy {
