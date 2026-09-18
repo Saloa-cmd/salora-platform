@@ -25,4 +25,4 @@ CREATE UNIQUE INDEX IF NOT EXISTS harmony_consents_business_key
 CREATE INDEX IF NOT EXISTS harmony_consents_customer_created_idx ON harmony_consents(customer_id,consented_at DESC);
 ALTER TABLE harmony_consents ENABLE ROW LEVEL SECURITY;
 CREATE POLICY harmony_consents_customer_read ON harmony_consents FOR SELECT TO authenticated
-  USING (user_id = auth.uid());
+  USING (user_id = (select auth.uid()));
