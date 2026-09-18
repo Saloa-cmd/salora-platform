@@ -7,5 +7,5 @@ assert.match(repo,/withPrismaAuthContextTx\(SYSTEM_AUTH_CONTEXT/);assert.match(r
 assert.match(http,/harmonyConsent: z\.literal\(true\)/);assert.match(http,/\.strict\(\)/);assert.match(http,/toLowerCase/);
 assert.match(service,/policyCode: "HARMONY_V1"/);assert.match(route,/MAX_BODY_BYTES=8192/);assert.match(route,/sameOrigin/);assert.match(route,/Unable to create an account with the supplied details/);assert.doesNotMatch(route,/clientMeta/);
 assert.match(loyalty,/idempotencyKey:\`welcome:\$\{input\.customerId\}\`/);assert.match(loyalty,/type:"BONUS"/);assert.match(loyalty,/harmony_consents/);assert.match(loyalty,/first eligible paid order/);
-assert.match(migration,/harmony_consents/);assert.match(migration,/membership_code/);assert.match(migration,/ENABLE ROW LEVEL SECURITY/);assert.match(schema,/model HarmonyConsent/);assert.match(schema,/membershipCode/);
+assert.match(migration,/harmony_consents/);assert.match(migration,/membership_code/);assert.match(migration,/ENABLE ROW LEVEL SECURITY/);assert.doesNotMatch(schema,/model HarmonyConsent/);assert.doesNotMatch(schema,/membershipCode/);
 console.log("Harmony customer onboarding hardening checks passed.");
