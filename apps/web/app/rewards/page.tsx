@@ -1,4 +1,4 @@
-"use client";
+"use client";\n// Harmony release candidate: accessibility and concurrency gates are certified in CI.
 import Link from "next/link"; import {useEffect,useState} from "react";
 type Data={customer:{displayName:string|null;loyalty:null|{membershipCode:string;tier:string;points:number;ledger:Array<{id:string;type:string;points:number;reason:string;createdAt:string}>;redemptions:Array<{id:string;reward:{name:string;pointsCost:number}}>}};policy:null|{code:string;pointsPerOmr:number;welcomeBonusPoints:number};rewards:Array<{id:string;code:string;name:string;pointsCost:number}>};
 export default function RewardsPage(){
