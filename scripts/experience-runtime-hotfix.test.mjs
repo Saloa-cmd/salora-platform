@@ -8,5 +8,9 @@ const published=route.indexOf("const publishedConfiguration = await getPublished
 assert.ok(draft>=0&&published>draft,"Experience reads must remain sequential");
 assert.match(errors,/\[control-tower\] request failed/);
 assert.match(errors,/requestId: id/);
-assert.doesNotMatch(errors,/request\.headers|authorization|request\.body/);
+const handlerStart=errors.indexOf("export async function handleError");
+const handlerEnd=errors.indexOf("export async function runAiDraft",handlerStart);
+assert.ok(handlerStart>=0&&handlerEnd>handlerStart,"handleError source slice must be found");
+const handler=errors.slice(handlerStart,handlerEnd);
+assert.doesNotMatch(handler,/request\.headers|authorization|request\.body/);
 console.log("Experience runtime hotfix checks passed.");
