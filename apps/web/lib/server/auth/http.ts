@@ -5,10 +5,12 @@ import { roleNames } from "./types";
 import { accessTokenCookieName } from "./cookies";
 
 export const registerSchema = z.object({
-  email: z.string().email().max(255),
+  email: z.string().trim().toLowerCase().email().max(255),
   name: z.string().trim().min(2).max(120),
-  password: z.string().min(12).max(256)
-});
+  password: z.string().min(12).max(256),
+  harmonyConsent: z.literal(true),
+  locale: z.enum(["ar", "en"]).default("ar")
+}).strict();
 
 export const loginSchema = z.object({
   email: z.string().email().max(255),
