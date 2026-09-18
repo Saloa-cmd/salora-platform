@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link"; import {useEffect,useState} from "react";
-type Data={customer:{displayName:string|null;loyalty:null|{membershipCode:string;tier:string;points:number;ledger:Array<{id:string;type:string;points:number;reason:string;createdAt:string}>;redemptions:Array<{id:string;reward:{name:string;pointsCost:number}}>}};rewards:Array<{id:string;code:string;name:string;pointsCost:number}>};
+type Data={customer:{displayName:string|null;loyalty:null|{membershipCode:string;tier:string;points:number;ledger:Array<{id:string;type:string;points:number;reason:string;createdAt:string}>;redemptions:Array<{id:string;reward:{name:string;pointsCost:number}}>}};policy:null|{code:string;pointsPerOmr:number;welcomeBonusPoints:number};rewards:Array<{id:string;code:string;name:string;pointsCost:number}>};
 export default function RewardsPage(){
  const [data,setData]=useState<Data|null>(null),[loading,setLoading]=useState(true),[status,setStatus]=useState<number|null>(null);
  useEffect(()=>{fetch("/api/rewards/me",{credentials:"include"}).then(async r=>{setStatus(r.status);if(r.ok)setData(await r.json())}).finally(()=>setLoading(false))},[]);
