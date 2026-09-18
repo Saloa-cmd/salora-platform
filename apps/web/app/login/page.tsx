@@ -40,7 +40,7 @@ export default function LoginPage() {
       }
 
       const requested = new URLSearchParams(window.location.search).get("next");
-      const destination = requested?.startsWith("/control-tower") ? requested : "/control-tower/overview";
+      const destination = requested?.startsWith("/control-tower") || requested === "/rewards" ? requested : "/control-tower/overview";
       router.replace(destination);
       router.refresh();
     } catch {
