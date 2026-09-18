@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS harmony_reward_policies (
  updated_at timestamptz NOT NULL DEFAULT now()
 );
 CREATE UNIQUE INDEX IF NOT EXISTS harmony_reward_policies_one_active ON harmony_reward_policies(is_active) WHERE is_active;
-ALTER TABLE harmony_reward_policies ENABLE ROW LEVEL SECURITY;
+ALTER TABLE harmony_reward_policies ENABLE ROW LEVEL SECURITY;\nCREATE POLICY harmony_reward_policies_authenticated_read ON harmony_reward_policies FOR SELECT TO authenticated USING (true);
 INSERT INTO harmony_reward_policies(code,points_per_omr,welcome_bonus_points,is_active)
 VALUES('HARMONY_V1',10,20,true) ON CONFLICT(code) DO UPDATE SET points_per_omr=EXCLUDED.points_per_omr,welcome_bonus_points=EXCLUDED.welcome_bonus_points,is_active=true,updated_at=now();
 INSERT INTO rewards(code,name,points_cost,is_active) VALUES
