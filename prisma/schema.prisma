@@ -294,6 +294,7 @@ model User {
   sessions        Session[]
   roles           UserRole[]
   customerProfile CustomerProfile?
+  harmonyConsents HarmonyConsent[]
 
   @@index([email])
   @@map("users")
