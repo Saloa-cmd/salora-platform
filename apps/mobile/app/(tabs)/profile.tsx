@@ -15,13 +15,13 @@ export default function ProfileScreen() {
       <View style={[styles.appearance, { backgroundColor: activeColors.surface, borderColor: activeColors.border }]}><View><Text variant="subtitle" style={{ color: activeColors.foreground }}>Appearance</Text><Text variant="muted" style={{ color: activeColors.foregroundMuted }}>Dark, light, or system preference</Text></View><MobileThemeControl showLabel /></View>
       <View style={styles.card}>
         <Text variant="subtitle">SALORA Guest</Text>
-        <Text variant="muted" style={styles.copy}>Customer identity, preferences, loyalty, and order history placeholders are ready for Supabase auth and customer tables.</Text>
+        <Text variant="muted" style={styles.copy}>Your SALORA profile brings preferences, Harmony Rewards and order history together.</Text>
       </View>
       <View style={styles.row}>
         <Panel title="Preferences" copy="Matcha, light sweetness, dessert pairing." />
         <Panel title="History" copy="Future orders will appear here." />
       </View>
-      <Link href="/loyalty" asChild><Button>Open loyalty preview</Button></Link>
+      <Link href="/loyalty" asChild><Button>Open Harmony Rewards</Button></Link>
     </Screen>
   );
 }
