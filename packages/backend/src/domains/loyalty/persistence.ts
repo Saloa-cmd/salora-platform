@@ -34,10 +34,15 @@ function signedPoints(input: PersistentLoyaltyMutation): number {
   return ["REDEEM", "EXPIRE"].includes(input.type) ? -magnitude : magnitude;
 }
 
-export function calculateHarmonyEarn(amountOmr: number): number {
+export async function calculateHarmonyEarn(amountOmr: number): Promise<number> {
   if (!Number.isFinite(amountOmr) || amountOmr <= 0) return 0;
-  // Centralized v1 rule. P78-C will make this operator-configurable.
-  return Math.floor(amountOmr);
+  const prisma=getPrismaClient();
+  const rows=await prisma.$queryRawUnsafe<Array<{points_per_omr:number}>>(
+    "SELECT points_per_omr FROM harmony_reward_policies WHERE is_active=true AND effective_from<=now() ORDER BY effective_from DESC LIMIT 1"
+  );
+  const rate=rows[0]?.points_per_omr;
+  if(!rate) throw new Error("No active Harmony earning policy.");
+  return Math.floor(amountOmr*rate);
 }
 
 export async function applyPersistentLoyaltyMutation(input: PersistentLoyaltyMutation): Promise<PersistentLoyaltyResult> {
@@ -117,7 +122,7 @@ export async function applyPersistentLoyaltyMutation(input: PersistentLoyaltyMut
 }
 
 export async function awardPaidOrderLoyalty(input: { customerId: string; orderId: string; paymentId: string; amount: number }) {
-  const points = calculateHarmonyEarn(input.amount);
+  const points = await calculateHarmonyEarn(input.amount);
   if (points <= 0) return null;
   return applyPersistentLoyaltyMutation({
     customerId: input.customerId,
@@ -132,7 +137,7 @@ export async function awardPaidOrderLoyalty(input: { customerId: string; orderId
 }
 
 export async function reverseRefundedLoyalty(input: { customerId: string; orderId: string; paymentId: string; refundId: string; amount: number }) {
-  const points = calculateHarmonyEarn(input.amount);
+  const points = await calculateHarmonyEarn(input.amount);
   if (points <= 0) return null;
   return applyPersistentLoyaltyMutation({
     customerId: input.customerId,

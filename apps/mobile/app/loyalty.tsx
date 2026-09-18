@@ -9,14 +9,14 @@ type LoyaltyPayload = { points?: number; balance?: number; tier?: string; nextRe
 export default function LoyaltyScreen() {
   const [data,setData]=useState<LoyaltyPayload|null>(null); const [loading,setLoading]=useState(true);
   useEffect(()=>{void fetch("/api/loyalty",{credentials:"include"}).then(async r=>r.ok?await r.json():null).then(v=>setData(v)).catch(()=>setData(null)).finally(()=>setLoading(false));},[]);
-  const points=data?.points??data?.balance??0; const next=data?.nextRewardPoints??100; const progress=Math.min(1,Math.max(0,points/Math.max(next,1)));
+  const points=data?.points??data?.balance??0; const next=data?.nextRewardPoints??data?.rewards?.find(r=>(r.pointsCost??0)>points)?.pointsCost??points; const progress=Math.min(1,Math.max(0,points/Math.max(next,1)));
   return <Screen>
     <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       <Text variant="eyebrow">HARMONY REWARDS</Text><Text variant="title" style={styles.title}>Taste the Harmony. Earn the reward.</Text>
       <View style={styles.hero}><View><Text variant="muted">Available balance</Text>{loading?<ActivityIndicator style={styles.loader}/>:<Text style={styles.number}>{points}</Text>}<Text variant="muted">Harmony Points</Text></View><View style={styles.tier}><Text variant="eyebrow">{data?.tier??"MEMBER"}</Text></View></View>
       <View style={styles.progressCard}><View style={styles.row}><Text variant="subtitle">Your next reward</Text><Text variant="muted">{points} / {next} pts</Text></View><View style={styles.track}><View style={[styles.fill,{width:`${progress*100}%`}]} /></View><Text variant="muted" style={styles.copy}>{Math.max(0,next-points)} points to your next Harmony reward.</Text></View>
       <Text variant="subtitle" style={styles.sectionTitle}>Rewards</Text>
-      {(data?.rewards?.length?data.rewards:[{name:"Signature drink reward",pointsCost:100},{name:"Dessert pairing",pointsCost:150},{name:"Harmony VIP experience",pointsCost:300}]).map((reward,index)=><View key={reward.id??String(index)} style={styles.reward}><View style={{flex:1}}><Text variant="subtitle">{reward.name}</Text><Text variant="muted" style={styles.copy}>{reward.pointsCost} points</Text></View><Pressable accessibilityRole="button" disabled={points<(reward.pointsCost??0)} style={[styles.button,points<(reward.pointsCost??0)&&styles.disabled]}><Text>Redeem</Text></Pressable></View>)}
+      {(data?.rewards??[]).map((reward,index)=><View key={reward.id??String(index)} style={styles.reward}><View style={{flex:1}}><Text variant="subtitle">{reward.name}</Text><Text variant="muted" style={styles.copy}>{reward.pointsCost} points</Text></View><Pressable accessibilityRole="button" disabled={points<(reward.pointsCost??0)} style={[styles.button,points<(reward.pointsCost??0)&&styles.disabled]}><Text>Redeem</Text></Pressable></View>)}
       <View style={styles.info}><Text variant="eyebrow">HARMONY</Text><Text variant="muted" style={styles.copy}>Points are awarded from eligible completed orders. Redemptions are protected by SALORA's governed loyalty ledger.</Text></View>
     </ScrollView>
   </Screen>;

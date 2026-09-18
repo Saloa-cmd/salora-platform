@@ -1098,6 +1098,18 @@ model LoyaltyLedgerEntry {
   @@map("loyalty_ledger_entries")
 }
 
+model HarmonyRewardPolicy {
+  id                 String   @id @default(uuid()) @db.Uuid
+  code               String   @unique @db.VarChar(80)
+  pointsPerOmr       Int      @map("points_per_omr")
+  welcomeBonusPoints Int      @default(0) @map("welcome_bonus_points")
+  isActive           Boolean  @default(false) @map("is_active")
+  effectiveFrom      DateTime @default(now()) @map("effective_from") @db.Timestamptz(6)
+  createdAt          DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+  @@map("harmony_reward_policies")
+}
+
 model Reward {
   id          String             @id @default(uuid()) @db.Uuid
   code        String             @unique @db.VarChar(80)
