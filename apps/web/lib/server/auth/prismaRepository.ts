@@ -1,4 +1,4 @@
-import { SYSTEM_AUTH_CONTEXT, withPrismaAuthContext } from "@salora/backend";
+import { SYSTEM_AUTH_CONTEXT, withPrismaAuthContext, withPrismaAuthContextTx } from "@salora/backend";
 import type { AuthRepository, CreateSessionInput, CreateUserInput } from "./repository";
 import type { AuthSession, AuthUser, RoleName } from "./types";
 
@@ -24,6 +24,9 @@ type PrismaAuthClient = {
     findUnique(args: unknown): Promise<unknown | null>;
     create(args: unknown): Promise<unknown>;
   };
+  customerProfile: { create(args: unknown): Promise<unknown>; };
+  loyaltyAccount: { create(args: unknown): Promise<unknown>; };
+  $executeRawUnsafe(query:string,...values:unknown[]): Promise<number>;
   role: {
     findMany(args: unknown): Promise<Array<{ id: string; name: RoleName }>>;
   };
@@ -77,19 +80,28 @@ export class PrismaAuthRepository implements AuthRepository {
   }
 
   async createUser(input: CreateUserInput): Promise<AuthUser> {
-    const user = await this.run(async (prisma) => {
+    const user = await withPrismaAuthContextTx(SYSTEM_AUTH_CONTEXT, async (prisma) => {
       const roles = await prisma.role.findMany({ where: { name: { in: input.roles } } });
-      return prisma.user.create({
+      const created = await prisma.user.create({
         data: {
           email: input.email.toLowerCase(),
           name: input.name,
           passwordHash: input.passwordHash,
-          roles: {
-            create: roles.map((role) => ({ roleId: role.id }))
-          }
+          roles: { create: roles.map((role) => ({ roleId: role.id })) }
         },
         include: { roles: { include: { role: true } } }
-      });
+      }) as PrismaUserRecord;
+      if (input.roles.includes("CUSTOMER")) {
+        const profile = await prisma.customerProfile.create({ data: { userId: created.id, displayName: input.name } }) as {id:string};
+        await prisma.loyaltyAccount.create({ data: { customerId: profile.id, points: 0, tier: "CLASSIC" } });
+        if (!input.harmonyConsent) throw new Error("Harmony consent is required for customer provisioning.");
+        await prisma.$executeRawUnsafe(
+          `INSERT INTO harmony_consents (id,user_id,customer_id,consent_type,source,locale,policy_code,terms_version,privacy_version,loyalty_policy_version,consented_at)
+           VALUES (gen_random_uuid(),$1::uuid,$2::uuid,'HARMONY_MEMBERSHIP','WEB_REWARDS_JOIN',$3,$4,$5,$6,$7,now())`,
+          created.id,profile.id,input.harmonyConsent.locale,input.harmonyConsent.policyCode,input.harmonyConsent.termsVersion,input.harmonyConsent.privacyVersion,input.harmonyConsent.loyaltyPolicyVersion
+        );
+      }
+      return created;
     });
     return mapUser(user as PrismaUserRecord);
   }

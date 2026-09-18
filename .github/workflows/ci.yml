@@ -42,3 +42,45 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter @salora/mobile typecheck
+
+  harmony-concurrency:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: salora_harmony_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/salora_harmony_test
+      DATABASE_POOL_MAX: "5"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.7.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Create focused Harmony integration schema
+        run: |
+          psql "$DATABASE_URL" <<'SQL'
+          CREATE TYPE "LoyaltyEntryType" AS ENUM ('EARN','REDEEM','ADJUST','EXPIRE','REVERSAL','BONUS');
+          CREATE TABLE loyalty_accounts (id uuid PRIMARY KEY, customer_id uuid NOT NULL UNIQUE, points integer NOT NULL DEFAULT 0, tier text NOT NULL DEFAULT 'CLASSIC', created_at timestamptz NOT NULL DEFAULT now(), updated_at timestamptz NOT NULL DEFAULT now());
+          CREATE TABLE loyalty_ledger_entries (id uuid PRIMARY KEY, account_id uuid NOT NULL, type "LoyaltyEntryType" NOT NULL, points integer NOT NULL, reason text NOT NULL, order_id uuid, payment_id uuid, refund_id uuid, idempotency_key text, metadata jsonb, created_at timestamptz NOT NULL DEFAULT now());
+          CREATE UNIQUE INDEX loyalty_ledger_idempotency_key_unique ON loyalty_ledger_entries(idempotency_key) WHERE idempotency_key IS NOT NULL;
+          CREATE TABLE harmony_reward_policies (id uuid PRIMARY KEY, code text NOT NULL, points_per_omr integer NOT NULL, welcome_bonus_points integer NOT NULL, is_active boolean NOT NULL, effective_from timestamptz NOT NULL);
+          CREATE TABLE harmony_consents (id uuid PRIMARY KEY, customer_id uuid NOT NULL, consent_type text NOT NULL);
+          SQL
+      - name: Prove Welcome Bonus application concurrency
+        run: node --experimental-strip-types --import ./scripts/ts-extension-loader.mjs scripts/harmony-welcome-concurrency.integration.mjs

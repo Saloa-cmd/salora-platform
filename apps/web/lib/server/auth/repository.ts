@@ -5,6 +5,7 @@ export type CreateUserInput = {
   name: string;
   passwordHash: string;
   roles: RoleName[];
+  harmonyConsent?: { locale: "ar" | "en"; policyCode: string; termsVersion: string; privacyVersion: string; loyaltyPolicyVersion: string; };
 };
 
 export type CreateSessionInput = {
