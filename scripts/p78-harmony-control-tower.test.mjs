@@ -1,0 +1,13 @@
+import assert from "node:assert/strict";import{readFileSync}from"node:fs";
+const view=readFileSync("apps/web/components/control-tower/ControlTowerView.tsx","utf8");
+const harmony=readFileSync("apps/web/components/control-tower/HarmonyCustomerWorkspace.tsx","utf8");
+const loyalty=readFileSync("apps/web/app/api/loyalty/route.ts","utf8");
+const operator=readFileSync("packages/backend/src/domains/loyalty/operator.ts","utf8");
+const api=readFileSync("apps/web/app/api/control-tower/harmony/route.ts","utf8");
+assert.match(view,/HarmonyCustomerWorkspace/);assert.match(view,/id: "harmony"/);
+assert.match(harmony,/NEW/);assert.match(harmony,/REGULAR/);assert.match(harmony,/VIP/);assert.match(harmony,/AT_RISK/);assert.match(harmony,/DORMANT/);
+assert.match(harmony,/lifecycleReason/);assert.match(harmony,/loyaltyBalance/);
+assert.match(loyalty,/MANAGER/);assert.match(loyalty,/ADMIN/);assert.match(loyalty,/actorId/);assert.match(loyalty,/Idempotency-Key/);
+assert.match(operator,/auditLog\.create/);assert.match(operator,/redeemHarmonyReward/);assert.match(operator,/rewardRedemption\.create/);assert.match(operator,/INSERT INTO loyalty_ledger_entries/);assert.match(operator,/'REDEEM'/);assert.match(operator,/Insufficient loyalty points/);assert.match(operator,/reverseHarmonyLedgerEntry/);assert.match(operator,/already been reversed/);assert.match(operator,/getHarmonyCustomerDetail/);assert.match(operator,/withPrismaAuthContext/);assert.match(api,/dbRole:"authenticated"/);assert.match(api,/Manager approval is required/);assert.match(api,/Idempotency-Key/);assert.match(api,/action:z\.literal\("redeem"\)/);assert.match(harmony,/Ledger timeline/);assert.match(harmony,/Available rewards/);assert.match(harmony,/controlTowerPost/);assert.match(harmony,/Idempotency-Key/);assert.match(operator,/entityType:"LoyaltyAccount"/);assert.match(operator,/entityType:"LoyaltyLedgerEntry"/);
+console.log("P78-C Harmony Control Tower governed operator checks passed.");
+assert.match(operator,/FOR UPDATE/,"reward redemption must serialize balance checks");

@@ -64,6 +64,8 @@ enum LoyaltyEntryType {
   REDEEM
   ADJUST
   EXPIRE
+  REVERSAL
+  BONUS
 }
 
 enum NotificationChannel {
@@ -1066,6 +1068,8 @@ model LoyaltyAccount {
   customerId  String               @unique @map("customer_id") @db.Uuid
   points      Int                  @default(0)
   tier        String               @default("CLASSIC") @db.VarChar(40)
+  createdAt   DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime             @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
   customer    CustomerProfile      @relation(fields: [customerId], references: [id], onDelete: Cascade)
   ledger      LoyaltyLedgerEntry[]
   redemptions RewardRedemption[]
@@ -1074,15 +1078,23 @@ model LoyaltyAccount {
 }
 
 model LoyaltyLedgerEntry {
-  id        String           @id @default(uuid()) @db.Uuid
-  accountId String           @map("account_id") @db.Uuid
-  type      LoyaltyEntryType
-  points    Int
-  reason    String           @db.VarChar(180)
-  createdAt DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
-  account   LoyaltyAccount   @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  id             String           @id @default(uuid()) @db.Uuid
+  accountId      String           @map("account_id") @db.Uuid
+  type           LoyaltyEntryType
+  points         Int
+  reason         String           @db.VarChar(180)
+  orderId        String?          @map("order_id") @db.Uuid
+  paymentId      String?          @map("payment_id") @db.Uuid
+  refundId       String?          @map("refund_id") @db.Uuid
+  idempotencyKey String?          @map("idempotency_key") @db.VarChar(200)
+  metadata       Json?
+  createdAt      DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  account        LoyaltyAccount   @relation(fields: [accountId], references: [id], onDelete: Cascade)
 
-  @@index([accountId])
+  @@index([accountId, createdAt])
+  @@index([orderId])
+  @@index([paymentId])
+  @@index([refundId])
   @@map("loyalty_ledger_entries")
 }
 
@@ -1107,6 +1119,7 @@ model RewardRedemption {
   reward    Reward         @relation(fields: [rewardId], references: [id])
 
   @@index([accountId])
+  @@index([rewardId])
   @@map("reward_redemptions")
 }
 
