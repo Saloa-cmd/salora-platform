@@ -27,7 +27,7 @@ export class AuthService {
     this.env = env;
   }
 
-  async register(input: { email: string; name: string; password: string; roles?: RoleName[] }, meta: { ipAddress?: string; userAgent?: string } = {}): Promise<AuthResult> {
+  async register(input: { email: string; name: string; password: string; harmonyConsent: true; locale: "ar" | "en"; roles?: RoleName[] }, meta: { ipAddress?: string; userAgent?: string } = {}): Promise<AuthResult> {
     const existing = await this.repository.findUserByEmail(input.email);
 
     if (existing) {
@@ -38,7 +38,8 @@ export class AuthService {
       email: input.email,
       name: input.name,
       passwordHash: await hashPassword(input.password),
-      roles: publicRegistrationRoles()
+      roles: publicRegistrationRoles(),
+      harmonyConsent: { locale: input.locale, policyCode: "HARMONY_V1", termsVersion: "2026-09-18", privacyVersion: "2026-09-18", loyaltyPolicyVersion: "HARMONY_V1" }
     });
 
     return this.issueTokens(user, meta);
