@@ -10,9 +10,10 @@ export async function GET(request:NextRequest){
  try{
   const actor=await currentAuthPayload(request);
   const data=await withPrismaAuthContext({userId:actor.sub,roles:actor.roles,dbRole:"authenticated"},async prisma=>{
-   const customer=await prisma.customerProfile.findUnique({where:{userId:actor.sub},select:{id:true,displayName:true,loyalty:{select:{id:true,points:true,ledger:{orderBy:{createdAt:"desc"},take:30,select:{id:true,type:true,points:true,reason:true,createdAt:true}},redemptions:{orderBy:{createdAt:"desc"},take:20,include:{reward:{select:{id:true,name:true,pointsCost:true}}}}}}}});
+   const customer=await prisma.customerProfile.findUnique({where:{userId:actor.sub},select:{id:true,displayName:true,loyalty:{select:{membershipCode:true,tier:true,points:true,ledger:{orderBy:{createdAt:"desc"},take:30,select:{id:true,type:true,points:true,reason:true,createdAt:true}},redemptions:{orderBy:{createdAt:"desc"},take:20,include:{reward:{select:{id:true,name:true,pointsCost:true}}}}}}}});
+   const policy=await prisma.harmonyRewardPolicy.findFirst({where:{isActive:true,effectiveFrom:{lte:new Date()}},orderBy:{effectiveFrom:"desc"},select:{code:true,pointsPerOmr:true,welcomeBonusPoints:true}});
    const rewards=await prisma.reward.findMany({where:{isActive:true},orderBy:[{pointsCost:"asc"},{name:"asc"}],select:{id:true,code:true,name:true,pointsCost:true}});
-   return {customer,rewards};
+   return {customer,rewards,policy};
   });
   if(!data.customer) return responseError("Customer profile not found.",requestId,404);
   return responseJson(data,requestId);
