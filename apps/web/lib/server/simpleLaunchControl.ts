@@ -228,6 +228,14 @@ export const aiProductToolSchema = z.object({
 });
 
 export async function handleError(error: unknown, id: string) {
+  // Handled route failures must still be observable in Vercel runtime logs. Keep
+  // the payload server-side and avoid logging request bodies, tokens or secrets.
+  console.error("[control-tower] request failed", {
+    requestId: id,
+    errorName: error instanceof Error ? error.name : "UnknownError",
+    errorMessage: error instanceof Error ? error.message : "Unknown control tower failure",
+    errorCode: typeof error === "object" && error !== null && "code" in error ? String((error as { code?: unknown }).code ?? "") : undefined
+  });
   const limited = rateLimitResponse(error, id);
   if (limited) return limited;
   if (error instanceof Error && error.message === "Missing bearer token.") return responseError("Unauthorized.", id, 401);
