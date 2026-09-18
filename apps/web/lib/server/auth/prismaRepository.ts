@@ -26,7 +26,7 @@ type PrismaAuthClient = {
   };
   customerProfile: { create(args: unknown): Promise<unknown>; };
   loyaltyAccount: { create(args: unknown): Promise<unknown>; };
-  harmonyConsent: { create(args: unknown): Promise<unknown>; };
+  $executeRawUnsafe(query:string,...values:unknown[]): Promise<number>;
   role: {
     findMany(args: unknown): Promise<Array<{ id: string; name: RoleName }>>;
   };
@@ -95,12 +95,11 @@ export class PrismaAuthRepository implements AuthRepository {
         const profile = await prisma.customerProfile.create({ data: { userId: created.id, displayName: input.name } }) as {id:string};
         await prisma.loyaltyAccount.create({ data: { customerId: profile.id, points: 0, tier: "CLASSIC" } });
         if (!input.harmonyConsent) throw new Error("Harmony consent is required for customer provisioning.");
-        await prisma.harmonyConsent.create({ data: {
-          userId: created.id, customerId: profile.id, consentType: "HARMONY_MEMBERSHIP",
-          source: "WEB_REWARDS_JOIN", locale: input.harmonyConsent.locale,
-          policyCode: input.harmonyConsent.policyCode, termsVersion: input.harmonyConsent.termsVersion,
-          privacyVersion: input.harmonyConsent.privacyVersion, loyaltyPolicyVersion: input.harmonyConsent.loyaltyPolicyVersion
-        } });
+        await prisma.$executeRawUnsafe(
+          `INSERT INTO harmony_consents (id,user_id,customer_id,consent_type,source,locale,policy_code,terms_version,privacy_version,loyalty_policy_version,consented_at)
+           VALUES (gen_random_uuid(),$1::uuid,$2::uuid,'HARMONY_MEMBERSHIP','WEB_REWARDS_JOIN',$3,$4,$5,$6,$7,now())`,
+          created.id,profile.id,input.harmonyConsent.locale,input.harmonyConsent.policyCode,input.harmonyConsent.termsVersion,input.harmonyConsent.privacyVersion,input.harmonyConsent.loyaltyPolicyVersion
+        );
       }
       return created;
     });
