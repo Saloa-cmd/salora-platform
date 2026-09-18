@@ -1,0 +1,16 @@
+import assert from "node:assert/strict";
+import fs from "node:fs";
+const route=fs.readFileSync("apps/web/app/api/control-tower/experience/route.ts","utf8");
+const errors=fs.readFileSync("apps/web/lib/server/simpleLaunchControl.ts","utf8");
+assert.ok(!route.includes("Promise.all(["),"Experience GET must not parallelize RLS and published-config DB reads");
+const draft=route.indexOf("const draft = await repo.runtimeConfig.findUnique");
+const published=route.indexOf("const publishedConfiguration = await getPublishedExperienceConfiguration");
+assert.ok(draft>=0&&published>draft,"Experience reads must remain sequential");
+assert.match(errors,/\[control-tower\] request failed/);
+assert.match(errors,/requestId: id/);
+const handlerStart=errors.indexOf("export async function handleError");
+const handlerEnd=errors.indexOf("export async function runAiDraft",handlerStart);
+assert.ok(handlerStart>=0&&handlerEnd>handlerStart,"handleError source slice must be found");
+const handler=errors.slice(handlerStart,handlerEnd);
+assert.doesNotMatch(handler,/request\.headers|authorization|request\.body/);
+console.log("Experience runtime hotfix checks passed.");
