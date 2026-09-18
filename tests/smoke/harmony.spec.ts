@@ -2,8 +2,9 @@ import {expect,test} from "@playwright/test";
 
 test.describe("Harmony customer experience",()=>{
  test("anonymous rewards journey exposes join without Control Tower",async({page})=>{
-  const errors:string[]=[];page.on("console",m=>{if(m.type()==="error")errors.push(m.text())});page.on("pageerror",e=>errors.push(e.message));
-  const r=await page.goto("/rewards",{waitUntil:"networkidle"});expect(r?.status()).toBe(200);
+  const errors:string[]=[];page.on("console",m=>{if(m.type()==="error"&&!m.text().includes("401 (Unauthorized)"))errors.push(m.text())});page.on("pageerror",e=>errors.push(e.message));
+  const unauthorized=page.waitForResponse(r=>r.url().includes("/api/rewards/me")&&r.status()===401);
+  const r=await page.goto("/rewards",{waitUntil:"networkidle"});expect(r?.status()).toBe(200);await unauthorized;
   await expect(page.getByRole("link",{name:"إنشاء عضوية جديدة"})).toBeVisible();
   await page.getByRole("link",{name:"إنشاء عضوية جديدة"}).click();
   await expect(page).toHaveURL(/\/rewards\/join$/);
