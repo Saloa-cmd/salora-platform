@@ -121,10 +121,28 @@ export async function applyPersistentLoyaltyMutation(input: PersistentLoyaltyMut
   });
 }
 
+async function grantWelcomeBonusForEligiblePaidOrder(input:{customerId:string;orderId:string;paymentId:string}){
+  const prisma=getPrismaClient();
+  const rows=await prisma.$queryRawUnsafe<Array<{welcome_bonus_points:number;policy_code:string}>>(
+    `SELECT p.welcome_bonus_points, p.code AS policy_code
+     FROM harmony_reward_policies p
+     WHERE p.is_active=true AND p.effective_from<=now()
+       AND EXISTS (SELECT 1 FROM harmony_consents c WHERE c.customer_id=$1::uuid AND c.consent_type='HARMONY_MEMBERSHIP')
+     ORDER BY p.effective_from DESC LIMIT 1`,input.customerId
+  );
+  const policy=rows[0]; if(!policy||policy.welcome_bonus_points<=0)return null;
+  return applyPersistentLoyaltyMutation({
+    customerId:input.customerId,points:policy.welcome_bonus_points,type:"BONUS",
+    reason:"Harmony welcome bonus — first eligible paid order",
+    idempotencyKey:`welcome:${input.customerId}`,orderId:input.orderId,paymentId:input.paymentId,
+    metadata:{source:"first_eligible_paid_order",policyCode:policy.policy_code}
+  });
+}
+
 export async function awardPaidOrderLoyalty(input: { customerId: string; orderId: string; paymentId: string; amount: number }) {
   const points = await calculateHarmonyEarn(input.amount);
   if (points <= 0) return null;
-  return applyPersistentLoyaltyMutation({
+  const earn=await applyPersistentLoyaltyMutation({
     customerId: input.customerId,
     points,
     type: "EARN",
@@ -134,6 +152,9 @@ export async function awardPaidOrderLoyalty(input: { customerId: string; orderId
     paymentId: input.paymentId,
     metadata: { source: "payment_succeeded", amountOmr: input.amount }
   });
+  const welcome=await grantWelcomeBonusForEligiblePaidOrder({customerId:input.customerId,orderId:input.orderId,paymentId:input.paymentId});
+  if(welcome?.applied) incrementMetric("salora_harmony_welcome_bonus_granted_total");
+  return {earn,welcome};
 }
 
 export async function reverseRefundedLoyalty(input: { customerId: string; orderId: string; paymentId: string; refundId: string; amount: number }) {
