@@ -1,4 +1,4 @@
-import { SYSTEM_AUTH_CONTEXT, withPrismaAuthContext } from "@salora/backend";
+import { SYSTEM_AUTH_CONTEXT, withPrismaAuthContext, withPrismaAuthContextTx } from "@salora/backend";
 import type { AuthRepository, CreateSessionInput, CreateUserInput } from "./repository";
 import type { AuthSession, AuthUser, RoleName } from "./types";
 
@@ -26,6 +26,7 @@ type PrismaAuthClient = {
   };
   customerProfile: { create(args: unknown): Promise<unknown>; };
   loyaltyAccount: { create(args: unknown): Promise<unknown>; };
+  harmonyConsent: { create(args: unknown): Promise<unknown>; };
   role: {
     findMany(args: unknown): Promise<Array<{ id: string; name: RoleName }>>;
   };
@@ -79,7 +80,7 @@ export class PrismaAuthRepository implements AuthRepository {
   }
 
   async createUser(input: CreateUserInput): Promise<AuthUser> {
-    const user = await this.run(async (prisma) => {
+    const user = await withPrismaAuthContextTx(SYSTEM_AUTH_CONTEXT, async (prisma) => {
       const roles = await prisma.role.findMany({ where: { name: { in: input.roles } } });
       const created = await prisma.user.create({
         data: {
@@ -93,6 +94,13 @@ export class PrismaAuthRepository implements AuthRepository {
       if (input.roles.includes("CUSTOMER")) {
         const profile = await prisma.customerProfile.create({ data: { userId: created.id, displayName: input.name } }) as {id:string};
         await prisma.loyaltyAccount.create({ data: { customerId: profile.id, points: 0, tier: "CLASSIC" } });
+        if (!input.harmonyConsent) throw new Error("Harmony consent is required for customer provisioning.");
+        await prisma.harmonyConsent.create({ data: {
+          userId: created.id, customerId: profile.id, consentType: "HARMONY_MEMBERSHIP",
+          source: "WEB_REWARDS_JOIN", locale: input.harmonyConsent.locale,
+          policyCode: input.harmonyConsent.policyCode, termsVersion: input.harmonyConsent.termsVersion,
+          privacyVersion: input.harmonyConsent.privacyVersion, loyaltyPolicyVersion: input.harmonyConsent.loyaltyPolicyVersion
+        } });
       }
       return created;
     });
