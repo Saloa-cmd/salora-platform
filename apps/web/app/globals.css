@@ -24,8 +24,7 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-.premium-menu-shell :lang(en),
-.premium-home-shell :lang(en) {
+:lang(en) {
   font-family: var(--font-sans);
 }
 

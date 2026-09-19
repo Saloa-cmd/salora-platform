@@ -39,6 +39,7 @@ assert.match(tokens, /prefers-reduced-motion:\s*reduce/, "reduced motion token o
 assert.match(layout, /import "\.\.\/styles\/tokens\.css";/, "tokens must load before application CSS");
 assert.match(layout, /import "\.\.\/styles\/primitives\.css";/, "primitive styles must load centrally");
 assert.doesNotMatch(globals, /--background:\s*#050505/, "legacy raw token block must not remain in globals.css");
+assert.match(globals, /:lang\(en\)\s*\{[^}]*font-family:\s*var\(--font-sans\)/s, "English content must select the Latin family");
 
 for (const primitive of [
   "SaloraButton",
