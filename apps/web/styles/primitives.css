@@ -1,0 +1,128 @@
+/* Accessible, personality-neutral primitives shared by customer and operator UI. */
+
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+:where(button, [role="button"], [role="tab"], input, select) {
+  min-block-size: var(--touch-target-min);
+}
+
+.salora-button {
+  display: inline-flex;
+  min-block-size: var(--touch-target-min);
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  border: var(--border-width-hairline) solid transparent;
+  border-radius: var(--radius-control);
+  padding-inline: var(--space-4);
+  font-size: var(--type-button-size);
+  font-weight: 600;
+  line-height: var(--type-button-line);
+  transition:
+    background-color var(--motion-normal) var(--motion-ease-standard),
+    border-color var(--motion-normal) var(--motion-ease-standard),
+    color var(--motion-normal) var(--motion-ease-standard),
+    opacity var(--motion-fast) var(--motion-ease-standard),
+    transform var(--motion-fast) var(--motion-ease-standard);
+}
+
+.salora-button:active:not(:disabled) { transform: translateY(1px); }
+.salora-button:disabled { opacity: var(--opacity-disabled); }
+.salora-button[data-size="small"] { min-block-size: 2.5rem; padding-inline: var(--space-3); font-size: var(--type-caption-size); }
+.salora-button[data-size="large"] { min-block-size: 3rem; padding-inline: var(--space-5); font-size: var(--type-body-size); }
+.salora-button[data-variant="primary"] { background: var(--brand); color: var(--brand-foreground); }
+.salora-button[data-variant="primary"]:hover:not(:disabled) { background: var(--brand-hover); }
+.salora-button[data-variant="secondary"] { border-color: var(--border); background: var(--surface-raised); color: var(--foreground); }
+.salora-button[data-variant="secondary"]:hover:not(:disabled) { border-color: var(--border-strong); }
+.salora-button[data-variant="outline"] { border-color: var(--border-strong); background: transparent; color: var(--foreground); }
+.salora-button[data-variant="outline"]:hover:not(:disabled),
+.salora-button[data-variant="ghost"]:hover:not(:disabled) { background: var(--state-hover-overlay); }
+.salora-button[data-variant="ghost"] { background: transparent; color: var(--foreground); }
+.salora-button[data-variant="destructive"] { border-color: color-mix(in srgb, var(--danger) 24%, transparent); background: color-mix(in srgb, var(--danger) 12%, transparent); color: var(--danger); }
+.salora-button[data-variant="destructive"]:hover:not(:disabled) { background: color-mix(in srgb, var(--danger) 18%, transparent); }
+
+.salora-button__spinner {
+  block-size: 1rem;
+  inline-size: 1rem;
+  animation: salora-spin 800ms linear infinite;
+  border: 2px solid currentColor;
+  border-inline-end-color: transparent;
+  border-radius: 50%;
+}
+
+@keyframes salora-spin { to { transform: rotate(1turn); } }
+
+.salora-icon-button {
+  display: inline-grid;
+  min-block-size: var(--touch-target-min);
+  min-inline-size: var(--touch-target-min);
+  place-items: center;
+  border: var(--border-width-hairline) solid var(--border);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  color: var(--foreground);
+  transition: border-color var(--motion-normal) var(--motion-ease-standard);
+}
+
+.salora-icon-button:hover:not(:disabled) { border-color: var(--border-strong); }
+.salora-icon-button:disabled { opacity: var(--opacity-disabled); }
+
+.salora-badge {
+  display: inline-flex;
+  min-block-size: 2rem;
+  align-items: center;
+  gap: var(--space-2);
+  border: var(--border-width-hairline) solid var(--border);
+  border-radius: var(--radius-pill);
+  padding: var(--space-1) var(--space-3);
+  background: var(--state-hover-overlay);
+  color: var(--foreground);
+  font-size: var(--type-caption-size);
+  font-weight: 600;
+}
+
+.salora-badge[data-tone="brand"] { border-color: var(--border-brand); background: var(--state-selected-overlay); color: var(--brand-hover); }
+.salora-badge[data-tone="success"] { border-color: color-mix(in srgb, var(--success) 24%, transparent); background: color-mix(in srgb, var(--success) 11%, transparent); color: var(--success); }
+.salora-badge[data-tone="warning"] { border-color: color-mix(in srgb, var(--warning) 24%, transparent); background: color-mix(in srgb, var(--warning) 11%, transparent); color: var(--warning); }
+.salora-badge[data-tone="danger"] { border-color: color-mix(in srgb, var(--danger) 24%, transparent); background: color-mix(in srgb, var(--danger) 11%, transparent); color: var(--danger); }
+.salora-badge[data-tone="info"] { border-color: color-mix(in srgb, var(--info) 24%, transparent); background: color-mix(in srgb, var(--info) 11%, transparent); color: var(--info); }
+
+.salora-surface { border: var(--border-width-hairline) solid var(--border); border-radius: var(--radius-card); background: var(--surface); }
+.salora-field { display: grid; gap: var(--space-2); }
+.salora-field__label { color: var(--foreground); font-size: var(--type-body-small-size); font-weight: 600; }
+.salora-field__required { margin-inline-start: var(--space-1); color: var(--danger); }
+.salora-field__description,
+.salora-field__error { margin: 0; font-size: var(--type-caption-size); }
+.salora-field__description { color: var(--foreground-muted); }
+.salora-field__error { color: var(--danger); }
+.salora-field__control { min-block-size: var(--touch-target-min); border: var(--border-width-hairline) solid var(--border); border-radius: var(--radius-control); padding-inline: var(--space-3); background: var(--interactive); color: var(--foreground); }
+.salora-field__control[aria-invalid="true"] { border-color: var(--danger); }
+.salora-field__control::placeholder { color: var(--foreground-muted); }
+
+.salora-alert { border: var(--border-width-hairline) solid; border-radius: var(--radius-card); padding: var(--space-4); }
+.salora-alert__title { margin: 0; font-weight: 600; }
+.salora-alert__body { margin-block-start: var(--space-1); font-size: var(--type-body-small-size); opacity: 0.9; }
+.salora-alert[data-tone="neutral"] { border-color: var(--border); background: var(--state-hover-overlay); color: var(--foreground); }
+.salora-alert[data-tone="success"] { border-color: color-mix(in srgb, var(--success) 24%, transparent); background: color-mix(in srgb, var(--success) 11%, transparent); color: var(--success); }
+.salora-alert[data-tone="warning"] { border-color: color-mix(in srgb, var(--warning) 24%, transparent); background: color-mix(in srgb, var(--warning) 11%, transparent); color: var(--warning); }
+.salora-alert[data-tone="danger"] { border-color: color-mix(in srgb, var(--danger) 24%, transparent); background: color-mix(in srgb, var(--danger) 11%, transparent); color: var(--danger); }
+.salora-alert[data-tone="info"] { border-color: color-mix(in srgb, var(--info) 24%, transparent); background: color-mix(in srgb, var(--info) 11%, transparent); color: var(--info); }
+
+.salora-skeleton { animation: salora-pulse 2s var(--motion-ease-standard) infinite; border-radius: var(--radius-control); background: var(--state-hover-overlay); }
+@keyframes salora-pulse { 50% { opacity: 0.5; } }
+
+.salora-table-region { max-inline-size: 100%; overflow-x: auto; border: var(--border-width-hairline) solid var(--border); border-radius: var(--radius-card); }
+
+@media (prefers-reduced-motion: reduce) {
+  .salora-button__spinner,
+  .salora-skeleton { animation: none; }
+}
+
+@media (forced-colors: active) {
+  :where(a, button, input, select, textarea, [tabindex]):focus-visible {
+    outline-color: CanvasText;
+  }
+}
