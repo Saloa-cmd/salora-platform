@@ -40,6 +40,7 @@ assert.match(layout, /import "\.\.\/styles\/tokens\.css";/, "tokens must load be
 assert.match(layout, /import "\.\.\/styles\/primitives\.css";/, "primitive styles must load centrally");
 assert.doesNotMatch(globals, /--background:\s*#050505/, "legacy raw token block must not remain in globals.css");
 assert.match(globals, /:lang\(en\)\s*\{[^}]*font-family:\s*var\(--font-sans\)/s, "English content must select the Latin family");
+assert.doesNotMatch(globals, /:lang\(ar\)\s+\./, "Arabic composition must follow the nearest language boundary");
 
 for (const primitive of [
   "SaloraButton",

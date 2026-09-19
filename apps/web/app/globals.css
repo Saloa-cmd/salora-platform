@@ -54,7 +54,7 @@ body {
   text-wrap: balance;
 }
 
-:lang(ar) .salora-menu-display {
+.salora-menu-display:lang(ar) {
   max-inline-size: 18ch;
   font-size: clamp(2rem, 3.35vw, 3.55rem);
   line-height: 1.24;
@@ -66,8 +66,8 @@ body {
   letter-spacing: 0.2em;
 }
 
-:lang(ar) .salora-eyebrow,
-:lang(ar) .salora-breakfast-badges {
+.salora-eyebrow:lang(ar),
+.salora-breakfast-badges:lang(ar) {
   letter-spacing: 0.035em;
   text-transform: none;
 }
@@ -104,7 +104,7 @@ body {
   line-height: 1.35;
 }
 
-:lang(ar) .salora-display {
+.salora-display:lang(ar) {
   max-inline-size: 16ch;
   font-size: var(--type-display-ar);
   line-height: 1.16;
@@ -394,12 +394,12 @@ button:disabled {
 
 @media (max-width: 47.99rem) {
   .salora-display,
-  :lang(ar) .salora-display {
+  .salora-display:lang(ar) {
     max-inline-size: 100%;
   }
 
   .salora-menu-display,
-  :lang(ar) .salora-menu-display {
+  .salora-menu-display:lang(ar) {
     max-inline-size: 100%;
     font-size: clamp(1.8rem, 8vw, 2.5rem);
   }
@@ -582,7 +582,7 @@ button:disabled {
   text-wrap: balance;
 }
 
-:lang(ar) .premium-hero h1 {
+.premium-hero h1:lang(ar) {
   max-width: 12ch;
   font-family: var(--font-arabic);
   font-size: clamp(3.8rem, 6.8vw, 7rem);
@@ -763,9 +763,9 @@ button:disabled {
   line-height: 1;
 }
 
-:lang(ar) .premium-section-heading h2,
-:lang(ar) .premium-story h2,
-:lang(ar) .premium-visit h2 {
+.premium-section-heading h2:lang(ar),
+.premium-story h2:lang(ar),
+.premium-visit h2:lang(ar) {
   font-family: var(--font-arabic);
   line-height: 1.18;
 }
@@ -873,7 +873,7 @@ button:disabled {
   font-weight: 400;
 }
 
-:lang(ar) .premium-product-body h3 {
+.premium-product-body h3:lang(ar) {
   font-family: var(--font-arabic);
   font-weight: 600;
 }
@@ -1185,7 +1185,7 @@ button:disabled {
   }
 
   .premium-hero h1,
-  :lang(ar) .premium-hero h1 {
+  .premium-hero h1:lang(ar) {
     max-width: 100%;
     font-size: clamp(3.35rem, 15vw, 4.5rem);
   }
