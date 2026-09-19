@@ -2,74 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-:root,
-[data-theme="dark"] {
-  --background: #050505;
-  --surface: #111111;
-  --surface-soft: #181614;
-  --gold: #C9A45C;
-  --gold-soft: #E7D3A1;
-  --cream: #F5EFE3;
-  --muted: #9C9387;
-  --matcha: #9CAF88;
-  --espresso: #3A2418;
-  --surface-raised: #201C18;
-  --danger: #E7A1A1;
-  --border-subtle: rgba(245, 239, 227, 0.10);
-  --border-strong: rgba(245, 239, 227, 0.18);
-  --border-gold: rgba(201, 164, 92, 0.30);
-  --font-sans: var(--font-salora-latin), "SF Pro Display", ui-sans-serif, system-ui, sans-serif;
-  --font-arabic: var(--font-salora-arabic), "Segoe UI", Tahoma, Arial, sans-serif;
-  --font-serif: "Georgia", "Times New Roman", serif;
-  --focus-ring: #f3d88f;
-  --success: #6ee7b7;
-  --warning: #f7cc75;
-  --content-max: 80rem;
-  --radius-sm: 0.75rem;
-  --radius-md: 1rem;
-  --radius-lg: 1.5rem;
-  --shadow-raised: 0 24px 64px rgba(0, 0, 0, 0.28);
-  --space-page: clamp(1rem, 2.4vw, 2rem);
-  --type-display: clamp(2.5rem, 5.4vw, 5.75rem);
-  --type-display-ar: clamp(2.35rem, 4.8vw, 5rem);
-  --type-title: clamp(1.35rem, 2.2vw, 2rem);
-  --foreground: var(--cream);
-  --foreground-muted: var(--muted);
-  --interactive: #0b0a09;
-  --border: var(--border-subtle);
-  --brand: var(--gold);
-  --brand-hover: var(--gold-soft);
-  --brand-foreground: var(--background);
-  --border-brand: var(--border-gold);
-  --info: #8ec5e8;
-  --radius-control: 0.75rem;
-  --radius-card: 1.125rem;
-  --radius-modal: 1.5rem;
-  --duration-fast: 120ms;
-  --duration-normal: 180ms;
-  --duration-slow: 280ms;
-  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
-  --ease-emphasized: cubic-bezier(0.2, 0.8, 0.2, 1);
-  --backdrop: rgba(5, 5, 5, 0.9);
-  --overlay: rgba(0, 0, 0, 0.7);
-  --premium-gold: var(--brand);
-  --premium-cream: var(--foreground);
-  --premium-muted: var(--foreground-muted);
-  --premium-background: var(--background);
-}
-
-[data-theme="light"] {
-  --background: #FBF8F1; --surface: #FFFFFF; --surface-soft: #F4EEE3; --surface-raised: #FFFDF8;
-  --cream: #211B16; --muted: #6B6259; --gold: #8B6727; --gold-soft: #704F18; --matcha: #536B46; --espresso: #3A2418;
-  --danger: #A33737; --success: #17633C; --warning: #7A5414; --info: #245F84; --focus-ring: #6D4D17;
-  --border-subtle: rgba(58, 36, 24, 0.14); --border-strong: rgba(58, 36, 24, 0.25); --border-gold: rgba(139, 103, 39, 0.34);
-  --foreground: var(--cream); --foreground-muted: var(--muted); --interactive: #F1EADF; --border: var(--border-subtle);
-  --brand: var(--gold); --brand-hover: var(--gold-soft); --brand-foreground: #FFFFFF; --border-brand: var(--border-gold);
-  --backdrop: rgba(255, 253, 248, 0.92); --overlay: rgba(33, 27, 22, 0.46);
-  --premium-gold: var(--brand); --premium-cream: var(--foreground); --premium-muted: var(--foreground-muted); --premium-background: var(--background);
-  --shadow-raised: 0 24px 64px rgba(58, 36, 24, 0.13);
-}
-
 * {
   box-sizing: border-box;
 }
@@ -92,8 +24,7 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-.premium-menu-shell :lang(en),
-.premium-home-shell :lang(en) {
+:lang(en) {
   font-family: var(--font-sans);
 }
 
@@ -123,7 +54,7 @@ body {
   text-wrap: balance;
 }
 
-:lang(ar) .salora-menu-display {
+.salora-menu-display:lang(ar) {
   max-inline-size: 18ch;
   font-size: clamp(2rem, 3.35vw, 3.55rem);
   line-height: 1.24;
@@ -135,8 +66,8 @@ body {
   letter-spacing: 0.2em;
 }
 
-:lang(ar) .salora-eyebrow,
-:lang(ar) .salora-breakfast-badges {
+.salora-eyebrow:lang(ar),
+.salora-breakfast-badges:lang(ar) {
   letter-spacing: 0.035em;
   text-transform: none;
 }
@@ -173,7 +104,7 @@ body {
   line-height: 1.35;
 }
 
-:lang(ar) .salora-display {
+.salora-display:lang(ar) {
   max-inline-size: 16ch;
   font-size: var(--type-display-ar);
   line-height: 1.16;
@@ -206,16 +137,6 @@ body {
 a {
   color: inherit;
   text-decoration: none;
-}
-
-a:focus-visible,
-button:focus-visible,
-input:focus-visible,
-select:focus-visible,
-textarea:focus-visible,
-[tabindex]:focus-visible {
-  outline: 3px solid var(--focus-ring);
-  outline-offset: 4px;
 }
 
 button,
@@ -459,16 +380,6 @@ button:disabled {
   }
 }
 
-/* SALORA interaction contract: WCAG 2.2 visible focus and dependable touch targets. */
-:where(a, button, input, select, textarea, [tabindex]):focus-visible {
-  outline: 2px solid var(--gold-soft, #e4bd69);
-  outline-offset: 3px;
-}
-
-:where(button, [role="button"], [role="tab"], input, select) {
-  min-block-size: 44px;
-}
-
 ::selection {
   background: color-mix(in srgb, var(--gold, #d7ad55) 38%, transparent);
   color: var(--cream, #f5efe3);
@@ -483,12 +394,12 @@ button:disabled {
 
 @media (max-width: 47.99rem) {
   .salora-display,
-  :lang(ar) .salora-display {
+  .salora-display:lang(ar) {
     max-inline-size: 100%;
   }
 
   .salora-menu-display,
-  :lang(ar) .salora-menu-display {
+  .salora-menu-display:lang(ar) {
     max-inline-size: 100%;
     font-size: clamp(1.8rem, 8vw, 2.5rem);
   }
@@ -671,7 +582,7 @@ button:disabled {
   text-wrap: balance;
 }
 
-:lang(ar) .premium-hero h1 {
+.premium-hero h1:lang(ar) {
   max-width: 12ch;
   font-family: var(--font-arabic);
   font-size: clamp(3.8rem, 6.8vw, 7rem);
@@ -852,9 +763,9 @@ button:disabled {
   line-height: 1;
 }
 
-:lang(ar) .premium-section-heading h2,
-:lang(ar) .premium-story h2,
-:lang(ar) .premium-visit h2 {
+.premium-section-heading h2:lang(ar),
+.premium-story h2:lang(ar),
+.premium-visit h2:lang(ar) {
   font-family: var(--font-arabic);
   line-height: 1.18;
 }
@@ -962,7 +873,7 @@ button:disabled {
   font-weight: 400;
 }
 
-:lang(ar) .premium-product-body h3 {
+.premium-product-body h3:lang(ar) {
   font-family: var(--font-arabic);
   font-weight: 600;
 }
@@ -1274,7 +1185,7 @@ button:disabled {
   }
 
   .premium-hero h1,
-  :lang(ar) .premium-hero h1 {
+  .premium-hero h1:lang(ar) {
     max-width: 100%;
     font-size: clamp(3.35rem, 15vw, 4.5rem);
   }

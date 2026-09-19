@@ -5,23 +5,23 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "#050505",
-        surface: "#111111",
-        surfaceSoft: "#181614",
-        gold: "#C9A45C",
-        goldSoft: "#E7D3A1",
-        cream: "#F5EFE3",
-        muted: "#9C9387",
-        matcha: "#9CAF88",
-        espresso: "#3A2418"
+        background: "var(--background)",
+        surface: "var(--surface)",
+        surfaceSoft: "var(--surface-soft)",
+        gold: "var(--gold)",
+        goldSoft: "var(--gold-soft)",
+        cream: "var(--cream)",
+        muted: "var(--muted)",
+        matcha: "var(--matcha)",
+        espresso: "var(--espresso)"
       },
       fontFamily: {
         sans: ["var(--font-sans)", "ui-sans-serif", "system-ui"],
         serif: ["var(--font-serif)", "Georgia", "serif"]
       },
       boxShadow: {
-        luxury: "0 18px 60px rgba(0,0,0,0.42)",
-        glow: "0 0 80px rgba(201,164,92,0.16)"
+        luxury: "var(--shadow-floating)",
+        glow: "0 0 80px color-mix(in srgb, var(--gold) 16%, transparent)"
       }
     }
   },
