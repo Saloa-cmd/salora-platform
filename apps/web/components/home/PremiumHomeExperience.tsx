@@ -180,7 +180,7 @@ export function PremiumHomeExperience({
           <ExperienceStatus language={language} source={menuSource} stale={menuStale} databaseHealth={menuDatabaseHealth} compact />
         </div>
 
-        <div className="premium-hero-art" aria-label={heroAlt}>
+        <div className="premium-hero-art" role="img" aria-label={heroAlt}>
           <div className="premium-orbit premium-orbit-one" />
           <div className="premium-orbit premium-orbit-two" />
           <div className="premium-hero-halo" />

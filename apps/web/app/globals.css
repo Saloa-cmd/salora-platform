@@ -1064,7 +1064,7 @@ button:disabled {
 
 .premium-footer-word {
   overflow: hidden;
-  color: #11110f;
+  color: var(--color-text-muted);
   font-family: var(--font-serif);
   font-size: clamp(5rem, 18vw, 17rem);
   line-height: 0.8;
@@ -1118,7 +1118,6 @@ button:disabled {
   box-shadow: 0 22px 60px color-mix(in srgb, var(--background) 24%, transparent);
 }
 
-[data-theme="light"] .premium-footer-word { color: #E8DED0; }
 [data-theme="light"] .premium-menu-shell .bg-black\/85,
 [data-theme="light"] .premium-menu-shell .bg-black\/20 { background-color: color-mix(in srgb, var(--surface) 88%, transparent); }
 
