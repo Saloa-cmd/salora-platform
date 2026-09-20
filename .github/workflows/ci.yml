@@ -42,3 +42,46 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter @salora/mobile typecheck
+
+  performance-lab:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.7.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Build UX-01 candidate
+        run: pnpm build
+      - name: Prepare main baseline
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          git worktree add ../salora-baseline "$BASE_SHA"
+          cd ../salora-baseline
+          pnpm install --frozen-lockfile
+          pnpm build
+      - name: Install Playwright Chromium
+        run: pnpm exec playwright install --with-deps chromium
+      - name: Measure main against candidate
+        env:
+          SALORA_BASELINE_ROOT: ${{ github.workspace }}/../salora-baseline
+          SALORA_CANDIDATE_ROOT: ${{ github.workspace }}
+          SALORA_BASELINE_SHA: ${{ github.event.pull_request.base.sha }}
+          SALORA_PERFORMANCE_RUNS: 3
+        run: node scripts/ux01-performance-lab.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ux01-performance-${{ github.sha }}
+          path: |
+            ux01-performance-results.json
+            ux01-performance-results.md
+          if-no-files-found: warn
