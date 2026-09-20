@@ -3,11 +3,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowDown, ArrowUpLeft, Check, Clock3, Instagram, Languages, MapPin, Menu, MessageCircle, ShoppingBag } from "lucide-react";
-import { useState } from "react";
 import type { ExperienceConfiguration, MenuAuthoritySnapshot, MenuAuthoritySource, Product } from "@salora/types";
 import { breakfastMediaBySlug, breakfastService, isBreakfastProduct } from "@salora/data";
 import { ThemeControl } from "@/components/ui/ThemeControl";
 import { ExperienceStatus } from "@/components/public/ExperienceStatus";
+import { useSaloraLocale } from "@/components/SaloraLocaleProvider";
 
 type Language = "ar" | "en";
 
@@ -119,7 +119,7 @@ export function PremiumHomeExperience({
   whatsappNumber: string;
   experience: ExperienceConfiguration;
 }) {
-  const [language, setLanguage] = useState<Language>("ar");
+  const { locale: language, setLocale: setLanguage } = useSaloraLocale();
   const t = copy[language];
   const rtl = language === "ar";
   const hasBreakfast = featuredProducts.some((product) => isBreakfastProduct(product.tags));
@@ -180,7 +180,7 @@ export function PremiumHomeExperience({
           <ExperienceStatus language={language} source={menuSource} stale={menuStale} databaseHealth={menuDatabaseHealth} compact />
         </div>
 
-        <div className="premium-hero-art" aria-label={heroAlt}>
+        <div className="premium-hero-art">
           <div className="premium-orbit premium-orbit-one" />
           <div className="premium-orbit premium-orbit-two" />
           <div className="premium-hero-halo" />
@@ -234,8 +234,8 @@ export function PremiumHomeExperience({
       </section>
 
       <footer className="premium-footer">
-        <div className="premium-footer-word">SALORA</div>
-        <div><p>{t.footer}</p><p>© 2026 SALORA.CAFE</p><a href="https://instagram.com/salora.cafe" target="_blank" rel="noreferrer"><Instagram aria-hidden="true" />@salora.cafe</a></div>
+        <div className="premium-footer-word" aria-hidden="true">SALORA</div>
+        <div><p>{t.footer}</p><p>© 2026 SALORA.CAFE</p><Link href="/privacy">{rtl ? "الخصوصية" : "Privacy"}</Link><a href="https://instagram.com/salora.cafe" target="_blank" rel="noreferrer"><Instagram aria-hidden="true" />@salora.cafe</a></div>
       </footer>
     </main>
   );
