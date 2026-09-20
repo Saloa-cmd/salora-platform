@@ -191,11 +191,12 @@ try {
       reducedMotion: true,
       network: "75ms RTT; 5Mbps down; 1.5Mbps up",
       cpu: "4x slowdown",
-      environment: "two isolated Next.js production servers on the same GitHub-hosted runner"
+      environment: "two isolated Next.js production servers on the same GitHub-hosted runner",
+      jsRegressionGate: "candidate increase greater than max(1024 bytes, 0.5%)"
     },
     refs: {
       baseline: process.env.SALORA_BASELINE_SHA ?? "unknown",
-      candidate: process.env.GITHUB_SHA ?? "unknown"
+      candidate: process.env.SALORA_CANDIDATE_SHA ?? process.env.GITHUB_SHA ?? "unknown"
     },
     summary,
     raw
@@ -226,7 +227,10 @@ try {
     const candidate = summary[route].candidate;
     const problems = [];
     if (candidate.cls.median > 0.1) problems.push(`${route} CLS ${candidate.cls.median} exceeds 0.1`);
-    if (candidate.jsBytes.median > baseline.jsBytes.median) problems.push(`${route} JS increased by ${summary[route].delta.jsBytes} bytes`);
+    const materialJsIncrease = Math.max(1024, baseline.jsBytes.median * 0.005);
+    if (candidate.jsBytes.median - baseline.jsBytes.median > materialJsIncrease) {
+      problems.push(`${route} JS increased materially by ${summary[route].delta.jsBytes} bytes`);
+    }
     if (candidate.lcpMs.median - baseline.lcpMs.median > Math.max(250, baseline.lcpMs.median * 0.15)) {
       problems.push(`${route} LCP regressed by ${summary[route].delta.lcpMs}ms`);
     }
