@@ -558,7 +558,7 @@ button:disabled {
   align-items: center;
   gap: 0.75rem;
   margin: 0 0 1.5rem;
-  color: var(--premium-gold);
+  color: var(--color-brand-emphasis);
   font-size: 0.7rem;
   font-weight: 700;
   letter-spacing: 0.2em;
@@ -943,6 +943,11 @@ button:disabled {
   min-height: 46rem;
   grid-template-columns: 1.1fr 0.9fr;
   background: #15130f;
+  color: var(--salora-ivory-100);
+}
+
+.premium-story .premium-kicker {
+  color: var(--salora-gold-300);
 }
 
 .premium-story-visual {
@@ -976,7 +981,7 @@ button:disabled {
   position: absolute;
   bottom: 2.5rem;
   inset-inline-start: 2.5rem;
-  color: var(--premium-muted);
+  color: var(--salora-neutral-500);
   font-size: 0.62rem;
   letter-spacing: 0.2em;
   line-height: 1.8;
@@ -992,7 +997,7 @@ button:disabled {
 .premium-story-copy > p:not(.premium-kicker) {
   max-width: 33rem;
   margin: 2rem 0;
-  color: var(--premium-muted);
+  color: var(--salora-neutral-500);
   font-size: 1.05rem;
   line-height: 2;
 }
@@ -1004,6 +1009,7 @@ button:disabled {
   align-items: center;
   gap: 1.5rem;
   border-bottom: 1px solid var(--premium-gold);
+  color: var(--salora-ivory-100);
   font-size: 0.82rem;
   font-weight: 700;
 }
@@ -1020,17 +1026,17 @@ button:disabled {
   justify-content: space-between;
   gap: 3rem;
   padding: 5rem clamp(1.5rem, 8vw, 8rem);
-  background: var(--premium-cream);
-  color: #15130f;
+  background: var(--salora-ivory-100);
+  color: var(--salora-black-900);
 }
 
 .premium-visit .premium-kicker {
-  color: #806027;
+  color: var(--salora-espresso-700);
 }
 
 .premium-visit > div:first-child > p:last-child {
   margin-top: 1.25rem;
-  color: #756e62;
+  color: var(--salora-espresso-700);
 }
 
 .premium-visit-actions {
@@ -1040,7 +1046,7 @@ button:disabled {
 }
 
 .premium-visit-actions p {
-  color: #756e62;
+  color: var(--salora-espresso-700);
 }
 
 .premium-visit-actions a {
@@ -1048,13 +1054,14 @@ button:disabled {
   min-height: 2.75rem;
   align-items: center;
   gap: 0.6rem;
-  border-bottom: 1px solid #806027;
+  border-bottom: 1px solid var(--salora-espresso-700);
+  color: var(--salora-black-900);
   font-weight: 700;
 }
 
 .premium-visit-actions svg {
   width: 1rem;
-  color: #806027;
+  color: var(--salora-espresso-700);
 }
 
 .premium-footer {
@@ -1090,7 +1097,7 @@ button:disabled {
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
-  color: var(--premium-gold);
+  color: var(--color-brand-emphasis);
 }
 
 .premium-footer svg {

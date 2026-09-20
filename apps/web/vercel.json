@@ -1,5 +1,4 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "fluid": true,
-  "installCommand": "corepack pnpm@11.7.0 install --frozen-lockfile"
+  "fluid": true
 }
