@@ -23,7 +23,8 @@ assert.match(menuLoading, /aria-busy="true"/, "Menu loading state must be announ
 assert.match(menuError, /role="alert"/, "Menu failure state must provide a recoverable alert.");
 assert.match(shell, /salora-command-bar/, "Control Tower commands must remain responsive and horizontally safe.");
 assert.match(shell, /salora-page-title/, "Control Tower title must use the responsive title primitive.");
-assert.match(css, /:lang\(ar\) \.salora-display/, "Arabic display typography must have a dedicated scale.");
+assert.match(css, /\.salora-display:lang\(ar\)/, "Arabic display typography must follow the nearest language boundary.");
+assert.doesNotMatch(css, /:lang\(ar\) \.salora-display/, "Root Arabic language must not override a nested English experience.");
 assert.match(css, /prefers-reduced-motion: reduce/, "Reduced-motion support is required.");
 assert.match(css, /forced-colors: active/, "Forced-colors support is required.");
 assert.match(primitives, /export function SaloraButton/, "The shared button primitive is required.");

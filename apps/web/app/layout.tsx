@@ -5,6 +5,8 @@ import { saloraRuntime } from "@salora/config";
 import type { ThemePreference } from "@salora/ui";
 import { GlobalAiConcierge } from "@/components/GlobalAiConcierge";
 import { isThemePreference, themeBootstrapScript } from "@/lib/theme";
+import "../styles/tokens.css";
+import "../styles/primitives.css";
 import "./globals.css";
 import "./p31-experience.css";
 import "./p32-catalog-media.css";

@@ -1,0 +1,259 @@
+/*
+ * SALORA Design System 3.0
+ *
+ * Primitive values are intentionally separated from semantic aliases. Product
+ * UI consumes semantic tokens so the customer and operator personalities can
+ * evolve without creating a second design system.
+ */
+
+:root,
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* Primitive color palette */
+  --salora-black-950: #050505;
+  --salora-black-900: #0b0a09;
+  --salora-neutral-900: #111111;
+  --salora-neutral-850: #181614;
+  --salora-neutral-800: #201c18;
+  --salora-neutral-500: #9c9387;
+  --salora-ivory-100: #f5efe3;
+  --salora-gold-500: #c9a45c;
+  --salora-gold-300: #e7d3a1;
+  --salora-matcha-500: #9caf88;
+  --salora-espresso-700: #3a2418;
+  --salora-red-300: #e7a1a1;
+  --salora-green-300: #6ee7b7;
+  --salora-amber-300: #f7cc75;
+  --salora-blue-300: #8ec5e8;
+
+  /* Semantic color roles */
+  --color-canvas: var(--salora-black-950);
+  --color-surface: var(--salora-neutral-900);
+  --color-surface-subtle: var(--salora-neutral-850);
+  --color-surface-raised: var(--salora-neutral-800);
+  --color-surface-interactive: var(--salora-black-900);
+  --color-text: var(--salora-ivory-100);
+  --color-text-muted: var(--salora-neutral-500);
+  --color-brand: var(--salora-gold-500);
+  --color-brand-emphasis: var(--salora-gold-300);
+  --color-on-brand: var(--salora-black-950);
+  --color-success: var(--salora-green-300);
+  --color-warning: var(--salora-amber-300);
+  --color-danger: var(--salora-red-300);
+  --color-info: var(--salora-blue-300);
+  --color-border-subtle: rgba(245, 239, 227, 0.1);
+  --color-border-strong: rgba(245, 239, 227, 0.18);
+  --color-border-brand: rgba(201, 164, 92, 0.3);
+  --color-focus: #f3d88f;
+  --color-backdrop: rgba(5, 5, 5, 0.9);
+  --color-overlay: rgba(0, 0, 0, 0.7);
+
+  /* Typography families */
+  --font-sans: var(--font-salora-latin), "SF Pro Display", ui-sans-serif, system-ui, sans-serif;
+  --font-arabic: var(--font-salora-arabic), "Segoe UI", Tahoma, Arial, sans-serif;
+  --font-serif: Georgia, "Times New Roman", serif;
+
+  /* Semantic typography roles — Arabic overrides are language-specific below. */
+  --type-display-size: clamp(2.5rem, 5.4vw, 5.75rem);
+  --type-display-line: 0.98;
+  --type-display-tracking: -0.045em;
+  --type-hero-size: clamp(2.25rem, 4.6vw, 4.75rem);
+  --type-hero-line: 1.02;
+  --type-h1-size: clamp(2rem, 3.5vw, 3.5rem);
+  --type-h1-line: 1.08;
+  --type-h2-size: clamp(1.625rem, 2.6vw, 2.5rem);
+  --type-h2-line: 1.14;
+  --type-h3-size: clamp(1.25rem, 1.7vw, 1.625rem);
+  --type-h3-line: 1.22;
+  --type-title-size: clamp(1.125rem, 1.4vw, 1.375rem);
+  --type-title-line: 1.3;
+  --type-body-size: 1rem;
+  --type-body-line: 1.7;
+  --type-body-small-size: 0.875rem;
+  --type-body-small-line: 1.6;
+  --type-caption-size: 0.75rem;
+  --type-caption-line: 1.5;
+  --type-label-size: 0.8125rem;
+  --type-label-line: 1.35;
+  --type-price-size: 1.0625rem;
+  --type-price-line: 1.2;
+  --type-metric-size: clamp(1.75rem, 2.8vw, 2.75rem);
+  --type-metric-line: 1;
+  --type-button-size: 0.875rem;
+  --type-button-line: 1;
+
+  /* Space */
+  --space-0: 0;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+  --space-24: 6rem;
+  --space-section: clamp(4rem, 9vw, 8rem);
+  --space-page-inline: clamp(1rem, 2.4vw, 2rem);
+
+  /* Shape, border and elevation */
+  --radius-xs: 0.5rem;
+  --radius-sm: 0.75rem;
+  --radius-md: 1rem;
+  --radius-lg: 1.5rem;
+  --radius-pill: 999px;
+  --border-width-hairline: 1px;
+  --border-width-focus: 2px;
+  --shadow-raised: 0 24px 64px rgba(0, 0, 0, 0.28);
+  --shadow-floating: 0 32px 90px rgba(0, 0, 0, 0.42);
+  --opacity-disabled: 0.5;
+  --opacity-muted: 0.72;
+  --opacity-overlay: 0.7;
+
+  /* Motion: state feedback, component continuity, then signature storytelling. */
+  --motion-fast: 140ms;
+  --motion-normal: 220ms;
+  --motion-cinematic: 560ms;
+  --motion-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --motion-ease-emphasized: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --motion-ease-exit: cubic-bezier(0.4, 0, 1, 1);
+
+  /* Layering */
+  --z-base: 0;
+  --z-raised: 10;
+  --z-sticky: 30;
+  --z-navigation: 40;
+  --z-overlay: 50;
+  --z-modal: 60;
+  --z-toast: 70;
+
+  /* Layout */
+  --container-reading: 42rem;
+  --container-content: 80rem;
+  --container-wide: 96rem;
+  --grid-columns: 12;
+  --grid-gutter: clamp(1rem, 2vw, 2rem);
+  --touch-target-min: 2.75rem;
+  --icon-sm: 1rem;
+  --icon-md: 1.25rem;
+  --icon-lg: 1.5rem;
+
+  /* Personality is expressed as density and measure, never a second palette. */
+  --customer-content-gap: clamp(1.5rem, 3vw, 3rem);
+  --customer-title-measure: 16ch;
+  --operator-content-gap: 1rem;
+  --operator-row-min: 2.75rem;
+  --operator-copy-measure: 72ch;
+
+  /* Focus and state contracts */
+  --focus-ring-color: var(--color-focus);
+  --focus-ring-width: var(--border-width-focus);
+  --focus-ring-offset: 3px;
+  --state-hover-overlay: rgba(255, 255, 255, 0.06);
+  --state-selected-overlay: rgba(201, 164, 92, 0.12);
+
+  /* Backward-compatible aliases. Remove only through a separately certified migration. */
+  --background: var(--color-canvas);
+  --surface: var(--color-surface);
+  --surface-soft: var(--color-surface-subtle);
+  --surface-raised: var(--color-surface-raised);
+  --interactive: var(--color-surface-interactive);
+  --cream: var(--color-text);
+  --muted: var(--color-text-muted);
+  --gold: var(--color-brand);
+  --gold-soft: var(--color-brand-emphasis);
+  --matcha: var(--salora-matcha-500);
+  --espresso: var(--salora-espresso-700);
+  --danger: var(--color-danger);
+  --success: var(--color-success);
+  --warning: var(--color-warning);
+  --info: var(--color-info);
+  --border-subtle: var(--color-border-subtle);
+  --border-strong: var(--color-border-strong);
+  --border-gold: var(--color-border-brand);
+  --border: var(--color-border-subtle);
+  --border-brand: var(--color-border-brand);
+  --foreground: var(--color-text);
+  --foreground-muted: var(--color-text-muted);
+  --brand: var(--color-brand);
+  --brand-hover: var(--color-brand-emphasis);
+  --brand-foreground: var(--color-on-brand);
+  --focus-ring: var(--focus-ring-color);
+  --backdrop: var(--color-backdrop);
+  --overlay: var(--color-overlay);
+  --content-max: var(--container-content);
+  --space-page: var(--space-page-inline);
+  --radius-control: var(--radius-sm);
+  --radius-card: 1.125rem;
+  --radius-modal: var(--radius-lg);
+  --type-display: var(--type-display-size);
+  --type-display-ar: clamp(2.35rem, 4.8vw, 5rem);
+  --type-title: clamp(1.35rem, 2.2vw, 2rem);
+  --duration-fast: 120ms;
+  --duration-normal: 180ms;
+  --duration-slow: 280ms;
+  --ease-standard: var(--motion-ease-standard);
+  --ease-emphasized: var(--motion-ease-emphasized);
+  --premium-gold: var(--brand);
+  --premium-cream: var(--foreground);
+  --premium-muted: var(--foreground-muted);
+  --premium-background: var(--background);
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+  --matcha: #536b46;
+  --espresso: #3a2418;
+  --color-canvas: #fbf8f1;
+  --color-surface: #ffffff;
+  --color-surface-subtle: #f4eee3;
+  --color-surface-raised: #fffdf8;
+  --color-surface-interactive: #f1eadf;
+  --color-text: #211b16;
+  --color-text-muted: #6b6259;
+  --color-brand: #8b6727;
+  --color-brand-emphasis: #704f18;
+  --color-on-brand: #ffffff;
+  --color-danger: #a33737;
+  --color-success: #17633c;
+  --color-warning: #7a5414;
+  --color-info: #245f84;
+  --color-border-subtle: rgba(58, 36, 24, 0.14);
+  --color-border-strong: rgba(58, 36, 24, 0.25);
+  --color-border-brand: rgba(139, 103, 39, 0.34);
+  --color-focus: #6d4d17;
+  --color-backdrop: rgba(255, 253, 248, 0.92);
+  --color-overlay: rgba(33, 27, 22, 0.46);
+  --state-hover-overlay: rgba(58, 36, 24, 0.06);
+  --state-selected-overlay: rgba(139, 103, 39, 0.11);
+  --shadow-raised: 0 24px 64px rgba(58, 36, 24, 0.13);
+  --shadow-floating: 0 32px 90px rgba(58, 36, 24, 0.18);
+}
+
+/* Arabic is composed independently rather than scaled from Latin tracking. */
+:lang(ar) {
+  --type-display-line: 1.16;
+  --type-display-tracking: -0.025em;
+  --type-hero-line: 1.18;
+  --type-h1-line: 1.2;
+  --type-h2-line: 1.24;
+  --type-h3-line: 1.3;
+  --type-title-line: 1.38;
+  --type-body-line: 1.85;
+  --type-body-small-line: 1.75;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-fast: 1ms;
+    --motion-normal: 1ms;
+    --motion-cinematic: 1ms;
+    --duration-fast: 1ms;
+    --duration-normal: 1ms;
+    --duration-slow: 1ms;
+  }
+}

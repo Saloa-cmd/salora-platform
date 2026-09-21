@@ -429,7 +429,7 @@ export function MenuExperience({
             <SaloraButton type="button" aria-label={language === "ar" ? "Switch to English" : "التبديل إلى العربية"} onClick={() => setLanguage((value) => value === "ar" ? "en" : "ar")} className="min-h-11 rounded-full px-3 text-xs">
               <Languages className="h-4 w-4" /><span className="hidden sm:inline">{language === "ar" ? "English" : "العربية"}</span>
             </SaloraButton>
-            <SaloraButton type="button" tone="gold" onClick={() => setCartOpen(true)} className="relative min-h-11 rounded-full bg-[var(--gold)] px-3 text-black hover:bg-[var(--gold-soft)] sm:px-4">
+            <SaloraButton type="button" tone="gold" aria-label={t.cart} onClick={() => setCartOpen(true)} className="relative min-h-11 rounded-full bg-[var(--gold)] px-3 text-[var(--color-on-brand)] hover:bg-[var(--gold-soft)] sm:px-4">
               <ShoppingBag className="h-4 w-4" /><span className="hidden sm:inline">{t.cart}</span>
               {itemCount ? <span className="grid h-5 min-w-5 place-items-center rounded-full bg-black px-1 text-[0.65rem] text-white">{itemCount}</span> : null}
             </SaloraButton>
@@ -437,7 +437,7 @@ export function MenuExperience({
         </div>
       </header>
 
-      {experience.site.showAnnouncement ? <div className="bg-[var(--gold)] px-4 py-2 text-center text-sm font-semibold text-black">{language === "ar" ? experience.site.announcementAr : experience.site.announcementEn}</div> : null}
+      {experience.site.showAnnouncement ? <div className="bg-[var(--gold)] px-4 py-2 text-center text-sm font-semibold text-[var(--color-on-brand)]">{language === "ar" ? experience.site.announcementAr : experience.site.announcementEn}</div> : null}
 
       <section className="premium-menu-hero relative overflow-hidden border-b border-white/10 px-4 py-5 sm:px-6 sm:py-8">
         <div className="hero-depth" />
@@ -447,7 +447,7 @@ export function MenuExperience({
             <h1 className="salora-display salora-menu-display mt-2 font-semibold">{language === "ar" ? experience.site.heroTitleAr : experience.site.heroTitleEn}</h1>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--muted)] sm:mt-3 sm:text-base sm:leading-7">{heroSubtitle}</p>
             <div className="mt-4 flex flex-wrap items-center gap-3">
-              <a href="#menu-products" className="inline-flex min-h-11 items-center justify-center rounded-full bg-[var(--gold)] px-5 text-sm font-semibold text-black transition hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--gold)]">{t.browse}</a>
+              <a href="#menu-products" className="inline-flex min-h-11 items-center justify-center rounded-full bg-[var(--gold)] px-5 text-sm font-semibold text-[var(--color-on-brand)] transition hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--gold)]">{t.browse}</a>
               <ExperienceStatus language={language} source={menuSource} stale={menuStale} databaseHealth={menuDatabaseHealth} />
             </div>
           </div>
@@ -488,7 +488,7 @@ export function MenuExperience({
                 const authoritySection = sections.find((section) => section.key === item);
                 const label = item === "All" ? t.all : language === "ar" ? authoritySection?.nameAr ?? item : authoritySection?.nameEn ?? item;
                 const count = item === "All" ? initialProducts.length : initialProducts.filter((product) => product.sectionKey === item).length;
-                return <button key={item} type="button" role="tab" aria-selected={category === item} onClick={() => { setCategory(item); setActiveBreakfastGroup(null); }} className={`min-h-11 shrink-0 rounded-full border px-4 py-2 text-xs font-semibold transition ${category === item ? "border-[var(--gold)] bg-[var(--gold)] text-black" : "border-white/10 bg-white/[0.04] text-[var(--muted)] hover:border-white/25 hover:text-[var(--cream)]"}`}>{label}<span className="ms-2 opacity-65">{count}</span></button>;
+                return <button key={item} type="button" role="tab" aria-selected={category === item} onClick={() => { setCategory(item); setActiveBreakfastGroup(null); }} className={`min-h-11 shrink-0 rounded-full border px-4 py-2 text-xs font-semibold transition ${category === item ? "border-[var(--gold)] bg-[var(--gold)] text-[var(--color-on-brand)]" : "border-white/10 bg-white/[0.04] text-[var(--muted)] hover:border-white/25 hover:text-[var(--cream)]"}`}>{label}<span className="ms-2 opacity-65">{count}</span></button>;
               })}
             </div> : null}
           </div>
@@ -519,7 +519,7 @@ export function MenuExperience({
                 ))}
               </div>
             ) : <p className="mt-7 rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-sm text-[var(--muted)]">{t.standard}</p>}
-            <button type="button" disabled={!requiredSelectionsComplete} onClick={addSelectedProduct} className="mt-7 flex w-full items-center justify-between rounded-2xl bg-[var(--gold)] px-5 py-4 font-semibold text-black disabled:cursor-not-allowed disabled:opacity-50"><span>{t.confirm}</span><span>{formatOmr(selectedUnitPrice, language)}</span></button>
+            <button type="button" disabled={!requiredSelectionsComplete} onClick={addSelectedProduct} className="mt-7 flex w-full items-center justify-between rounded-2xl bg-[var(--gold)] px-5 py-4 font-semibold text-[var(--color-on-brand)] disabled:cursor-not-allowed disabled:opacity-50"><span>{t.confirm}</span><span>{formatOmr(selectedUnitPrice, language)}</span></button>
           </div>
         </div>
       ) : null}
@@ -529,11 +529,11 @@ export function MenuExperience({
           <aside className={`absolute inset-y-0 w-full max-w-md overflow-y-auto border-white/10 bg-[#0d0d0d] p-5 shadow-2xl ${language === "ar" ? "left-0 border-r" : "right-0 border-l"}`}>
             <div className="flex items-center justify-between"><h2 className="text-2xl font-semibold">{t.cart}</h2><button type="button" aria-label={t.close} onClick={() => setCartOpen(false)} className="grid min-h-11 min-w-11 place-items-center rounded-full border border-white/10"><X className="h-5 w-5" /></button></div>
             {cart.length ? <div className="mt-6 grid gap-4">{cart.map((line) => <div key={line.key} className="rounded-2xl border border-white/10 bg-white/[0.04] p-4"><div className="flex items-start justify-between gap-3"><div><h3 className="font-semibold">{displayName(line.product, language)}</h3><p className="mt-1 text-xs text-[var(--muted)]">{line.modifiers.length ? line.modifiers.map((modifier) => optionLabel(language, modifier.optionName)).join(" · ") : t.standard}</p></div><span className="text-sm text-[var(--gold-soft)]">{formatOmr(line.unitPrice * line.quantity, language)}</span></div><div className="mt-4 flex items-center gap-3"><button type="button" aria-label={`${t.decrease}: ${displayName(line.product, language)}`} onClick={() => changeQuantity(line.key, -1)} className="grid min-h-11 min-w-11 place-items-center rounded-full border border-white/10"><Minus className="h-4 w-4" /></button><span className="min-w-6 text-center font-semibold">{line.quantity}</span><button type="button" aria-label={`${t.increase}: ${displayName(line.product, language)}`} onClick={() => changeQuantity(line.key, 1)} className="grid min-h-11 min-w-11 place-items-center rounded-full border border-white/10"><Plus className="h-4 w-4" /></button></div></div>)}</div> : <p className="mt-10 text-center text-sm text-[var(--muted)]">{t.empty}</p>}
-            {cart.length ? <div className="mt-7 grid gap-3 border-t border-white/10 pt-6"><input value={name} onChange={(event) => setName(event.target.value)} placeholder={t.customerName} className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 outline-none" /><input value={phone} onChange={(event) => setPhone(event.target.value)} placeholder={t.phone} inputMode="tel" className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 outline-none" />{serviceMode === "car" ? <input value={carDetails} onChange={(event) => setCarDetails(event.target.value)} placeholder={t.carDetails} className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 outline-none" /> : null}<textarea value={notes} onChange={(event) => setNotes(event.target.value)} placeholder={t.notes} rows={3} className="resize-none rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 outline-none" /><div className="flex items-center justify-between py-2"><span className="text-[var(--muted)]">{t.subtotal}</span><strong className="text-xl text-[var(--gold-soft)]">{formatOmr(subtotal, language)}</strong></div>{notice ? <p className="rounded-xl border border-white/10 bg-white/[0.04] p-3 text-sm leading-6 text-[var(--muted)]">{notice}</p> : null}<button type="button" disabled={submitting || catalogUnavailable} onClick={checkout} className="rounded-2xl bg-[var(--gold)] px-5 py-4 font-semibold text-black disabled:opacity-50">{catalogUnavailable ? t.orderingUnavailable : submitting ? "…" : t.checkout}</button></div> : null}
+            {cart.length ? <div className="mt-7 grid gap-3 border-t border-white/10 pt-6"><input value={name} onChange={(event) => setName(event.target.value)} placeholder={t.customerName} className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 outline-none" /><input value={phone} onChange={(event) => setPhone(event.target.value)} placeholder={t.phone} inputMode="tel" className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 outline-none" />{serviceMode === "car" ? <input value={carDetails} onChange={(event) => setCarDetails(event.target.value)} placeholder={t.carDetails} className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 outline-none" /> : null}<textarea value={notes} onChange={(event) => setNotes(event.target.value)} placeholder={t.notes} rows={3} className="resize-none rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 outline-none" /><div className="flex items-center justify-between py-2"><span className="text-[var(--muted)]">{t.subtotal}</span><strong className="text-xl text-[var(--gold-soft)]">{formatOmr(subtotal, language)}</strong></div>{notice ? <p className="rounded-xl border border-white/10 bg-white/[0.04] p-3 text-sm leading-6 text-[var(--muted)]">{notice}</p> : null}<button type="button" disabled={submitting || catalogUnavailable} onClick={checkout} className="rounded-2xl bg-[var(--gold)] px-5 py-4 font-semibold text-[var(--color-on-brand)] disabled:opacity-50">{catalogUnavailable ? t.orderingUnavailable : submitting ? "…" : t.checkout}</button></div> : null}
           </aside>
         </div>
       ) : null}
-      {itemCount > 0 && !cartOpen ? <button type="button" onClick={() => setCartOpen(true)} className="fixed inset-x-4 bottom-4 z-40 flex min-h-14 items-center justify-between rounded-2xl bg-[var(--gold)] px-5 font-semibold text-black shadow-[0_18px_50px_rgba(0,0,0,.45)] sm:hidden"><span>{t.cart} · {itemCount}</span><span>{formatOmr(subtotal, language)}</span></button> : null}
+      {itemCount > 0 && !cartOpen ? <button type="button" onClick={() => setCartOpen(true)} className="fixed inset-x-4 bottom-4 z-40 flex min-h-14 items-center justify-between rounded-2xl bg-[var(--gold)] px-5 font-semibold text-[var(--color-on-brand)] shadow-[0_18px_50px_rgba(0,0,0,.45)] sm:hidden"><span>{t.cart} · {itemCount}</span><span>{formatOmr(subtotal, language)}</span></button> : null}
     </main>
   );
 }
@@ -592,7 +592,7 @@ function BreakfastShowcase({
                 : "Three breakfast traditions, quick sandwiches, fresh juices and a curated tea selection."}
             </p>
           </div>
-          <button type="button" onClick={() => onExplore()} className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[var(--gold)] px-6 py-3 text-sm font-semibold text-black transition hover:brightness-110 lg:w-auto">
+          <button type="button" onClick={() => onExplore()} className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[var(--gold)] px-6 py-3 text-sm font-semibold text-[var(--color-on-brand)] transition hover:brightness-110 lg:w-auto">
             {language === "ar" ? "استكشف منيو الإفطار" : "Explore breakfast"}
             <ChevronDown className="h-4 w-4" aria-hidden="true" />
           </button>
@@ -664,7 +664,7 @@ function MenuProductCard({ product, language, showImages, showDescriptions, rati
         </div>
         {showDescriptions ? <p className="mt-3 line-clamp-2 min-h-12 text-sm leading-6 text-[var(--muted)]">{displayDescription(product, language)}</p> : null}
         {tags.length ? <div className="mt-3 flex flex-wrap gap-2">{tags.map((tag) => <span key={tag} className="rounded-full border border-white/10 px-2.5 py-1 text-[0.65rem] text-[var(--muted)]">{tag}</span>)}</div> : null}
-        <button type="button" onClick={() => onSelect(product)} className="mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-[var(--border-gold)] bg-[var(--gold)]/10 px-4 py-3 text-sm font-semibold text-[var(--gold-soft)] transition hover:bg-[var(--gold)] hover:text-black">{t.add}<ChevronDown className="h-4 w-4" aria-hidden="true" /></button>
+        <button type="button" onClick={() => onSelect(product)} className="mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-[var(--border-gold)] bg-[var(--gold)]/10 px-4 py-3 text-sm font-semibold text-[var(--gold-soft)] transition hover:bg-[var(--gold)] hover:text-[var(--color-on-brand)]">{t.add}<ChevronDown className="h-4 w-4" aria-hidden="true" /></button>
       </div>
     </article>
   );

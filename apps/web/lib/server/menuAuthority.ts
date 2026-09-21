@@ -19,6 +19,7 @@ import {
   currentCatalogPrice,
   normalizeCatalogModifierOptions
 } from "./commerceIntegrity";
+import { inspectMenuAuthoritySnapshot } from "./menuAuthorityContract";
 
 export const MENU_AUTHORITY_CACHE_TAG = "salora-menu-authority";
 export const MENU_AUTHORITY_REVALIDATE_SECONDS = 300;
@@ -433,16 +434,23 @@ async function readLegacyCatalog(): Promise<MenuAuthoritySnapshot> {
 async function loadAuthority(): Promise<MenuAuthoritySnapshot> {
   try {
     const authority = await readPublishedRevision();
-    if (authority) return authority;
+    if (authority) {
+      inspectMenuAuthoritySnapshot(authority);
+      return authority;
+    }
     if (authorityMode() === "required") throw new MenuAuthorityUnavailableError();
-    return readLegacyCatalog();
+    const fallback = await readLegacyCatalog();
+    inspectMenuAuthoritySnapshot(fallback);
+    return fallback;
   } catch (error) {
     // Connectivity failures must be recovered at the pool boundary before any
     // compatibility query is attempted. Immediately issuing a second catalog
     // read on the same stale socket amplifies pool starvation.
     if (isRetryableDatabaseConnectivityError(error)) throw error;
     if (error instanceof MenuAuthorityUnavailableError || authorityMode() === "required") throw error;
-    return readLegacyCatalog();
+    const fallback = await readLegacyCatalog();
+    inspectMenuAuthoritySnapshot(fallback);
+    return fallback;
   }
 }
 
