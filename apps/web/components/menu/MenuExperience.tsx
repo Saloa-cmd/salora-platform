@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { type FormEvent, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import {
   Car,
   Check,
@@ -25,7 +26,7 @@ import {
   UtensilsCrossed,
   X
 } from "lucide-react";
-import type { ExperienceConfiguration, MenuAuthoritySection, MenuAuthoritySnapshot, MenuAuthoritySource, Product, ProductChoice, ProductModifierGroup, SelectedModifier } from "@salora/types";
+import type { ExperienceConfiguration, MenuAuthoritySection, MenuAuthoritySnapshot, MenuAuthoritySource, MenuProductSummary, ProductChoice, ProductModifierGroup, SelectedModifier } from "@salora/types";
 import type { BreakfastGroupKey } from "@salora/data";
 import { breakfastGroups, breakfastMediaBySlug, breakfastService, isBreakfastProduct, isBreakfastProductInGroup } from "@salora/data";
 import { SaloraButton, SaloraEmptyState } from "@/components/ui/SaloraPrimitives";
@@ -34,7 +35,7 @@ import { ExperienceStatus } from "@/components/public/ExperienceStatus";
 
 type Language = "ar" | "en";
 type ServiceMode = "counter" | "car" | "dine-in" | "gift";
-type CartLine = { key: string; product: Product; quantity: number; modifiers: SelectedModifier[]; unitPrice: number };
+type CartLine = { key: string; product: MenuProductSummary; quantity: number; modifiers: SelectedModifier[]; unitPrice: number };
 type PersistedOrder = {
   id: string;
   total: number | string;
@@ -93,7 +94,12 @@ const copy = {
     from: "يبدأ من",
     orderingUnavailable: "الطلب غير متاح للحظات",
     unavailableTitle: "نرتّب اختيارات اليوم",
-    unavailableBody: "نعمل على تحديث القائمة بعناية. يسعدنا خدمتك مباشرة عبر واتساب خلال ذلك."
+    unavailableBody: "نعمل على تحديث القائمة بعناية. يسعدنا خدمتك مباشرة عبر واتساب خلال ذلك.",
+    searchAction: "بحث",
+    loading: "جارٍ التحميل",
+    loadMore: "عرض المزيد",
+    showing: "معروض",
+    searchUnavailable: "البحث غير متاح حتى استعادة نسخة المنيو المنشورة. يمكنك تصفح التصنيفات المتاحة."
   },
   en: {
     direction: "ltr" as const,
@@ -141,7 +147,12 @@ const copy = {
     from: "From",
     orderingUnavailable: "Ordering is briefly unavailable",
     unavailableTitle: "Today’s selections are being prepared",
-    unavailableBody: "We’re refreshing the menu with care. We’re happy to help directly on WhatsApp in the meantime."
+    unavailableBody: "We’re refreshing the menu with care. We’re happy to help directly on WhatsApp in the meantime.",
+    searchAction: "Search",
+    loading: "Loading",
+    loadMore: "Show more",
+    showing: "Showing",
+    searchUnavailable: "Search is unavailable until the published menu is restored. You can still browse the available categories."
   }
 };
 
@@ -161,25 +172,25 @@ function optionLabel(language: Language, value: string) {
   return value;
 }
 
-function displayName(product: Product, language: Language) {
+function displayName(product: MenuProductSummary, language: Language) {
   return language === "ar"
     ? product.nameAr ?? product.name
     : product.nameEn ?? product.name;
 }
 
-function displayCategory(product: Product, language: Language) {
+function displayCategory(product: MenuProductSummary, language: Language) {
   return language === "ar"
     ? product.categoryAr ?? product.category
     : product.categoryEn ?? product.category;
 }
 
-function displayDescription(product: Product, language: Language) {
+function displayDescription(product: MenuProductSummary, language: Language) {
   return language === "ar"
-    ? product.descriptionAr ?? product.description ?? product.story
-    : product.descriptionEn ?? product.description ?? product.story;
+    ? product.descriptionAr ?? product.description
+    : product.descriptionEn ?? product.description;
 }
 
-function productImage(product: Product) {
+function productImage(product: MenuProductSummary) {
   return breakfastMediaBySlug[product.id]
     ?? (/^(https:\/\/|\/)/i.test(product.visual) ? product.visual : undefined);
 }
@@ -188,7 +199,7 @@ function formatOmr(value: number, language: Language) {
   return language === "ar" ? `${value.toFixed(3)} ر.ع` : `OMR ${value.toFixed(3)}`;
 }
 
-function productAccent(product: Product) {
+function productAccent(product: MenuProductSummary) {
   const text = `${product.category} ${product.tags.join(" ")}`.toLowerCase();
   if (text.includes("breakfast")) return "from-[#c9a45c]/30 via-[#261b13] to-black";
   if (text.includes("matcha")) return "from-[#8fa47c]/35 via-[#1b2017] to-black";
@@ -197,7 +208,7 @@ function productAccent(product: Product) {
   return "from-[#6d412d]/40 via-[#20140f] to-black";
 }
 
-function productGroups(product: Product, language: Language): ProductModifierGroup[] {
+function productGroups(product: MenuProductSummary, language: Language): ProductModifierGroup[] {
   const databaseGroups: ProductModifierGroup[] = [
     ...(product.variants?.length ? [{ id: "variant", name: language === "ar" ? "الحجم / النوع" : "Size / variant", required: true, options: product.variants }] : []),
     ...(product.modifierGroups ?? []),
@@ -208,7 +219,14 @@ function productGroups(product: Product, language: Language): ProductModifierGro
 
 export function MenuExperience({
   initialProducts,
-  sections,
+  categories,
+  selectedCategory,
+  initialSearch,
+  resultTotal,
+  resultLimit,
+  hasMore,
+  searchAvailable,
+  totalCatalogProducts,
   revision,
   menuSource,
   menuStale,
@@ -216,8 +234,15 @@ export function MenuExperience({
   whatsappNumber,
   experience
 }: {
-  initialProducts: Product[];
-  sections: MenuAuthoritySection[];
+  initialProducts: MenuProductSummary[];
+  categories: Array<MenuAuthoritySection & { productCount: number }>;
+  selectedCategory: string;
+  initialSearch: string;
+  resultTotal: number;
+  resultLimit: number;
+  hasMore: boolean;
+  searchAvailable: boolean;
+  totalCatalogProducts: number;
   revision: MenuAuthoritySnapshot["revision"];
   menuSource: MenuAuthoritySource;
   menuStale: boolean;
@@ -225,12 +250,13 @@ export function MenuExperience({
   whatsappNumber: string;
   experience: ExperienceConfiguration;
 }) {
+  const router = useRouter();
   const [language, setLanguage] = useState<Language>("ar");
   const [serviceMode, setServiceMode] = useState<ServiceMode>("counter");
-  const [category, setCategory] = useState("All");
   const [activeBreakfastGroup, setActiveBreakfastGroup] = useState<BreakfastGroupKey | null>(null);
-  const [search, setSearch] = useState("");
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [isPending, startTransition] = useTransition();
+  const activeCategoryRef = useRef<HTMLAnchorElement>(null);
+  const [selectedProduct, setSelectedProduct] = useState<MenuProductSummary | null>(null);
   const [selections, setSelections] = useState<Record<string, ProductChoice>>({});
   const [cart, setCart] = useState<CartLine[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
@@ -243,28 +269,23 @@ export function MenuExperience({
   const t = copy[language];
   const catalogUnavailable = menuDatabaseHealth === "unavailable";
   const breakfastProducts = useMemo(
-    () => initialProducts.filter((product) => isBreakfastProduct(product.tags)),
-    [initialProducts]
+    () => selectedCategory === "breakfast" && !initialSearch
+      ? initialProducts.filter((product) => isBreakfastProduct(product.tags))
+      : [],
+    [initialProducts, initialSearch, selectedCategory]
   );
   const heroSubtitle = breakfastProducts.length
     ? t.intro
     : language === "ar" ? experience.site.heroSubtitleAr : experience.site.heroSubtitleEn;
 
-  const categories = useMemo(
-    () => ["All", ...sections.filter((section) => initialProducts.some((product) => product.sectionKey === section.key)).map((section) => section.key)],
-    [initialProducts, sections]
-  );
+  const effectiveBreakfastGroup = selectedCategory === "breakfast" && !initialSearch
+    ? activeBreakfastGroup
+    : null;
   const filteredProducts = useMemo(() => {
-    const query = search.trim().toLowerCase();
-    return initialProducts.filter((product) => {
-      const categoryMatch = category === "All" || product.sectionKey === category;
-      const breakfastGroupMatch = isBreakfastProductInGroup(product.tags, activeBreakfastGroup);
-      const searchMatch = !query || `${product.name} ${product.nameAr ?? ""} ${product.nameEn ?? ""} ${product.category} ${product.categoryAr ?? ""} ${product.categoryEn ?? ""} ${product.tags.join(" ")} ${(product.badges ?? []).join(" ")}`.toLocaleLowerCase("ar").includes(query.toLocaleLowerCase("ar"));
-      return categoryMatch && breakfastGroupMatch && searchMatch;
-    });
-  }, [activeBreakfastGroup, category, initialProducts, search]);
-  const activeBreakfastGroupLabel = activeBreakfastGroup
-    ? breakfastGroups.find((group) => group.key === activeBreakfastGroup)
+    return initialProducts.filter((product) => isBreakfastProductInGroup(product.tags, effectiveBreakfastGroup));
+  }, [effectiveBreakfastGroup, initialProducts]);
+  const activeBreakfastGroupLabel = effectiveBreakfastGroup
+    ? breakfastGroups.find((group) => group.key === effectiveBreakfastGroup)
     : undefined;
   const subtotal = cart.reduce((sum, line) => sum + line.unitPrice * line.quantity, 0);
   const itemCount = cart.reduce((sum, line) => sum + line.quantity, 0);
@@ -275,6 +296,10 @@ export function MenuExperience({
   });
   const selectedUnitPrice = selectedProduct ? Number((selectedProduct.price + selectedModifiers.reduce((sum, modifier) => sum + modifier.priceDelta, 0)).toFixed(3)) : 0;
   const requiredSelectionsComplete = selectedGroups.filter((group) => group.required).every((group) => selections[group.id]);
+
+  useEffect(() => {
+    activeCategoryRef.current?.scrollIntoView({ block: "nearest", inline: "center" });
+  }, [language, selectedCategory]);
 
   useEffect(() => {
     if (!revision?.id || typeof navigator === "undefined") return;
@@ -298,13 +323,38 @@ export function MenuExperience({
     };
   }, [cartOpen, selectedProduct]);
 
-  function trackAuthorityEvent(eventType: "view" | "click" | "search", productSlug?: string, query?: string) {
+  function trackAuthorityEvent(eventType: "view" | "click" | "search", productSlug?: string) {
     if (!revision?.id || typeof navigator === "undefined") return;
-    const payload = JSON.stringify({ eventType, revisionId: revision.id, productSlug, query, channel: "web" });
+    const payload = JSON.stringify({ eventType, revisionId: revision.id, productSlug, channel: "web" });
     navigator.sendBeacon("/api/analytics/menu-event", new Blob([payload], { type: "application/json" }));
   }
 
-  function openProduct(product: Product) {
+  function menuHref(nextCategory: string, nextQuery: string, nextLimit?: number) {
+    const params = new URLSearchParams();
+    if (nextCategory) params.set("category", nextCategory);
+    if (nextQuery.trim()) params.set("q", nextQuery.trim());
+    if (nextLimit) params.set("limit", String(nextLimit));
+    const queryString = params.toString();
+    return queryString ? `/menu?${queryString}` : "/menu";
+  }
+
+  function navigateMenu(nextCategory: string, nextQuery: string, nextLimit?: number) {
+    setActiveBreakfastGroup(null);
+    setSelectedProduct(null);
+    startTransition(() => {
+      router.push(menuHref(nextCategory, nextQuery, nextLimit), { scroll: false });
+    });
+  }
+
+  function submitSearch(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!searchAvailable) return;
+    const query = String(new FormData(event.currentTarget).get("q") ?? "");
+    trackAuthorityEvent("search");
+    navigateMenu(selectedCategory, query);
+  }
+
+  function openProduct(product: MenuProductSummary) {
     trackAuthorityEvent("click", product.id);
     setSelectedProduct(product);
     const groups = productGroups(product, language);
@@ -312,8 +362,6 @@ export function MenuExperience({
   }
 
   function exploreBreakfast(group?: BreakfastGroupKey) {
-    setSearch("");
-    setCategory("breakfast");
     setActiveBreakfastGroup(group ?? null);
     requestAnimationFrame(() => document.getElementById("menu-products")?.scrollIntoView({ behavior: "smooth", block: "start" }));
   }
@@ -416,7 +464,16 @@ export function MenuExperience({
   const menuBanners = experience.banners.filter((banner) => banner.active && (banner.placement === "menu" || banner.placement === "both")).sort((a, b) => a.sortOrder - b.sortOrder);
 
   return (
-    <main lang={language} dir={t.direction} className="premium-menu-shell min-h-screen text-[var(--cream)]">
+    <main
+      lang={language}
+      dir={t.direction}
+      data-menu-revision={revision?.id ?? "unavailable"}
+      data-menu-source={menuSource}
+      data-menu-stale={String(menuStale)}
+      data-menu-total={String(totalCatalogProducts)}
+      aria-busy={isPending}
+      className="premium-menu-shell min-h-screen text-[var(--cream)]"
+    >
       <a href="#menu-products" className="skip-link">{t.browse}</a>
       <header className="premium-menu-header sticky top-0 z-40 border-b border-white/10 bg-black/85 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:h-[4.5rem] sm:px-6">
@@ -471,7 +528,7 @@ export function MenuExperience({
           products={breakfastProducts}
           language={language}
           radius={experience.theme.borderRadius}
-          activeGroup={activeBreakfastGroup}
+          activeGroup={effectiveBreakfastGroup}
           onExplore={exploreBreakfast}
           onSelect={openProduct}
         />
@@ -480,31 +537,62 @@ export function MenuExperience({
       <section id="menu-products" className="mx-auto max-w-7xl scroll-mt-16 px-4 py-5 sm:scroll-mt-[4.5rem] sm:px-6 sm:py-8">
         {!catalogUnavailable ? <div className="sticky top-16 z-30 -mx-4 border-y border-white/10 bg-black/90 px-4 py-3 backdrop-blur-xl sm:top-[4.5rem] sm:-mx-6 sm:px-6">
           <div className="mx-auto flex max-w-7xl flex-col gap-3 lg:flex-row lg:items-center">
-            {experience.menu.showSearch ? <label className="flex min-w-0 flex-1 items-center gap-3 rounded-xl border border-white/10 bg-white/[0.045] px-4 py-2 lg:max-w-xl">
-              <span className="sr-only">{t.search}</span><Search className="h-5 w-5 text-[var(--muted)]" aria-hidden="true" /><input type="search" value={search} onChange={(event) => { setSearch(event.target.value); setActiveBreakfastGroup(null); }} placeholder={t.search} className="w-full bg-transparent text-sm outline-none placeholder:text-white/30" />
-            </label> : null}
-            {experience.menu.showCategories ? <div className="salora-scroll-strip lg:flex-1" role="tablist" aria-label={language === "ar" ? "تصنيفات القائمة" : "Menu categories"}>
-              {categories.map((item) => {
-                const authoritySection = sections.find((section) => section.key === item);
-                const label = item === "All" ? t.all : language === "ar" ? authoritySection?.nameAr ?? item : authoritySection?.nameEn ?? item;
-                const count = item === "All" ? initialProducts.length : initialProducts.filter((product) => product.sectionKey === item).length;
-                return <button key={item} type="button" role="tab" aria-selected={category === item} onClick={() => { setCategory(item); setActiveBreakfastGroup(null); }} className={`min-h-11 shrink-0 rounded-full border px-4 py-2 text-xs font-semibold transition ${category === item ? "border-[var(--gold)] bg-[var(--gold)] text-[var(--color-on-brand)]" : "border-white/10 bg-white/[0.04] text-[var(--muted)] hover:border-white/25 hover:text-[var(--cream)]"}`}>{label}<span className="ms-2 opacity-65">{count}</span></button>;
-              })}
-            </div> : null}
+            {experience.menu.showSearch ? <form role="search" action="/menu" method="get" onSubmit={submitSearch} className="flex min-w-0 flex-1 gap-2 lg:max-w-xl">
+              <input type="hidden" name="category" value={selectedCategory} />
+              <label className="flex min-w-0 flex-1 items-center gap-3 rounded-xl border border-white/10 bg-white/[0.045] px-4 py-2 focus-within:border-[var(--gold)]">
+                <span className="sr-only">{t.search}</span>
+                <Search className="h-5 w-5 shrink-0 text-[var(--muted)]" aria-hidden="true" />
+                <input
+                  key={initialSearch}
+                  name="q"
+                  type="search"
+                  defaultValue={initialSearch}
+                  maxLength={80}
+                  disabled={!searchAvailable || isPending}
+                  placeholder={t.search}
+                  className="w-full bg-transparent text-sm outline-none placeholder:text-white/30 disabled:cursor-not-allowed disabled:opacity-60"
+                />
+              </label>
+              <button type="submit" disabled={!searchAvailable || isPending} className="min-h-11 shrink-0 rounded-xl bg-[var(--gold)] px-4 text-xs font-semibold text-[var(--color-on-brand)] disabled:cursor-not-allowed disabled:opacity-50">
+                {isPending ? t.loading : t.searchAction}
+              </button>
+            </form> : null}
+            {experience.menu.showCategories ? <nav className="min-w-0 lg:flex-1" aria-label={language === "ar" ? "تصنيفات القائمة" : "Menu categories"}>
+              <div className="salora-scroll-strip">
+                {categories.map((item) => {
+                  const selected = selectedCategory === item.key && !initialSearch;
+                  const label = language === "ar" ? item.nameAr : item.nameEn;
+                  return <Link
+                    key={item.key}
+                    ref={selectedCategory === item.key ? activeCategoryRef : undefined}
+                    href={menuHref(item.key, "")}
+                    prefetch={false}
+                    aria-current={selected ? "page" : undefined}
+                    aria-controls="menu-product-grid"
+                    data-category-key={item.key}
+                    onClick={() => { setActiveBreakfastGroup(null); setSelectedProduct(null); }}
+                    className={`inline-flex min-h-11 shrink-0 items-center rounded-full border px-4 py-2 text-xs font-semibold transition ${selected ? "border-[var(--gold)] bg-[var(--gold)] text-[var(--color-on-brand)]" : "border-white/10 bg-white/[0.04] text-[var(--muted)] hover:border-white/25 hover:text-[var(--cream)]"}`}
+                  >{label}<span className="ms-2 opacity-65">{item.productCount}</span></Link>;
+                })}
+              </div>
+            </nav> : null}
           </div>
         </div> : null}
 
         {!catalogUnavailable ? <div className="mt-5 flex items-center justify-between gap-4 border-b border-white/10 pb-4 text-sm text-[var(--muted)]" aria-live="polite">
-          <span className="flex flex-wrap items-center gap-2"><span><strong className="text-[var(--cream)]">{filteredProducts.length}</strong> {t.results}</span>{activeBreakfastGroupLabel ? <span className="rounded-full border border-[var(--border-gold)] bg-[var(--gold)]/10 px-3 py-1 text-xs font-semibold text-[var(--gold-soft)]">{language === "ar" ? activeBreakfastGroupLabel.nameAr : activeBreakfastGroupLabel.nameEn}</span> : null}</span>
-          {search || category !== "All" || activeBreakfastGroup ? <button type="button" onClick={() => { setSearch(""); setCategory("All"); setActiveBreakfastGroup(null); }} className="min-h-11 text-xs font-semibold text-[var(--gold-soft)] hover:underline">{t.clearFilters}</button> : null}
+          <span className="flex flex-wrap items-center gap-2"><span>{hasMore ? `${t.showing} ` : ""}<strong className="text-[var(--cream)]">{effectiveBreakfastGroup ? filteredProducts.length : initialProducts.length}</strong>{hasMore ? ` / ${resultTotal}` : ""} {t.results}</span>{activeBreakfastGroupLabel ? <span className="rounded-full border border-[var(--border-gold)] bg-[var(--gold)]/10 px-3 py-1 text-xs font-semibold text-[var(--gold-soft)]">{language === "ar" ? activeBreakfastGroupLabel.nameAr : activeBreakfastGroupLabel.nameEn}</span> : null}</span>
+          {initialSearch || effectiveBreakfastGroup ? <button type="button" onClick={() => { setActiveBreakfastGroup(null); navigateMenu(selectedCategory, ""); }} className="min-h-11 text-xs font-semibold text-[var(--gold-soft)] hover:underline">{t.clearFilters}</button> : null}
         </div> : null}
 
-        <div className={`mt-5 grid gap-4 sm:mt-7 sm:gap-5 ${gridClass}`}>
+        {!searchAvailable && initialSearch ? <p className="mt-5 rounded-xl border border-amber-300/20 bg-amber-300/10 p-4 text-sm leading-7 text-amber-100" role="status">{t.searchUnavailable}</p> : null}
+
+        <div id="menu-product-grid" data-result-count={filteredProducts.length} className={`mt-5 grid gap-4 sm:mt-7 sm:gap-5 ${gridClass}`}>
           {filteredProducts.map((product) => (
             <MenuProductCard key={product.id} product={product} language={language} showImages={experience.menu.showImages} showDescriptions={experience.menu.showDescriptions} ratioClass={ratioClass} list={experience.menu.layout === "list"} radius={experience.theme.borderRadius} onSelect={openProduct} />
           ))}
         </div>
-        {filteredProducts.length === 0 ? <div className="mt-8"><SaloraEmptyState icon={catalogUnavailable ? <CloudOff className="h-6 w-6" aria-hidden="true" /> : <Search className="h-6 w-6" aria-hidden="true" />} title={catalogUnavailable ? t.unavailableTitle : language === "ar" ? "لا توجد أصناف مطابقة" : "No matching items"} description={catalogUnavailable ? t.unavailableBody : t.noResults} action={catalogUnavailable ? undefined : <SaloraButton tone="gold" onClick={() => { setSearch(""); setCategory("All"); setActiveBreakfastGroup(null); }}>{language === "ar" ? "عرض جميع الأصناف" : "Show all items"}</SaloraButton>} /></div> : null}
+        {filteredProducts.length === 0 ? <div className="mt-8"><SaloraEmptyState icon={catalogUnavailable ? <CloudOff className="h-6 w-6" aria-hidden="true" /> : <Search className="h-6 w-6" aria-hidden="true" />} title={catalogUnavailable ? t.unavailableTitle : language === "ar" ? "لا توجد أصناف مطابقة" : "No matching items"} description={catalogUnavailable ? t.unavailableBody : t.noResults} action={catalogUnavailable ? undefined : <SaloraButton tone="gold" onClick={() => { setActiveBreakfastGroup(null); navigateMenu(selectedCategory, ""); }}>{language === "ar" ? "تصفح التصنيف" : "Browse category"}</SaloraButton>} /></div> : null}
+        {hasMore && !effectiveBreakfastGroup ? <div className="mt-8 flex justify-center"><SaloraButton disabled={isPending} onClick={() => navigateMenu(selectedCategory, initialSearch, resultLimit + 24)} className="min-h-12 min-w-44 rounded-full">{isPending ? t.loading : t.loadMore}<ChevronDown className="h-4 w-4" aria-hidden="true" /></SaloraButton></div> : null}
       </section>
 
       {selectedProduct ? (
@@ -553,12 +641,12 @@ function BreakfastShowcase({
   onExplore,
   onSelect
 }: {
-  products: Product[];
+  products: MenuProductSummary[];
   language: Language;
   radius: number;
   activeGroup: BreakfastGroupKey | null;
   onExplore: (group?: BreakfastGroupKey) => void;
-  onSelect: (product: Product) => void;
+  onSelect: (product: MenuProductSummary) => void;
 }) {
   const platters = products.filter((product) => product.tags.includes("breakfast-platters"));
 
@@ -637,7 +725,7 @@ function OptionGroup({ group, selected, language, onChange }: { group: ProductMo
   return <fieldset><legend className="mb-3 text-sm font-semibold text-[var(--muted)]">{group.name}{group.required ? " *" : ""}</legend><div className="grid grid-cols-2 gap-2 sm:grid-cols-3">{group.options.map((option) => <button key={option.id} type="button" aria-pressed={selected === option.id} onClick={() => onChange(option)} className={`rounded-xl border px-3 py-3 text-sm font-semibold ${selected === option.id ? "border-[var(--gold)] bg-[var(--gold)]/15 text-[var(--gold-soft)]" : "border-white/10 text-[var(--muted)]"}`}><span className="block">{optionLabel(language, option.name)}</span>{option.priceDelta ? <small className="mt-1 block opacity-75">+{formatOmr(option.priceDelta, language)}</small> : null}</button>)}</div></fieldset>;
 }
 
-function MenuProductCard({ product, language, showImages, showDescriptions, ratioClass, list, radius, onSelect }: { product: Product; language: Language; showImages: boolean; showDescriptions: boolean; ratioClass: string; list: boolean; radius: number; onSelect: (product: Product) => void }) {
+function MenuProductCard({ product, language, showImages, showDescriptions, ratioClass, list, radius, onSelect }: { product: MenuProductSummary; language: Language; showImages: boolean; showDescriptions: boolean; ratioClass: string; list: boolean; radius: number; onSelect: (product: MenuProductSummary) => void }) {
   const [imageFailed, setImageFailed] = useState(false);
   const t = copy[language];
   const image = productImage(product);
