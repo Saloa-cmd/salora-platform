@@ -147,11 +147,15 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          curl -fsS -o certification/preview-menu.html             -H "x-vercel-trusted-oidc-idp-token: $VERCEL_TRUSTED_OIDC_TOKEN"             "$PREVIEW_URL/menu?category=matcha"
-          grep -q 'data-menu-source="published-revision"' certification/preview-menu.html
-          grep -q 'data-menu-stale="false"' certification/preview-menu.html
-          grep -q 'data-menu-total="139"' certification/preview-menu.html
-          grep -q "data-menu-revision=\"$EXPECTED_REVISION\"" certification/preview-menu.html
+          curl -fsSL --max-redirs 5 --proto-redir =https \
+            -o certification/preview-menu.html \
+            -H "x-vercel-trusted-oidc-idp-token: $VERCEL_TRUSTED_OIDC_TOKEN" \
+            "$PREVIEW_URL/menu?category=matcha"
+          test "$(wc -c < certification/preview-menu.html)" -gt 1000 || { echo "Preview body is unexpectedly small"; exit 1; }
+          grep -q 'data-menu-source="published-revision"' certification/preview-menu.html || { echo "Authority source mismatch"; exit 1; }
+          grep -q 'data-menu-stale="false"' certification/preview-menu.html || { echo "Authority stale flag mismatch"; exit 1; }
+          grep -q 'data-menu-total="139"' certification/preview-menu.html || { echo "Catalog total mismatch"; exit 1; }
+          grep -q "data-menu-revision=\"$EXPECTED_REVISION\"" certification/preview-menu.html || { echo "Published revision mismatch"; exit 1; }
           if grep -qi 'legacy-catalog' certification/preview-menu.html; then
             echo "Legacy catalog marker detected"; exit 1
           fi
