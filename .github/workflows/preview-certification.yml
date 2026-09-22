@@ -1,0 +1,194 @@
+name: SALORA Preview Certification
+
+on:
+  workflow_dispatch:
+    inputs:
+      candidate_sha:
+        description: Exact candidate commit SHA
+        required: true
+        type: string
+      preview_url:
+        description: Exact Vercel Preview URL (https://*.vercel.app)
+        required: true
+        type: string
+      baseline_sha:
+        description: Baseline commit SHA for lab comparison
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  actions: write
+  id-token: write
+
+concurrency:
+  group: preview-cert-${{ inputs.candidate_sha }}
+  cancel-in-progress: false
+
+jobs:
+  certify:
+    name: Same-SHA Preview Certification
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+      BASELINE_SHA: ${{ inputs.baseline_sha }}
+      PREVIEW_URL: ${{ inputs.preview_url }}
+      PLAYWRIGHT_BASE_URL: ${{ inputs.preview_url }}
+      CI: "true"
+
+    steps:
+      - name: Validate non-secret inputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$CANDIDATE_SHA" =~ ^[0-9a-f]{40}$ ]]
+          [[ "$BASELINE_SHA" =~ ^[0-9a-f]{40}$ ]]
+          [[ "$PREVIEW_URL" =~ ^https://[a-zA-Z0-9.-]+\.vercel\.app/?$ ]]
+          case "$PREVIEW_URL" in
+            *salora-platform-*.vercel.app|*saloa-cmds-projects.vercel.app) ;;
+            *) echo "Preview URL is outside the approved SALORA Vercel hostname pattern"; exit 1 ;;
+          esac
+
+      - name: Checkout exact candidate SHA
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.candidate_sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Prove exact clean checkout
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$CANDIDATE_SHA"
+          test -z "$(git status --short)"
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.7.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Record toolchain
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p certification
+          {
+            echo "node=$(node --version)"
+            echo "pnpm=$(pnpm --version)"
+            echo "runner_os=$RUNNER_OS"
+            echo "runner_arch=$RUNNER_ARCH"
+            echo "candidate_sha=$(git rev-parse HEAD)"
+          } | tee certification/environment.txt
+
+      - name: Frozen install
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Verify protected Preview access with GitHub OIDC
+        id: oidc
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const token = await core.getIDToken();
+            core.setSecret(token);
+            core.setOutput('token', token);
+
+      - name: Preview same-SHA guard
+        env:
+          VERCEL_TRUSTED_OIDC_TOKEN: ${{ steps.oidc.outputs.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsS -o certification/preview-menu.html             -H "x-vercel-trusted-oidc-idp-token: $VERCEL_TRUSTED_OIDC_TOKEN"             "$PREVIEW_URL/menu?category=matcha"
+          grep -q 'data-menu-source="published-revision"' certification/preview-menu.html
+          grep -q 'data-menu-stale="false"' certification/preview-menu.html
+          grep -q 'data-menu-total="139"' certification/preview-menu.html
+          if grep -qi 'legacy-catalog' certification/preview-menu.html; then
+            echo "Legacy catalog marker detected"; exit 1
+          fi
+
+      - name: Run repository smoke suite against existing Preview
+        env:
+          VERCEL_TRUSTED_OIDC_TOKEN: ${{ steps.oidc.outputs.token }}
+        run: pnpm test:smoke
+
+      - name: Audit skipped tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -RniE 'skipped|skip' playwright-report test-results/playwright 2>/dev/null | grep -v 'Authoritative menu journeys run against'; then
+            echo "Review skipped tests above."
+          fi
+
+      - name: Prepare baseline worktree
+        shell: bash
+        run: |
+          set -euo pipefail
+          git worktree add ../salora-baseline "$BASELINE_SHA"
+          cd ../salora-baseline
+          pnpm install --frozen-lockfile
+          pnpm build
+
+      - name: Build candidate for comparable lab
+        run: pnpm build
+
+      - name: Comparable performance lab
+        env:
+          SALORA_BASELINE_ROOT: ${{ github.workspace }}/../salora-baseline
+          SALORA_CANDIDATE_ROOT: ${{ github.workspace }}
+          SALORA_BASELINE_SHA: ${{ inputs.baseline_sha }}
+          SALORA_CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+          SALORA_PERFORMANCE_RUNS: 5
+        run: node scripts/ux01-performance-lab.mjs
+
+      - name: Generate certification manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          CHROMIUM_VERSION="$(node -e "const {chromium}=require('@playwright/test'); chromium.launch({headless:true}).then(async b=>{console.log(await b.version());await b.close()})")"
+          REVISION="$(grep -o 'data-menu-revision="[^"]*"' certification/preview-menu.html | head -1 | cut -d'"' -f2 || true)"
+          cat > certification/manifest.json <<JSON
+          {
+            "repository": "${{ github.repository }}",
+            "pr": 91,
+            "candidateSha": "$CANDIDATE_SHA",
+            "previewUrl": "$PREVIEW_URL",
+            "publishedRevision": "$REVISION",
+            "node": "$(node --version)",
+            "pnpm": "$(pnpm --version)",
+            "chromium": "$CHROMIUM_VERSION",
+            "desktop": "see playwright-report",
+            "mobilePixel7": "see playwright-report",
+            "axe": "see test attachments",
+            "performance": "ux01-performance-results.json",
+            "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          }
+          JSON
+
+      - name: Secret scan artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+          ! grep -RniE '(VERCEL_TOKEN|SUPABASE_SERVICE_ROLE|service_role|BEGIN (RSA|OPENSSH|EC) PRIVATE KEY|ghp_[A-Za-z0-9]+)'             certification playwright-report test-results ux01-performance-results.json ux01-performance-results.md 2>/dev/null
+
+      - name: Upload certification artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: salora-preview-cert-${{ inputs.candidate_sha }}
+          retention-days: 10
+          if-no-files-found: warn
+          path: |
+            certification/
+            playwright-report/
+            test-results/
+            ux01-performance-results.json
+            ux01-performance-results.md
