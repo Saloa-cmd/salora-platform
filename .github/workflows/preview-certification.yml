@@ -1,0 +1,409 @@
+name: SALORA Preview Certification
+
+on:
+  workflow_dispatch:
+    inputs:
+      candidate_sha:
+        description: Exact candidate commit SHA
+        required: true
+        type: string
+      baseline_sha:
+        description: Baseline commit SHA for lab comparison
+        required: true
+        type: string
+      preview_deployment_id:
+        description: Exact existing Vercel Preview deployment ID (dpl_...)
+        required: true
+        type: string
+      expected_revision:
+        description: Exact published Menu Authority revision UUID
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  deployments: read
+  statuses: read
+  id-token: write
+
+concurrency:
+  group: preview-cert-${{ inputs.candidate_sha }}
+  cancel-in-progress: false
+
+jobs:
+  certify:
+    name: Same-SHA Preview Certification
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+      BASELINE_SHA: ${{ inputs.baseline_sha }}
+      PREVIEW_DEPLOYMENT_ID: ${{ inputs.preview_deployment_id }}
+      EXPECTED_REVISION: ${{ inputs.expected_revision }}
+      CI: "true"
+
+    steps:
+      - name: Validate non-secret inputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$CANDIDATE_SHA" =~ ^[0-9a-f]{40}$ ]]
+          [[ "$BASELINE_SHA" =~ ^[0-9a-f]{40}$ ]]
+          [[ "$PREVIEW_DEPLOYMENT_ID" =~ ^dpl_[A-Za-z0-9]+$ ]]
+          [[ "$EXPECTED_REVISION" =~ ^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$ ]]
+
+      - name: Checkout exact candidate SHA
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.candidate_sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Prove exact clean checkout
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$CANDIDATE_SHA"
+          test -z "$(git status --short)"
+
+      - name: Resolve exact Vercel Preview for candidate SHA
+        id: vercel_deployment
+        uses: vercel/wait-for-deployment-action@0e2b0c5c5cce31f1648108aeec56467187aca037
+        with:
+          environment: preview
+          sha: ${{ inputs.candidate_sha }}
+          require-deployment-id: true
+          timeout: 120
+          check-interval: 5
+
+      - name: Bind candidate SHA to exact existing Preview
+        shell: bash
+        env:
+          RESOLVED_DEPLOYMENT_ID: ${{ steps.vercel_deployment.outputs.deployment-id }}
+          RESOLVED_DEPLOYMENT_URL: ${{ steps.vercel_deployment.outputs.deployment-url }}
+          RESOLVED_DEPLOYMENT_STATE: ${{ steps.vercel_deployment.outputs.deployment-state }}
+        run: |
+          set -euo pipefail
+          test "$RESOLVED_DEPLOYMENT_ID" = "$PREVIEW_DEPLOYMENT_ID"
+          test "$RESOLVED_DEPLOYMENT_STATE" = "success"
+          [[ "$RESOLVED_DEPLOYMENT_URL" =~ ^https://[a-zA-Z0-9.-]+\.vercel\.app/?$ ]]
+          case "$RESOLVED_DEPLOYMENT_URL" in
+            *salora-platform-*.vercel.app*) ;;
+            *) echo "Resolved deployment is outside the approved SALORA Preview hostname pattern"; exit 1 ;;
+          esac
+          PREVIEW_URL="${RESOLVED_DEPLOYMENT_URL%/}"
+          echo "PREVIEW_URL=$PREVIEW_URL" >> "$GITHUB_ENV"
+          echo "PLAYWRIGHT_BASE_URL=$PREVIEW_URL" >> "$GITHUB_ENV"
+          mkdir -p certification
+          cat > certification/deployment-identity.json <<JSON
+          {
+            "candidateSha": "$CANDIDATE_SHA",
+            "deploymentId": "$RESOLVED_DEPLOYMENT_ID",
+            "deploymentUrl": "$PREVIEW_URL",
+            "deploymentState": "$RESOLVED_DEPLOYMENT_STATE",
+            "environment": "preview"
+          }
+          JSON
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.7.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Record toolchain
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p certification
+          {
+            echo "node=$(node --version)"
+            echo "pnpm=$(pnpm --version)"
+            echo "runner_os=$RUNNER_OS"
+            echo "runner_arch=$RUNNER_ARCH"
+            echo "candidate_sha=$(git rev-parse HEAD)"
+          } | tee certification/environment.txt
+
+      - name: Frozen install
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Mint GitHub OIDC token for protected Preview
+        id: oidc
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const token = await core.getIDToken();
+            core.setSecret(token);
+            core.setOutput('token', token);
+
+      - name: Preview authority guard
+        env:
+          VERCEL_TRUSTED_OIDC_TOKEN: ${{ steps.oidc.outputs.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsS -o certification/preview-menu.html             -H "x-vercel-trusted-oidc-idp-token: $VERCEL_TRUSTED_OIDC_TOKEN"             "$PREVIEW_URL/menu?category=matcha"
+          grep -q 'data-menu-source="published-revision"' certification/preview-menu.html
+          grep -q 'data-menu-stale="false"' certification/preview-menu.html
+          grep -q 'data-menu-total="139"' certification/preview-menu.html
+          grep -q "data-menu-revision=\"$EXPECTED_REVISION\"" certification/preview-menu.html
+          if grep -qi 'legacy-catalog' certification/preview-menu.html; then
+            echo "Legacy catalog marker detected"; exit 1
+          fi
+
+      - name: Run repository smoke suite against existing Preview
+        env:
+          VERCEL_TRUSTED_OIDC_TOKEN: ${{ steps.oidc.outputs.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          trap 'rm -f playwright.cert.config.ts' EXIT
+          cat > playwright.cert.config.ts <<'TS'
+          import base from "./playwright.config";
+          import { defineConfig } from "@playwright/test";
+          export default defineConfig({
+            ...base,
+            reporter: [
+              ["line"],
+              ["html", { outputFolder: "playwright-report", open: "never" }],
+              ["junit", { outputFile: "certification/playwright-junit.xml" }]
+            ],
+            use: {
+              ...(base.use ?? {}),
+              trace: "off",
+              extraHTTPHeaders: {
+                ...((base.use as any)?.extraHTTPHeaders ?? {}),
+                "x-vercel-trusted-oidc-idp-token": process.env.VERCEL_TRUSTED_OIDC_TOKEN ?? ""
+              }
+            }
+          });
+          TS
+          pnpm exec playwright test --config=playwright.cert.config.ts
+
+      - name: Capture Preview runtime and network evidence
+        env:
+          VERCEL_TRUSTED_OIDC_TOKEN: ${{ steps.oidc.outputs.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'JS'
+          import { chromium, devices } from "@playwright/test";
+          import { writeFile } from "node:fs/promises";
+          const baseUrl = process.env.PREVIEW_URL;
+          const token = process.env.VERCEL_TRUSTED_OIDC_TOKEN;
+          if (!baseUrl || !token) throw new Error("Missing Preview URL or OIDC identity.");
+          const browser = await chromium.launch({ headless: true });
+          const context = await browser.newContext({
+            ...devices["Pixel 7"], locale: "ar-OM", timezoneId: "Asia/Muscat", serviceWorkers: "block",
+            extraHTTPHeaders: { "x-vercel-trusted-oidc-idp-token": token }
+          });
+          const page = await context.newPage();
+          const client = await context.newCDPSession(page);
+          await client.send("Network.enable");
+          await client.send("Network.setCacheDisabled", { cacheDisabled: true });
+          let totalTransferBytes = 0, rscDataBytes = 0, imageRequests = 0, requestCount = 0, jsBytes = 0;
+          const requestTypes = new Map(), consoleErrors = [], pageErrors = [], http404 = [], http401403 = [], http5xx = [];
+          client.on("Network.requestWillBeSent", e => requestTypes.set(e.requestId, { type: e.type, url: e.request.url }));
+          client.on("Network.loadingFinished", e => {
+            const info = requestTypes.get(e.requestId); const bytes = Number(e.encodedDataLength || 0);
+            totalTransferBytes += bytes;
+            if (info && (info.type === "XHR" || info.type === "Fetch" || /(?:[?&]_rsc=|\.rsc(?:\?|$))/i.test(info.url))) rscDataBytes += bytes;
+          });
+          page.on("request", r => { requestCount += 1; if (r.resourceType() === "image") imageRequests += 1; });
+          page.on("console", m => { if (m.type() === "error") consoleErrors.push(m.text()); });
+          page.on("pageerror", e => pageErrors.push(e.message));
+          page.on("response", async r => {
+            const status = r.status(), url = r.url();
+            if (status === 404) http404.push(url);
+            if (status === 401 || status === 403) http401403.push(status + " " + url);
+            if (status >= 500) http5xx.push(status + " " + url);
+            if (r.request().resourceType() === "script") { try { jsBytes += (await r.body()).byteLength; } catch {} }
+          });
+          const response = await page.goto(baseUrl + "/menu", { waitUntil: "networkidle", timeout: 120000 });
+          if (!response || response.status() !== 200) throw new Error("Initial /menu did not return 200.");
+          await page.waitForTimeout(500);
+          const initialHtml = await response.text();
+          const htmlBytes = Buffer.byteLength(initialHtml);
+          const initialDomProducts = await page.locator("#menu-product-grid > .premium-menu-card").count();
+          const serializedProductHints = (initialHtml.match(/\\\"price\\\":/g) ?? []).length + (initialHtml.match(/"price":/g) ?? []).length;
+          const fullCatalogInitialSerialization = initialDomProducts >= 100 || serializedProductHints >= 100;
+          const evidence = {
+            route: "/menu", candidateSha: process.env.CANDIDATE_SHA, previewDeploymentId: process.env.PREVIEW_DEPLOYMENT_ID,
+            initialDomProducts, imageRequests, htmlBytes, jsBytes, rscDataBytes, requestCount, totalTransferBytes,
+            serializedProductHints, fullCatalogInitialSerialization, consoleErrors, pageErrors, http404, http401403, http5xx
+          };
+          await writeFile("certification/preview-network.json", JSON.stringify(evidence, null, 2) + "\n");
+          await context.close(); await browser.close();
+          if (consoleErrors.length) throw new Error("Console errors: " + consoleErrors.length);
+          if (pageErrors.length) throw new Error("Page errors: " + pageErrors.length);
+          if (http404.length) throw new Error("Unexpected 404 responses: " + http404.length);
+          if (http401403.length) throw new Error("Unexpected 401/403 responses: " + http401403.length);
+          if (http5xx.length) throw new Error("Unexpected 5xx responses: " + http5xx.length);
+          if (fullCatalogInitialSerialization) throw new Error("Full catalog appears to be serialized initially.");
+          JS
+      - name: Prepare baseline worktree
+        shell: bash
+        run: |
+          set -euo pipefail
+          git worktree add ../salora-baseline "$BASELINE_SHA"
+          cd ../salora-baseline
+          test "$(git rev-parse HEAD)" = "$BASELINE_SHA"
+          test -z "$(git status --short)"
+          pnpm install --frozen-lockfile
+          pnpm build
+
+      - name: Build candidate for comparable labs
+        run: pnpm build
+
+      - name: Comparable architecture lab
+        env:
+          SALORA_BASELINE_ROOT: ${{ github.workspace }}/../salora-baseline
+          SALORA_CANDIDATE_ROOT: ${{ github.workspace }}
+          SALORA_ARCHITECTURE_RUNS: 5
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'JS'
+          import { spawn } from "node:child_process";
+          import { writeFile } from "node:fs/promises";
+          import { resolve } from "node:path";
+          import { chromium } from "@playwright/test";
+          const runs = Number(process.env.SALORA_ARCHITECTURE_RUNS || "5");
+          const envs = [
+            { name: "baseline", root: resolve(process.env.SALORA_BASELINE_ROOT), port: 3211 },
+            { name: "candidate", root: resolve(process.env.SALORA_CANDIDATE_ROOT), port: 3212 }
+          ];
+          const start = e => spawn("pnpm", ["--filter","@salora/web","exec","next","start","-H","127.0.0.1","-p",String(e.port)], { cwd:e.root, env:{...process.env,PORT:String(e.port)}, stdio:["ignore","pipe","pipe"] });
+          async function ready(port) {
+            const end = Date.now()+120000;
+            while (Date.now()<end) { try { const r=await fetch("http://127.0.0.1:"+port+"/api/health",{cache:"no-store"}); if(r.ok)return; } catch {} await new Promise(r=>setTimeout(r,500)); }
+            throw new Error("Server did not become healthy: "+port);
+          }
+          const median = a => { const s=[...a].sort((x,y)=>x-y), m=Math.floor(s.length/2); return s.length%2?s[m]:(s[m-1]+s[m])/2; };
+          const summary = (samples,key) => { const v=samples.map(s=>Number(s[key])); return {median:median(v),min:Math.min(...v),max:Math.max(...v)}; };
+          async function measure(browser,url) {
+            const context=await browser.newContext({ viewport:{width:412,height:915}, deviceScaleFactor:2.625, isMobile:true, hasTouch:true, locale:"ar-OM", timezoneId:"Asia/Muscat", reducedMotion:"reduce", serviceWorkers:"block" });
+            const page=await context.newPage(), cdp=await context.newCDPSession(page);
+            await cdp.send("Network.enable"); await cdp.send("Network.setCacheDisabled",{cacheDisabled:true});
+            await cdp.send("Network.emulateNetworkConditions",{offline:false,latency:75,downloadThroughput:625000,uploadThroughput:187500,connectionType:"cellular4g"});
+            await cdp.send("Emulation.setCPUThrottlingRate",{rate:4});
+            let totalTransferBytes=0,rscDataBytes=0,imageRequests=0,requestCount=0; const types=new Map();
+            cdp.on("Network.requestWillBeSent",e=>types.set(e.requestId,{type:e.type,url:e.request.url}));
+            cdp.on("Network.loadingFinished",e=>{const i=types.get(e.requestId),b=Number(e.encodedDataLength||0); totalTransferBytes+=b; if(i&&(i.type==="XHR"||i.type==="Fetch"||/(?:[?&]_rsc=|\.rsc(?:\?|$))/i.test(i.url)))rscDataBytes+=b;});
+            page.on("request",r=>{requestCount++;if(r.resourceType()==="image")imageRequests++;});
+            const response=await page.goto(url+"/menu",{waitUntil:"networkidle",timeout:120000});
+            if(!response||response.status()>=500)throw new Error("/menu failed: "+(response?.status()??"none"));
+            await page.waitForTimeout(500); const html=await response.text();
+            const initialDomProducts=await page.locator("#menu-product-grid > .premium-menu-card").count();
+            const serializedProductHints=(html.match(/\\\"price\\\":/g)??[]).length+(html.match(/"price":/g)??[]).length;
+            const fullCatalogInitialSerialization=initialDomProducts>=100||serializedProductHints>=100;
+            await context.close();
+            return {initialDomProducts,imageRequests,totalTransferBytes,rscDataBytes,requestCount,serializedProductHints,fullCatalogInitialSerialization};
+          }
+          const servers=envs.map(e=>({...e,child:start(e)}));
+          try {
+            await Promise.all(servers.map(s=>ready(s.port))); const browser=await chromium.launch({headless:true}); const raw={};
+            try { for(const e of servers){raw[e.name]=[];for(let i=0;i<runs;i++)raw[e.name].push(await measure(browser,"http://127.0.0.1:"+e.port));} } finally { await browser.close(); }
+            const keys=["initialDomProducts","imageRequests","totalTransferBytes","rscDataBytes","requestCount","serializedProductHints"], out={};
+            for(const n of ["baseline","candidate"]){out[n]=Object.fromEntries(keys.map(k=>[k,summary(raw[n],k)]));out[n].fullCatalogInitialSerialization=raw[n].some(s=>s.fullCatalogInitialSerialization);}
+            const result={methodology:{label:"LAB",runs,route:"/menu",viewport:"412x915 @ 2.625 DPR",network:"75ms RTT; 5Mbps down; 1.5Mbps up",cpu:"4x",cache:"disabled"},refs:{baseline:process.env.BASELINE_SHA,candidate:process.env.CANDIDATE_SHA},summary:out,raw};
+            await writeFile("certification/architecture-lab.json",JSON.stringify(result,null,2)+"\n");
+            if(out.candidate.fullCatalogInitialSerialization)throw new Error("Candidate serializes the full catalog initially.");
+            if(out.candidate.initialDomProducts.median>=out.baseline.initialDomProducts.median)throw new Error("Candidate did not reduce initial product DOM.");
+            if(out.candidate.imageRequests.median>=out.baseline.imageRequests.median)throw new Error("Candidate did not reduce initial image requests.");
+          } finally { for(const s of servers)s.child.kill("SIGTERM"); }
+          JS
+      - name: Comparable performance lab
+        env:
+          SALORA_BASELINE_ROOT: ${{ github.workspace }}/../salora-baseline
+          SALORA_CANDIDATE_ROOT: ${{ github.workspace }}
+          SALORA_BASELINE_SHA: ${{ inputs.baseline_sha }}
+          SALORA_CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+          SALORA_PERFORMANCE_RUNS: 5
+        run: node scripts/ux01-performance-lab.mjs
+
+      - name: Require measured architecture improvement
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'JS'
+          import { readFile } from "node:fs/promises";
+          const a=JSON.parse(await readFile("certification/architecture-lab.json","utf8"));
+          const p=JSON.parse(await readFile("ux01-performance-results.json","utf8"));
+          if(a.summary.candidate.totalTransferBytes.median>=a.summary.baseline.totalTransferBytes.median)throw new Error("Initial transfer did not improve.");
+          if(p.summary["/menu"].candidate.cls.median>=0.1)throw new Error("Candidate CLS is not below 0.1.");
+          JS
+      - name: Generate certification manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          CHROMIUM_VERSION="$(node -e "const {chromium}=require('@playwright/test'); chromium.launch({headless:true}).then(async b=>{console.log(await b.version());await b.close()})")"
+          REVISION="$(grep -o 'data-menu-revision="[^"]*"' certification/preview-menu.html | head -1 | cut -d'"' -f2 || true)"
+          cat > certification/manifest.json <<JSON
+          {
+            "repository": "${{ github.repository }}",
+            "pr": 91,
+            "workflowRunId": "${{ github.run_id }}",
+            "workflowSourceSha": "${{ github.sha }}",
+            "candidateSha": "$CANDIDATE_SHA",
+            "baselineSha": "$BASELINE_SHA",
+            "previewDeploymentId": "$PREVIEW_DEPLOYMENT_ID",
+            "previewUrl": "$PREVIEW_URL",
+            "previewSha": "$CANDIDATE_SHA",
+            "publishedRevision": "$REVISION",
+            "expectedRevision": "$EXPECTED_REVISION",
+            "node": "$(node --version)",
+            "pnpm": "$(pnpm --version)",
+            "chromium": "$CHROMIUM_VERSION",
+            "authentication": "GitHub OIDC -> Vercel trusted source",
+            "desktop": "playwright-report + certification/playwright-junit.xml",
+            "mobilePixel7": "playwright-report + certification/playwright-junit.xml",
+            "rtl": "playwright-report + certification/playwright-junit.xml",
+            "axe": "test-results attachments + playwright-report",
+            "network": "certification/preview-network.json",
+            "architecture": "certification/architecture-lab.json",
+            "performance": "ux01-performance-results.json",
+            "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          }
+          JSON
+
+      - name: Require complete certification evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s certification/deployment-identity.json
+          test -s certification/environment.txt
+          test -s certification/preview-menu.html
+          test -s certification/playwright-junit.xml
+          test -s certification/preview-network.json
+          test -s certification/architecture-lab.json
+          test -s certification/manifest.json
+          test -s playwright-report/index.html
+          test -s ux01-performance-results.json
+          test -s ux01-performance-results.md
+      - name: Secret scan artifacts
+        id: artifact_safety
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          ! grep -RniE '(VERCEL_TOKEN|SUPABASE_SERVICE_ROLE|service_role|Authorization:[[:space:]]*Bearer|x-vercel-trusted-oidc-idp-token|BEGIN (RSA|OPENSSH|EC) PRIVATE KEY|ghp_[A-Za-z0-9]+|eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,})' certification playwright-report test-results ux01-performance-results.json ux01-performance-results.md 2>/dev/null
+
+      - name: Upload certification artifacts
+        uses: actions/upload-artifact@v4
+        if: ${{ always() && steps.artifact_safety.outcome == 'success' }}
+        with:
+          name: salora-preview-cert-${{ inputs.candidate_sha }}
+          retention-days: 10
+          if-no-files-found: error
+          path: |
+            certification/
+            playwright-report/
+            test-results/
+            ux01-performance-results.json
+            ux01-performance-results.md
