@@ -141,20 +141,194 @@ jobs:
             core.setSecret(token);
             core.setOutput('token', token);
 
-      - name: Preview authority guard
+      - name: Preview transport and authority guard
         env:
           VERCEL_TRUSTED_OIDC_TOKEN: ${{ steps.oidc.outputs.token }}
         shell: bash
         run: |
           set -euo pipefail
-          curl -fsS -o certification/preview-menu.html             -H "x-vercel-trusted-oidc-idp-token: $VERCEL_TRUSTED_OIDC_TOKEN"             "$PREVIEW_URL/menu?category=matcha"
-          grep -q 'data-menu-source="published-revision"' certification/preview-menu.html
-          grep -q 'data-menu-stale="false"' certification/preview-menu.html
-          grep -q 'data-menu-total="139"' certification/preview-menu.html
-          grep -q "data-menu-revision=\"$EXPECTED_REVISION\"" certification/preview-menu.html
-          if grep -qi 'legacy-catalog' certification/preview-menu.html; then
-            echo "Legacy catalog marker detected"; exit 1
-          fi
+          python - <<'PY'
+          import json, os, re, sys
+          import urllib.error, urllib.parse, urllib.request
+          from pathlib import Path
+
+          TOKEN = os.environ["VERCEL_TRUSTED_OIDC_TOKEN"]
+          PREVIEW_URL = os.environ["PREVIEW_URL"].rstrip("/")
+          EXPECTED_REVISION = os.environ["EXPECTED_REVISION"]
+          MAX_REDIRECTS = 5
+          OUT = Path("certification")
+          OUT.mkdir(exist_ok=True)
+
+          class NoRedirect(urllib.request.HTTPRedirectHandler):
+              def redirect_request(self, req, fp, code, msg, headers, newurl):
+                  return None
+
+          opener = urllib.request.build_opener(NoRedirect)
+
+          def fail(code, detail):
+              print(f"{code}: {detail}", file=sys.stderr)
+              raise SystemExit(1)
+
+          def sanitized(url):
+              p = urllib.parse.urlsplit(url)
+              return f"{p.scheme}://{p.hostname or ''}{p.path or '/'}"
+
+          parsed_preview = urllib.parse.urlsplit(PREVIEW_URL)
+          TRUSTED_HOST = (parsed_preview.hostname or "").lower()
+
+          def target_problem(url):
+              p = urllib.parse.urlsplit(url)
+              host = (p.hostname or "").lower()
+              if p.scheme != "https":
+                  return ("PROTOCOL_DOWNGRADE_REJECTED", "non-HTTPS destination")
+              if p.username or p.password:
+                  return ("REDIRECT_TARGET_REJECTED", "userinfo is forbidden")
+              try:
+                  port = p.port
+              except ValueError:
+                  return ("REDIRECT_TARGET_REJECTED", "invalid port")
+              if port not in (None, 443):
+                  return ("REDIRECT_TARGET_REJECTED", f"unexpected port {port}")
+              if host != TRUSTED_HOST:
+                  return ("REDIRECT_TARGET_REJECTED", f"unapproved host {host or '<empty>'}")
+              return None
+
+          def validate_target(url):
+              problem = target_problem(url)
+              if problem:
+                  fail(*problem)
+
+          if not TRUSTED_HOST.endswith(".vercel.app") or not TRUSTED_HOST.startswith("salora-platform-"):
+              fail("PREVIEW_RESOLUTION_FAILED", "resolved Preview host is outside SALORA Vercel boundary")
+
+          # Local negative security checks: no external network is contacted.
+          assert target_problem(f"http://{TRUSTED_HOST}/menu")[0] == "PROTOCOL_DOWNGRADE_REJECTED"
+          assert target_problem(f"https://user@{TRUSTED_HOST}/menu")[0] == "REDIRECT_TARGET_REJECTED"
+          assert target_problem(f"https://{TRUSTED_HOST}.evil.example/menu")[0] == "REDIRECT_TARGET_REJECTED"
+          assert target_problem(f"https://{TRUSTED_HOST}:8443/menu")[0] == "REDIRECT_TARGET_REJECTED"
+          assert target_problem(f"https://{TRUSTED_HOST}/menu") is None
+
+          current = PREVIEW_URL + "/menu?category=matcha"
+          validate_target(current)
+          history = []
+          final_headers = None
+          body = b""
+          final_status = None
+
+          for hop in range(MAX_REDIRECTS + 1):
+              req = urllib.request.Request(
+                  current,
+                  headers={
+                      "x-vercel-trusted-oidc-idp-token": TOKEN,
+                      "User-Agent": "salora-preview-certification/1",
+                      "Accept": "text/html,application/xhtml+xml",
+                  },
+                  method="GET",
+              )
+              try:
+                  resp = opener.open(req, timeout=30)
+                  final_status = resp.status
+                  final_headers = resp.headers
+                  body = resp.read()
+                  break
+              except urllib.error.HTTPError as exc:
+                  if exc.code in (301, 302, 303, 307, 308):
+                      location = exc.headers.get("Location")
+                      if not location:
+                          fail("PREVIEW_RESOLUTION_FAILED", f"redirect {exc.code} missing Location")
+                      if hop >= MAX_REDIRECTS:
+                          fail("REDIRECT_LIMIT_EXCEEDED", f"more than {MAX_REDIRECTS} redirects")
+                      nxt = urllib.parse.urljoin(current, location)
+                      validate_target(nxt)
+                      history.append({
+                          "status": exc.code,
+                          "from": sanitized(current),
+                          "to": sanitized(nxt),
+                      })
+                      current = nxt
+                      continue
+                  if exc.code in (401, 403):
+                      fail("AUTHENTICATION_FAILED", f"HTTP {exc.code} from {sanitized(current)}")
+                  fail("INVALID_FINAL_STATUS", f"HTTP {exc.code} from {sanitized(current)}")
+              except urllib.error.URLError as exc:
+                  fail("PREVIEW_RESOLUTION_FAILED", str(exc.reason))
+
+          if final_status is None:
+              fail("PREVIEW_RESOLUTION_FAILED", "no final response")
+          if final_status != 200:
+              fail("INVALID_FINAL_STATUS", f"expected 200, got {final_status}")
+
+          content_type = (final_headers.get_content_type() if final_headers else "").lower()
+          if content_type != "text/html":
+              fail("INVALID_CONTENT_TYPE", f"expected text/html, got {content_type or '<missing>'}")
+
+          if len(body) <= 1000:
+              fail("INVALID_PREVIEW_BODY", f"body too small: {len(body)} bytes")
+          text = body.decode("utf-8", "replace")
+          if text.strip().lower().startswith("redirecting"):
+              fail("INVALID_PREVIEW_BODY", "redirect placeholder received")
+          lower = text.lower()
+          if "<html" not in lower and "<!doctype html" not in lower:
+              fail("INVALID_PREVIEW_BODY", "response is not application HTML")
+          if "vercel authentication" in lower or "deployment protection" in lower:
+              fail("VERCEL_PROTECTION_PAGE", "provider protection page received")
+
+          (OUT / "preview-menu.html").write_bytes(body)
+          transport = {
+              "initialUrl": sanitized(PREVIEW_URL + "/menu"),
+              "redirectCount": len(history),
+              "redirects": history,
+              "finalUrl": sanitized(current),
+              "finalStatus": final_status,
+              "contentType": content_type,
+              "bodyBytes": len(body),
+              "bodyValid": True,
+              "redirectPlaceholderAbsent": True,
+              "trustedHost": TRUSTED_HOST,
+              "maxRedirects": MAX_REDIRECTS,
+          }
+          (OUT / "preview-transport.json").write_text(json.dumps(transport, indent=2) + "\n")
+
+          def attr(name):
+              m = re.search(rf'{re.escape(name)}="([^"]*)"', text)
+              return m.group(1) if m else None
+
+          actual_source = attr("data-menu-source")
+          actual_revision = attr("data-menu-revision")
+          actual_stale = attr("data-menu-stale")
+          actual_total = attr("data-menu-total")
+
+          if actual_source != "published-revision":
+              fail("AUTHORITY_SOURCE_MISMATCH", f"expected published-revision, got {actual_source!r}")
+          if actual_revision != EXPECTED_REVISION:
+              fail("AUTHORITY_REVISION_MISMATCH", f"expected {EXPECTED_REVISION}, got {actual_revision!r}")
+          if actual_stale != "false":
+              fail("AUTHORITY_STALE", f"expected false, got {actual_stale!r}")
+          if actual_total != "139":
+              fail("CATALOG_COUNT_MISMATCH", f"expected 139, got {actual_total!r}")
+          if "legacy-catalog" in lower:
+              fail("AUTHORITY_SOURCE_MISMATCH", "legacy catalog marker detected")
+
+          authority = {
+              "source": actual_source,
+              "expectedRevision": EXPECTED_REVISION,
+              "actualRevision": actual_revision,
+              "stale": actual_stale,
+              "catalog": int(actual_total),
+          }
+          (OUT / "authority.json").write_text(json.dumps(authority, indent=2) + "\n")
+          print(
+              "TRANSPORT_PASS "
+              f"redirects={len(history)} status={final_status} "
+              f"content_type={content_type} body_bytes={len(body)} "
+              f"final={sanitized(current)}"
+          )
+          print(
+              "AUTHORITY_PASS "
+              f"source={actual_source} revision={actual_revision} "
+              f"stale={actual_stale} catalog={actual_total}"
+          )
+          PY
 
       - name: Run repository smoke suite against existing Preview
         env:
@@ -344,6 +518,11 @@ jobs:
           set -euo pipefail
           CHROMIUM_VERSION="$(node -e "const {chromium}=require('@playwright/test'); chromium.launch({headless:true}).then(async b=>{console.log(await b.version());await b.close()})")"
           REVISION="$(grep -o 'data-menu-revision="[^"]*"' certification/preview-menu.html | head -1 | cut -d'"' -f2 || true)"
+          REDIRECT_COUNT="$(node -e "const x=require('./certification/preview-transport.json'); console.log(x.redirectCount)")"
+          FINAL_STATUS="$(node -e "const x=require('./certification/preview-transport.json'); console.log(x.finalStatus)")"
+          FINAL_CONTENT_TYPE="$(node -e "const x=require('./certification/preview-transport.json'); console.log(x.contentType)")"
+          FINAL_BODY_BYTES="$(node -e "const x=require('./certification/preview-transport.json'); console.log(x.bodyBytes)")"
+          BODY_VALID="$(node -e "const x=require('./certification/preview-transport.json'); console.log(x.bodyValid)")"
           cat > certification/manifest.json <<JSON
           {
             "repository": "${{ github.repository }}",
@@ -361,6 +540,13 @@ jobs:
             "pnpm": "$(pnpm --version)",
             "chromium": "$CHROMIUM_VERSION",
             "authentication": "GitHub OIDC -> Vercel trusted source",
+            "transport": {
+              "redirectCount": $REDIRECT_COUNT,
+              "finalStatus": $FINAL_STATUS,
+              "contentType": "$FINAL_CONTENT_TYPE",
+              "bodyBytes": $FINAL_BODY_BYTES,
+              "bodyValid": $BODY_VALID
+            },
             "desktop": "playwright-report + certification/playwright-junit.xml",
             "mobilePixel7": "playwright-report + certification/playwright-junit.xml",
             "rtl": "playwright-report + certification/playwright-junit.xml",
@@ -378,6 +564,8 @@ jobs:
           set -euo pipefail
           test -s certification/deployment-identity.json
           test -s certification/environment.txt
+          test -s certification/preview-transport.json
+          test -s certification/authority.json
           test -s certification/preview-menu.html
           test -s certification/playwright-junit.xml
           test -s certification/preview-network.json
