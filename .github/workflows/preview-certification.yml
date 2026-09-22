@@ -252,12 +252,72 @@ jobs:
           set -euo pipefail
           git worktree add ../salora-baseline "$BASELINE_SHA"
           cd ../salora-baseline
+          test "$(git rev-parse HEAD)" = "$BASELINE_SHA"
+          test -z "$(git status --short)"
           pnpm install --frozen-lockfile
           pnpm build
 
-      - name: Build candidate for comparable lab
+      - name: Build candidate for comparable labs
         run: pnpm build
 
+      - name: Comparable architecture lab
+        env:
+          SALORA_BASELINE_ROOT: ${{ github.workspace }}/../salora-baseline
+          SALORA_CANDIDATE_ROOT: ${{ github.workspace }}
+          SALORA_ARCHITECTURE_RUNS: 5
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'JS'
+          import { spawn } from "node:child_process";
+          import { writeFile } from "node:fs/promises";
+          import { resolve } from "node:path";
+          import { chromium } from "@playwright/test";
+          const runs = Number(process.env.SALORA_ARCHITECTURE_RUNS || "5");
+          const envs = [
+            { name: "baseline", root: resolve(process.env.SALORA_BASELINE_ROOT), port: 3211 },
+            { name: "candidate", root: resolve(process.env.SALORA_CANDIDATE_ROOT), port: 3212 }
+          ];
+          const start = e => spawn("pnpm", ["--filter","@salora/web","exec","next","start","-H","127.0.0.1","-p",String(e.port)], { cwd:e.root, env:{...process.env,PORT:String(e.port)}, stdio:["ignore","pipe","pipe"] });
+          async function ready(port) {
+            const end = Date.now()+120000;
+            while (Date.now()<end) { try { const r=await fetch("http://127.0.0.1:"+port+"/api/health",{cache:"no-store"}); if(r.ok)return; } catch {} await new Promise(r=>setTimeout(r,500)); }
+            throw new Error("Server did not become healthy: "+port);
+          }
+          const median = a => { const s=[...a].sort((x,y)=>x-y), m=Math.floor(s.length/2); return s.length%2?s[m]:(s[m-1]+s[m])/2; };
+          const summary = (samples,key) => { const v=samples.map(s=>Number(s[key])); return {median:median(v),min:Math.min(...v),max:Math.max(...v)}; };
+          async function measure(browser,url) {
+            const context=await browser.newContext({ viewport:{width:412,height:915}, deviceScaleFactor:2.625, isMobile:true, hasTouch:true, locale:"ar-OM", timezoneId:"Asia/Muscat", reducedMotion:"reduce", serviceWorkers:"block" });
+            const page=await context.newPage(), cdp=await context.newCDPSession(page);
+            await cdp.send("Network.enable"); await cdp.send("Network.setCacheDisabled",{cacheDisabled:true});
+            await cdp.send("Network.emulateNetworkConditions",{offline:false,latency:75,downloadThroughput:625000,uploadThroughput:187500,connectionType:"cellular4g"});
+            await cdp.send("Emulation.setCPUThrottlingRate",{rate:4});
+            let totalTransferBytes=0,rscDataBytes=0,imageRequests=0,requestCount=0; const types=new Map();
+            cdp.on("Network.requestWillBeSent",e=>types.set(e.requestId,{type:e.type,url:e.request.url}));
+            cdp.on("Network.loadingFinished",e=>{const i=types.get(e.requestId),b=Number(e.encodedDataLength||0); totalTransferBytes+=b; if(i&&(i.type==="XHR"||i.type==="Fetch"||/(?:[?&]_rsc=|\.rsc(?:\?|$))/i.test(i.url)))rscDataBytes+=b;});
+            page.on("request",r=>{requestCount++;if(r.resourceType()==="image")imageRequests++;});
+            const response=await page.goto(url+"/menu",{waitUntil:"networkidle",timeout:120000});
+            if(!response||response.status()>=500)throw new Error("/menu failed: "+(response?.status()??"none"));
+            await page.waitForTimeout(500); const html=await response.text();
+            const initialDomProducts=await page.locator("#menu-product-grid > .premium-menu-card").count();
+            const serializedProductHints=(html.match(/\\\"price\\\":/g)??[]).length+(html.match(/"price":/g)??[]).length;
+            const fullCatalogInitialSerialization=initialDomProducts>=100||serializedProductHints>=100;
+            await context.close();
+            return {initialDomProducts,imageRequests,totalTransferBytes,rscDataBytes,requestCount,serializedProductHints,fullCatalogInitialSerialization};
+          }
+          const servers=envs.map(e=>({...e,child:start(e)}));
+          try {
+            await Promise.all(servers.map(s=>ready(s.port))); const browser=await chromium.launch({headless:true}); const raw={};
+            try { for(const e of servers){raw[e.name]=[];for(let i=0;i<runs;i++)raw[e.name].push(await measure(browser,"http://127.0.0.1:"+e.port));} } finally { await browser.close(); }
+            const keys=["initialDomProducts","imageRequests","totalTransferBytes","rscDataBytes","requestCount","serializedProductHints"], out={};
+            for(const n of ["baseline","candidate"]){out[n]=Object.fromEntries(keys.map(k=>[k,summary(raw[n],k)]));out[n].fullCatalogInitialSerialization=raw[n].some(s=>s.fullCatalogInitialSerialization);}
+            const result={methodology:{label:"LAB",runs,route:"/menu",viewport:"412x915 @ 2.625 DPR",network:"75ms RTT; 5Mbps down; 1.5Mbps up",cpu:"4x",cache:"disabled"},refs:{baseline:process.env.BASELINE_SHA,candidate:process.env.CANDIDATE_SHA},summary:out,raw};
+            await writeFile("certification/architecture-lab.json",JSON.stringify(result,null,2)+"\n");
+            if(out.candidate.fullCatalogInitialSerialization)throw new Error("Candidate serializes the full catalog initially.");
+            if(out.candidate.initialDomProducts.median>=out.baseline.initialDomProducts.median)throw new Error("Candidate did not reduce initial product DOM.");
+            if(out.candidate.imageRequests.median>=out.baseline.imageRequests.median)throw new Error("Candidate did not reduce initial image requests.");
+          } finally { for(const s of servers)s.child.kill("SIGTERM"); }
+          JS
       - name: Comparable performance lab
         env:
           SALORA_BASELINE_ROOT: ${{ github.workspace }}/../salora-baseline
@@ -267,6 +327,17 @@ jobs:
           SALORA_PERFORMANCE_RUNS: 5
         run: node scripts/ux01-performance-lab.mjs
 
+      - name: Require measured architecture improvement
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'JS'
+          import { readFile } from "node:fs/promises";
+          const a=JSON.parse(await readFile("certification/architecture-lab.json","utf8"));
+          const p=JSON.parse(await readFile("ux01-performance-results.json","utf8"));
+          if(a.summary.candidate.totalTransferBytes.median>=a.summary.baseline.totalTransferBytes.median)throw new Error("Initial transfer did not improve.");
+          if(p.summary["/menu"].candidate.cls.median>=0.1)throw new Error("Candidate CLS is not below 0.1.");
+          JS
       - name: Generate certification manifest
         shell: bash
         run: |
