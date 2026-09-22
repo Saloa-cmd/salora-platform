@@ -120,7 +120,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          cat > /tmp/pw-oidc.config.ts <<'TS'
+          cat > playwright.cert.config.ts <<'TS'
           import base from "./playwright.config";
           import { defineConfig } from "@playwright/test";
           export default defineConfig({
