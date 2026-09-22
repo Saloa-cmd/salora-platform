@@ -30,6 +30,37 @@ export interface Product {
   modifierGroups?: ProductModifierGroup[];
 }
 
+/**
+ * The bounded customer-menu projection. It deliberately excludes pairing,
+ * nutrition, allergens, and editorial story data that product cards do not
+ * consume, while retaining the existing ordering options needed by the
+ * current customization flow.
+ */
+export type MenuProductSummary = Pick<
+  Product,
+  | "id"
+  | "catalogId"
+  | "menuRevisionId"
+  | "sectionKey"
+  | "name"
+  | "nameAr"
+  | "nameEn"
+  | "category"
+  | "categoryAr"
+  | "categoryEn"
+  | "description"
+  | "descriptionAr"
+  | "descriptionEn"
+  | "price"
+  | "tags"
+  | "visual"
+  | "featured"
+  | "badges"
+  | "variants"
+  | "addons"
+  | "modifierGroups"
+>;
+
 export interface ProductChoice {
   id: string;
   name: string;
