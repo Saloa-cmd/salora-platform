@@ -34,7 +34,7 @@ jobs:
   certify:
     name: Same-SHA Preview Certification
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
     env:
       CANDIDATE_SHA: ${{ inputs.candidate_sha }}
       BASELINE_SHA: ${{ inputs.baseline_sha }}
@@ -185,6 +185,67 @@ jobs:
           TS
           pnpm exec playwright test --config=playwright.cert.config.ts
 
+      - name: Capture Preview runtime and network evidence
+        env:
+          VERCEL_TRUSTED_OIDC_TOKEN: ${{ steps.oidc.outputs.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'JS'
+          import { chromium, devices } from "@playwright/test";
+          import { writeFile } from "node:fs/promises";
+          const baseUrl = process.env.PREVIEW_URL;
+          const token = process.env.VERCEL_TRUSTED_OIDC_TOKEN;
+          if (!baseUrl || !token) throw new Error("Missing Preview URL or OIDC identity.");
+          const browser = await chromium.launch({ headless: true });
+          const context = await browser.newContext({
+            ...devices["Pixel 7"], locale: "ar-OM", timezoneId: "Asia/Muscat", serviceWorkers: "block",
+            extraHTTPHeaders: { "x-vercel-trusted-oidc-idp-token": token }
+          });
+          const page = await context.newPage();
+          const client = await context.newCDPSession(page);
+          await client.send("Network.enable");
+          await client.send("Network.setCacheDisabled", { cacheDisabled: true });
+          let totalTransferBytes = 0, rscDataBytes = 0, imageRequests = 0, requestCount = 0, jsBytes = 0;
+          const requestTypes = new Map(), consoleErrors = [], pageErrors = [], http404 = [], http401403 = [], http5xx = [];
+          client.on("Network.requestWillBeSent", e => requestTypes.set(e.requestId, { type: e.type, url: e.request.url }));
+          client.on("Network.loadingFinished", e => {
+            const info = requestTypes.get(e.requestId); const bytes = Number(e.encodedDataLength || 0);
+            totalTransferBytes += bytes;
+            if (info && (info.type === "XHR" || info.type === "Fetch" || /(?:[?&]_rsc=|\.rsc(?:\?|$))/i.test(info.url))) rscDataBytes += bytes;
+          });
+          page.on("request", r => { requestCount += 1; if (r.resourceType() === "image") imageRequests += 1; });
+          page.on("console", m => { if (m.type() === "error") consoleErrors.push(m.text()); });
+          page.on("pageerror", e => pageErrors.push(e.message));
+          page.on("response", async r => {
+            const status = r.status(), url = r.url();
+            if (status === 404) http404.push(url);
+            if (status === 401 || status === 403) http401403.push(status + " " + url);
+            if (status >= 500) http5xx.push(status + " " + url);
+            if (r.request().resourceType() === "script") { try { jsBytes += (await r.body()).byteLength; } catch {} }
+          });
+          const response = await page.goto(baseUrl + "/menu", { waitUntil: "networkidle", timeout: 120000 });
+          if (!response || response.status() !== 200) throw new Error("Initial /menu did not return 200.");
+          await page.waitForTimeout(500);
+          const initialHtml = await response.text();
+          const htmlBytes = Buffer.byteLength(initialHtml);
+          const initialDomProducts = await page.locator("#menu-product-grid > .premium-menu-card").count();
+          const serializedProductHints = (initialHtml.match(/\\\"price\\\":/g) ?? []).length + (initialHtml.match(/"price":/g) ?? []).length;
+          const fullCatalogInitialSerialization = initialDomProducts >= 100 || serializedProductHints >= 100;
+          const evidence = {
+            route: "/menu", candidateSha: process.env.CANDIDATE_SHA, previewDeploymentId: process.env.PREVIEW_DEPLOYMENT_ID,
+            initialDomProducts, imageRequests, htmlBytes, jsBytes, rscDataBytes, requestCount, totalTransferBytes,
+            serializedProductHints, fullCatalogInitialSerialization, consoleErrors, pageErrors, http404, http401403, http5xx
+          };
+          await writeFile("certification/preview-network.json", JSON.stringify(evidence, null, 2) + "\n");
+          await context.close(); await browser.close();
+          if (consoleErrors.length) throw new Error("Console errors: " + consoleErrors.length);
+          if (pageErrors.length) throw new Error("Page errors: " + pageErrors.length);
+          if (http404.length) throw new Error("Unexpected 404 responses: " + http404.length);
+          if (http401403.length) throw new Error("Unexpected 401/403 responses: " + http401403.length);
+          if (http5xx.length) throw new Error("Unexpected 5xx responses: " + http5xx.length);
+          if (fullCatalogInitialSerialization) throw new Error("Full catalog appears to be serialized initially.");
+          JS
       - name: Prepare baseline worktree
         shell: bash
         run: |
