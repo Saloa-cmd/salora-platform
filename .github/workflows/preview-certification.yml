@@ -46,8 +46,8 @@ jobs:
           [[ "$BASELINE_SHA" =~ ^[0-9a-f]{40}$ ]]
           [[ "$PREVIEW_URL" =~ ^https://[a-zA-Z0-9.-]+\.vercel\.app/?$ ]]
           case "$PREVIEW_URL" in
-            *salora-platform-*.vercel.app|*saloa-cmds-projects.vercel.app) ;;
-            *) echo "Preview URL is outside the approved SALORA Vercel hostname pattern"; exit 1 ;;
+            *salora-platform-*.vercel.app) ;;
+            *) echo "Preview URL is outside the approved SALORA Preview hostname pattern"; exit 1 ;;
           esac
 
       - name: Checkout exact candidate SHA
@@ -92,7 +92,7 @@ jobs:
       - name: Install Chromium
         run: pnpm exec playwright install --with-deps chromium
 
-      - name: Verify protected Preview access with GitHub OIDC
+      - name: Mint GitHub OIDC token for protected Preview
         id: oidc
         uses: actions/github-script@v7
         with:
@@ -101,7 +101,7 @@ jobs:
             core.setSecret(token);
             core.setOutput('token', token);
 
-      - name: Preview same-SHA guard
+      - name: Preview authority guard
         env:
           VERCEL_TRUSTED_OIDC_TOKEN: ${{ steps.oidc.outputs.token }}
         shell: bash
@@ -118,15 +118,24 @@ jobs:
       - name: Run repository smoke suite against existing Preview
         env:
           VERCEL_TRUSTED_OIDC_TOKEN: ${{ steps.oidc.outputs.token }}
-        run: pnpm test:smoke
-
-      - name: Audit skipped tests
         shell: bash
         run: |
           set -euo pipefail
-          if grep -RniE 'skipped|skip' playwright-report test-results/playwright 2>/dev/null | grep -v 'Authoritative menu journeys run against'; then
-            echo "Review skipped tests above."
-          fi
+          cat > /tmp/pw-oidc.config.ts <<'TS'
+          import base from process.env.GITHUB_WORKSPACE + "/playwright.config.ts";
+          import { defineConfig } from "@playwright/test";
+          export default defineConfig({
+            ...base,
+            use: {
+              ...(base.use ?? {}),
+              extraHTTPHeaders: {
+                ...((base.use as any)?.extraHTTPHeaders ?? {}),
+                "x-vercel-trusted-oidc-idp-token": process.env.VERCEL_TRUSTED_OIDC_TOKEN ?? ""
+              }
+            }
+          });
+          TS
+          pnpm exec playwright test --config=/tmp/pw-oidc.config.ts
 
       - name: Prepare baseline worktree
         shell: bash
