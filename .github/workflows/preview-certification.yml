@@ -171,7 +171,7 @@ jobs:
             reporter: [
               ["line"],
               ["html", { outputFolder: "playwright-report", open: "never" }],
-              ["json", { outputFile: "certification/playwright.json" }]
+              ["junit", { outputFile: "certification/playwright-junit.xml" }]
             ],
             use: {
               ...(base.use ?? {}),
@@ -361,15 +361,34 @@ jobs:
             "pnpm": "$(pnpm --version)",
             "chromium": "$CHROMIUM_VERSION",
             "authentication": "GitHub OIDC -> Vercel trusted source",
-            "desktop": "see playwright-report",
-            "mobilePixel7": "see playwright-report",
-            "axe": "see test attachments",
+            "desktop": "playwright-report + certification/playwright-junit.xml",
+            "mobilePixel7": "playwright-report + certification/playwright-junit.xml",
+            "rtl": "playwright-report + certification/playwright-junit.xml",
+            "axe": "test-results attachments + playwright-report",
+            "network": "certification/preview-network.json",
+            "architecture": "certification/architecture-lab.json",
             "performance": "ux01-performance-results.json",
             "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           }
           JSON
 
+      - name: Require complete certification evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s certification/deployment-identity.json
+          test -s certification/environment.txt
+          test -s certification/preview-menu.html
+          test -s certification/playwright-junit.xml
+          test -s certification/preview-network.json
+          test -s certification/architecture-lab.json
+          test -s certification/manifest.json
+          test -s playwright-report/index.html
+          test -s ux01-performance-results.json
+          test -s ux01-performance-results.md
       - name: Secret scan artifacts
+        id: artifact_safety
+        if: always()
         shell: bash
         run: |
           set -euo pipefail
@@ -377,7 +396,7 @@ jobs:
 
       - name: Upload certification artifacts
         uses: actions/upload-artifact@v4
-        if: always()
+        if: ${{ always() && steps.artifact_safety.outcome == 'success' }}
         with:
           name: salora-preview-cert-${{ inputs.candidate_sha }}
           retention-days: 10
