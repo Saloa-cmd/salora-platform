@@ -7,17 +7,23 @@ on:
         description: Exact candidate commit SHA
         required: true
         type: string
-      preview_url:
-        description: Exact Vercel Preview URL (https://*.vercel.app)
-        required: true
-        type: string
       baseline_sha:
         description: Baseline commit SHA for lab comparison
+        required: true
+        type: string
+      preview_deployment_id:
+        description: Exact existing Vercel Preview deployment ID (dpl_...)
+        required: true
+        type: string
+      expected_revision:
+        description: Exact published Menu Authority revision UUID
         required: true
         type: string
 
 permissions:
   contents: read
+  deployments: read
+  statuses: read
   id-token: write
 
 concurrency:
@@ -32,8 +38,8 @@ jobs:
     env:
       CANDIDATE_SHA: ${{ inputs.candidate_sha }}
       BASELINE_SHA: ${{ inputs.baseline_sha }}
-      PREVIEW_URL: ${{ inputs.preview_url }}
-      PLAYWRIGHT_BASE_URL: ${{ inputs.preview_url }}
+      PREVIEW_DEPLOYMENT_ID: ${{ inputs.preview_deployment_id }}
+      EXPECTED_REVISION: ${{ inputs.expected_revision }}
       CI: "true"
 
     steps:
@@ -43,11 +49,8 @@ jobs:
           set -euo pipefail
           [[ "$CANDIDATE_SHA" =~ ^[0-9a-f]{40}$ ]]
           [[ "$BASELINE_SHA" =~ ^[0-9a-f]{40}$ ]]
-          [[ "$PREVIEW_URL" =~ ^https://[a-zA-Z0-9.-]+\.vercel\.app/?$ ]]
-          case "$PREVIEW_URL" in
-            *salora-platform-*.vercel.app) ;;
-            *) echo "Preview URL is outside the approved SALORA Preview hostname pattern"; exit 1 ;;
-          esac
+          [[ "$PREVIEW_DEPLOYMENT_ID" =~ ^dpl_[A-Za-z0-9]+$ ]]
+          [[ "$EXPECTED_REVISION" =~ ^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$ ]]
 
       - name: Checkout exact candidate SHA
         uses: actions/checkout@v4
@@ -63,6 +66,44 @@ jobs:
           test "$(git rev-parse HEAD)" = "$CANDIDATE_SHA"
           test -z "$(git status --short)"
 
+      - name: Resolve exact Vercel Preview for candidate SHA
+        id: vercel_deployment
+        uses: vercel/wait-for-deployment-action@0e2b0c5c5cce31f1648108aeec56467187aca037
+        with:
+          environment: preview
+          sha: ${{ inputs.candidate_sha }}
+          require-deployment-id: true
+          timeout: 120
+          check-interval: 5
+
+      - name: Bind candidate SHA to exact existing Preview
+        shell: bash
+        env:
+          RESOLVED_DEPLOYMENT_ID: ${{ steps.vercel_deployment.outputs.deployment-id }}
+          RESOLVED_DEPLOYMENT_URL: ${{ steps.vercel_deployment.outputs.deployment-url }}
+          RESOLVED_DEPLOYMENT_STATE: ${{ steps.vercel_deployment.outputs.deployment-state }}
+        run: |
+          set -euo pipefail
+          test "$RESOLVED_DEPLOYMENT_ID" = "$PREVIEW_DEPLOYMENT_ID"
+          test "$RESOLVED_DEPLOYMENT_STATE" = "success"
+          [[ "$RESOLVED_DEPLOYMENT_URL" =~ ^https://[a-zA-Z0-9.-]+\.vercel\.app/?$ ]]
+          case "$RESOLVED_DEPLOYMENT_URL" in
+            *salora-platform-*.vercel.app*) ;;
+            *) echo "Resolved deployment is outside the approved SALORA Preview hostname pattern"; exit 1 ;;
+          esac
+          PREVIEW_URL="${RESOLVED_DEPLOYMENT_URL%/}"
+          echo "PREVIEW_URL=$PREVIEW_URL" >> "$GITHUB_ENV"
+          echo "PLAYWRIGHT_BASE_URL=$PREVIEW_URL" >> "$GITHUB_ENV"
+          mkdir -p certification
+          cat > certification/deployment-identity.json <<JSON
+          {
+            "candidateSha": "$CANDIDATE_SHA",
+            "deploymentId": "$RESOLVED_DEPLOYMENT_ID",
+            "deploymentUrl": "$PREVIEW_URL",
+            "deploymentState": "$RESOLVED_DEPLOYMENT_STATE",
+            "environment": "preview"
+          }
+          JSON
       - uses: pnpm/action-setup@v4
         with:
           version: 11.7.0
@@ -110,6 +151,7 @@ jobs:
           grep -q 'data-menu-source="published-revision"' certification/preview-menu.html
           grep -q 'data-menu-stale="false"' certification/preview-menu.html
           grep -q 'data-menu-total="139"' certification/preview-menu.html
+          grep -q "data-menu-revision=\"$EXPECTED_REVISION\"" certification/preview-menu.html
           if grep -qi 'legacy-catalog' certification/preview-menu.html; then
             echo "Legacy catalog marker detected"; exit 1
           fi
@@ -120,13 +162,20 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          trap 'rm -f playwright.cert.config.ts' EXIT
           cat > playwright.cert.config.ts <<'TS'
           import base from "./playwright.config";
           import { defineConfig } from "@playwright/test";
           export default defineConfig({
             ...base,
+            reporter: [
+              ["line"],
+              ["html", { outputFolder: "playwright-report", open: "never" }],
+              ["json", { outputFile: "certification/playwright.json" }]
+            ],
             use: {
               ...(base.use ?? {}),
+              trace: "off",
               extraHTTPHeaders: {
                 ...((base.use as any)?.extraHTTPHeaders ?? {}),
                 "x-vercel-trusted-oidc-idp-token": process.env.VERCEL_TRUSTED_OIDC_TOKEN ?? ""
@@ -135,7 +184,6 @@ jobs:
           });
           TS
           pnpm exec playwright test --config=playwright.cert.config.ts
-          rm -f playwright.cert.config.ts
 
       - name: Prepare baseline worktree
         shell: bash
@@ -168,12 +216,19 @@ jobs:
           {
             "repository": "${{ github.repository }}",
             "pr": 91,
+            "workflowRunId": "${{ github.run_id }}",
+            "workflowSourceSha": "${{ github.sha }}",
             "candidateSha": "$CANDIDATE_SHA",
+            "baselineSha": "$BASELINE_SHA",
+            "previewDeploymentId": "$PREVIEW_DEPLOYMENT_ID",
             "previewUrl": "$PREVIEW_URL",
+            "previewSha": "$CANDIDATE_SHA",
             "publishedRevision": "$REVISION",
+            "expectedRevision": "$EXPECTED_REVISION",
             "node": "$(node --version)",
             "pnpm": "$(pnpm --version)",
             "chromium": "$CHROMIUM_VERSION",
+            "authentication": "GitHub OIDC -> Vercel trusted source",
             "desktop": "see playwright-report",
             "mobilePixel7": "see playwright-report",
             "axe": "see test attachments",
@@ -186,7 +241,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          ! grep -RniE '(VERCEL_TOKEN|SUPABASE_SERVICE_ROLE|service_role|BEGIN (RSA|OPENSSH|EC) PRIVATE KEY|ghp_[A-Za-z0-9]+)'             certification playwright-report test-results ux01-performance-results.json ux01-performance-results.md 2>/dev/null
+          ! grep -RniE '(VERCEL_TOKEN|SUPABASE_SERVICE_ROLE|service_role|Authorization:[[:space:]]*Bearer|x-vercel-trusted-oidc-idp-token|BEGIN (RSA|OPENSSH|EC) PRIVATE KEY|ghp_[A-Za-z0-9]+|eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,})' certification playwright-report test-results ux01-performance-results.json ux01-performance-results.md 2>/dev/null
 
       - name: Upload certification artifacts
         uses: actions/upload-artifact@v4
@@ -194,7 +249,7 @@ jobs:
         with:
           name: salora-preview-cert-${{ inputs.candidate_sha }}
           retention-days: 10
-          if-no-files-found: warn
+          if-no-files-found: error
           path: |
             certification/
             playwright-report/
