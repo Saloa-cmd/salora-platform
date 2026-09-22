@@ -18,7 +18,6 @@ on:
 
 permissions:
   contents: read
-  actions: write
   id-token: write
 
 concurrency:
@@ -122,7 +121,7 @@ jobs:
         run: |
           set -euo pipefail
           cat > /tmp/pw-oidc.config.ts <<'TS'
-          import base from process.env.GITHUB_WORKSPACE + "/playwright.config.ts";
+          import base from "./playwright.config";
           import { defineConfig } from "@playwright/test";
           export default defineConfig({
             ...base,
@@ -135,7 +134,8 @@ jobs:
             }
           });
           TS
-          pnpm exec playwright test --config=/tmp/pw-oidc.config.ts
+          pnpm exec playwright test --config=playwright.cert.config.ts
+          rm -f playwright.cert.config.ts
 
       - name: Prepare baseline worktree
         shell: bash
