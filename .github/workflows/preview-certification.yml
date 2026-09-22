@@ -173,15 +173,40 @@ jobs:
               p = urllib.parse.urlsplit(url)
               return f"{p.scheme}://{p.hostname or ''}{p.path or '/'}"
 
-          def validate_target(url):
+          parsed_preview = urllib.parse.urlsplit(PREVIEW_URL)
+          TRUSTED_HOST = (parsed_preview.hostname or "").lower()
+
+          def target_problem(url):
               p = urllib.parse.urlsplit(url)
               host = (p.hostname or "").lower()
               if p.scheme != "https":
-                  fail("REDIRECT_TARGET_REJECTED", "non-HTTPS destination")
+                  return ("PROTOCOL_DOWNGRADE_REJECTED", "non-HTTPS destination")
               if p.username or p.password:
-                  fail("REDIRECT_TARGET_REJECTED", "userinfo is forbidden")
-              if not (host.endswith(".vercel.app") and host.startswith("salora-platform-")):
-                  fail("REDIRECT_TARGET_REJECTED", f"unapproved host {host or '<empty>'}")
+                  return ("REDIRECT_TARGET_REJECTED", "userinfo is forbidden")
+              try:
+                  port = p.port
+              except ValueError:
+                  return ("REDIRECT_TARGET_REJECTED", "invalid port")
+              if port not in (None, 443):
+                  return ("REDIRECT_TARGET_REJECTED", f"unexpected port {port}")
+              if host != TRUSTED_HOST:
+                  return ("REDIRECT_TARGET_REJECTED", f"unapproved host {host or '<empty>'}")
+              return None
+
+          def validate_target(url):
+              problem = target_problem(url)
+              if problem:
+                  fail(*problem)
+
+          if not TRUSTED_HOST.endswith(".vercel.app") or not TRUSTED_HOST.startswith("salora-platform-"):
+              fail("PREVIEW_RESOLUTION_FAILED", "resolved Preview host is outside SALORA Vercel boundary")
+
+          # Local negative security checks: no external network is contacted.
+          assert target_problem(f"http://{TRUSTED_HOST}/menu")[0] == "PROTOCOL_DOWNGRADE_REJECTED"
+          assert target_problem(f"https://user@{TRUSTED_HOST}/menu")[0] == "REDIRECT_TARGET_REJECTED"
+          assert target_problem(f"https://{TRUSTED_HOST}.evil.example/menu")[0] == "REDIRECT_TARGET_REJECTED"
+          assert target_problem(f"https://{TRUSTED_HOST}:8443/menu")[0] == "REDIRECT_TARGET_REJECTED"
+          assert target_problem(f"https://{TRUSTED_HOST}/menu") is None
 
           current = PREVIEW_URL + "/menu?category=matcha"
           validate_target(current)
@@ -246,7 +271,7 @@ jobs:
           if "<html" not in lower and "<!doctype html" not in lower:
               fail("INVALID_PREVIEW_BODY", "response is not application HTML")
           if "vercel authentication" in lower or "deployment protection" in lower:
-              fail("AUTHENTICATION_FAILED", "provider protection page received")
+              fail("VERCEL_PROTECTION_PAGE", "provider protection page received")
 
           (OUT / "preview-menu.html").write_bytes(body)
           transport = {
@@ -259,6 +284,8 @@ jobs:
               "bodyBytes": len(body),
               "bodyValid": True,
               "redirectPlaceholderAbsent": True,
+              "trustedHost": TRUSTED_HOST,
+              "maxRedirects": MAX_REDIRECTS,
           }
           (OUT / "preview-transport.json").write_text(json.dumps(transport, indent=2) + "\n")
 
@@ -491,6 +518,11 @@ jobs:
           set -euo pipefail
           CHROMIUM_VERSION="$(node -e "const {chromium}=require('@playwright/test'); chromium.launch({headless:true}).then(async b=>{console.log(await b.version());await b.close()})")"
           REVISION="$(grep -o 'data-menu-revision="[^"]*"' certification/preview-menu.html | head -1 | cut -d'"' -f2 || true)"
+          REDIRECT_COUNT="$(node -e "const x=require('./certification/preview-transport.json'); console.log(x.redirectCount)")"
+          FINAL_STATUS="$(node -e "const x=require('./certification/preview-transport.json'); console.log(x.finalStatus)")"
+          FINAL_CONTENT_TYPE="$(node -e "const x=require('./certification/preview-transport.json'); console.log(x.contentType)")"
+          FINAL_BODY_BYTES="$(node -e "const x=require('./certification/preview-transport.json'); console.log(x.bodyBytes)")"
+          BODY_VALID="$(node -e "const x=require('./certification/preview-transport.json'); console.log(x.bodyValid)")"
           cat > certification/manifest.json <<JSON
           {
             "repository": "${{ github.repository }}",
@@ -508,6 +540,13 @@ jobs:
             "pnpm": "$(pnpm --version)",
             "chromium": "$CHROMIUM_VERSION",
             "authentication": "GitHub OIDC -> Vercel trusted source",
+            "transport": {
+              "redirectCount": $REDIRECT_COUNT,
+              "finalStatus": $FINAL_STATUS,
+              "contentType": "$FINAL_CONTENT_TYPE",
+              "bodyBytes": $FINAL_BODY_BYTES,
+              "bodyValid": $BODY_VALID
+            },
             "desktop": "playwright-report + certification/playwright-junit.xml",
             "mobilePixel7": "playwright-report + certification/playwright-junit.xml",
             "rtl": "playwright-report + certification/playwright-junit.xml",
@@ -525,6 +564,8 @@ jobs:
           set -euo pipefail
           test -s certification/deployment-identity.json
           test -s certification/environment.txt
+          test -s certification/preview-transport.json
+          test -s certification/authority.json
           test -s certification/preview-menu.html
           test -s certification/playwright-junit.xml
           test -s certification/preview-network.json
