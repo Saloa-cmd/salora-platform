@@ -181,7 +181,7 @@ jobs:
 
           def sanitized(url):
               p = urllib.parse.urlsplit(url)
-              return f"{p.scheme}://{p.hostname or ''}{p.path or '/'}"
+              return f"{p.scheme}://{p.hostname or ''}"
 
           parsed_preview = urllib.parse.urlsplit(PREVIEW_URL)
           TRUSTED_HOST = (parsed_preview.hostname or "").lower()
@@ -200,7 +200,7 @@ jobs:
               if port not in (None, 443):
                   return ("REDIRECT_TARGET_REJECTED", f"unexpected port {port}")
               if host != TRUSTED_HOST:
-                  return ("REDIRECT_TARGET_REJECTED", f"unapproved host {host or '<empty>'}")
+                  return ("REDIRECT_TARGET_REJECTED", "unapproved origin")
               return None
 
           def validate_target(url):
@@ -261,7 +261,7 @@ jobs:
                       fail("AUTHENTICATION_FAILED", f"HTTP {exc.code} from {sanitized(current)}")
                   fail("INVALID_FINAL_STATUS", f"HTTP {exc.code} from {sanitized(current)}")
               except urllib.error.URLError as exc:
-                  fail("PREVIEW_RESOLUTION_FAILED", str(exc.reason))
+                  fail("PREVIEW_RESOLUTION_FAILED", "transport request failed")
 
           if final_status is None:
               fail("PREVIEW_RESOLUTION_FAILED", "no final response")
