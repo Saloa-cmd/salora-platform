@@ -66,6 +66,16 @@ jobs:
           test "$(git rev-parse HEAD)" = "$CANDIDATE_SHA"
           test -z "$(git status --short)"
 
+      - name: Checkout trusted certification harness independently
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          path: .certification-infra
+          persist-credentials: false
+
+      - name: Verify synthetic credential containment before OIDC
+        run: node --test .certification-infra/scripts/preview-auth-boundary.test.mjs
+
       - name: Resolve exact Vercel Preview for candidate SHA
         id: vercel_deployment
         uses: vercel/wait-for-deployment-action@0e2b0c5c5cce31f1648108aeec56467187aca037
@@ -336,12 +346,14 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          trap 'rm -f playwright.cert.config.ts' EXIT
+          trap 'rm -f playwright.cert.config.ts; rm -rf .preview-cert' EXIT
+          node .certification-infra/scripts/prepare-preview-cert-tests.mjs
           cat > playwright.cert.config.ts <<'TS'
           import base from "./playwright.config";
           import { defineConfig } from "@playwright/test";
           export default defineConfig({
             ...base,
+            testDir: "./.preview-cert",
             reporter: [
               ["line"],
               ["html", { outputFolder: "playwright-report", open: "never" }],
@@ -350,10 +362,8 @@ jobs:
             use: {
               ...(base.use ?? {}),
               trace: "off",
-              extraHTTPHeaders: {
-                ...((base.use as any)?.extraHTTPHeaders ?? {}),
-                "x-vercel-trusted-oidc-idp-token": process.env.VERCEL_TRUSTED_OIDC_TOKEN ?? ""
-              }
+              serviceWorkers: "block",
+              extraHTTPHeaders: {}
             }
           });
           TS
@@ -368,14 +378,17 @@ jobs:
           node --input-type=module <<'JS'
           import { chromium, devices } from "@playwright/test";
           import { writeFile } from "node:fs/promises";
+          import { readFile } from "node:fs/promises";
+          import { previewBoundary, containBrowser } from "./.certification-infra/scripts/preview-auth-boundary.mjs";
           const baseUrl = process.env.PREVIEW_URL;
           const token = process.env.VERCEL_TRUSTED_OIDC_TOKEN;
           if (!baseUrl || !token) throw new Error("Missing Preview URL or OIDC identity.");
           const browser = await chromium.launch({ headless: true });
           const context = await browser.newContext({
-            ...devices["Pixel 7"], locale: "ar-OM", timezoneId: "Asia/Muscat", serviceWorkers: "block",
-            extraHTTPHeaders: { "x-vercel-trusted-oidc-idp-token": token }
+            ...devices["Pixel 7"], locale: "ar-OM", timezoneId: "Asia/Muscat", serviceWorkers: "block"
           });
+          const boundary = previewBoundary(JSON.parse(await readFile("certification/deployment-identity.json", "utf8")), token);
+          const verifyContainment = await containBrowser(context, boundary);
           const page = await context.newPage();
           const client = await context.newCDPSession(page);
           await client.send("Network.enable");
@@ -401,6 +414,8 @@ jobs:
           const response = await page.goto(baseUrl + "/menu", { waitUntil: "networkidle", timeout: 120000 });
           if (!response || response.status() !== 200) throw new Error("Initial /menu did not return 200.");
           await page.waitForTimeout(500);
+          verifyContainment();
+          await writeFile("certification/credential-containment.json", JSON.stringify(boundary.counts));
           const initialHtml = await response.text();
           const htmlBytes = Buffer.byteLength(initialHtml);
           const initialDomProducts = await page.locator("#menu-product-grid > .premium-menu-card").count();
@@ -577,10 +592,12 @@ jobs:
       - name: Secret scan artifacts
         id: artifact_safety
         if: always()
+        env:
+          VERCEL_TRUSTED_OIDC_TOKEN: ${{ steps.oidc.outputs.token }}
         shell: bash
         run: |
           set -euo pipefail
-          ! grep -RniE '(VERCEL_TOKEN|SUPABASE_SERVICE_ROLE|service_role|Authorization:[[:space:]]*Bearer|x-vercel-trusted-oidc-idp-token|BEGIN (RSA|OPENSSH|EC) PRIVATE KEY|ghp_[A-Za-z0-9]+|eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,})' certification playwright-report test-results ux01-performance-results.json ux01-performance-results.md 2>/dev/null
+          node .certification-infra/scripts/scan-certification-artifacts.mjs
 
       - name: Upload certification artifacts
         uses: actions/upload-artifact@v4
