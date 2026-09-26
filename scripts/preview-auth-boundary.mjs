@@ -40,7 +40,9 @@ export function previewBoundary(identity, token) {
       } catch (error) {
         counts.blocked++;
         await response.dispose();
-        throw error;
+        // URL parser exceptions can include an attacker-controlled Location value.
+        if (["AUTH_SCOPE_REJECTED", "PROTOCOL_DOWNGRADE_REJECTED", "CROSS_ORIGIN_AUTH_BLOCKED", "REDIRECT_TARGET_REJECTED"].includes(error.message)) throw error;
+        fail("REDIRECT_TARGET_REJECTED");
       }
       await response.dispose();
       counts.sameOriginRedirects++;

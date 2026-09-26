@@ -44,3 +44,6 @@ test("unapproved top-level URL never executes and transport errors cannot reveal
   await assert.rejects(boundary.fetch(origin + ".evil.invalid", {}, () => assert.fail("must not send")), /PREVIEW_ORIGIN_MISMATCH/);
   await assert.rejects(boundary.fetch(origin, {}, () => { throw new Error(canary); }), { message: "AUTHENTICATION_TRANSPORT_FAILED" });
 });
+test("malformed redirect never exposes its Location in an exception", async () => {
+  await assert.rejects(previewBoundary(identity, canary).fetch(origin, {}, async () => response(302, "https://[" + canary)), { message: "REDIRECT_TARGET_REJECTED" });
+});
