@@ -22,11 +22,15 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - name: Credential containment behavioral regression
+        run: node --test scripts/preview-auth-boundary.test.mjs
       - run: pnpm lint
       - run: pnpm test
       - run: pnpm build
       - name: Install Playwright Chromium
         run: pnpm exec playwright install --with-deps chromium
+      - name: Browser credential containment with synthetic canary
+        run: pnpm exec playwright test --config=scripts/preview-containment.config.ts
       - name: Run read-only browser smoke tests
         run: pnpm test:smoke
       - run: pnpm audit --audit-level critical
