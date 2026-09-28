@@ -23,7 +23,9 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - name: Credential containment behavioral regression
-        run: node --test scripts/preview-auth-boundary.test.mjs
+        run: |
+          node --test scripts/preview-auth-boundary.test.mjs
+          python -m unittest discover -s scripts -p "test_preview_transport.py"
       - run: pnpm lint
       - run: pnpm test
       - run: pnpm build

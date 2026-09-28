@@ -74,7 +74,9 @@ jobs:
           persist-credentials: false
 
       - name: Verify synthetic credential containment before OIDC
-        run: node --test .certification-infra/scripts/preview-auth-boundary.test.mjs
+        run: |
+          node --test .certification-infra/scripts/preview-auth-boundary.test.mjs
+          python -m unittest discover -s .certification-infra/scripts -p "test_preview_transport.py"
 
       - name: Resolve exact Vercel Preview for candidate SHA
         id: vercel_deployment
@@ -169,99 +171,22 @@ jobs:
           OUT = Path("certification")
           OUT.mkdir(exist_ok=True)
 
-          class NoRedirect(urllib.request.HTTPRedirectHandler):
-              def redirect_request(self, req, fp, code, msg, headers, newurl):
-                  return None
-
-          opener = urllib.request.build_opener(NoRedirect)
+          sys.path.insert(0, str(Path(".certification-infra/scripts").resolve()))
+          from preview_transport import fetch_preview, TransportError, origin
 
           def fail(code, detail):
               print(f"{code}: {detail}", file=sys.stderr)
               raise SystemExit(1)
 
           def sanitized(url):
-              p = urllib.parse.urlsplit(url)
-              return f"{p.scheme}://{p.hostname or ''}"
+              return origin(url)
 
-          parsed_preview = urllib.parse.urlsplit(PREVIEW_URL)
-          TRUSTED_HOST = (parsed_preview.hostname or "").lower()
-
-          def target_problem(url):
-              p = urllib.parse.urlsplit(url)
-              host = (p.hostname or "").lower()
-              if p.scheme != "https":
-                  return ("PROTOCOL_DOWNGRADE_REJECTED", "non-HTTPS destination")
-              if p.username or p.password:
-                  return ("REDIRECT_TARGET_REJECTED", "userinfo is forbidden")
-              try:
-                  port = p.port
-              except ValueError:
-                  return ("REDIRECT_TARGET_REJECTED", "invalid port")
-              if port not in (None, 443):
-                  return ("REDIRECT_TARGET_REJECTED", f"unexpected port {port}")
-              if host != TRUSTED_HOST:
-                  return ("REDIRECT_TARGET_REJECTED", "unapproved origin")
-              return None
-
-          def validate_target(url):
-              problem = target_problem(url)
-              if problem:
-                  fail(*problem)
-
-          if not TRUSTED_HOST.endswith(".vercel.app") or not TRUSTED_HOST.startswith("salora-platform-"):
-              fail("PREVIEW_RESOLUTION_FAILED", "resolved Preview host is outside SALORA Vercel boundary")
-
-          # Local negative security checks: no external network is contacted.
-          assert target_problem(f"http://{TRUSTED_HOST}/menu")[0] == "PROTOCOL_DOWNGRADE_REJECTED"
-          assert target_problem(f"https://user@{TRUSTED_HOST}/menu")[0] == "REDIRECT_TARGET_REJECTED"
-          assert target_problem(f"https://{TRUSTED_HOST}.evil.example/menu")[0] == "REDIRECT_TARGET_REJECTED"
-          assert target_problem(f"https://{TRUSTED_HOST}:8443/menu")[0] == "REDIRECT_TARGET_REJECTED"
-          assert target_problem(f"https://{TRUSTED_HOST}/menu") is None
-
-          current = PREVIEW_URL + "/menu?category=matcha"
-          validate_target(current)
-          history = []
-          final_headers = None
-          body = b""
-          final_status = None
-
-          for hop in range(MAX_REDIRECTS + 1):
-              req = urllib.request.Request(
-                  current,
-                  headers={
-                      "x-vercel-trusted-oidc-idp-token": TOKEN,
-                      "User-Agent": "salora-preview-certification/1",
-                      "Accept": "text/html,application/xhtml+xml",
-                  },
-                  method="GET",
-              )
-              try:
-                  resp = opener.open(req, timeout=30)
-                  final_status = resp.status
-                  final_headers = resp.headers
-                  body = resp.read()
-                  break
-              except urllib.error.HTTPError as exc:
-                  if exc.code in (301, 302, 303, 307, 308):
-                      location = exc.headers.get("Location")
-                      if not location:
-                          fail("PREVIEW_RESOLUTION_FAILED", f"redirect {exc.code} missing Location")
-                      if hop >= MAX_REDIRECTS:
-                          fail("REDIRECT_LIMIT_EXCEEDED", f"more than {MAX_REDIRECTS} redirects")
-                      nxt = urllib.parse.urljoin(current, location)
-                      validate_target(nxt)
-                      history.append({
-                          "status": exc.code,
-                          "from": sanitized(current),
-                          "to": sanitized(nxt),
-                      })
-                      current = nxt
-                      continue
-                  if exc.code in (401, 403):
-                      fail("AUTHENTICATION_FAILED", f"HTTP {exc.code} from {sanitized(current)}")
-                  fail("INVALID_FINAL_STATUS", f"HTTP {exc.code} from {sanitized(current)}")
-              except urllib.error.URLError as exc:
-                  fail("PREVIEW_RESOLUTION_FAILED", "transport request failed")
+          TRUSTED_HOST = urllib.parse.urlsplit(PREVIEW_URL).hostname
+          try:
+              final_status, final_headers, body, current, history = fetch_preview(PREVIEW_URL, TOKEN, OUT)
+          except TransportError as exc:
+              # Helper errors contain only fixed codes; origins live in the scanned artifact.
+              fail(str(exc), "see sanitized redirect-discovery.json")
 
           if final_status is None:
               fail("PREVIEW_RESOLUTION_FAILED", "no final response")
